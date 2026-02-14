@@ -15,7 +15,7 @@ color:#333;
 
 /* ===== HEADER ===== */
 header{
-background:linear-gradient(90deg,#1e90ff,#00bfff);
+background: linear-gradient(90deg,#1f6f78,#00c2c7);
 padding:12px 5%;
 border-radius:0 0 12px 12px;
 color:white;
@@ -76,12 +76,12 @@ font-size:18px;
 }
 
 .store-open{
-background:#2ecc71;
+background:linear-gradient(90deg,#00c2c7,#1f6f78);
 color:white;
 }
 
 .store-closed{
-background:#e74c3c;
+background:linear-gradient(90deg,#0b1c22,#2b4d58);
 color:white;
 }
 
@@ -101,7 +101,7 @@ box-shadow:0 2px 6px rgba(0,0,0,0.1);
 /* ===== ACCORDION ===== */
 .accordion{
 width:100%;
-background:linear-gradient(90deg,#1e90ff,#00bfff);
+background: linear-gradient(90deg,#1f6f78,#00c2c7);
 color:white;
 padding:12px;
 border:none;
@@ -109,6 +109,11 @@ border-radius:8px;
 margin-bottom:8px;
 cursor:pointer;
 font-weight:bold;
+transition:.25s;
+}
+
+.accordion:hover{
+box-shadow:0 0 12px rgba(0,194,199,0.6);
 }
 
 .panel{
@@ -147,13 +152,17 @@ resize:vertical;
 min-height:80px;
 }
 
+
+
+/* ===== CHECKOUT BUTTON ===== */
 #checkout{
 margin-top:15px;
 width:100%;
 padding:12px;
 border:none;
 border-radius:10px;
-background:linear-gradient(90deg,#ffc107,#ffea00);
+background:linear-gradient(90deg,#d3d0cd,#00c2c7);
+color:#0b1c22;
 font-weight:bold;
 cursor:pointer;
 transition:.25s;
@@ -161,6 +170,7 @@ transition:.25s;
 
 #checkout:hover{
 transform:scale(1.04);
+box-shadow:0 0 14px rgba(0,194,199,0.6);
 }
 
 
@@ -177,13 +187,14 @@ background:white;
 border-radius:12px;
 padding:10px;
 box-shadow:0 2px 6px rgba(0,0,0,0.1);
-transition:.2s;
+transition:.25s;
 display:flex;
 flex-direction:column;
 }
 
 .product-card:hover{
 transform:translateY(-4px);
+box-shadow:0 6px 18px rgba(0,194,199,0.25);
 }
 
 .product-image{
@@ -202,7 +213,7 @@ margin-bottom:4px;
 
 .product-card p{
 font-weight:bold;
-color:#1e90ff;
+color:#1f6f78;
 margin-bottom:6px;
 }
 
@@ -210,15 +221,16 @@ margin-bottom:6px;
 padding:8px;
 border:none;
 border-radius:8px;
-background:linear-gradient(90deg,#1e90ff,#00bfff);
+background:linear-gradient(90deg,#1f6f78,#00c2c7);
 color:white;
 font-weight:bold;
 cursor:pointer;
-transition:.2s;
+transition:.25s;
 }
 
 .product-card button:hover{
 transform:scale(1.05);
+box-shadow:0 0 12px rgba(0,194,199,0.7);
 }
 
 
@@ -274,7 +286,7 @@ font-weight:bold;
 }
 
 #modal-product-price{
-color:#1e90ff;
+color:#1f6f78;
 font-weight:bold;
 margin-bottom:8px;
 }
@@ -285,11 +297,16 @@ width:100%;
 padding:12px;
 border:none;
 border-radius:10px;
-background:linear-gradient(90deg,#1e90ff,#00bfff);
+background:linear-gradient(90deg,#1f6f78,#00c2c7);
 color:white;
 font-size:16px;
 font-weight:bold;
 cursor:pointer;
+transition:.25s;
+}
+
+.btn-add:hover{
+box-shadow:0 0 12px rgba(0,194,199,0.7);
 }
 
 
@@ -297,7 +314,7 @@ cursor:pointer;
 /* ===== FOOTER ===== */
 footer{
 margin-top:25px;
-background:#1e90ff;
+background:linear-gradient(90deg,#0b1c22,#2b4d58);
 color:white;
 text-align:center;
 padding:12px;
