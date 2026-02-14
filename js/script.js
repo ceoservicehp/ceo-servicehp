@@ -161,43 +161,123 @@ select.addEventListener("change",e=>{
 
 
 
+/* ================= LOGIC PILIH LAYANAN ================= */
+
+const serviceOption = document.getElementById("service-option");
+const transportSection = document.getElementById("transport-section");
+const mapSection = document.getElementById("map-section");
+const proofSection = document.getElementById("payment-proof-section");
+const transportInput = document.getElementById("transport-fee");
+
+serviceOption.addEventListener("change",()=>{
+
+const val = serviceOption.value;
+
+transportSection.style.display="none";
+mapSection.style.display="none";
+proofSection.style.display="none";
+
+if(val==="toko"){
+transportInput.value="Rp 0";
+}
+
+else if(val==="home"){
+transportSection.style.display="block";
+mapSection.style.display="block";
+proofSection.style.display="block";
+
+let biaya=20000;
+transportInput.value="Rp "+biaya.toLocaleString("id-ID");
+}
+
+else if(val==="paket"){
+transportSection.style.display="block";
+mapSection.style.display="block";
+
+let biaya=15000;
+transportInput.value="Rp "+biaya.toLocaleString("id-ID");
+}
+
+});
+
+
+/* ================= AMBIL KOORDINAT ================= */
+
+document.getElementById("getLocation").addEventListener("click",()=>{
+
+if(!navigator.geolocation){
+alert("Browser tidak support GPS");
+return;
+}
+
+navigator.geolocation.getCurrentPosition(pos=>{
+const lat = pos.coords.latitude;
+const lng = pos.coords.longitude;
+document.getElementById("customer-coord").value = lat+","+lng;
+},
+()=>alert("Gagal mengambil lokasi"));
+});
+
+
 /* ================= SUBMIT SERVICE ================= */
-document.getElementById("checkout")
-.addEventListener("click",async()=>{
+
+const btnSubmit=document.getElementById("checkout");
+
+btnSubmit.addEventListener("click",async()=>{
+
+if(btnSubmit.disabled) return;
+btnSubmit.disabled=true;
+btnSubmit.textContent="Mengirim...";
+
+try{
 
 if(!storeOpen){
-  alert("Maaf layanan sedang tutup");
-  return;
+alert("Maaf layanan sedang tutup");
+return;
 }
 
 if(!selectedService){
-  alert("Pilih layanan terlebih dahulu");
-  return;
+alert("Pilih layanan terlebih dahulu");
+return;
 }
 
 const nama=document.getElementById("customer-name").value.trim();
+const alamat=document.getElementById("customer-address").value.trim();
 const phone=document.getElementById("customer-phone").value.trim();
 const brand=document.getElementById("customer-brand").value.trim();
 const problem=document.getElementById("customer-problem").value.trim();
-const metode=document.getElementById("delivery-method").value;
+const metode=serviceOption.value;
+const coord=document.getElementById("customer-coord").value;
+const bukti=document.getElementById("payment-proof").files[0];
 
-if(!nama||!phone||!brand||!problem||!metode){
-  alert("Lengkapi semua data");
-  return;
+if(!nama||!alamat||!phone||!brand||!problem||!metode){
+alert("Lengkapi semua data");
+return;
+}
+
+if(metode==="home" && !bukti){
+alert("Upload bukti transfer transport");
+return;
+}
+
+if(!supabase){
+alert("Database belum terhubung");
+return;
 }
 
 
-
-/* ===== INSERT DB ===== */
+/* INSERT DB */
 const {error}=await supabase
 .from("service_orders")
 .insert([{
 nama,
+alamat,
 no_hp:phone,
 merk_hp:brand,
 keluhan:problem,
 layanan:selectedService.name,
 metode,
+koordinat:coord,
 status:"pending"
 }]);
 
@@ -208,79 +288,26 @@ return;
 }
 
 
-/* ===== WHATSAPP ===== */
+/* WHATSAPP */
 let msg=`📱 *SERVICE HP*\n`;
 msg+=`Nama: ${nama}\n`;
+msg+=`Alamat: ${alamat}\n`;
 msg+=`No HP: ${phone}\n`;
 msg+=`Merk: ${brand}\n`;
 msg+=`Kerusakan: ${problem}\n`;
 msg+=`Layanan: ${selectedService.name}\n`;
 msg+=`Metode: ${metode}\n`;
-msg+=`-------------------\n`;
+msg+=`Lokasi: ${coord||"-"}\n`;
 msg+=`Total: Rp ${selectedService.price.toLocaleString()}`;
 
 window.open(`https://wa.me/6281234567890?text=${encodeURIComponent(msg)}`,"_blank");
 
-
 alert("Permintaan service berhasil dikirim ✅");
 
-});
-
-});
-
-/* ===============================
-   LOGIC PILIH LAYANAN
-================================= */
-
-const serviceOption = document.getElementById("service-option");
-const transportSection = document.getElementById("transport-section");
-const mapSection = document.getElementById("map-section");
-const transportInput = document.getElementById("transport-fee");
-
-serviceOption.addEventListener("change",()=>{
-
-const val = serviceOption.value;
-
-if(val==="toko"){
-transportSection.style.display="none";
-mapSection.style.display="none";
-transportInput.value="Rp 0";
+}
+finally{
+btnSubmit.disabled=false;
+btnSubmit.textContent="Kirim Permintaan Service";
 }
 
-else if(val==="home" || val==="paket"){
-transportSection.style.display="block";
-mapSection.style.display="block";
-
-let biaya = val==="home" ? 20000 : 15000;
-transportInput.value="Rp "+biaya.toLocaleString("id-ID");
-}
-
-else{
-transportSection.style.display="none";
-mapSection.style.display="none";
-}
-});
-
-
-/* ===============================
-   AMBIL KOORDINAT GPS
-================================= */
-
-document.getElementById("getLocation").addEventListener("click",()=>{
-
-if(!navigator.geolocation){
-alert("Browser tidak support GPS");
-return;
-}
-
-navigator.geolocation.getCurrentPosition(pos=>{
-
-const lat = pos.coords.latitude;
-const lng = pos.coords.longitude;
-
-document.getElementById("customer-coord").value =
-lat+","+lng;
-
-},
-()=>alert("Gagal mengambil lokasi"));
 });
