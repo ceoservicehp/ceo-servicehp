@@ -73,33 +73,52 @@ Didukung teknisi berpengalaman dan sparepart berkualitas.
 
 </section>
 
-
 <!-- FORM ORDER SERVICE -->
 <section id="cart">
 <h2>Form Service</h2>
 
-<label>Nama</label>
-<input type="text" id="customer-name">
+<label>Nama Lengkap</label>
+<input type="text" id="customer-name" required>
+
+<label>Alamat Detail Rumah/Kantor</label>
+<textarea id="customer-address" required></textarea>
 
 <label>No HP</label>
-<input type="text" id="customer-phone">
+<input type="tel" id="customer-phone" required>
 
 <label>Merk HP</label>
-<input type="text" id="customer-brand">
+<input type="text" id="customer-brand" required>
 
 <label>Keluhan</label>
-<textarea id="customer-problem"></textarea>
+<textarea id="customer-problem" required></textarea>
 
-<label>Metode Pengantaran</label>
-<select id="delivery-method">
-<option value="">Pilih</option>
-<option>Datang ke Toko</option>
-<option>Pickup Kurir</option>
+
+<label>Pilih Layanan</label>
+<select id="service-option" required>
+<option value="">Pilih layanan</option>
+<option value="toko">Datang ke Toko</option>
+<option value="home">Home Service</option>
+<option value="paket">Kirim Paket</option>
 </select>
+
+
+<!-- KOORDINAT -->
+<div id="map-section" style="display:none">
+<label>Koordinat Lokasi</label>
+<input type="text" id="customer-coord" placeholder="Klik tombol ambil lokasi">
+<button type="button" id="getLocation">📍 Ambil Lokasi Saya</button>
+</div>
+
+
+<!-- TRANSPORT -->
+<div id="transport-section" style="display:none">
+<label>Biaya Transport</label>
+<input type="text" id="transport-fee" readonly value="Rp 0">
+</div>
+
 
 <button id="checkout">Kirim Permintaan Service</button>
 </section>
-
 
 
 <!-- DAFTAR LAYANAN -->
@@ -142,3 +161,4 @@ AOS.init({duration:800,once:true});
 
 </body>
 </html>
+
