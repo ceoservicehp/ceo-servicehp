@@ -177,29 +177,59 @@ transportInput.value="Rp "+biaya.toLocaleString("id-ID");
 });
 }
 
+/* ================= LOKASI TOKO ================= */
+const TOKO_LAT = -6.200000; // ganti lokasi toko
+const TOKO_LNG = 106.816666;
 
+
+/* ================= HITUNG JARAK ================= */
+function getDistanceKm(lat1,lng1,lat2,lng2){
+  const R = 6371;
+  const dLat = (lat2-lat1)*Math.PI/180;
+  const dLng = (lng2-lng1)*Math.PI/180;
+
+  const a =
+    Math.sin(dLat/2)**2 +
+    Math.cos(lat1*Math.PI/180)*
+    Math.cos(lat2*Math.PI/180)*
+    Math.sin(dLng/2)**2;
+
+  return R * 2 * Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
+
+
+/* ================= HITUNG ONGKIR ================= */
+function hitungTransport(jarak){
+  if(jarak <= 1) return 20000;
+  return 20000 + Math.ceil(jarak-1)*3000;
+}
 
 /* ================= AMBIL KOORDINAT ================= */
 
-const btnLoc=document.getElementById("getLocation");
-
-if(btnLoc){
-btnLoc.addEventListener("click",()=>{
-
-if(!navigator.geolocation){
-alert("Browser tidak support GPS");
-return;
-}
-
 navigator.geolocation.getCurrentPosition(pos=>{
+
 const lat = pos.coords.latitude;
 const lng = pos.coords.longitude;
+
 document.getElementById("customer-coord").value = lat+","+lng;
-},
-()=>alert("Gagal mengambil lokasi"));
-});
+
+/* hitung jarak */
+const jarak = getDistanceKm(lat,lng,TOKO_LAT,TOKO_LNG);
+
+/* hitung ongkir */
+const ongkir = hitungTransport(jarak);
+
+/* tampilkan ongkir */
+transportInput.value = "Rp " + ongkir.toLocaleString("id-ID");
+
+/* tampilkan jarak (opsional) */
+const info=document.getElementById("distance-info");
+if(info){
+info.textContent="Jarak: "+jarak.toFixed(2)+" km";
 }
 
+},
+()=>alert("Gagal mengambil lokasi"));
 
 
 /* ================= SUBMIT SERVICE ================= */
@@ -291,3 +321,4 @@ btnSubmit.textContent="Kirim Permintaan Service";
 }
 
 });
+
