@@ -1,33 +1,8 @@
 document.addEventListener("DOMContentLoaded", () => {
 
-let storeOpen = false;
-const supabase = window.supabaseClient;
+/* ================= MODE STATUS TOKO ================= */
+let storeOpen = true; // sementara true karena belum pakai database
 
-
-/* ================= FETCH STATUS TOKO ================= */
-async function fetchStoreStatus(){
-  const { data } = await supabase
-    .from("store_status")
-    .select("is_open")
-    .eq("id",1)
-    .maybeSingle();
-
-  if(data){
-    storeOpen = data.is_open;
-    updateStoreStatus();
-  }
-}
-fetchStoreStatus();
-
-
-supabase.channel("status")
-.on("postgres_changes",
-{ event:"*", schema:"public", table:"store_status"},
-payload=>{
-  storeOpen = payload.new.is_open;
-  updateStoreStatus();
-})
-.subscribe();
 
 
 /* ================= STATUS UI ================= */
@@ -45,6 +20,7 @@ function updateStoreStatus(){
     list.style.display="none";
   }
 }
+updateStoreStatus();
 
 
 
@@ -120,7 +96,6 @@ window.showDetail=index=>{
   document.getElementById("product-modal").classList.remove("hidden");
 };
 
-
 document.getElementById("close-product-modal")
 .onclick=()=> document.getElementById("product-modal").classList.add("hidden");
 
@@ -143,8 +118,10 @@ document.getElementById("search-input")
 });
 
 
+
 /* ================= FILTER ================= */
 const select=document.getElementById("filter-category");
+
 [...new Set(services.map(s=>s.category))]
 .forEach(cat=>{
   let opt=document.createElement("option");
@@ -161,7 +138,7 @@ select.addEventListener("change",e=>{
 
 
 
-/* ================= LOGIC PILIH LAYANAN ================= */
+/* ================= LOGIC METODE SERVICE ================= */
 
 const serviceOption = document.getElementById("service-option");
 const transportSection = document.getElementById("transport-section");
@@ -169,6 +146,7 @@ const mapSection = document.getElementById("map-section");
 const proofSection = document.getElementById("payment-proof-section");
 const transportInput = document.getElementById("transport-fee");
 
+if(serviceOption){
 serviceOption.addEventListener("change",()=>{
 
 const val = serviceOption.value;
@@ -180,7 +158,6 @@ proofSection.style.display="none";
 if(val==="toko"){
 transportInput.value="Rp 0";
 }
-
 else if(val==="home"){
 transportSection.style.display="block";
 mapSection.style.display="block";
@@ -189,7 +166,6 @@ proofSection.style.display="block";
 let biaya=20000;
 transportInput.value="Rp "+biaya.toLocaleString("id-ID");
 }
-
 else if(val==="paket"){
 transportSection.style.display="block";
 mapSection.style.display="block";
@@ -199,11 +175,16 @@ transportInput.value="Rp "+biaya.toLocaleString("id-ID");
 }
 
 });
+}
+
 
 
 /* ================= AMBIL KOORDINAT ================= */
 
-document.getElementById("getLocation").addEventListener("click",()=>{
+const btnLoc=document.getElementById("getLocation");
+
+if(btnLoc){
+btnLoc.addEventListener("click",()=>{
 
 if(!navigator.geolocation){
 alert("Browser tidak support GPS");
@@ -217,27 +198,32 @@ document.getElementById("customer-coord").value = lat+","+lng;
 },
 ()=>alert("Gagal mengambil lokasi"));
 });
+}
+
 
 
 /* ================= SUBMIT SERVICE ================= */
 
 const btnSubmit=document.getElementById("checkout");
 
-btnSubmit.addEventListener("click",async()=>{
+if(btnSubmit){
+btnSubmit.addEventListener("click",()=>{
 
 if(btnSubmit.disabled) return;
 btnSubmit.disabled=true;
 btnSubmit.textContent="Mengirim...";
 
-try{
+setTimeout(()=>{
 
 if(!storeOpen){
 alert("Maaf layanan sedang tutup");
+resetBtn();
 return;
 }
 
 if(!selectedService){
 alert("Pilih layanan terlebih dahulu");
+resetBtn();
 return;
 }
 
@@ -248,47 +234,35 @@ const brand=document.getElementById("customer-brand").value.trim();
 const problem=document.getElementById("customer-problem").value.trim();
 const metode=serviceOption.value;
 const coord=document.getElementById("customer-coord").value;
-const bukti=document.getElementById("payment-proof").files[0];
+const bukti=document.getElementById("payment-proof")?.files[0];
 
 if(!nama||!alamat||!phone||!brand||!problem||!metode){
 alert("Lengkapi semua data");
+resetBtn();
 return;
 }
 
 if(metode==="home" && !bukti){
 alert("Upload bukti transfer transport");
-return;
-}
-
-if(!supabase){
-alert("Database belum terhubung");
+resetBtn();
 return;
 }
 
 
-/* INSERT DB */
-const {error}=await supabase
-.from("service_orders")
-.insert([{
+/* ===== SIMULASI SIMPAN DATA ===== */
+console.log({
 nama,
 alamat,
-no_hp:phone,
-merk_hp:brand,
-keluhan:problem,
+phone,
+brand,
+problem,
 layanan:selectedService.name,
 metode,
-koordinat:coord,
-status:"pending"
-}]);
-
-if(error){
-console.error(error);
-alert("Gagal kirim data");
-return;
-}
+coord
+});
 
 
-/* WHATSAPP */
+/* ===== WHATSAPP ===== */
 let msg=`📱 *SERVICE HP*\n`;
 msg+=`Nama: ${nama}\n`;
 msg+=`Alamat: ${alamat}\n`;
@@ -304,13 +278,16 @@ window.open(`https://wa.me/6281234567890?text=${encodeURIComponent(msg)}`,"_blan
 
 alert("Permintaan service berhasil dikirim ✅");
 
-}
-finally{
+resetBtn();
+
+},600);
+
+function resetBtn(){
 btnSubmit.disabled=false;
 btnSubmit.textContent="Kirim Permintaan Service";
 }
 
 });
+}
 
 });
-
