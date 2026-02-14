@@ -227,3 +227,60 @@ alert("Permintaan service berhasil dikirim ✅");
 });
 
 });
+
+/* ===============================
+   LOGIC PILIH LAYANAN
+================================= */
+
+const serviceOption = document.getElementById("service-option");
+const transportSection = document.getElementById("transport-section");
+const mapSection = document.getElementById("map-section");
+const transportInput = document.getElementById("transport-fee");
+
+serviceOption.addEventListener("change",()=>{
+
+const val = serviceOption.value;
+
+if(val==="toko"){
+transportSection.style.display="none";
+mapSection.style.display="none";
+transportInput.value="Rp 0";
+}
+
+else if(val==="home" || val==="paket"){
+transportSection.style.display="block";
+mapSection.style.display="block";
+
+let biaya = val==="home" ? 20000 : 15000;
+transportInput.value="Rp "+biaya.toLocaleString("id-ID");
+}
+
+else{
+transportSection.style.display="none";
+mapSection.style.display="none";
+}
+});
+
+
+/* ===============================
+   AMBIL KOORDINAT GPS
+================================= */
+
+document.getElementById("getLocation").addEventListener("click",()=>{
+
+if(!navigator.geolocation){
+alert("Browser tidak support GPS");
+return;
+}
+
+navigator.geolocation.getCurrentPosition(pos=>{
+
+const lat = pos.coords.latitude;
+const lng = pos.coords.longitude;
+
+document.getElementById("customer-coord").value =
+lat+","+lng;
+
+},
+()=>alert("Gagal mengambil lokasi"));
+});
