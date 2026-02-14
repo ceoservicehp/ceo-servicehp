@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dapur Service HP</title>
+
+<link rel="stylesheet" href="css/dapur.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+window.supabaseClient = supabase.createClient(
+  "https://PROJECT.supabase.co",
+  "PUBLIC_KEY"
+);
+</script>
+</head>
+
+<body>
+
+<header class="admin-header">
+<h1>🔧 Dapur Service HP</h1>
+<button id="logoutBtn" class="btn btn-logout">Logout</button>
+</header>
+
+<div class="container">
+
+<div class="status-bar">
+<div>
+<div id="admin-status" class="store-status">Loading...</div>
+<small id="tanggalOtomatis"></small>
+</div>
+
+<div class="buttons">
+<button id="btnOpen" class="btn btn-open">Buka</button>
+<button id="btnClose" class="btn btn-close">Tutup</button>
+</div>
+</div>
+
+<div class="admin-content">
+
+<h2>Daftar Service Masuk</h2>
+
+<div class="search-box">
+<input type="text" id="searchNama" placeholder="Cari nama pelanggan...">
+</div>
+
+<div class="table-wrapper">
+<table class="admin-table">
+<thead>
+<tr>
+<th><input type="checkbox" id="checkAll"></th>
+<th>No</th>
+<th data-sort="text">Nama</th>
+<th>No HP</th>
+<th>Merk</th>
+<th>Keluhan</th>
+<th>Layanan</th>
+<th>Metode</th>
+<th data-sort="text">Status</th>
+<th data-sort="date">Tanggal</th>
+<th>Aksi</th>
+</tr>
+</thead>
+<tbody id="orderTable"></tbody>
+</table>
+</div>
+
+<div class="bulk-actions">
+<input type="date" id="filterTanggal" class="filter-date">
+<button id="hapusTerpilih" class="btn">Hapus Terpilih</button>
+<button id="cetakTanggal" class="btn btn-print">Cetak</button>
+</div>
+
+</div>
+</div>
+
+<footer>
+Admin Dapur Service HP
+</footer>
+
+<script src="js/dapur.js"></script>
+
+</body>
+</html>
