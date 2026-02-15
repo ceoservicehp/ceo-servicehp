@@ -7,6 +7,7 @@ return window.supabaseClient;
 /* ================= STATUS TOKO ================= */
 async function loadStoreStatus(){
 const supabase=getSupabase();
+if(!supabase) return;
 
 const {data}=await supabase
 .from("store_status")
@@ -14,11 +15,12 @@ const {data}=await supabase
 .eq("id",1)
 .maybeSingle();
 
-updateAdminStatus(data?.is_open);
+updateAdminStatus(data?.is_open ?? false);
 }
 
 function updateAdminStatus(open){
 const msg=document.getElementById("admin-status");
+if(!msg) return;
 
 if(open){
 msg.innerHTML="🟢 Layanan Dibuka";
@@ -31,6 +33,7 @@ msg.className="store-status closed";
 
 async function setStore(open){
 const supabase=getSupabase();
+if(!supabase) return;
 
 await supabase
 .from("store_status")
@@ -40,20 +43,27 @@ await supabase
 updateAdminStatus(open);
 }
 
-/* ================= LOAD DATA ================= */
+
+/* ================= LOAD DATA ORDER ================= */
 async function loadOrders(){
 const supabase=getSupabase();
 const tbody=document.getElementById("orderTable");
+if(!tbody || !supabase) return;
 
-tbody.innerHTML=`<tr><td colspan="11">Loading...</td></tr>`;
+tbody.innerHTML=`<tr><td colspan="13">Loading...</td></tr>`;
 
-const {data}=await supabase
+const {data,error}=await supabase
 .from("service_orders")
 .select("*")
 .order("created_at",{ascending:false});
 
+if(error){
+tbody.innerHTML=`<tr><td colspan="13">Error load data</td></tr>`;
+return;
+}
+
 if(!data || data.length===0){
-tbody.innerHTML=`<tr><td colspan="11">Belum ada data</td></tr>`;
+tbody.innerHTML=`<tr><td colspan="13">Belum ada pesanan</td></tr>`;
 return;
 }
 
@@ -65,14 +75,23 @@ tbody.innerHTML+=`
 <tr>
 <td><input type="checkbox" class="row-check" data-id="${row.id}"></td>
 <td>${i+1}</td>
-<td>${row.nama}</td>
-<td>${row.no_hp}</td>
-<td>${row.merk_hp}</td>
-<td>${row.keluhan}</td>
-<td>${row.layanan}</td>
-<td>${row.metode}</td>
+<td>${row.nama ?? "-"}</td>
+<td>${row.no_hp ?? "-"}</td>
+<td>${row.merk_hp ?? "-"}</td>
+<td>${row.keluhan ?? "-"}</td>
+<td>${row.layanan ?? "-"}</td>
+<td>${row.metode ?? "-"}</td>
+<td>${row.transport ?? "0"}</td>
+<td>${row.alamat ?? "-"}</td>
+<td>${row.koordinat ?? "-"}</td>
 <td>
-<select class="status-select" data-id="${row.id}" data-old="${row.status}">
+${row.bukti 
+? `<a href="${row.bukti}" target="_blank">Lihat</a>`
+: "-"
+}
+</td>
+<td>
+<select class="status-select" data-id="${row.id}">
 <option value="pending" ${row.status=="pending"?"selected":""}>Pending</option>
 <option value="proses" ${row.status=="proses"?"selected":""}>Proses</option>
 <option value="selesai" ${row.status=="selesai"?"selected":""}>Selesai</option>
@@ -80,22 +99,20 @@ tbody.innerHTML+=`
 </select>
 </td>
 <td>${new Date(row.created_at).toLocaleString("id-ID")}</td>
-<td>
-<button class="hapus" data-id="${row.id}">Hapus</button>
-</td>
+<td><button class="hapus" data-id="${row.id}">Hapus</button></td>
 </tr>
 `;
 });
-
 }
+
 
 /* ================= DELETE ================= */
 document.addEventListener("click",async e=>{
 
-if(!e.target.classList.contains("hapus"))return;
+if(!e.target.classList.contains("hapus")) return;
 
 const id=e.target.dataset.id;
-if(!confirm("Hapus data ini?"))return;
+if(!confirm("Hapus data ini?")) return;
 
 await getSupabase()
 .from("service_orders")
@@ -105,14 +122,14 @@ await getSupabase()
 loadOrders();
 });
 
+
 /* ================= UPDATE STATUS ================= */
 document.addEventListener("change",async e=>{
 
-if(!e.target.classList.contains("status-select"))return;
+if(!e.target.classList.contains("status-select")) return;
 
-const select=e.target;
-const id=select.dataset.id;
-const val=select.value;
+const id=e.target.dataset.id;
+const val=e.target.value;
 
 await getSupabase()
 .from("service_orders")
@@ -121,18 +138,21 @@ await getSupabase()
 
 });
 
+
 /* ================= SEARCH ================= */
 document.getElementById("searchNama")
 ?.addEventListener("input",e=>{
 
 const k=e.target.value.toLowerCase();
+
 document.querySelectorAll("#orderTable tr")
 .forEach(tr=>{
-const nama=tr.children[2]?.innerText.toLowerCase();
+const nama=tr.children[2]?.innerText.toLowerCase() || "";
 tr.style.display=nama.includes(k)?"":"none";
 });
 
 });
+
 
 /* ================= CHECK ALL ================= */
 document.getElementById("checkAll")
@@ -141,15 +161,17 @@ document.querySelectorAll(".row-check")
 .forEach(cb=>cb.checked=e.target.checked);
 });
 
+
 /* ================= DELETE SELECTED ================= */
 document.getElementById("hapusTerpilih")
 ?.addEventListener("click",async()=>{
 
 const checked=[...document.querySelectorAll(".row-check:checked")];
 
-if(checked.length===0)return alert("Pilih data dulu");
+if(checked.length===0)
+return alert("Pilih data dulu");
 
-if(!confirm("Hapus semua data terpilih?"))return;
+if(!confirm("Hapus semua data terpilih?")) return;
 
 const ids=checked.map(c=>c.dataset.id);
 
@@ -161,8 +183,10 @@ await getSupabase()
 loadOrders();
 });
 
+
 /* ================= INIT ================= */
 document.addEventListener("DOMContentLoaded",()=>{
+
 loadOrders();
 loadStoreStatus();
 
@@ -171,4 +195,5 @@ document.getElementById("btnClose").onclick=()=>setStore(false);
 
 document.getElementById("tanggalOtomatis").textContent=
 new Date().toLocaleString("id-ID");
+
 });
