@@ -207,3 +207,24 @@ padding:8px;
 }
 
 }
+
+.order-tabs{
+display:flex;
+gap:10px;
+margin-bottom:15px;
+flex-wrap:wrap;
+}
+
+.tab{
+padding:8px 14px;
+border:none;
+border-radius:8px;
+background:#eee;
+cursor:pointer;
+font-weight:bold;
+}
+
+.tab.active{
+background:#1e90ff;
+color:white;
+}
