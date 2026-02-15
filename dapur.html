@@ -6,8 +6,8 @@
 <title>Dapur Admin — CEO Service HP</title>
 
 <link rel="stylesheet" href="css/dapur.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-<!-- SUPABASE -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 window.supabaseClient = supabase.createClient(
@@ -15,50 +15,84 @@ window.supabaseClient = supabase.createClient(
   "PUBLIC_KEY"
 );
 </script>
-
 </head>
+
 <body>
 
-<!-- ================= HEADER ================= -->
+<div class="wrapper">
+
+<!-- HEADER -->
 <header class="admin-header">
-<h1>🔧 Dapur Service HP</h1>
-<button id="logoutBtn" class="btn btn-logout">Logout</button>
+<h1>🛠 DAPUR CEO SERVICE HP</h1>
+<button id="logoutBtn" class="btn btn-logout">
+<i class="fa-solid fa-right-from-bracket"></i> Logout
+</button>
 </header>
 
 
-<!-- ================= CONTAINER ================= -->
-<div class="container">
+<!-- NAVBAR -->
+<nav class="top-nav">
+
+<a href="../index.html" class="nav-btn">
+<i class="fa-solid fa-house"></i>
+Beranda
+</a>
+
+<a href="dapur.html" class="nav-btn active">
+<i class="fa-solid fa-list"></i>
+Service Masuk
+</a>
+
+<a href="status.html" class="nav-btn">
+<i class="fa-solid fa-power-off"></i>
+Status Toko
+</a>
+
+<a href="laporan.html" class="nav-btn">
+<i class="fa-solid fa-chart-column"></i>
+Laporan
+</a>
+
+</nav>
 
 
-<!-- STATUS TOKO -->
-<div class="status-bar">
+<!-- MAIN -->
+<main class="container">
 
+<!-- STATUS BAR -->
+<section class="status-bar">
 <div>
-<div id="admin-status" class="store-status">Loading...</div>
+<div id="admin-status" class="store-status">
+Memuat status layanan...
+</div>
 <small id="tanggalOtomatis"></small>
 </div>
 
 <div class="buttons">
-<button id="btnOpen" class="btn btn-open">Buka</button>
-<button id="btnClose" class="btn btn-close">Tutup</button>
+<button id="btnOpen" class="btn btn-open">🟢 Buka</button>
+<button id="btnClose" class="btn btn-close">🔴 Tutup</button>
 </div>
-
-</div>
-
+</section>
 
 
-<!-- ================= DATA ORDER ================= -->
-<div class="admin-content">
 
-<h2>Daftar Order Service</h2>
+<!-- CONTENT -->
+<section class="admin-content">
 
+<h2>Data Service Masuk</h2>
 
 <!-- SEARCH -->
 <div class="search-box">
-<input type="text" id="searchNama" placeholder="Cari nama pelanggan...">
+<input type="text" id="searchNama" placeholder="🔍 Cari nama pelanggan...">
 </div>
 
-
+<!-- TAB FILTER -->
+<div class="order-tabs">
+<button class="tab active" data-filter="all">Semua</button>
+<button class="tab" data-filter="toko">Datang ke Toko</button>
+<button class="tab" data-filter="home">Home Service</button>
+<button class="tab" data-filter="paket">Kirim Paket</button>
+</div>
 
 <!-- TABLE -->
 <div class="table-wrapper">
@@ -69,11 +103,11 @@ window.supabaseClient = supabase.createClient(
 <th><input type="checkbox" id="checkAll"></th>
 <th>No</th>
 <th>Nama</th>
-<th>No HP</th>
 <th>Alamat</th>
+<th>No HP</th>
 <th>Merk</th>
 <th>Keluhan</th>
-<th>Jenis Service</th>
+<th>Layanan</th>
 <th>Metode</th>
 <th>Koordinat</th>
 <th>Status</th>
@@ -82,12 +116,14 @@ window.supabaseClient = supabase.createClient(
 </tr>
 </thead>
 
-<tbody id="orderTable"></tbody>
+<tbody id="orderTable">
+<tr>
+<td colspan="13">Memuat data...</td>
+</tr>
+</tbody>
 
 </table>
 </div>
-
-
 
 <!-- BULK ACTION -->
 <div class="bulk-actions">
@@ -95,29 +131,57 @@ window.supabaseClient = supabase.createClient(
 <input type="date" id="filterTanggal" class="filter-date">
 
 <button id="hapusTerpilih" class="btn">
-Hapus Terpilih
+<i class="fa-solid fa-trash"></i> Hapus Terpilih
 </button>
 
 <button id="cetakTanggal" class="btn btn-print">
-Cetak Data
+<i class="fa-solid fa-print"></i> Cetak Data
 </button>
 
 </div>
 
-</div>
-</div>
+</section>
+</main>
 
-
-
-<!-- ================= FOOTER ================= -->
-<footer>
-Admin Panel — CEO Service HP
+<!-- FOOTER -->
+<footer class="main-footer">
+© 2026 CEO Service HP — Admin Panel
 </footer>
 
+</div>
 
-
-<!-- ================= SCRIPT ================= -->
+<!-- SCRIPT -->
 <script src="js/dapur.js"></script>
+
+<!-- TANGGAL OTOMATIS -->
+<script>
+document.addEventListener("DOMContentLoaded",()=>{
+const el=document.getElementById("tanggalOtomatis");
+if(!el) return;
+
+const now=new Date();
+el.textContent="Tanggal: "+
+now.toLocaleDateString("id-ID",{
+weekday:"long",
+day:"2-digit",
+month:"long",
+year:"numeric"
+});
+});
+</script>
+
+
+<!-- LOGIN GUARD -->
+<script>
+document.addEventListener("DOMContentLoaded",()=>{
+const login=
+localStorage.getItem("admin_login")==="true";
+
+if(!login){
+window.location="login.html";
+}
+});
+</script>
 
 </body>
 </html>
