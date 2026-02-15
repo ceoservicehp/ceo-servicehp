@@ -74,8 +74,6 @@ Memuat status layanan...
 </div>
 </section>
 
-
-
 <!-- CONTENT -->
 <section class="admin-content">
 
@@ -84,6 +82,21 @@ Memuat status layanan...
 <!-- SEARCH -->
 <div class="search-box">
 <input type="text" id="searchNama" placeholder="🔍 Cari nama pelanggan...">
+</div>
+
+<!-- BULK ACTION -->
+<div class="bulk-actions">
+
+<input type="date" id="filterTanggal" class="filter-date">
+
+<button id="hapusTerpilih" class="btn">
+<i class="fa-solid fa-trash"></i> Hapus Terpilih
+</button>
+
+<button id="cetakTanggal" class="btn btn-print">
+<i class="fa-solid fa-print"></i> Cetak Data
+</button>
+
 </div>
 
 <!-- TAB FILTER -->
@@ -123,21 +136,6 @@ Memuat status layanan...
 </tbody>
 
 </table>
-</div>
-
-<!-- BULK ACTION -->
-<div class="bulk-actions">
-
-<input type="date" id="filterTanggal" class="filter-date">
-
-<button id="hapusTerpilih" class="btn">
-<i class="fa-solid fa-trash"></i> Hapus Terpilih
-</button>
-
-<button id="cetakTanggal" class="btn btn-print">
-<i class="fa-solid fa-print"></i> Cetak Data
-</button>
-
 </div>
 
 </section>
@@ -185,3 +183,4 @@ window.location="login.html";
 
 </body>
 </html>
+
