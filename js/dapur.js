@@ -4,6 +4,10 @@ function getSupabase(){
 return window.supabaseClient;
 }
 
+/* ================= GLOBAL ================= */
+let allOrders=[];
+let currentFilter="all";
+
 /* ================= STATUS TOKO ================= */
 async function loadStoreStatus(){
 const supabase=getSupabase();
@@ -43,14 +47,13 @@ await supabase
 updateAdminStatus(open);
 }
 
-
-/* ================= LOAD DATA ORDER ================= */
+/* ================= LOAD DATA ================= */
 async function loadOrders(){
 const supabase=getSupabase();
 const tbody=document.getElementById("orderTable");
 if(!tbody || !supabase) return;
 
-tbody.innerHTML=`<tr><td colspan="13">Loading...</td></tr>`;
+tbody.innerHTML=`<tr><td colspan="15">Loading...</td></tr>`;
 
 const {data,error}=await supabase
 .from("service_orders")
@@ -58,18 +61,39 @@ const {data,error}=await supabase
 .order("created_at",{ascending:false});
 
 if(error){
-tbody.innerHTML=`<tr><td colspan="13">Error load data</td></tr>`;
+tbody.innerHTML=`<tr><td colspan="15">Error load data</td></tr>`;
 return;
 }
 
 if(!data || data.length===0){
-tbody.innerHTML=`<tr><td colspan="13">Belum ada pesanan</td></tr>`;
+tbody.innerHTML=`<tr><td colspan="15">Belum ada pesanan</td></tr>`;
+return;
+}
+
+allOrders=data;
+renderTable();
+}
+
+/* ================= RENDER TABLE ================= */
+function renderTable(){
+
+const tbody=document.getElementById("orderTable");
+if(!tbody) return;
+
+let rows=allOrders;
+
+if(currentFilter!=="all"){
+rows=allOrders.filter(o=>o.metode===currentFilter);
+}
+
+if(rows.length===0){
+tbody.innerHTML=`<tr><td colspan="15">Tidak ada data</td></tr>`;
 return;
 }
 
 tbody.innerHTML="";
 
-data.forEach((row,i)=>{
+rows.forEach((row,i)=>{
 
 tbody.innerHTML+=`
 <tr>
@@ -104,6 +128,20 @@ ${row.bukti
 `;
 });
 }
+
+/* ================= TAB FILTER ================= */
+document.addEventListener("click",e=>{
+
+if(!e.target.classList.contains("tab")) return;
+
+document.querySelectorAll(".tab")
+.forEach(t=>t.classList.remove("active"));
+
+e.target.classList.add("active");
+
+currentFilter=e.target.dataset.filter;
+renderTable();
+});
 
 
 /* ================= DELETE ================= */
