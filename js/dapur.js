@@ -56,7 +56,7 @@ async function loadOrders(){
     tbody.innerHTML=`<tr><td colspan="16">Loading...</td></tr>`;
 
     const {data,error}=await supabase
-        .from("dapur_admin")      // ← tabel baru
+        .from("service_orders")      // ← gunakan service_orders
         .select("*")
         .order("created_at",{ascending:false});
 
@@ -77,7 +77,6 @@ async function loadOrders(){
 
 /* ================= RENDER TABLE ================= */
 function renderTable(){
-
     const tbody=document.getElementById("orderTable");
     if(!tbody) return;
 
@@ -147,7 +146,7 @@ document.addEventListener("click",async e=>{
     if(!confirm("Hapus data ini?")) return;
 
     await getSupabase()
-        .from("dapur_admin")      // ← tabel baru
+        .from("service_orders")      // ← gunakan service_orders
         .delete()
         .eq("id",id);
 
@@ -162,7 +161,7 @@ document.addEventListener("change",async e=>{
     const val=e.target.value;
 
     await getSupabase()
-        .from("dapur_admin")       // ← tabel baru
+        .from("service_orders")       // ← gunakan service_orders
         .update({status:val})
         .eq("id",id);
 });
@@ -202,7 +201,7 @@ document.getElementById("hapusTerpilih")
     const ids=checked.map(c=>c.dataset.id);
 
     await getSupabase()
-        .from("dapur_admin")        // ← tabel baru
+        .from("service_orders")        // ← gunakan service_orders
         .delete()
         .in("id",ids);
 
