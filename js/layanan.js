@@ -1,14 +1,13 @@
 document.addEventListener("DOMContentLoaded",()=>{
 
-/* ================= DATA SERVICE ================= */
-const services=[
-{name:"Ganti LCD",price:150000,img:"images/lcd.jpg"},
-{name:"Ganti Baterai",price:90000,img:"images/baterai.jpg"},
-{name:"Flash Software",price:80000,img:"images/software.jpg"},
-{name:"Bypass FRP",price:70000,img:"images/frp.jpg"}
+/* ================= DATA SPAREPART ================= */
+const products=[
+{name:"LCD Samsung",price:150000,img:"images/lcd.jpg"},
+{name:"Baterai Original",price:90000,img:"images/baterai.jpg"},
+{name:"Port Charger",price:50000,img:"images/port.jpg"},
+{name:"Kamera",price:120000,img:"images/kamera.jpg"}
 ];
 
-let selectedService=null;
 let spareparts=[];
 let transportCost=0;
 
@@ -19,13 +18,14 @@ const TOKO_LNG=106.816666;
 const container=document.getElementById("products-container");
 const metode=document.getElementById("service-option");
 const mapSection=document.getElementById("map-section");
-const transport=document.getElementById("transport-section");
+const transportSection=document.getElementById("transport-section");
 const proof=document.getElementById("payment-proof-section");
+const alamatToko=document.getElementById("alamat-toko");
 
-const servicePriceEl=document.getElementById("service-price");
 const sparepartPriceEl=document.getElementById("sparepart-price");
 const transportPriceEl=document.getElementById("transport-price");
 const totalPriceEl=document.getElementById("total-price");
+const transportRow=document.getElementById("transport-row");
 
 const ongkir=document.getElementById("transport-fee");
 const coordInput=document.getElementById("customer-coord");
@@ -42,17 +42,15 @@ return "Rp "+Number(n).toLocaleString("id-ID");
 /* ================= TOTAL ================= */
 function updateTotal(){
 
-const jasa=selectedService?.price||0;
 const spare=spareparts.reduce((a,b)=>a+b.price,0);
-const total=jasa+spare+transportCost;
+const total=spare+transportCost;
 
-servicePriceEl.textContent=rupiah(jasa);
 sparepartPriceEl.textContent=rupiah(spare);
 transportPriceEl.textContent=rupiah(transportCost);
 totalPriceEl.textContent=rupiah(total);
 }
 
-/* ================= JARAK ================= */
+/* ================= HITUNG JARAK ================= */
 function hitungJarak(lat,lng){
 
 const R=6371;
@@ -73,6 +71,7 @@ function hitungOngkir(km){
 km=Math.ceil(km);
 let biaya=20000;
 if(km>1) biaya+=(km-1)*3000;
+
 return {biaya,km};
 }
 
@@ -82,7 +81,7 @@ function setLocation(lat,lng){
 coordInput.value=lat+","+lng;
 if(marker) marker.setLatLng([lat,lng]);
 
-if(metode.value==="toko") return;
+if(metode.value!=="home") return;
 
 const jarak=hitungJarak(lat,lng);
 const res=hitungOngkir(jarak);
@@ -96,6 +95,7 @@ updateTotal();
 
 /* ================= MAP ================= */
 function initMap(){
+
 if(mapInstance) return;
 
 mapInstance=L.map("map").setView([TOKO_LAT,TOKO_LNG],13);
@@ -107,18 +107,19 @@ marker=L.marker([TOKO_LAT,TOKO_LNG]).addTo(mapInstance);
 mapInstance.on("click",e=>{
 setLocation(e.latlng.lat,e.latlng.lng);
 });
+
 }
 
-/* ================= RENDER SERVICE ================= */
-services.forEach((s,i)=>{
+/* ================= RENDER PRODUK ================= */
+products.forEach((p,i)=>{
 const div=document.createElement("div");
 div.className="product-card";
 
 div.innerHTML=`
-<img src="${s.img}">
-<h4>${s.name}</h4>
-<p>${rupiah(s.price)}</p>
-<button data-id="${i}">Pilih</button>
+<img src="${p.img}">
+<h4>${p.name}</h4>
+<p>${rupiah(p.price)}</p>
+<button data-id="${i}">Tambah</button>
 `;
 
 container.appendChild(div);
@@ -127,32 +128,39 @@ container.appendChild(div);
 container.addEventListener("click",e=>{
 if(e.target.tagName!=="BUTTON") return;
 
-selectedService=services[e.target.dataset.id];
+const item=products[e.target.dataset.id];
+spareparts.push(item);
+
 updateTotal();
-alert("Service dipilih: "+selectedService.name);
+alert("Ditambahkan: "+item.name);
 });
 
-/* ================= METODE ================= */
+/* ================= METODE SERVICE ================= */
 metode.addEventListener("change",()=>{
 
 mapSection.style.display="none";
-transport.style.display="none";
+transportSection.style.display="none";
 proof.style.display="none";
+alamatToko.style.display="none";
+transportRow.style.display="none";
 transportCost=0;
 
+/* DATANG KE TOKO */
+if(metode.value==="toko"){
+}
+
+/* HOME SERVICE */
 if(metode.value==="home"){
 mapSection.style.display="block";
-transport.style.display="block";
+transportSection.style.display="block";
 proof.style.display="block";
+transportRow.style.display="flex";
 initMap();
 }
 
+/* KIRIM PAKET */
 if(metode.value==="paket"){
-mapSection.style.display="block";
-transport.style.display="block";
-transportCost=10000;
-ongkir.value=rupiah(10000);
-initMap();
+alamatToko.style.display="block";
 }
 
 updateTotal();
@@ -164,40 +172,6 @@ navigator.geolocation.getCurrentPosition(pos=>{
 setLocation(pos.coords.latitude,pos.coords.longitude);
 });
 };
-
-/* ================= SPAREPART ================= */
-document.getElementById("add-spare").onclick=()=>{
-
-const name=document.getElementById("spare-name").value;
-const price=Number(document.getElementById("spare-price").value);
-
-if(!name||!price) return alert("Isi nama & harga sparepart");
-
-spareparts.push({name,price});
-renderSpare();
-updateTotal();
-};
-
-function renderSpare(){
-
-const box=document.getElementById("spare-list");
-box.innerHTML="";
-
-spareparts.forEach((s,i)=>{
-const div=document.createElement("div");
-div.innerHTML=`${s.name} - ${rupiah(s.price)}
-<button data-i="${i}">❌</button>`;
-box.appendChild(div);
-});
-
-box.querySelectorAll("button").forEach(btn=>{
-btn.onclick=()=>{
-spareparts.splice(btn.dataset.i,1);
-renderSpare();
-updateTotal();
-};
-});
-}
 
 /* ================= SUBMIT ================= */
 document.getElementById("checkout").onclick=()=>{
@@ -212,21 +186,39 @@ const method=metode.value;
 if(!nama||!alamat||!phone||!brand||!problem||!method)
 return alert("Lengkapi data");
 
-const jasa=selectedService?.price||0;
-const spare=spareparts.reduce((a,b)=>a+b.price,0);
-const total=jasa+spare+transportCost;
+if(method==="home" && !coordInput.value)
+return alert("Lokasi wajib diisi untuk Home Service");
 
-let msg=`📱 SERVICE HP%0A`;
+const spare=spareparts.reduce((a,b)=>a+b.price,0);
+const total=spare+transportCost;
+
+/* LIST SPARE */
+let spareList="Tidak ada";
+if(spareparts.length){
+spareList=spareparts.map(s=>`${s.name} (${rupiah(s.price)})`).join(", ");
+}
+
+/* MESSAGE */
+let msg=`📱 *SERVICE HP*%0A`;
 msg+=`Nama: ${nama}%0A`;
+msg+=`No HP: ${phone}%0A`;
 msg+=`Merk: ${brand}%0A`;
 msg+=`Keluhan: ${problem}%0A`;
 msg+=`Metode: ${method}%0A`;
-msg+=`Jasa: ${rupiah(jasa)}%0A`;
-msg+=`Sparepart: ${rupiah(spare)}%0A`;
-msg+=`Transport: ${rupiah(transportCost)}%0A`;
-msg+=`Total Estimasi: ${rupiah(total)}`;
+msg+=`Sparepart: ${spareList}%0A`;
 
+if(method==="home")
+msg+=`Transport: ${rupiah(transportCost)}%0A`;
+
+if(method==="paket")
+msg+=`Pengiriman ke alamat toko%0A`;
+
+msg+=`Total Estimasi: ${rupiah(total)}%0A`;
+msg+=`%0A(Jasa diinformasikan setelah pengecekan teknisi)`;
+
+/* WA */
 window.open(`https://wa.me/6281234567890?text=${msg}`);
+
 };
 
 });
