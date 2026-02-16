@@ -79,9 +79,20 @@ return {biaya,km};
 function setLocation(lat,lng){
 
 coordInput.value=lat+","+lng;
-if(marker) marker.setLatLng([lat,lng]);
 
-if(metode.value!=="home") return;
+if(marker){
+marker.setLatLng([lat,lng]);
+
+setTimeout(()=>{
+if(marker._icon){
+marker._icon.classList.remove("bounce");
+void marker._icon.offsetWidth;
+marker._icon.classList.add("bounce");
+}
+},10);
+}
+
+if(metode.value==="toko") return;
 
 const jarak=hitungJarak(lat,lng);
 const res=hitungOngkir(jarak);
@@ -95,13 +106,15 @@ updateTotal();
 
 /* ================= MAP ================= */
 function initMap(){
-
 if(mapInstance) return;
 
 mapInstance=L.map("map").setView([TOKO_LAT,TOKO_LNG],13);
 
-L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(mapInstance);
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{
+maxZoom:19
+}).addTo(mapInstance);
 
+/* ICON MARKER HIJAU */
 const customIcon=L.divIcon({
 className:"custom-marker",
 html:`<i class="fa-solid fa-location-dot"></i>`,
@@ -111,17 +124,26 @@ iconAnchor:[15,30]
 
 marker=L.marker([TOKO_LAT,TOKO_LNG],{icon:customIcon}).addTo(mapInstance);
 
+/* KLIK MAP */
 mapInstance.on("click",e=>{
 
-setLocation(e.latlng.lat,e.latlng.lng);
+const lat=e.latlng.lat;
+const lng=e.latlng.lng;
 
-/* animasi bounce */
-marker.getElement().classList.remove("bounce");
-void marker.getElement().offsetWidth;
-marker.getElement().classList.add("bounce");
+setLocation(lat,lng);
+
+/* ANIMASI PINDAH */
+marker.setLatLng([lat,lng]);
+
+setTimeout(()=>{
+if(marker._icon){
+marker._icon.classList.remove("bounce");
+void marker._icon.offsetWidth;
+marker._icon.classList.add("bounce");
+}
+},10);
 
 });
-
 }
 
 /* ================= RENDER PRODUK ================= */
