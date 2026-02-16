@@ -2,6 +2,11 @@ const db = window.db;
 
 document.addEventListener("DOMContentLoaded",()=>{
 
+if(!db){
+alert("Supabase belum terhubung");
+return;
+}
+
 /* ================= DATA SPAREPART ================= */
 const products=[
 {name:"LCD Samsung",price:150000,img:"images/lcd.jpg"},
@@ -307,6 +312,15 @@ document.getElementById("checkout").onclick = async () => {
 if(window.sending) return;
 window.sending = true;
 
+setTimeout(()=>{
+window.sending=false;
+btn.disabled=false;
+btn.textContent="Kirim Permintaan Service";
+},15000);
+
+const btn=document.getElementById("checkout");
+btn.disabled=true;
+btn.textContent="Mengirim...";
 const nama=document.getElementById("customer-name").value.trim();
 const alamat=document.getElementById("customer-address").value.trim();
 const phone=document.getElementById("customer-phone").value.trim();
@@ -316,11 +330,15 @@ const method=metode.value;
 
 if(!nama||!alamat||!phone||!brand||!problem||!method){
 window.sending=false;
+btn.disabled=false;
+btn.textContent="Kirim Permintaan Service";
 return alert("Lengkapi data");
 }
 
 if(method==="home" && !coordInput.value){
 window.sending=false;
+btn.disabled=false;
+btn.textContent="Kirim Permintaan Service";
 return alert("Lokasi wajib diisi untuk Home Service");
 }
 
@@ -340,17 +358,16 @@ return `${n} x${s.qty} (${rupiah(s.price*s.qty)})`;
 }).join(", ");
 }
 
+
 /* ================= SIMPAN KE SUPABASE ================= */
 
 try{
 
-const db = window.supabaseClient;
-
 const { error } = await db
 .from("orders")
-.insert([{
-nama:nama,
-alamat:alamat,
+.insert({
+nama,
+alamat,
 no_hp:phone,
 merk:brand,
 keluhan:problem,
@@ -358,9 +375,9 @@ metode:method,
 koordinat:coordInput.value || null,
 sparepart:spareList,
 transport:transportCost,
-total:total,
+total,
 status:"pending"
-}]);
+})
 
 if(error) throw error;
 
@@ -370,6 +387,7 @@ alert("Gagal kirim data ke server");
 window.sending=false;
 return;
 }
+
 
 /* ================= MESSAGE WA ================= */
 
@@ -391,7 +409,17 @@ msg+=`Total Estimasi: ${rupiah(total)}%0A`;
 msg+=`%0A(Jasa diinformasikan setelah pengecekan teknisi)`;
 
 /* WA */
+/* WA */
 window.open(`https://wa.me/6288803060094?text=${msg}`);
 
 window.sending=false;
+btn.disabled=false;
+btn.textContent="Kirim Permintaan Service";
+
 };
+
+renderCart();
+updateTotal();
+
+}); // ← PENUTUP DOMContentLoaded
+
