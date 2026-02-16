@@ -364,30 +364,29 @@ return `${n} x${s.qty} (${rupiah(s.price*s.qty)})`;
 try{
 
 const { error } = await db
-.from("orders")
+.from("service_orders")   // ✅ ganti nama tabel sesuai Supabase
 .insert({
-nama,
-alamat,
-no_hp:phone,
-merk:brand,
-keluhan:problem,
-metode:method,
-koordinat:coordInput.value || null,
-sparepart:spareList,
-transport:transportCost,
-total,
-status:"pending"
+  nama,
+  alamat,
+  no_hp: phone,
+  merk: brand,
+  keluhan: problem,
+  metode: method,
+  koordinat: coordInput.value || null,
+  sparepart: spareList,
+  transport: transportCost,
+  total,
+  status: "pending"
 })
 
 if(error) throw error;
 
 }catch(err){
-console.error(err);
-alert("Gagal kirim data ke server");
-window.sending=false;
-return;
+  console.error(err);
+  alert("Gagal kirim data ke server");
+  window.sending=false;
+  return;
 }
-
 
 /* ================= MESSAGE WA ================= */
 
