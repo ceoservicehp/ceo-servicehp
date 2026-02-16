@@ -69,46 +69,30 @@
 <option value="paket">Kirim Paket</option>
 </select>
 
-<!-- ================= MAP ================= -->
+<!-- MAP -->
 <div id="map-section" style="display:none">
-
 <label>Lokasi Anda</label>
-
 <input type="text" id="customer-coord" readonly>
 
-<button type="button" id="getLocation">
-📍 Gunakan Lokasi Saya
-</button>
-
-<div id="map" style="height:250px; margin-top:10px; border-radius:10px;"></div>
-
-<small style="color:#666">
-Klik peta untuk menentukan lokasi manual
-</small>
-
+<button type="button" id="getLocation">📍 Gunakan Lokasi Saya</button>
+<div id="map" style="height:250px;margin-top:10px;border-radius:10px;"></div>
+<small>Klik map untuk pilih lokasi manual</small>
 </div>
 
-<!-- ================= TRANSPORT ================= -->
+<!-- ONGKIR -->
 <div id="transport-section" style="display:none">
-
 <label>Biaya Transport</label>
 <input type="text" id="transport-fee" readonly value="Rp 0">
-
-<div id="distance-info"
-style="font-size:12px;color:#666;margin-top:5px;">
+<div id="distance-info" style="font-size:12px;color:#666;margin-top:5px;"></div>
 </div>
 
-</div>
-
-<!-- ================= BUKTI ================= -->
+<!-- BUKTI -->
 <div id="payment-proof-section" style="display:none">
-
-<label>Upload Bukti Transfer Transport</label>
-<input type="file" id="payment-proof" accept="image/*">
-
+<label>Bukti Transfer Transport</label>
+<input type="file" id="payment-proof">
 </div>
 
-<!-- ================= RINGKASAN BIAYA ================= -->
+<!-- TOTAL BOX -->
 <div class="summary-box">
 
 <div class="summary-row">
@@ -117,28 +101,44 @@ style="font-size:12px;color:#666;margin-top:5px;">
 </div>
 
 <div class="summary-row">
+<span>Biaya Sparepart</span>
+<span id="sparepart-price">Rp 0</span>
+</div>
+
+<div class="summary-row">
 <span>Biaya Transport</span>
 <span id="transport-price">Rp 0</span>
 </div>
 
-<div class="summary-row total">
-<span>Total Sementara</span>
+<div class="summary-row summary-total">
+<span>Total Estimasi</span>
 <span id="total-price">Rp 0</span>
 </div>
 
-<small style="color:#888">
-Total akhir ditentukan setelah pengecekan teknisi
-</small>
-
+<small>Total final ditentukan setelah pengecekan teknisi</small>
 </div>
 
-<!-- ================= BUTTON SUBMIT ================= -->
 <button id="checkout" class="btn-submit">
 Kirim Permintaan Service
 </button>
 
-</section>
+<!-- SERVICE -->
+<h3>Pilih Jenis Service (Opsional)</h3>
+<div id="products-container" class="products-grid"></div>
 
+<!-- SPAREPART -->
+<h3>Tambah Sparepart (Opsional)</h3>
+
+<input type="text" id="spare-name" placeholder="Nama Sparepart">
+<input type="number" id="spare-price" placeholder="Harga Sparepart">
+
+<button id="add-spare" class="btn-submit" style="margin-top:10px">
+Tambah Sparepart
+</button>
+
+<div id="spare-list"></div>
+
+</section>
 
 <!-- ================= SECTION PRODUK ================= -->
 <section class="form-section" id="produk-section">
