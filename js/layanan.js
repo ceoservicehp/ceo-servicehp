@@ -83,6 +83,7 @@ function setLocation(lat,lng){
 coordInput.value=lat+","+lng;
 
 if(marker){
+marker.setLatLng([lat,lng]);
 mapInstance.panTo([lat,lng],{animate:true,duration:0.5});
 
 setTimeout(()=>{
