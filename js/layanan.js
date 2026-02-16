@@ -364,20 +364,20 @@ return `${n} x${s.qty} (${rupiah(s.price*s.qty)})`;
 try{
 
 const { error } = await db
-.from("service_orders")   // ✅ ganti nama tabel sesuai Supabase
+.from("service_orders")
 .insert({
-  nama,
-  alamat,
-  no_hp: phone,
-  merk: brand,
-  keluhan: problem,
-  metode: method,
-  koordinat: coordInput.value || null,
-  sparepart: spareList,
-  transport: transportCost,
-  total,
-  status: "pending"
-})
+  nama,                  // sesuai kolom 'nama'
+  alamat,                // sesuai kolom 'alamat'
+  phone,                 // sesuai kolom 'phone'
+  brand,                 // sesuai kolom 'brand'
+  problem,               // ❌ ganti dari keluhan → problem
+  metode: method,        // sesuai kolom 'metode'
+  sparepart: spareList,  // sesuai kolom 'sparepart'
+  transport: transportCost, // sesuai kolom 'transport'
+  total,                 // sesuai kolom 'total'
+  coord: coordInput.value || null,  // ❌ ganti dari koordinat → coord
+  status: "pending"      // sesuai kolom 'status'
+});
 
 if(error) throw error;
 
