@@ -385,21 +385,34 @@ overflow-y:auto;
 
 
 /* ================= CUSTOM MARKER ================= */
+.custom-marker{
+display:flex;
+align-items:center;
+justify-content:center;
+}
+
 .custom-marker i{
-font-size:30px;
-color:#00c2c7;
-text-shadow:0 0 6px rgba(0,0,0,0.3);
-transition:.3s;
+font-size:34px;
+color:#0a7d3b; /* hijau tua */
+text-shadow:
+0 3px 8px rgba(0,0,0,.35),
+0 0 6px rgba(10,125,59,.4);
+transition:.25s;
 }
 
-/* animasi bounce */
+/* efek saat marker aktif */
+.custom-marker i:active{
+transform:scale(.9);
+}
+
+/* ================= ANIMASI LONCAT ================= */
 .bounce{
-animation:bounce .6s;
+animation:markerBounce .6s cubic-bezier(.34,1.56,.64,1);
 }
 
-@keyframes bounce{
-0%{transform:translateY(-20px)}
-50%{transform:translateY(0)}
-70%{transform:translateY(-8px)}
+@keyframes markerBounce{
+0%{transform:translateY(-28px) scale(.9)}
+40%{transform:translateY(0) scale(1.05)}
+65%{transform:translateY(-10px)}
 100%{transform:translateY(0)}
 }
