@@ -1,3 +1,5 @@
+const db = window.db;
+
 document.addEventListener("DOMContentLoaded",()=>{
 
 /* ================= DATA SPAREPART ================= */
