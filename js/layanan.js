@@ -102,10 +102,24 @@ mapInstance=L.map("map").setView([TOKO_LAT,TOKO_LNG],13);
 
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(mapInstance);
 
-marker=L.marker([TOKO_LAT,TOKO_LNG]).addTo(mapInstance);
+const customIcon=L.divIcon({
+className:"custom-marker",
+html:`<i class="fa-solid fa-location-dot"></i>`,
+iconSize:[30,30],
+iconAnchor:[15,30]
+});
+
+marker=L.marker([TOKO_LAT,TOKO_LNG],{icon:customIcon}).addTo(mapInstance);
 
 mapInstance.on("click",e=>{
+
 setLocation(e.latlng.lat,e.latlng.lng);
+
+/* animasi bounce */
+marker.getElement().classList.remove("bounce");
+void marker.getElement().offsetWidth;
+marker.getElement().classList.add("bounce");
+
 });
 
 }
