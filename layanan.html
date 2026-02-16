@@ -8,12 +8,9 @@
 
 <link rel="stylesheet" href="css/layanan.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
-<!-- LEAFLET CSS -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 
 </head>
-
 <body>
 
 <header>
@@ -26,7 +23,7 @@
 </div>
 </header>
 
-<!-- ================= NAVBAR ================= -->
+<!-- NAV -->
 <nav class="top-nav">
 <a href="index.html" class="nav-btn">
 <i class="fa-solid fa-house"></i> Beranda
@@ -41,7 +38,7 @@
 </a>
 </nav>
 
-<!-- ================= FORM ================= -->
+<!-- FORM -->
 <section class="form-section">
 
 <h2>Form Service</h2>
@@ -49,7 +46,7 @@
 <label>Nama Lengkap</label>
 <input type="text" id="customer-name">
 
-<label>Alamat Detail Rumah/Kantor</label>
+<label>Alamat Detail</label>
 <textarea id="customer-address"></textarea>
 
 <label>No HP</label>
@@ -61,20 +58,30 @@
 <label>Keluhan</label>
 <textarea id="customer-problem"></textarea>
 
-<label>Pilih Metode Service</label>
+<label>Metode Service</label>
 <select id="service-option">
-<option value="">Pilih layanan</option>
+<option value="">Pilih metode</option>
 <option value="toko">Datang ke Toko</option>
 <option value="home">Home Service</option>
 <option value="paket">Kirim Paket</option>
 </select>
+
+<!-- ALAMAT TOKO -->
+<div id="alamat-toko" style="display:none;margin-top:10px">
+<b>Alamat Toko:</b><br>
+Jl. Contoh No 123<br>
+Kota Kamu
+</div>
 
 <!-- MAP -->
 <div id="map-section" style="display:none">
 <label>Lokasi Anda</label>
 <input type="text" id="customer-coord" readonly>
 
-<button type="button" id="getLocation">📍 Gunakan Lokasi Saya</button>
+<button type="button" id="getLocation">
+📍 Gunakan Lokasi Saya
+</button>
+
 <div id="map" style="height:250px;margin-top:10px;border-radius:10px;"></div>
 <small>Klik map untuk pilih lokasi manual</small>
 </div>
@@ -92,20 +99,15 @@
 <input type="file" id="payment-proof">
 </div>
 
-<!-- TOTAL BOX -->
+<!-- RINGKASAN -->
 <div class="summary-box">
 
 <div class="summary-row">
-<span>Biaya Jasa</span>
-<span id="service-price">Rp 0</span>
-</div>
-
-<div class="summary-row">
-<span>Biaya Sparepart</span>
+<span>Total Sparepart</span>
 <span id="sparepart-price">Rp 0</span>
 </div>
 
-<div class="summary-row">
+<div class="summary-row" id="transport-row" style="display:none;">
 <span>Biaya Transport</span>
 <span id="transport-price">Rp 0</span>
 </div>
@@ -115,38 +117,24 @@
 <span id="total-price">Rp 0</span>
 </div>
 
-<small>Total final ditentukan setelah pengecekan teknisi</small>
+<small>Biaya jasa diinformasikan setelah pengecekan teknisi</small>
+
 </div>
 
 <button id="checkout" class="btn-submit">
 Kirim Permintaan Service
 </button>
 
-<!-- SERVICE -->
-<h3>Pilih Jenis Service (Opsional)</h3>
-<div id="products-container" class="products-grid"></div>
-
-<!-- SPAREPART -->
-<h3>Tambah Sparepart (Opsional)</h3>
-
-<input type="text" id="spare-name" placeholder="Nama Sparepart">
-<input type="number" id="spare-price" placeholder="Harga Sparepart">
-
-<button id="add-spare" class="btn-submit" style="margin-top:10px">
-Tambah Sparepart
-</button>
-
-<div id="spare-list"></div>
-
 </section>
 
-<!-- ================= SECTION PRODUK ================= -->
+
+<!-- PRODUK -->
 <section class="form-section" id="produk-section">
 
-<h2>Pilih Produk / Layanan</h2>
+<h2>Tambah Sparepart (Opsional)</h2>
 
 <p style="font-size:13px;color:#666;margin-bottom:10px">
-Silakan pilih service atau sparepart yang dibutuhkan
+Silakan pilih sparepart jika diperlukan. Tidak memilih juga tetap bisa kirim permintaan service.
 </p>
 
 <div id="products-container" class="products-grid"></div>
@@ -154,33 +142,29 @@ Silakan pilih service atau sparepart yang dibutuhkan
 </section>
 
 
-<!-- ================= MODAL ================= -->
+<!-- MODAL -->
 <div id="product-modal" class="modal hidden">
 <div class="modal-content">
 
 <span id="close-product-modal" class="btn-close">&times;</span>
 
 <img id="modal-product-img" class="modal-img">
-
 <h2 id="modal-product-name"></h2>
 <p id="modal-product-price"></p>
 <p id="modal-product-desc"></p>
 
 <button id="modal-add-cart" class="btn-add">
-Pilih Layanan
+Tambah Sparepart
 </button>
 
 </div>
 </div>
 
-
 <footer>
 © 2026 CEO Service HP — All Rights Reserved
 </footer>
 
-<!-- LEAFLET JS -->
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-
 <script src="js/layanan.js"></script>
 
 </body>
