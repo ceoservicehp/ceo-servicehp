@@ -1,4 +1,4 @@
-const db = window.db;
+const db = window.supabaseClient;
 
 document.addEventListener("DOMContentLoaded",()=>{
 
