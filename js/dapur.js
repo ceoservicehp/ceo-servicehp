@@ -56,7 +56,7 @@ async function loadOrders(){
     tbody.innerHTML=`<tr><td colspan="16">Loading...</td></tr>`;
 
     const {data,error}=await supabase
-        .from("service_orders")      // ← gunakan service_orders
+        .from("service_orders")      // tetap dari service_orders
         .select("*")
         .order("created_at",{ascending:false});
 
@@ -146,7 +146,7 @@ document.addEventListener("click",async e=>{
     if(!confirm("Hapus data ini?")) return;
 
     await getSupabase()
-        .from("service_orders")      // ← gunakan service_orders
+        .from("service_orders")      
         .delete()
         .eq("id",id);
 
@@ -161,7 +161,7 @@ document.addEventListener("change",async e=>{
     const val=e.target.value;
 
     await getSupabase()
-        .from("service_orders")       // ← gunakan service_orders
+        .from("service_orders")       
         .update({status:val})
         .eq("id",id);
 });
@@ -201,7 +201,7 @@ document.getElementById("hapusTerpilih")
     const ids=checked.map(c=>c.dataset.id);
 
     await getSupabase()
-        .from("service_orders")        // ← gunakan service_orders
+        .from("service_orders")        
         .delete()
         .in("id",ids);
 
@@ -210,7 +210,6 @@ document.getElementById("hapusTerpilih")
 
 /* ================= INIT ================= */
 document.addEventListener("DOMContentLoaded",()=>{
-
     loadOrders();
     loadStoreStatus();
 
@@ -220,4 +219,6 @@ document.addEventListener("DOMContentLoaded",()=>{
     document.getElementById("tanggalOtomatis").textContent=
         new Date().toLocaleString("id-ID");
 
+    // ✅ Auto-refresh tiap 5 detik
+    setInterval(loadOrders, 5000);
 });
