@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded",()=>{
 
-/* DATA SERVICE */
+/* ================= DATA SERVICE ================= */
 const services=[
 {
 name:"Ganti LCD",
@@ -29,11 +29,40 @@ desc:"Unlock akun google"
 ];
 
 let selectedService=null;
+let transportCost=0;
 
 
-/* RENDER */
+/* ================= ELEMENT ================= */
 const container=document.getElementById("products-container");
+const modal=document.getElementById("product-modal");
 
+const servicePriceEl=document.getElementById("service-price");
+const transportPriceEl=document.getElementById("transport-price");
+const totalPriceEl=document.getElementById("total-price");
+
+const metode=document.getElementById("service-option");
+const map=document.getElementById("map-section");
+const transport=document.getElementById("transport-section");
+const proof=document.getElementById("payment-proof-section");
+const ongkir=document.getElementById("transport-fee");
+
+
+/* ================= HELPER ================= */
+function rupiah(n){
+return "Rp "+Number(n).toLocaleString("id-ID");
+}
+
+function updateTotal(){
+const jasa=selectedService?.price || 0;
+const total=jasa+transportCost;
+
+servicePriceEl.textContent=rupiah(jasa);
+transportPriceEl.textContent=rupiah(transportCost);
+totalPriceEl.textContent=rupiah(total);
+}
+
+
+/* ================= RENDER SERVICE ================= */
 services.forEach((s,i)=>{
 const div=document.createElement("div");
 div.className="product-card";
@@ -41,7 +70,7 @@ div.className="product-card";
 div.innerHTML=`
 <img src="${s.img}">
 <h4>${s.name}</h4>
-<p>Rp ${s.price.toLocaleString()}</p>
+<p>${rupiah(s.price)}</p>
 <button data-id="${i}">Detail</button>
 `;
 
@@ -49,9 +78,7 @@ container.appendChild(div);
 });
 
 
-/* MODAL */
-const modal=document.getElementById("product-modal");
-
+/* ================= MODAL ================= */
 container.addEventListener("click",e=>{
 if(e.target.tagName!=="BUTTON") return;
 
@@ -61,36 +88,36 @@ selectedService=s;
 
 document.getElementById("modal-product-img").src=s.img;
 document.getElementById("modal-product-name").textContent=s.name;
-document.getElementById("modal-product-price").textContent="Rp "+s.price.toLocaleString();
+document.getElementById("modal-product-price").textContent=rupiah(s.price);
 document.getElementById("modal-product-desc").textContent=s.desc;
 
 modal.classList.remove("hidden");
 });
 
-document.getElementById("close-product-modal").onclick=()=>modal.classList.add("hidden");
+document.getElementById("close-product-modal").onclick=
+()=>modal.classList.add("hidden");
+
 
 document.getElementById("modal-add-cart").onclick=()=>{
-alert("Dipilih: "+selectedService.name);
+if(!selectedService) return;
+
+updateTotal();
 modal.classList.add("hidden");
+
+alert("Service dipilih: "+selectedService.name);
 };
 
 
-
-/* METODE */
-const metode=document.getElementById("service-option");
-const map=document.getElementById("map-section");
-const transport=document.getElementById("transport-section");
-const proof=document.getElementById("payment-proof-section");
-const ongkir=document.getElementById("transport-fee");
-
+/* ================= METODE SERVICE ================= */
 metode.addEventListener("change",()=>{
 
 map.style.display="none";
 transport.style.display="none";
 proof.style.display="none";
+transportCost=0;
 
 if(metode.value==="toko"){
-ongkir.value="Rp 0";
+transportCost=0;
 }
 
 if(metode.value==="home"){
@@ -103,10 +130,12 @@ if(metode.value==="paket"){
 map.style.display="block";
 transport.style.display="block";
 }
+
+updateTotal();
 });
 
 
-/* GPS */
+/* ================= GPS ================= */
 document.getElementById("getLocation").onclick=()=>{
 
 navigator.geolocation.getCurrentPosition(pos=>{
@@ -118,19 +147,24 @@ document.getElementById("customer-coord").value=lat+","+lng;
 
 /* simulasi jarak */
 let km=Math.floor(Math.random()*10)+1;
-let biaya=20000;
 
+/* rumus ongkir */
+let biaya=20000;
 if(km>1) biaya+=(km-1)*3000;
 
-ongkir.value="Rp "+biaya.toLocaleString();
-document.getElementById("distance-info").textContent="Estimasi jarak "+km+" KM";
+transportCost=biaya;
+ongkir.value=rupiah(biaya);
+
+document.getElementById("distance-info").textContent=
+"Estimasi jarak "+km+" KM";
+
+updateTotal();
 
 });
 };
 
 
-
-/* SUBMIT */
+/* ================= SUBMIT ================= */
 document.getElementById("checkout").onclick=()=>{
 
 const nama=document.getElementById("customer-name").value.trim();
@@ -150,6 +184,8 @@ alert("Pilih service dulu");
 return;
 }
 
+let total=(selectedService.price||0)+transportCost;
+
 let msg=`📱 *SERVICE HP*%0A`;
 msg+=`Nama: ${nama}%0A`;
 msg+=`Alamat: ${alamat}%0A`;
@@ -157,7 +193,8 @@ msg+=`HP: ${phone}%0A`;
 msg+=`Merk: ${brand}%0A`;
 msg+=`Keluhan: ${problem}%0A`;
 msg+=`Service: ${selectedService.name}%0A`;
-msg+=`Metode: ${method}`;
+msg+=`Metode: ${method}%0A`;
+msg+=`Total: ${rupiah(total)}`;
 
 window.open(`https://wa.me/6281234567890?text=${msg}`);
 };
