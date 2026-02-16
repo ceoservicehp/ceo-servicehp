@@ -361,23 +361,46 @@ return `${n} x${s.qty} (${rupiah(s.price*s.qty)})`;
 
 /* ================= SIMPAN KE SUPABASE ================= */
 try {
-  const { error } = await db
+  const { data: newOrder, error } = await db
     .from("service_orders")
     .insert({
       nama,
       alamat,
       phone,
       brand,
-      problem,              // ✅ gunakan 'problem' sesuai kolom
+      problem,
       metode: method,
       sparepart: spareList,
       transport: transportCost,
       total,
-      coord: coordInput.value || null,  // ✅ gunakan 'coord'
+      coord: coordInput.value || null,
       status: "pending"
-    });
+    })
+    .select()   // penting, agar kita dapat data baru termasuk id
+    .single();  // ambil satu record saja
 
   if (error) throw error;
+
+  // ✅ Insert ke dapur_admin
+  const { error: dapurError } = await db
+    .from("dapur_admin")
+    .insert({
+      service_id: newOrder.id, // link ke service_orders
+      nama: newOrder.nama,
+      alamat: newOrder.alamat,
+      phone: newOrder.phone,
+      brand: newOrder.brand,
+      problem: newOrder.problem,
+      metode: newOrder.metode,
+      sparepart: newOrder.sparepart,
+      transport: newOrder.transport,
+      total: newOrder.total,
+      coord: newOrder.coord,
+      status: newOrder.status,
+      created_at: newOrder.created_at
+    });
+
+  if(dapurError) console.error("Gagal insert ke dapur_admin:", dapurError);
 
 } catch (err) {
   console.error(err);
