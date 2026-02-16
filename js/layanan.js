@@ -83,7 +83,7 @@ function setLocation(lat,lng){
 coordInput.value=lat+","+lng;
 
 if(marker){
-marker.setLatLng([lat,lng]);
+mapInstance.panTo([lat,lng],{animate:true,duration:0.5});
 
 setTimeout(()=>{
 if(marker._icon){
@@ -164,15 +164,19 @@ container.appendChild(div);
 });
 
 container.addEventListener("click",e=>{
-if(e.target.tagName!=="BUTTON") return;
+const btn = e.target.closest("button");
+if(!btn) return;
 
-const item=products[e.target.dataset.id];
+const item=products[btn.dataset.id];
 
 if(spareparts[item.name]){
 spareparts[item.name].qty++;
 }else{
 spareparts[item.name]={price:item.price,qty:1};
 }
+
+btn.textContent="✔ Ditambahkan";
+setTimeout(()=>btn.textContent="Tambah",800);
 
 renderCart();
 updateTotal();
@@ -350,4 +354,6 @@ window.open(`https://wa.me/6281234567890?text=${msg}`);
 
 };
 
+renderCart();
+updateTotal();
 });
