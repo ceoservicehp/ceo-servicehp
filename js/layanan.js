@@ -302,7 +302,10 @@ setLocation(pos.coords.latitude,pos.coords.longitude);
 };
 
 /* ================= SUBMIT ================= */
-document.getElementById("checkout").onclick=()=>{
+document.getElementById("checkout").onclick = async () => {
+
+if(window.sending) return;
+window.sending = true;
 
 const nama=document.getElementById("customer-name").value.trim();
 const alamat=document.getElementById("customer-address").value.trim();
@@ -311,11 +314,15 @@ const brand=document.getElementById("customer-brand").value.trim();
 const problem=document.getElementById("customer-problem").value.trim();
 const method=metode.value;
 
-if(!nama||!alamat||!phone||!brand||!problem||!method)
+if(!nama||!alamat||!phone||!brand||!problem||!method){
+window.sending=false;
 return alert("Lengkapi data");
+}
 
-if(method==="home" && !coordInput.value)
+if(method==="home" && !coordInput.value){
+window.sending=false;
 return alert("Lokasi wajib diisi untuk Home Service");
+}
 
 const spare=Object.values(spareparts)
 .reduce((a,b)=>a+(b.price*b.qty),0);
@@ -324,7 +331,6 @@ const total=spare+transportCost;
 
 /* LIST SPARE */
 let spareList="Tidak ada";
-
 const keys=Object.keys(spareparts);
 
 if(keys.length){
@@ -334,7 +340,39 @@ return `${n} x${s.qty} (${rupiah(s.price*s.qty)})`;
 }).join(", ");
 }
 
-/* MESSAGE */
+/* ================= SIMPAN KE SUPABASE ================= */
+
+try{
+
+const db = window.supabaseClient;
+
+const { error } = await db
+.from("orders")
+.insert([{
+nama:nama,
+alamat:alamat,
+no_hp:phone,
+merk:brand,
+keluhan:problem,
+metode:method,
+koordinat:coordInput.value || null,
+sparepart:spareList,
+transport:transportCost,
+total:total,
+status:"pending"
+}]);
+
+if(error) throw error;
+
+}catch(err){
+console.error(err);
+alert("Gagal kirim data ke server");
+window.sending=false;
+return;
+}
+
+/* ================= MESSAGE WA ================= */
+
 let msg=`📱 *SERVICE HP*%0A`;
 msg+=`Nama: ${nama}%0A`;
 msg+=`No HP: ${phone}%0A`;
@@ -353,10 +391,7 @@ msg+=`Total Estimasi: ${rupiah(total)}%0A`;
 msg+=`%0A(Jasa diinformasikan setelah pengecekan teknisi)`;
 
 /* WA */
-window.open(`https://wa.me/6281234567890?text=${msg}`);
+window.open(`https://wa.me/6288803060094?text=${msg}`);
 
+window.sending=false;
 };
-
-renderCart();
-updateTotal();
-});
