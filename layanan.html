@@ -22,24 +22,22 @@
 </div>
 </header>
 
-<!-- ================= NAVBAR TOP ================= -->
+<!-- ================= NAVBAR ================= -->
 <nav class="top-nav">
-  <a href="index.html" class="nav-btn">
-  <i class="fa-solid fa-house"></i>
-  Beranda
-  </a>
-
-  <a href="#produk" class="nav-btn">
-  <i class="fa-solid fa-mobile-screen"></i> 
-  Produk
+<a href="index.html" class="nav-btn">
+<i class="fa-solid fa-house"></i> Beranda
 </a>
 
-  <a href="#informasi" class="nav-btn">
-  <i class="fa-solid fa-info-circle"></i>
-  Informasi
+<a href="#produk" class="nav-btn">
+<i class="fa-solid fa-mobile-screen"></i> Produk
+</a>
+
+<a href="#informasi" class="nav-btn">
+<i class="fa-solid fa-info-circle"></i> Informasi
 </a>
 </nav>
 
+<!-- ================= FORM ================= -->
 <section class="form-section">
 
 <h2>Form Service</h2>
@@ -67,44 +65,65 @@
 <option value="paket">Kirim Paket</option>
 </select>
 
-<!-- KOORDINAT -->
+<!-- ================= KOORDINAT ================= -->
 <div id="map-section" style="display:none">
 <label>Koordinat Lokasi</label>
 <input type="text" id="customer-coord" readonly>
 <button type="button" id="getLocation">📍 Ambil Lokasi Saya</button>
 </div>
 
-<!-- TRANSPORT -->
+<!-- ================= TRANSPORT ================= -->
 <div id="transport-section" style="display:none">
 <label>Biaya Transport</label>
-<input type="text" id="transport-fee" readonly>
+<input type="text" id="transport-fee" readonly value="Rp 0">
 <div id="distance-info" style="font-size:12px;color:#666;margin-top:5px;"></div>
 </div>
 
-<!-- BUKTI -->
+<!-- ================= BUKTI ================= -->
 <div id="payment-proof-section" style="display:none">
 <label>Upload Bukti Transfer Transport</label>
 <input type="file" id="payment-proof" accept="image/*">
 </div>
 
-<!-- LIST LAYANAN -->
+<!-- ================= LIST LAYANAN ================= -->
 <h3>Pilih Jenis Service</h3>
 <div id="products-container" class="products-grid"></div>
 
+<!-- ================= RINGKASAN BIAYA ================= -->
+<div class="summary-box">
 
+<div class="summary-row">
+<span>Biaya Jasa</span>
+<span id="service-price">Rp 0</span>
+</div>
 
+<div class="summary-row">
+<span>Biaya Transport</span>
+<span id="transport-price">Rp 0</span>
+</div>
+
+<div class="summary-row total">
+<span>Total Pembayaran</span>
+<span id="total-price">Rp 0</span>
+</div>
+
+</div>
+
+<!-- ================= BUTTON ================= -->
 <button id="checkout" class="btn-submit">
 Kirim Permintaan Service
 </button>
 
 </section>
 
-<!-- MODAL -->
+<!-- ================= MODAL ================= -->
 <div id="product-modal" class="modal hidden">
 <div class="modal-content">
+
 <span id="close-product-modal" class="btn-close">&times;</span>
 
 <img id="modal-product-img" class="modal-img">
+
 <h2 id="modal-product-name"></h2>
 <p id="modal-product-price"></p>
 <p id="modal-product-desc"></p>
