@@ -309,138 +309,95 @@ setLocation(pos.coords.latitude,pos.coords.longitude);
 /* ================= SUBMIT ================= */
 document.getElementById("checkout").onclick = async () => {
 
-if(window.sending) return;
-window.sending = true;
+    if(window.sending) return;
+    window.sending = true;
 
-setTimeout(()=>{
-window.sending=false;
-btn.disabled=false;
-btn.textContent="Kirim Permintaan Service";
-},15000);
+    const btn=document.getElementById("checkout");
+    btn.disabled=true;
+    btn.textContent="Mengirim...";
 
-const btn=document.getElementById("checkout");
-btn.disabled=true;
-btn.textContent="Mengirim...";
-const nama=document.getElementById("customer-name").value.trim();
-const alamat=document.getElementById("customer-address").value.trim();
-const phone=document.getElementById("customer-phone").value.trim();
-const brand=document.getElementById("customer-brand").value.trim();
-const problem=document.getElementById("customer-problem").value.trim();
-const method=metode.value;
+    const nama=document.getElementById("customer-name").value.trim();
+    const alamat=document.getElementById("customer-address").value.trim();
+    const phone=document.getElementById("customer-phone").value.trim();
+    const brand=document.getElementById("customer-brand").value.trim();
+    const problem=document.getElementById("customer-problem").value.trim();
+    const method=metode.value;
 
-if(!nama||!alamat||!phone||!brand||!problem||!method){
-window.sending=false;
-btn.disabled=false;
-btn.textContent="Kirim Permintaan Service";
-return alert("Lengkapi data");
-}
+    if(!nama||!alamat||!phone||!brand||!problem||!method){
+        window.sending=false;
+        btn.disabled=false;
+        btn.textContent="Kirim Permintaan Service";
+        return alert("Lengkapi data");
+    }
 
-if(method==="home" && !coordInput.value){
-window.sending=false;
-btn.disabled=false;
-btn.textContent="Kirim Permintaan Service";
-return alert("Lokasi wajib diisi untuk Home Service");
-}
+    if(method==="home" && !coordInput.value){
+        window.sending=false;
+        btn.disabled=false;
+        btn.textContent="Kirim Permintaan Service";
+        return alert("Lokasi wajib diisi untuk Home Service");
+    }
 
-const spare=Object.values(spareparts)
-.reduce((a,b)=>a+(b.price*b.qty),0);
+    const spare=Object.values(spareparts)
+        .reduce((a,b)=>a+(b.price*b.qty),0);
 
-const total=spare+transportCost;
+    const total=spare+transportCost;
 
-/* LIST SPARE */
-let spareList="Tidak ada";
-const keys=Object.keys(spareparts);
+    /* LIST SPARE */
+    let spareList="Tidak ada";
+    const keys=Object.keys(spareparts);
+    if(keys.length){
+        spareList=keys.map(n=>{
+            const s=spareparts[n];
+            return `${n} x${s.qty} (${rupiah(s.price*s.qty)})`;
+        }).join(", ");
+    }
 
-if(keys.length){
-spareList=keys.map(n=>{
-const s=spareparts[n];
-return `${n} x${s.qty} (${rupiah(s.price*s.qty)})`;
-}).join(", ");
-}
+    /* ================= SIMPAN KE SUPABASE ================= */
+    try {
+        const { error } = await db
+            .from("service_orders")
+            .insert({
+                nama,
+                alamat,
+                phone,
+                brand,
+                problem,
+                metode: method,
+                sparepart: spareList,
+                transport: transportCost,
+                total,
+                coord: coordInput.value || null,
+                status: "pending"
+            });
 
+        if(error) throw error;
 
-/* ================= SIMPAN KE SUPABASE ================= */
-try {
-  const { data: newOrder, error } = await db
-    .from("service_orders")
-    .insert({
-      nama,
-      alamat,
-      phone,
-      brand,
-      problem,
-      metode: method,
-      sparepart: spareList,
-      transport: transportCost,
-      total,
-      coord: coordInput.value || null,
-      status: "pending"
-    })
-    .select()   // penting, agar kita dapat data baru termasuk id
-    .single();  // ambil satu record saja
+    } catch (err) {
+        console.error("Gagal kirim data:", err);
+        alert("Gagal kirim data ke server");
+        window.sending=false;
+        btn.disabled=false;
+        btn.textContent="Kirim Permintaan Service";
+        return;
+    }
 
-  if (error) throw error;
+    /* ================= MESSAGE WA ================= */
+    let msg=`📱 *SERVICE HP*%0A`;
+    msg+=`Nama: ${nama}%0A`;
+    msg+=`No HP: ${phone}%0A`;
+    msg+=`Merk: ${brand}%0A`;
+    msg+=`Keluhan: ${problem}%0A`;
+    msg+=`Metode: ${method}%0A`;
+    msg+=`Sparepart: ${spareList}%0A`;
 
-  // ✅ Insert ke dapur_admin
-  const { error: dapurError } = await db
-    .from("dapur_admin")
-    .insert({
-      service_id: newOrder.id, // link ke service_orders
-      nama: newOrder.nama,
-      alamat: newOrder.alamat,
-      phone: newOrder.phone,
-      brand: newOrder.brand,
-      problem: newOrder.problem,
-      metode: newOrder.metode,
-      sparepart: newOrder.sparepart,
-      transport: newOrder.transport,
-      total: newOrder.total,
-      coord: newOrder.coord,
-      status: newOrder.status,
-      created_at: newOrder.created_at
-    });
+    if(method==="home") msg+=`Transport: ${rupiah(transportCost)}%0A`;
+    if(method==="paket") msg+=`Pengiriman ke alamat toko%0A`;
+    msg+=`Total Estimasi: ${rupiah(total)}%0A`;
+    msg+=`%0A(Jasa diinformasikan setelah pengecekan teknisi)`;
 
-  if(dapurError) console.error("Gagal insert ke dapur_admin:", dapurError);
+    window.open(`https://wa.me/6288803060094?text=${msg}`);
 
-} catch (err) {
-  console.error(err);
-  alert("Gagal kirim data ke server");
-  window.sending = false;
-  return;
-}
-
-
-/* ================= MESSAGE WA ================= */
-
-let msg=`📱 *SERVICE HP*%0A`;
-msg+=`Nama: ${nama}%0A`;
-msg+=`No HP: ${phone}%0A`;
-msg+=`Merk: ${brand}%0A`;
-msg+=`Keluhan: ${problem}%0A`;
-msg+=`Metode: ${method}%0A`;
-msg+=`Sparepart: ${spareList}%0A`;
-
-if(method==="home")
-msg+=`Transport: ${rupiah(transportCost)}%0A`;
-
-if(method==="paket")
-msg+=`Pengiriman ke alamat toko%0A`;
-
-msg+=`Total Estimasi: ${rupiah(total)}%0A`;
-msg+=`%0A(Jasa diinformasikan setelah pengecekan teknisi)`;
-
-/* WA */
-/* WA */
-window.open(`https://wa.me/6288803060094?text=${msg}`);
-
-window.sending=false;
-btn.disabled=false;
-btn.textContent="Kirim Permintaan Service";
-
+    window.sending=false;
+    btn.disabled=false;
+    btn.textContent="Kirim Permintaan Service";
 };
-
-renderCart();
-updateTotal();
-
-}); // ← PENUTUP DOMContentLoaded
-
