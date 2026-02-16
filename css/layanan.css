@@ -382,3 +382,24 @@ font-size:18px;
 max-height:90vh;
 overflow-y:auto;
 }
+
+
+/* ================= CUSTOM MARKER ================= */
+.custom-marker i{
+font-size:30px;
+color:#00c2c7;
+text-shadow:0 0 6px rgba(0,0,0,0.3);
+transition:.3s;
+}
+
+/* animasi bounce */
+.bounce{
+animation:bounce .6s;
+}
+
+@keyframes bounce{
+0%{transform:translateY(-20px)}
+50%{transform:translateY(0)}
+70%{transform:translateY(-8px)}
+100%{transform:translateY(0)}
+}
