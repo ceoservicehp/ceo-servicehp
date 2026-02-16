@@ -416,3 +416,50 @@ animation:markerBounce .6s cubic-bezier(.34,1.56,.64,1);
 65%{transform:translateY(-10px)}
 100%{transform:translateY(0)}
 }
+
+/* ================= CART ================= */
+#cart-items{
+margin-top:10px;
+display:flex;
+flex-direction:column;
+gap:10px;
+}
+
+.cart-row{
+display:flex;
+justify-content:space-between;
+align-items:center;
+background:#f3fbff;
+padding:10px;
+border-radius:10px;
+font-size:14px;
+}
+
+.cart-controls{
+display:flex;
+align-items:center;
+gap:6px;
+}
+
+.cart-controls button{
+border:none;
+background:#1f6f78;
+color:white;
+width:24px;
+height:24px;
+border-radius:6px;
+cursor:pointer;
+font-weight:bold;
+}
+
+.cart-controls button:hover{
+background:#00c2c7;
+}
+
+.cart-controls .remove{
+background:#d9534f;
+}
+
+.cart-controls .remove:hover{
+background:#ff6b6b;
+}
