@@ -8,7 +8,7 @@ const products=[
 {name:"Kamera",price:120000,img:"images/kamera.jpg"}
 ];
 
-let spareparts=[];
+let spareparts={}; 
 let transportCost=0;
 
 const TOKO_LAT=-6.200000;
@@ -42,7 +42,9 @@ return "Rp "+Number(n).toLocaleString("id-ID");
 /* ================= TOTAL ================= */
 function updateTotal(){
 
-const spare=spareparts.reduce((a,b)=>a+b.price,0);
+const spare=Object.values(spareparts)
+.reduce((a,b)=>a+(b.price*b.qty),0);
+
 const total=spare+transportCost;
 
 sparepartPriceEl.textContent=rupiah(spare);
@@ -165,12 +167,95 @@ container.addEventListener("click",e=>{
 if(e.target.tagName!=="BUTTON") return;
 
 const item=products[e.target.dataset.id];
-spareparts.push(item);
 
+if(spareparts[item.name]){
+spareparts[item.name].qty++;
+}else{
+spareparts[item.name]={price:item.price,qty:1};
+}
+
+renderCart();
 updateTotal();
-alert("Ditambahkan: "+item.name);
 });
 
+/* ================= RENDER CART ================= */
+function renderCart(){
+
+const box=document.getElementById("cart-items");
+const wrap=document.getElementById("cart-box");
+
+if(!box || !wrap) return;
+
+box.innerHTML="";
+
+const keys=Object.keys(spareparts);
+
+if(keys.length===0){
+wrap.style.display="none";
+return;
+}
+
+wrap.style.display="block";
+
+keys.forEach(name=>{
+
+const item=spareparts[name];
+
+const div=document.createElement("div");
+div.className="cart-row";
+
+div.innerHTML=`
+<span>${name}</span>
+
+<div class="cart-controls">
+<button class="minus" data-name="${name}">−</button>
+<span>${item.qty}</span>
+<button class="plus" data-name="${name}">+</button>
+<button class="remove" data-name="${name}">✕</button>
+</div>
+
+<span>${rupiah(item.price*item.qty)}</span>
+`;
+
+box.appendChild(div);
+});
+
+attachCartEvents();
+}
+
+
+function attachCartEvents(){
+
+document.querySelectorAll(".plus").forEach(btn=>{
+btn.onclick=()=>{
+spareparts[btn.dataset.name].qty++;
+renderCart();
+updateTotal();
+};
+});
+
+document.querySelectorAll(".minus").forEach(btn=>{
+btn.onclick=()=>{
+const item=spareparts[btn.dataset.name];
+item.qty--;
+
+if(item.qty<=0)
+delete spareparts[btn.dataset.name];
+
+renderCart();
+updateTotal();
+};
+});
+
+document.querySelectorAll(".remove").forEach(btn=>{
+btn.onclick=()=>{
+delete spareparts[btn.dataset.name];
+renderCart();
+updateTotal();
+};
+});
+}
+  
 /* ================= METODE SERVICE ================= */
 metode.addEventListener("change",()=>{
 
@@ -225,13 +310,21 @@ return alert("Lengkapi data");
 if(method==="home" && !coordInput.value)
 return alert("Lokasi wajib diisi untuk Home Service");
 
-const spare=spareparts.reduce((a,b)=>a+b.price,0);
+const spare=Object.values(spareparts)
+.reduce((a,b)=>a+(b.price*b.qty),0);
+
 const total=spare+transportCost;
 
 /* LIST SPARE */
 let spareList="Tidak ada";
-if(spareparts.length){
-spareList=spareparts.map(s=>`${s.name} (${rupiah(s.price)})`).join(", ");
+
+const keys=Object.keys(spareparts);
+
+if(keys.length){
+spareList=keys.map(n=>{
+const s=spareparts[n];
+return `${n} x${s.qty} (${rupiah(s.price*s.qty)})`;
+}).join(", ");
 }
 
 /* MESSAGE */
