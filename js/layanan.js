@@ -360,33 +360,32 @@ return `${n} x${s.qty} (${rupiah(s.price*s.qty)})`;
 
 
 /* ================= SIMPAN KE SUPABASE ================= */
+try {
+  const { error } = await db
+    .from("service_orders")
+    .insert({
+      nama,
+      alamat,
+      phone,
+      brand,
+      problem,              // ✅ gunakan 'problem' sesuai kolom
+      metode: method,
+      sparepart: spareList,
+      transport: transportCost,
+      total,
+      coord: coordInput.value || null,  // ✅ gunakan 'coord'
+      status: "pending"
+    });
 
-try{
+  if (error) throw error;
 
-const { error } = await db
-.from("service_orders")
-.insert({
-  nama,                  // sesuai kolom 'nama'
-  alamat,                // sesuai kolom 'alamat'
-  phone,                 // sesuai kolom 'phone'
-  brand,                 // sesuai kolom 'brand'
-  problem,               // ❌ ganti dari keluhan → problem
-  metode: method,        // sesuai kolom 'metode'
-  sparepart: spareList,  // sesuai kolom 'sparepart'
-  transport: transportCost, // sesuai kolom 'transport'
-  total,                 // sesuai kolom 'total'
-  coord: coordInput.value || null,  // ❌ ganti dari koordinat → coord
-  status: "pending"      // sesuai kolom 'status'
-});
-
-if(error) throw error;
-
-}catch(err){
+} catch (err) {
   console.error(err);
   alert("Gagal kirim data ke server");
-  window.sending=false;
+  window.sending = false;
   return;
 }
+
 
 /* ================= MESSAGE WA ================= */
 
