@@ -322,6 +322,7 @@ document.getElementById("checkout").onclick = async () => {
     const brand=document.getElementById("customer-brand").value.trim();
     const problem=document.getElementById("customer-problem").value.trim();
     const method=metode.value;
+    const file=document.getElementById("bukti")?.files[0];
 
     if(!nama||!alamat||!phone||!brand||!problem||!method){
         window.sending=false;
@@ -342,7 +343,6 @@ document.getElementById("checkout").onclick = async () => {
 
     const total=spare+transportCost;
 
-    /* LIST SPARE */
     let spareList="Tidak ada";
     const keys=Object.keys(spareparts);
     if(keys.length){
@@ -350,6 +350,32 @@ document.getElementById("checkout").onclick = async () => {
             const s=spareparts[n];
             return `${n} x${s.qty} (${rupiah(s.price*s.qty)})`;
         }).join(", ");
+    }
+
+    /* ================= UPLOAD BUKTI ================= */
+    let buktiUrl=null;
+
+    if(file){
+        const fileName=Date.now()+"_"+file.name;
+
+        const { error:uploadError } = await db.storage
+            .from("bukti-transfer")
+            .upload(fileName,file);
+
+        if(uploadError){
+            alert("Gagal upload bukti transfer");
+            console.error(uploadError);
+            window.sending=false;
+            btn.disabled=false;
+            btn.textContent="Kirim Permintaan Service";
+            return;
+        }
+
+        const { data:publicUrl } = db.storage
+            .from("bukti-transfer")
+            .getPublicUrl(fileName);
+
+        buktiUrl=publicUrl.publicUrl;
     }
 
     /* ================= SIMPAN KE SUPABASE ================= */
@@ -367,7 +393,8 @@ document.getElementById("checkout").onclick = async () => {
                 transport: transportCost,
                 total,
                 coord: coordInput.value || null,
-                status: "pending"
+                status: "pending",
+                bukti: buktiUrl
             });
 
         if(error) throw error;
