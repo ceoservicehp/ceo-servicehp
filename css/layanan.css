@@ -314,3 +314,71 @@ padding:8px;
 }
 
 }
+
+/* ================= MAP LEAFLET ================= */
+#map{
+height:260px;
+margin-top:10px;
+border-radius:14px;
+border:1px solid #dceeff;
+box-shadow:0 3px 10px rgba(0,0,0,0.12);
+z-index:1;
+}
+
+
+/* ================= KOORDINAT BOX ================= */
+#customer-coord{
+background:#f3fbff;
+font-weight:600;
+color:#1f6f78;
+text-align:center;
+}
+
+
+/* ================= BUTTON LOKASI ================= */
+#getLocation{
+margin-top:10px;
+padding:12px;
+width:100%;
+border:none;
+border-radius:10px;
+background:linear-gradient(90deg,#1f6f78,#00c2c7);
+color:white;
+font-weight:bold;
+cursor:pointer;
+transition:.25s;
+}
+
+#getLocation:hover{
+transform:scale(1.02);
+box-shadow:0 5px 16px rgba(0,194,199,0.5);
+}
+
+
+/* ================= TRANSPORT INFO ================= */
+#distance-info{
+margin-top:6px;
+font-size:12px;
+color:#555;
+text-align:right;
+font-style:italic;
+}
+
+
+/* ================= SUMMARY ANIMATION ================= */
+.summary-row span:last-child{
+font-weight:bold;
+color:#0b6d70;
+}
+
+.summary-total span:last-child{
+color:#0b6d70;
+font-size:18px;
+}
+
+
+/* ================= SCROLL MODAL MOBILE ================= */
+.modal-content{
+max-height:90vh;
+overflow-y:auto;
+}
