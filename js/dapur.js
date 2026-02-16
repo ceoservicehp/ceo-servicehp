@@ -56,9 +56,11 @@ async function loadOrders(){
     tbody.innerHTML=`<tr><td colspan="16">Loading...</td></tr>`;
 
     const {data,error}=await supabase
-        .from("service_orders")      // tetap dari service_orders
+        .from("service_orders")
         .select("*")
         .order("created_at",{ascending:false});
+
+    console.log("Data dari service_orders:", data, error);  // ✅ cek di console
 
     if(error){
         tbody.innerHTML=`<tr><td colspan="16">Error load data</td></tr>`;
@@ -222,3 +224,4 @@ document.addEventListener("DOMContentLoaded",()=>{
     // ✅ Auto-refresh tiap 5 detik
     setInterval(loadOrders, 5000);
 });
+
