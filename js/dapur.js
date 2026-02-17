@@ -78,6 +78,10 @@ async function loadOrders(){
 }
 
 /* ================= RENDER TABLE ================= */
+function rupiah(n){
+    return "Rp " + Number(n || 0).toLocaleString("id-ID");
+}
+
 function renderTable(){
     const tbody=document.getElementById("orderTable");
     if(!tbody) return;
@@ -91,7 +95,7 @@ function renderTable(){
     }
 
     if(rows.length===0){
-        tbody.innerHTML=`<tr><td colspan="7">Tidak ada data</td></tr>`;
+        tbody.innerHTML=`<tr><td colspan="8">Tidak ada data</td></tr>`;
         return;
     }
 
@@ -99,11 +103,12 @@ function renderTable(){
 
     rows.forEach((row,i)=>{
 
-        // badge warna status
         let statusClass="status-pending";
         if(row.status==="proses") statusClass="status-proses";
         if(row.status==="selesai") statusClass="status-selesai";
         if(row.status==="batal") statusClass="status-batal";
+
+        const totalKeseluruhan = (row.transport || 0) + (row.jasa || 0);
 
         tbody.innerHTML+=`
         <tr>
@@ -116,6 +121,9 @@ function renderTable(){
                 <span class="status-badge ${statusClass}">
                     ${row.status ?? "pending"}
                 </span>
+            </td>
+            <td style="font-weight:600; color:#009688;">
+                ${rupiah(totalKeseluruhan)}
             </td>
             <td>
                 <button class="detail-btn" data-id="${row.id}">
@@ -145,6 +153,7 @@ document.addEventListener("click",e=>{
     document.getElementById("edit-metode").value=data.metode ?? "";
     document.getElementById("edit-sparepart").value=data.sparepart ?? "";
     document.getElementById("edit-transport").value=data.transport ?? "";
+    document.getElementById("edit-jasa").value = data.jasa ?? 0;
     document.getElementById("edit-total").value=data.total ?? "";
     document.getElementById("edit-status").value=data.status ?? "pending";
     document.getElementById("edit-coord").value=data.coord ?? "";
@@ -164,9 +173,15 @@ document.getElementById("closeModal").onclick=()=>{
 /* ================= SAVE EDIT ================= */
 
 document.getElementById("saveEdit").onclick=async()=>{
-    const id=document.getElementById("edit-id").value;
 
-    await getSupabase()
+    const id = parseInt(document.getElementById("edit-id").value);
+
+    const transport = parseInt(document.getElementById("edit-transport").value) || 0;
+    const jasa = parseInt(document.getElementById("edit-jasa").value) || 0;
+
+    const total = transport + jasa;
+
+    const { error } = await getSupabase()
         .from("service_orders")
         .update({
             nama:document.getElementById("edit-nama").value,
@@ -176,12 +191,19 @@ document.getElementById("saveEdit").onclick=async()=>{
             problem:document.getElementById("edit-problem").value,
             metode:document.getElementById("edit-metode").value,
             sparepart:document.getElementById("edit-sparepart").value,
-            transport:document.getElementById("edit-transport").value,
-            total:document.getElementById("edit-total").value,
+            transport:transport,
+            jasa:jasa,
+            total:total,
             status:document.getElementById("edit-status").value,
             coord:document.getElementById("edit-coord").value
         })
         .eq("id",id);
+
+    if(error){
+        alert("Gagal update");
+        console.log(error);
+        return;
+    }
 
     document.getElementById("detailModal").style.display="none";
     loadOrders();
@@ -299,6 +321,7 @@ document.addEventListener("DOMContentLoaded",()=>{
     // ✅ Auto-refresh tiap 5 detik
     // setInterval(loadOrders, 5000);
 });
+
 
 
 
