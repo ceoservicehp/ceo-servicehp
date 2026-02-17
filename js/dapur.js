@@ -53,7 +53,7 @@ async function loadOrders(){
     const tbody=document.getElementById("orderTable");
     if(!tbody || !supabase) return;
 
-    tbody.innerHTML=`<tr><td colspan="16">Loading...</td></tr>`;
+    tbody.innerHTML=`<tr><td colspan="17">Loading...</td></tr>`;
 
     const {data,error}=await supabase
         .from("service_orders")
@@ -226,6 +226,7 @@ document.addEventListener("DOMContentLoaded",()=>{
     // ✅ Auto-refresh tiap 5 detik
     setInterval(loadOrders, 5000);
 });
+
 
 
 
