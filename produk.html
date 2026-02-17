@@ -16,77 +16,74 @@
 <body>
 
 <!-- ================= HEADER ================= -->
-<header class="admin-header">
-    <div class="header-left">
-        <h1>📦 Kelola Produk Sparepart</h1>
-    </div>
-
-    <div class="header-right">
-        <button id="logoutBtn" class="btn btn-logout">
-            Logout
-        </button>
-    </div>
+<header class="main-header">
+  <h1>📦 Kelola Produk Sparepart</h1>
+  <button id="logoutBtn" class="btn-logout">
+    Logout
+  </button>
 </header>
 
-<!-- ================= CONTAINER ================= -->
 <div class="container">
 
-    <!-- FORM TAMBAH / EDIT -->
-    <div class="form-box">
-        <h3>Tambah / Edit Produk</h3>
+  <!-- FORM -->
+  <div class="card">
+    <h2>Tambah / Edit Produk</h2>
 
-        <input type="hidden" id="productId">
+    <input type="hidden" id="productId">
 
-        <div class="form-group">
-            <label>Nama Produk</label>
-            <input type="text" id="productName" placeholder="Contoh: LCD Samsung">
-        </div>
-
-        <div class="form-group">
-            <label>Harga</label>
-            <input type="number" id="productPrice" placeholder="150000">
-        </div>
-
-        <div class="form-group">
-            <label>Deskripsi</label>
-            <textarea id="productDesc" placeholder="Deskripsi produk..."></textarea>
-        </div>
-
-        <div class="form-group">
-            <label>Gambar Produk</label>
-            <input type="file" id="productImage">
-        </div>
-
-        <button id="saveProduct" class="btn btn-primary">
-            Simpan Produk
-        </button>
+    <div class="form-group">
+      <label>Nama Produk</label>
+      <input type="text" id="productName" placeholder="Contoh: LCD Samsung">
     </div>
 
-    <!-- TABEL PRODUK -->
+    <div class="form-group">
+      <label>Harga</label>
+      <input type="number" id="productPrice" placeholder="150000">
+    </div>
+
+    <div class="form-group">
+      <label>Deskripsi</label>
+      <textarea id="productDesc" rows="3"
+        placeholder="Deskripsi produk..."></textarea>
+    </div>
+
+    <div class="form-group">
+      <label>Gambar Produk</label>
+      <input type="file" id="productImage">
+    </div>
+
+    <button class="btn-primary" id="saveProduct">
+      Simpan Produk
+    </button>
+
+  </div>
+
+  <!-- TABLE -->
+  <div class="card">
+    <h2>Daftar Produk</h2>
+
     <div class="table-wrapper">
-        <table>
-            <thead>
-                <tr>
-                    <th>No</th>
-                    <th>Nama</th>
-                    <th>Harga</th>
-                    <th>Aksi</th>
-                </tr>
-            </thead>
-            <tbody id="productTable">
-                <tr>
-                    <td colspan="4">Memuat data...</td>
-                </tr>
-            </tbody>
-        </table>
+      <table>
+        <thead>
+          <tr>
+            <th>No</th>
+            <th>Nama</th>
+            <th>Harga</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="productTable">
+          <tr>
+            <td colspan="4">Memuat data...</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
+
+  </div>
 
 </div>
 
-<!-- ================= FOOTER ================= -->
-<footer class="admin-footer">
-    © 2026 CEO Service HP — Admin Panel
+<footer class="main-footer">
+  © 2026 CEO Service HP — Admin Panel
 </footer>
-
-</body>
-</html>
