@@ -110,24 +110,13 @@ Memuat status layanan...
 <th>Nama</th>
 <th>Alamat</th>
 <th>No HP</th>
-<th>Merk</th>
-<th>Keluhan</th>
-<th>Metode</th>
-<th>Sparepart</th>
-<th>Transport</th>
-<th>Bukti</th>
-<th>Jasa</th>
-<th>Total</th>
-<th>Koordinat</th>
-<th>Status</th>
-<th>Tanggal</th>
 <th>Aksi</th>
 </tr>
 </thead>
 
 <tbody id="orderTable">
 <tr>
-<td colspan="17">Memuat data...</td>
+<td colspan="6">Memuat data...</td>
 </tr>
 </tbody>
 
@@ -136,6 +125,52 @@ Memuat status layanan...
 
 </section>
 </main>
+
+<!-- MODAL DETAIL -->
+<div id="detailModal" class="modal" style="display:none;">
+  <div class="modal-content">
+    <span id="closeModal" class="close">&times;</span>
+    <h3>Edit Data Service</h3>
+
+    <form id="detailForm">
+      <input type="hidden" id="edit-id">
+
+      <label>Nama</label>
+      <input type="text" id="edit-nama">
+
+      <label>Alamat</label>
+      <input type="text" id="edit-alamat">
+
+      <label>No HP</label>
+      <input type="text" id="edit-phone">
+
+      <label>Merk</label>
+      <input type="text" id="edit-brand">
+
+      <label>Keluhan</label>
+      <textarea id="edit-problem"></textarea>
+
+      <label>Status</label>
+      <select id="edit-status">
+        <option value="pending">Pending</option>
+        <option value="proses">Proses</option>
+        <option value="selesai">Selesai</option>
+        <option value="batal">Batal</option>
+      </select>
+
+      <div style="margin-top:15px;">
+        <button type="button" id="saveEdit" class="btn btn-open">
+          💾 Simpan
+        </button>
+
+        <button type="button" id="deleteEdit" class="btn btn-close">
+          🗑 Hapus
+        </button>
+      </div>
+    </form>
+
+  </div>
+</div>
 
 <!-- FOOTER -->
 <footer class="main-footer">
@@ -181,6 +216,7 @@ window.location="login.html";
 
 </body>
 </html>
+
 
 
 
