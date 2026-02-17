@@ -376,3 +376,111 @@ textarea {
   border-radius: 10px;
   font-weight: 500;
 }
+
+/* ================= FIX NAVBAR LINK ================= */
+
+.top-nav{
+  background:#ffffff;
+  padding:12px 20px;
+  border-bottom:1px solid #e5e7eb;
+  display:flex;
+  gap:14px;
+  flex-wrap:wrap;
+}
+
+.top-nav a{
+  text-decoration:none !important;
+  color:#2c3e50 !important;
+  font-weight:500;
+  padding:6px 12px;
+  border-radius:8px;
+  transition:0.2s;
+}
+
+.top-nav a:hover{
+  background:#e8f8f8;
+}
+
+.top-nav a.active{
+  background:linear-gradient(90deg,#1f6f78,#00c2c7);
+  color:#fff !important;
+}
+
+/* ================= DETAIL BUTTON ================= */
+
+.detail-btn{
+  background:linear-gradient(90deg,#1f6f78,#00c2c7);
+  color:#fff;
+  border:none;
+  padding:6px 14px;
+  border-radius:8px;
+  cursor:pointer;
+  font-size:13px;
+  transition:0.2s;
+}
+
+.detail-btn:hover{
+  transform:translateY(-2px);
+  box-shadow:0 4px 12px rgba(0,194,199,0.4);
+}
+
+/* ================= TABLE POLISH ================= */
+
+.admin-table{
+  background:#ffffff;
+  border-radius:12px;
+  overflow:hidden;
+}
+
+.admin-table th{
+  background:#f1fafa;
+  border-bottom:1px solid #e0f2f2;
+}
+
+.admin-table td{
+  background:#ffffff;
+}
+
+.admin-table tr:nth-child(even){
+  background:#f9fcfc;
+}
+
+.admin-table tr:hover{
+  background:#eaffff;
+  transition:0.2s;
+}
+
+/* ================= STATUS BADGE UPGRADE ================= */
+
+.status-badge{
+  padding:5px 12px;
+  border-radius:20px;
+  font-size:12px;
+  font-weight:600;
+  display:inline-block;
+}
+
+.status-pending{
+  background:#fff3cd;
+  color:#856404;
+}
+
+.status-proses{
+  background:#cce5ff;
+  color:#004085;
+}
+
+.status-selesai{
+  background:#d4edda;
+  color:#155724;
+}
+
+.status-batal{
+  background:#f8d7da;
+  color:#721c24;
+}
+
+.search-box input{
+  background:#ffffff;
+}
+
