@@ -53,7 +53,7 @@ async function loadOrders(){
     const tbody=document.getElementById("orderTable");
     if(!tbody || !supabase) return;
 
-    tbody.innerHTML=`<tr><td colspan="8">Loading...</td></tr>`;
+    tbody.innerHTML=`<tr><td colspan="9">Loading...</td></tr>`;
 
     const {data,error}=await supabase
         .from("service_orders")
@@ -63,13 +63,13 @@ async function loadOrders(){
     // console.log("Data dari service_orders:", data, error);  // ✅ cek di console
 
     if(error){
-        tbody.innerHTML=`<tr><td colspan="8">Error load data</td></tr>`;
+        tbody.innerHTML=`<tr><td colspan="9">Error load data</td></tr>`;
         console.error(error);
         return;
     }
 
     if(!data || data.length===0){
-        tbody.innerHTML=`<tr><td colspan="8">Belum ada pesanan</td></tr>`;
+        tbody.innerHTML=`<tr><td colspan="9">Belum ada pesanan</td></tr>`;
         return;
     }
 
@@ -95,7 +95,7 @@ function renderTable(){
     }
 
     if(rows.length===0){
-        tbody.innerHTML=`<tr><td colspan="8">Tidak ada data</td></tr>`;
+        tbody.innerHTML=`<tr><td colspan="9">Tidak ada data</td></tr>`;
         return;
     }
 
@@ -124,6 +124,20 @@ function renderTable(){
             </td>
             <td style="font-weight:600; color:#009688;">
                 ${rupiah(totalKeseluruhan)}
+            </td>
+            
+            <td style="font-size:12px; color:#666;">
+                ${new Date(row.created_at).toLocaleDateString("id-ID",{
+                    day:"2-digit",
+                    month:"short",
+                    year:"numeric"
+                })}
+            </td>
+            
+            <td>
+                <button class="detail-btn" data-id="${row.id}">
+                    Detail
+                </button>
             </td>
             <td>
                 <button class="detail-btn" data-id="${row.id}">
@@ -168,6 +182,15 @@ document.addEventListener("DOMContentLoaded",()=>{
         document.getElementById("edit-jasa").value=data.jasa ?? 0;
         document.getElementById("edit-total").value=data.total ?? 0;
         document.getElementById("edit-status").value=data.status ?? "pending";
+        document.getElementById("edit-tanggal").value =
+        new Date(data.created_at).toLocaleString("id-ID",{
+            weekday:"long",
+            day:"2-digit",
+            month:"long",
+            year:"numeric",
+            hour:"2-digit",
+            minute:"2-digit"
+        });
         document.getElementById("edit-coord").value=data.coord ?? "";
 
         const buktiDiv=document.getElementById("edit-bukti-preview");
@@ -347,7 +370,7 @@ document.getElementById("filterTanggal")
     tbody.innerHTML = "";
 
     if(filtered.length === 0){
-        tbody.innerHTML = `<tr><td colspan="8">Tidak ada data</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="9">Tidak ada data</td></tr>`;
         return;
     }
 
@@ -393,3 +416,4 @@ document.getElementById("cetakTanggal")
     window.print();
 
 });
+
