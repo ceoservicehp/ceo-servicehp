@@ -374,12 +374,13 @@ document.getElementById("checkout").onclick = async () => {
     }
 
 /* ================= SIMPAN KE SUPABASE ================= */
+
+const spareTotal = Object.values(spareparts)
+    .reduce((a,b)=>a+(b.price*b.qty),0);
+
+const total = spareTotal + transportCost;
+
 try {
-
-    const spareTotal = Object.values(spareparts)
-        .reduce((a,b)=>a+(b.price*b.qty),0);
-
-    const total = spareTotal + transportCost;
 
     const { error } = await db
         .from("service_orders")
