@@ -53,7 +53,7 @@ async function loadOrders(){
     const tbody=document.getElementById("orderTable");
     if(!tbody || !supabase) return;
 
-    tbody.innerHTML=`<tr><td colspan="17">Loading...</td></tr>`;
+    tbody.innerHTML=`<tr><td colspan="8">Loading...</td></tr>`;
 
     const {data,error}=await supabase
         .from("service_orders")
@@ -63,13 +63,13 @@ async function loadOrders(){
     // console.log("Data dari service_orders:", data, error);  // ✅ cek di console
 
     if(error){
-        tbody.innerHTML=`<tr><td colspan="16">Error load data</td></tr>`;
+        tbody.innerHTML=`<tr><td colspan="8">Error load data</td></tr>`;
         console.error(error);
         return;
     }
 
     if(!data || data.length===0){
-        tbody.innerHTML=`<tr><td colspan="16">Belum ada pesanan</td></tr>`;
+        tbody.innerHTML=`<tr><td colspan="8">Belum ada pesanan</td></tr>`;
         return;
     }
 
@@ -135,94 +135,106 @@ function renderTable(){
     });
 }
 
-/* ================= DETAIL MODAL ================= */
+/* ================= INIT ================= */
+document.addEventListener("DOMContentLoaded",()=>{
 
-document.addEventListener("click",e=>{
-    if(!e.target.classList.contains("detail-btn")) return;
+    loadOrders();
+    loadStoreStatus();
 
-    const id=e.target.dataset.id;
-    const data=allOrders.find(o=>o.id==id);
-    if(!data) return;
+    document.getElementById("btnOpen").onclick=()=>setStore(true);
+    document.getElementById("btnClose").onclick=()=>setStore(false);
 
-    document.getElementById("edit-id").value=data.id;
-    document.getElementById("edit-nama").value=data.nama ?? "";
-    document.getElementById("edit-phone").value=data.phone ?? "";
-    document.getElementById("edit-alamat").value=data.alamat ?? "";
-    document.getElementById("edit-brand").value=data.brand ?? "";
-    document.getElementById("edit-problem").value=data.problem ?? "";
-    document.getElementById("edit-metode").value=data.metode ?? "";
-    document.getElementById("edit-sparepart").value=data.sparepart ?? "";
-    document.getElementById("edit-transport").value=data.transport ?? "";
-    document.getElementById("edit-jasa").value = data.jasa ?? 0;
-    document.getElementById("edit-total").value=data.total ?? "";
-    document.getElementById("edit-status").value=data.status ?? "pending";
-    document.getElementById("edit-coord").value=data.coord ?? "";
+    document.getElementById("tanggalOtomatis").textContent=
+        new Date().toLocaleString("id-ID");
 
-    const buktiDiv=document.getElementById("edit-bukti-preview");
-    buktiDiv.innerHTML = data.bukti
-        ? `<a href="${data.bukti}" target="_blank">Lihat Bukti</a>`
-        : "Tidak ada bukti";
+    /* ================= DETAIL MODAL ================= */
 
-    document.getElementById("detailModal").style.display="flex";
+    document.addEventListener("click",e=>{
+        if(!e.target.classList.contains("detail-btn")) return;
+
+        const id=parseInt(e.target.dataset.id);
+        const data=allOrders.find(o=>o.id===id);
+        if(!data) return;
+
+        document.getElementById("edit-id").value=data.id;
+        document.getElementById("edit-nama").value=data.nama ?? "";
+        document.getElementById("edit-phone").value=data.phone ?? "";
+        document.getElementById("edit-alamat").value=data.alamat ?? "";
+        document.getElementById("edit-brand").value=data.brand ?? "";
+        document.getElementById("edit-problem").value=data.problem ?? "";
+        document.getElementById("edit-metode").value=data.metode ?? "";
+        document.getElementById("edit-sparepart").value=data.sparepart ?? "";
+        document.getElementById("edit-transport").value=data.transport ?? 0;
+        document.getElementById("edit-jasa").value=data.jasa ?? 0;
+        document.getElementById("edit-total").value=data.total ?? 0;
+        document.getElementById("edit-status").value=data.status ?? "pending";
+        document.getElementById("edit-coord").value=data.coord ?? "";
+
+        const buktiDiv=document.getElementById("edit-bukti-preview");
+        buktiDiv.innerHTML = data.bukti
+            ? `<a href="${data.bukti}" target="_blank">Lihat Bukti</a>`
+            : "Tidak ada bukti";
+
+        document.getElementById("detailModal").style.display="flex";
+    });
+
+    /* CLOSE MODAL */
+    document.getElementById("closeModal").onclick=()=>{
+        document.getElementById("detailModal").style.display="none";
+    };
+
+    /* SAVE EDIT */
+    document.getElementById("saveEdit").onclick=async()=>{
+
+        const id=parseInt(document.getElementById("edit-id").value);
+
+        const transport=parseInt(document.getElementById("edit-transport").value) || 0;
+        const jasa=parseInt(document.getElementById("edit-jasa").value) || 0;
+        const total=transport+jasa;
+
+        const {error}=await getSupabase()
+            .from("service_orders")
+            .update({
+                nama:document.getElementById("edit-nama").value,
+                phone:document.getElementById("edit-phone").value,
+                alamat:document.getElementById("edit-alamat").value,
+                brand:document.getElementById("edit-brand").value,
+                problem:document.getElementById("edit-problem").value,
+                metode:document.getElementById("edit-metode").value,
+                sparepart:document.getElementById("edit-sparepart").value,
+                transport:transport,
+                jasa:jasa,
+                total:total,
+                status:document.getElementById("edit-status").value,
+                coord:document.getElementById("edit-coord").value
+            })
+            .eq("id",id);
+
+        if(error){
+            alert("Gagal update");
+            console.log(error);
+            return;
+        }
+
+        document.getElementById("detailModal").style.display="none";
+        loadOrders();
+    };
+
+    /* DELETE */
+    document.getElementById("deleteEdit").onclick=async()=>{
+        const id=parseInt(document.getElementById("edit-id").value);
+        if(!confirm("Hapus data ini?")) return;
+
+        await getSupabase()
+            .from("service_orders")
+            .delete()
+            .eq("id",id);
+
+        document.getElementById("detailModal").style.display="none";
+        loadOrders();
+    };
+
 });
-
-document.getElementById("closeModal").onclick=()=>{
-    document.getElementById("detailModal").style.display="none";
-};
-
-/* ================= SAVE EDIT ================= */
-
-document.getElementById("saveEdit").onclick=async()=>{
-
-    const id = parseInt(document.getElementById("edit-id").value);
-
-    const transport = parseInt(document.getElementById("edit-transport").value) || 0;
-    const jasa = parseInt(document.getElementById("edit-jasa").value) || 0;
-
-    const total = transport + jasa;
-
-    const { error } = await getSupabase()
-        .from("service_orders")
-        .update({
-            nama:document.getElementById("edit-nama").value,
-            phone:document.getElementById("edit-phone").value,
-            alamat:document.getElementById("edit-alamat").value,
-            brand:document.getElementById("edit-brand").value,
-            problem:document.getElementById("edit-problem").value,
-            metode:document.getElementById("edit-metode").value,
-            sparepart:document.getElementById("edit-sparepart").value,
-            transport:transport,
-            jasa:jasa,
-            total:total,
-            status:document.getElementById("edit-status").value,
-            coord:document.getElementById("edit-coord").value
-        })
-        .eq("id",id);
-
-    if(error){
-        alert("Gagal update");
-        console.log(error);
-        return;
-    }
-
-    document.getElementById("detailModal").style.display="none";
-    loadOrders();
-};
-
-/* ================= DELETE ================= */
-
-document.getElementById("deleteEdit").onclick=async()=>{
-    const id=document.getElementById("edit-id").value;
-    if(!confirm("Hapus data ini?")) return;
-
-    await getSupabase()
-        .from("service_orders")
-        .delete()
-        .eq("id",id);
-
-    document.getElementById("detailModal").style.display="none";
-    loadOrders();
-};
 
 /* ================= TAB FILTER ================= */
 document.addEventListener("click",e=>{
@@ -306,29 +318,4 @@ document.getElementById("hapusTerpilih")
 
     loadOrders();
 });
-
-/* ================= INIT ================= */
-document.addEventListener("DOMContentLoaded",()=>{
-    loadOrders();
-    loadStoreStatus();
-
-    document.getElementById("btnOpen").onclick=()=>setStore(true);
-    document.getElementById("btnClose").onclick=()=>setStore(false);
-
-    document.getElementById("tanggalOtomatis").textContent=
-        new Date().toLocaleString("id-ID");
-
-    // ✅ Auto-refresh tiap 5 detik
-    // setInterval(loadOrders, 5000);
-});
-
-
-
-
-
-
-
-
-
-
 
