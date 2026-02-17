@@ -322,7 +322,7 @@ document.getElementById("checkout").onclick = async () => {
     const brand=document.getElementById("customer-brand").value.trim();
     const problem=document.getElementById("customer-problem").value.trim();
     const method=metode.value;
-    const file=document.getElementById("bukti")?.files[0];
+    const file=document.getElementById("payment-proof")?.files[0];
 
     if(!nama||!alamat||!phone||!brand||!problem||!method){
         window.sending=false;
