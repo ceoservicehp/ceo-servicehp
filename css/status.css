@@ -1,0 +1,49 @@
+body{
+    font-family:Poppins, sans-serif;
+    background:#f4f7fb;
+    margin:0;
+}
+
+.status-container{
+    max-width:700px;
+    margin:40px auto;
+    background:#fff;
+    padding:30px;
+    border-radius:16px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.08);
+}
+
+h1{
+    text-align:center;
+    margin-bottom:25px;
+}
+
+.search-box{
+    display:flex;
+    gap:10px;
+    margin-bottom:20px;
+}
+
+.search-box input{
+    flex:1;
+    padding:10px;
+    border-radius:8px;
+    border:1px solid #ddd;
+}
+
+.search-box button{
+    padding:10px 16px;
+    border:none;
+    border-radius:8px;
+    background:#1f6f78;
+    color:white;
+    cursor:pointer;
+}
+
+.status-card{
+    background:#f9ffff;
+    padding:20px;
+    border-radius:12px;
+    margin-bottom:20px;
+    border-left:6px solid #1f6f78;
+}
