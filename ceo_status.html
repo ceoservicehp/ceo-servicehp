@@ -5,20 +5,39 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Status Service — CEO Service HP</title>
 
-<link rel="stylesheet" href="css/ceo_status.css">
+<link rel="stylesheet" href="/css/ceo_status.css">
 
 <!-- Font Awesome -->
 <link rel="stylesheet"
 href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-<!-- Supabase -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/supabase.js"></script>
-<script defer src="js/ceo_status.js"></script>
+<script src="/js/supabase.js"></script>
+<script defer src="/js/ceo_status.js"></script>
 </head>
 
 <body>
 
+<!-- ================= HEADER ================= -->
+<header class="main-header">
+<div class="logo-area">
+<img src="/images/logo.png" width="55">
+<div>
+<h1>CEO Service HP</h1>
+<small>Cellular Engineer Officer</small>
+</div>
+</div>
+
+<nav class="nav-menu">
+<a href="/index.html"><i class="fa-solid fa-house"></i> Beranda</a>
+<a href="/layanan.html"><i class="fa-solid fa-screwdriver-wrench"></i> Service</a>
+<a href="/ceo_status.html" class="active">
+<i class="fa-solid fa-box"></i> Status
+</a>
+</nav>
+</header>
+
+<!-- ================= CONTENT ================= -->
 <div class="container">
 
 <h2>📦 Status Service Anda</h2>
@@ -51,7 +70,6 @@ placeholder="🔍 Cari nama atau nomor HP...">
 
 </div>
 
-
 <!-- ================= MODAL DETAIL ================= -->
 <div id="detailModal" class="modal">
 <div class="modal-content">
@@ -61,7 +79,6 @@ placeholder="🔍 Cari nama atau nomor HP...">
 <h3>Detail Service</h3>
 
 <div class="detail-grid">
-
 <div><b>Nama</b><p id="d-nama"></p></div>
 <div><b>No HP</b><p id="d-phone"></p></div>
 <div><b>Alamat</b><p id="d-alamat"></p></div>
@@ -76,11 +93,15 @@ placeholder="🔍 Cari nama atau nomor HP...">
 <div><b>Status</b><p id="d-status"></p></div>
 <div><b>Tanggal</b><p id="d-tanggal"></p></div>
 <div><b>Bukti</b><p id="d-bukti"></p></div>
-
 </div>
 
 </div>
 </div>
+
+<!-- ================= FOOTER ================= -->
+<footer class="main-footer">
+<p>© 2026 CEO Service HP — All Rights Reserved</p>
+</footer>
 
 </body>
 </html>
