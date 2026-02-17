@@ -214,3 +214,60 @@ font-size:13px;
 }
 
 }
+
+/* ================= HEADER ================= */
+.main-header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:15px 30px;
+background:linear-gradient(90deg,#1f6f78,#00c2c7);
+color:white;
+box-shadow:0 4px 15px rgba(0,0,0,0.15);
+}
+
+.logo-area{
+display:flex;
+align-items:center;
+gap:12px;
+}
+
+.logo-area h1{
+margin:0;
+font-size:18px;
+}
+
+.logo-area small{
+opacity:.9;
+font-size:12px;
+}
+
+.nav-menu{
+display:flex;
+gap:20px;
+}
+
+.nav-menu a{
+color:white;
+text-decoration:none;
+font-weight:500;
+padding:6px 12px;
+border-radius:20px;
+transition:.3s;
+}
+
+.nav-menu a:hover,
+.nav-menu a.active{
+background:rgba(255,255,255,0.2);
+}
+
+/* ================= FOOTER ================= */
+.main-footer{
+margin-top:50px;
+padding:18px;
+text-align:center;
+background:linear-gradient(90deg,#0b1c22,#2b4d58);
+color:white;
+font-size:13px;
+letter-spacing:.5px;
+}
