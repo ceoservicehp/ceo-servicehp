@@ -223,6 +223,7 @@ document.addEventListener("DOMContentLoaded",()=>{
                 problem:document.getElementById("edit-problem").value,
                 metode:document.getElementById("edit-metode").value,
                 sparepart:document.getElementById("edit-sparepart").value,
+                total_sparepart: sparepart,
                 transport:transport,
                 jasa:jasa,
                 total:total,
@@ -438,3 +439,4 @@ document.getElementById("cetakTanggal")
     window.print();
 
 });
+
