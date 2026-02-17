@@ -392,6 +392,7 @@ try {
             problem,
             metode: method,
             sparepart: spareList,
+            total_sparepart: spareTotal,
             transport: transportCost,
             jasa: 0,
             total: total,
