@@ -268,3 +268,45 @@ min-width:700px;
 }
 
 }
+
+/* Modal Detal */
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-box {
+  background: white;
+  width: 90%;
+  max-width: 700px;
+  padding: 20px;
+  border-radius: 10px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-close {
+  float: right;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.form-grid textarea {
+  min-height: 60px;
+}
+
+.modal-actions {
+  margin-top: 20px;
+  text-align: right;
+}
