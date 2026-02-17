@@ -127,47 +127,87 @@ Memuat status layanan...
 </main>
 
 <!-- MODAL DETAIL -->
-<div id="detailModal" class="modal" style="display:none;">
-  <div class="modal-content">
-    <span id="closeModal" class="close">&times;</span>
+<div id="detailModal" class="modal">
+  <div class="modal-box">
+    <span id="closeModal" class="modal-close">&times;</span>
+
     <h3>Edit Data Service</h3>
 
-    <form id="detailForm">
-      <input type="hidden" id="edit-id">
+    <input type="hidden" id="edit-id">
 
-      <label>Nama</label>
-      <input type="text" id="edit-nama">
+    <div class="form-grid">
 
-      <label>Alamat</label>
-      <input type="text" id="edit-alamat">
-
-      <label>No HP</label>
-      <input type="text" id="edit-phone">
-
-      <label>Merk</label>
-      <input type="text" id="edit-brand">
-
-      <label>Keluhan</label>
-      <textarea id="edit-problem"></textarea>
-
-      <label>Status</label>
-      <select id="edit-status">
-        <option value="pending">Pending</option>
-        <option value="proses">Proses</option>
-        <option value="selesai">Selesai</option>
-        <option value="batal">Batal</option>
-      </select>
-
-      <div style="margin-top:15px;">
-        <button type="button" id="saveEdit" class="btn btn-open">
-          💾 Simpan
-        </button>
-
-        <button type="button" id="deleteEdit" class="btn btn-close">
-          🗑 Hapus
-        </button>
+      <div>
+        <label>Nama</label>
+        <input type="text" id="edit-nama">
       </div>
-    </form>
+
+      <div>
+        <label>No HP</label>
+        <input type="text" id="edit-phone">
+      </div>
+
+      <div>
+        <label>Alamat</label>
+        <input type="text" id="edit-alamat">
+      </div>
+
+      <div>
+        <label>Merk</label>
+        <input type="text" id="edit-brand">
+      </div>
+
+      <div>
+        <label>Keluhan</label>
+        <textarea id="edit-problem"></textarea>
+      </div>
+
+      <div>
+        <label>Metode</label>
+        <input type="text" id="edit-metode">
+      </div>
+
+      <div>
+        <label>Sparepart</label>
+        <input type="text" id="edit-sparepart">
+      </div>
+
+      <div>
+        <label>Transport</label>
+        <input type="text" id="edit-transport">
+      </div>
+
+      <div>
+        <label>Total</label>
+        <input type="text" id="edit-total">
+      </div>
+
+      <div>
+        <label>Status</label>
+        <select id="edit-status">
+          <option value="pending">Pending</option>
+          <option value="proses">Proses</option>
+          <option value="selesai">Selesai</option>
+          <option value="batal">Batal</option>
+        </select>
+      </div>
+
+      <div>
+        <label>Koordinat</label>
+        <input type="text" id="edit-coord">
+      </div>
+
+      <div>
+        <label>Bukti</label>
+        <div id="edit-bukti-preview"></div>
+      </div>
+
+    </div>
+
+    <div class="modal-actions">
+      <button id="saveEdit" class="btn btn-open">💾 Simpan</button>
+      <button id="deleteEdit" class="btn btn-close">🗑 Hapus</button>
+    </div>
 
   </div>
 </div>
@@ -216,6 +256,7 @@ window.location="login.html";
 
 </body>
 </html>
+
 
 
 
