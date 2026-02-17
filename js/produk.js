@@ -26,12 +26,12 @@ async function loadProducts(){
         .order("created_at",{ascending:false});
 
     if(error){
-        tbody.innerHTML=`<tr><td colspan="4">Error load data</td></tr>`;
+        tbody.innerHTML=`<tr><td colspan="8">Error load data</td></tr>`;
         return;
     }
 
     if(!data || data.length===0){
-        tbody.innerHTML=`<tr><td colspan="4">Belum ada produk</td></tr>`;
+        tbody.innerHTML=`<tr><td colspan="8">Belum ada produk</td></tr>`;
         return;
     }
 
@@ -44,6 +44,10 @@ async function loadProducts(){
             <td>${i+1}</td>
             <td>${row.name}</td>
             <td>${rupiah(row.price)}</td>
+            <td>${rupiah(row.cost_price)}</td>
+            <td>${rupiah(row.promo_price)}</td>
+            <td>${row.stock}</td>
+            <td>${row.is_active ? "Aktif" : "Nonaktif"}</td>
             <td>
                 <button onclick="editProduct(${row.id})">Edit</button>
                 <button onclick="deleteProduct(${row.id})">Hapus</button>
@@ -51,7 +55,6 @@ async function loadProducts(){
         </tr>
         `;
     });
-
 }
 
 /* ================= SAVE ================= */
@@ -59,8 +62,12 @@ async function saveProduct(){
 
     const id = document.getElementById("productId").value;
     const name = document.getElementById("productName").value;
-    const price = parseInt(document.getElementById("productPrice").value);
+    const price = parseInt(document.getElementById("productPrice").value) || 0;
+    const costPrice = parseInt(document.getElementById("productCost").value) || 0;
+    const promoPrice = parseInt(document.getElementById("productPromo").value) || 0;
+    const stock = parseInt(document.getElementById("productStock").value) || 0;
     const desc = document.getElementById("productDesc").value;
+    const isActive = document.getElementById("productActive").checked;
     const file = document.getElementById("productImage").files[0];
 
     if(!name || !price){
@@ -91,20 +98,30 @@ async function saveProduct(){
         imageUrl = data.publicUrl;
     }
 
+    const payload = {
+        name,
+        price,
+        cost_price: costPrice,
+        promo_price: promoPrice,
+        stock,
+        description: desc,
+        is_active: isActive
+    };
+
+    if(imageUrl){
+        payload.image_url = imageUrl;
+    }
+
     /* ===== INSERT ===== */
     if(!id){
 
         const { error } = await db
             .from("products")
-            .insert({
-                name,
-                price,
-                description: desc,
-                image_url: imageUrl
-            });
+            .insert(payload);
 
         if(error){
             alert("Gagal tambah produk");
+            console.log(error);
             return;
         }
 
@@ -112,19 +129,14 @@ async function saveProduct(){
 
         const { error } = await db
             .from("products")
-            .update({
-                name,
-                price,
-                description: desc,
-                image_url: imageUrl
-            })
+            .update(payload)
             .eq("id",id);
 
         if(error){
             alert("Gagal update produk");
+            console.log(error);
             return;
         }
-
     }
 
     resetForm();
@@ -143,7 +155,11 @@ async function editProduct(id){
     document.getElementById("productId").value = data.id;
     document.getElementById("productName").value = data.name;
     document.getElementById("productPrice").value = data.price;
+    document.getElementById("productCost").value = data.cost_price;
+    document.getElementById("productPromo").value = data.promo_price;
+    document.getElementById("productStock").value = data.stock;
     document.getElementById("productDesc").value = data.description;
+    document.getElementById("productActive").checked = data.is_active;
 }
 
 /* ================= DELETE ================= */
@@ -165,6 +181,10 @@ function resetForm(){
     document.getElementById("productId").value="";
     document.getElementById("productName").value="";
     document.getElementById("productPrice").value="";
+    document.getElementById("productCost").value="";
+    document.getElementById("productPromo").value="";
+    document.getElementById("productStock").value="";
     document.getElementById("productDesc").value="";
     document.getElementById("productImage").value="";
+    document.getElementById("productActive").checked=true;
 }
