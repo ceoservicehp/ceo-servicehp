@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Cek Status Service — CEO Service HP</title>
+<title>Status Service — CEO Service HP</title>
 
 <link rel="stylesheet" href="css/status.css">
 
@@ -15,17 +15,101 @@
 </head>
 <body>
 
-<div class="status-container">
+<div class="container">
 
-    <h1>🔍 Cek Status Service</h1>
+    <h2>🔍 Cek Status Service</h2>
 
     <div class="search-box">
         <input type="text" id="searchInput" placeholder="Masukkan No HP atau ID Service">
         <button id="btnSearch">Cari</button>
     </div>
 
-    <div id="resultBox"></div>
+    <div class="table-wrapper">
+        <table class="status-table">
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Nama</th>
+                    <th>Merk</th>
+                    <th>Tanggal</th>
+                    <th>Status</th>
+                    <th>Total</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody id="statusTable">
+                <tr>
+                    <td colspan="7">Belum ada pencarian</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 
+</div>
+
+<!-- MODAL VIEW ONLY -->
+<div class="modal" id="detailModal">
+    <div class="modal-box">
+        <span class="modal-close" id="closeModal">&times;</span>
+        <h3>Detail Service</h3>
+
+        <div class="form-grid">
+            <div>
+                <label>Nama</label>
+                <input type="text" id="view-nama" readonly>
+            </div>
+
+            <div>
+                <label>No HP</label>
+                <input type="text" id="view-phone" readonly>
+            </div>
+
+            <div>
+                <label>Merk</label>
+                <input type="text" id="view-brand" readonly>
+            </div>
+
+            <div>
+                <label>Status</label>
+                <input type="text" id="view-status" readonly>
+            </div>
+
+            <div style="grid-column: span 2;">
+                <label>Keluhan</label>
+                <textarea id="view-problem" readonly></textarea>
+            </div>
+
+            <div style="grid-column: span 2;">
+                <label>Sparepart</label>
+                <textarea id="view-sparepart" readonly></textarea>
+            </div>
+
+            <div>
+                <label>Total Sparepart</label>
+                <input type="text" id="view-spareTotal" readonly>
+            </div>
+
+            <div>
+                <label>Transport</label>
+                <input type="text" id="view-transport" readonly>
+            </div>
+
+            <div>
+                <label>Jasa</label>
+                <input type="text" id="view-jasa" readonly>
+            </div>
+
+            <div>
+                <label>Total</label>
+                <input type="text" id="view-total" readonly>
+            </div>
+
+            <div style="grid-column: span 2;">
+                <label>Tanggal Masuk</label>
+                <input type="text" id="view-tanggal" readonly>
+            </div>
+        </div>
+    </div>
 </div>
 
 </body>
