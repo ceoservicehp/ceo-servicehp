@@ -1,0 +1,44 @@
+/* ================= HEADER ================= */
+.admin-header{
+    background:linear-gradient(90deg,#1f6f78,#00c2c7);
+    color:white;
+    padding:20px 30px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.admin-header h1{
+    margin:0;
+    font-size:20px;
+}
+
+/* ================= FOOTER ================= */
+.admin-footer{
+    margin-top:40px;
+    padding:20px;
+    text-align:center;
+    background:#1f6f78;
+    color:white;
+    font-size:13px;
+}
+
+/* ================= BUTTON ================= */
+.btn{
+    padding:8px 16px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:600;
+}
+
+.btn-logout{
+    background:#c0392b;
+    color:white;
+}
+
+.btn-primary{
+    background:#00a896;
+    color:white;
+    margin-top:10px;
+}
