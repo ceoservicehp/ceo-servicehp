@@ -338,11 +338,6 @@ document.getElementById("checkout").onclick = async () => {
         return alert("Lokasi wajib diisi untuk Home Service");
     }
 
-    const spare=Object.values(spareparts)
-        .reduce((a,b)=>a+(b.price*b.qty),0);
-
-    const total=spare+transportCost;
-
     let spareList="Tidak ada";
     const keys=Object.keys(spareparts);
     if(keys.length){
@@ -378,12 +373,15 @@ document.getElementById("checkout").onclick = async () => {
         buktiUrl=publicUrl.publicUrl;
     }
 
-    /* ================= SIMPAN KE SUPABASE ================= */
-    const spareTotal = Object.values(spareparts)
+/* ================= SIMPAN KE SUPABASE ================= */
+
+const spareTotal = Object.values(spareparts)
     .reduce((a,b)=>a+(b.price*b.qty),0);
 
-    const total = spareTotal + transportCost;
-    
+const total = spareTotal + transportCost;
+
+try {
+
     const { error } = await db
         .from("service_orders")
         .insert({
@@ -394,7 +392,6 @@ document.getElementById("checkout").onclick = async () => {
             problem,
             metode: method,
             sparepart: spareList,
-            total_sparepart: spareTotal, // ✅ TAMBAHAN
             transport: transportCost,
             jasa: 0,
             total: total,
@@ -403,16 +400,18 @@ document.getElementById("checkout").onclick = async () => {
             bukti: buktiUrl
         });
 
-        if(error) throw error;
+    if(error) throw error;
 
-    } catch (err) {
-        console.error("Gagal kirim data:", err);
-        alert("Gagal kirim data ke server");
-        window.sending=false;
-        btn.disabled=false;
-        btn.textContent="Kirim Permintaan Service";
-        return;
-    }
+} catch (err) {
+
+    console.error("Gagal kirim data:", err);
+    alert("Gagal kirim data ke server");
+
+    window.sending=false;
+    btn.disabled=false;
+    btn.textContent="Kirim Permintaan Service";
+    return;
+}
 
     /* ================= MESSAGE WA ================= */
     let msg=`📱 *SERVICE HP*%0A`;
