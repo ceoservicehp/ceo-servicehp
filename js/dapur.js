@@ -85,7 +85,9 @@ function renderTable(){
     let rows=allOrders;
 
     if(currentFilter!=="all"){
-        rows=allOrders.filter(o=>o.metode===currentFilter);
+    rows=allOrders.filter(o =>
+        o.metode?.toLowerCase().includes(currentFilter)
+    );
     }
 
     if(rows.length===0){
@@ -224,5 +226,6 @@ document.addEventListener("DOMContentLoaded",()=>{
     // ✅ Auto-refresh tiap 5 detik
     setInterval(loadOrders, 5000);
 });
+
 
 
