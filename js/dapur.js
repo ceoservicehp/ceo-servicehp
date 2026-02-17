@@ -322,21 +322,29 @@ document.getElementById("checkAll")
 
 /* ================= DELETE SELECTED ================= */
 document.getElementById("hapusTerpilih")
-?.addEventListener("click",async()=>{
+?.addEventListener("click", async () => {
 
-    const checked=[...document.querySelectorAll(".row-check:checked")];
+    const checked = [...document.querySelectorAll(".row-check:checked")];
 
-    if(checked.length===0)
-        return alert("Pilih data dulu");
+    if (checked.length === 0) {
+        alert("Pilih data dulu");
+        return;
+    }
 
-    if(!confirm("Hapus semua data terpilih?")) return;
+    if (!confirm("Hapus semua data terpilih?")) return;
 
-    const ids=checked.map(c=>c.dataset.id);
+    const ids = checked.map(c => parseInt(c.dataset.id));
 
-    await getSupabase()
-        .from("service_orders")        
+    const { error } = await getSupabase()
+        .from("service_orders")
         .delete()
-        .in("id",ids);
+        .in("id", ids);
+
+    if (error) {
+        console.error(error);
+        alert("Gagal menghapus data");
+        return;
+    }
 
     loadOrders();
 });
@@ -420,3 +428,4 @@ document.getElementById("cetakTanggal")
     window.print();
 
 });
+
