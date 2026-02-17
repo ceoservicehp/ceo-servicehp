@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Keuangan Admin — CEO Service HP</title>
+
+<link rel="stylesheet" href="css/keuangan.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase.js"></script>
+<script defer src="js/keuangan.js"></script>
+</head>
+
+<body>
+
+<header class="main-header">
+  <h1>📊 Laporan Keuangan Service</h1>
+</header>
+
+<div class="container">
+
+<!-- SUMMARY BOX -->
+<div class="summary-grid">
+
+<div class="card">
+<h3>Total Pemasukan</h3>
+<p id="totalAll">Rp 0</p>
+</div>
+
+<div class="card">
+<h3>Hari Ini</h3>
+<p id="totalToday">Rp 0</p>
+</div>
+
+<div class="card">
+<h3>Bulan Ini</h3>
+<p id="totalMonth">Rp 0</p>
+</div>
+
+</div>
+
+<!-- FILTER -->
+<div class="filter-box">
+<input type="date" id="filterTanggal">
+</div>
+
+<!-- TABLE -->
+<div class="table-wrapper">
+<table>
+<thead>
+<tr>
+<th>No</th>
+<th>Nama</th>
+<th>Tanggal</th>
+<th>Total</th>
+</tr>
+</thead>
+<tbody id="financeTable">
+<tr>
+<td colspan="4">Memuat data...</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+</div>
+
+<footer class="main-footer">
+© 2026 CEO Service HP — Admin Panel
+</footer>
+
+</body>
+</html>
