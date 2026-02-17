@@ -379,23 +379,29 @@ document.getElementById("checkout").onclick = async () => {
     }
 
     /* ================= SIMPAN KE SUPABASE ================= */
-    try {
-        const { error } = await db
-            .from("service_orders")
-            .insert({
-                nama,
-                alamat,
-                phone,
-                brand,
-                problem,
-                metode: method,
-                sparepart: spareList,
-                transport: transportCost,
-                total,
-                coord: coordInput.value || null,
-                status: "pending",
-                bukti: buktiUrl
-            });
+    const spareTotal = Object.values(spareparts)
+    .reduce((a,b)=>a+(b.price*b.qty),0);
+
+    const total = spareTotal + transportCost;
+    
+    const { error } = await db
+        .from("service_orders")
+        .insert({
+            nama,
+            alamat,
+            phone,
+            brand,
+            problem,
+            metode: method,
+            sparepart: spareList,
+            total_sparepart: spareTotal, // ✅ TAMBAHAN
+            transport: transportCost,
+            jasa: 0,
+            total: total,
+            coord: coordInput.value || null,
+            status: "pending",
+            bukti: buktiUrl
+        });
 
         if(error) throw error;
 
