@@ -108,7 +108,11 @@ function renderTable(){
         if(row.status==="selesai") statusClass="status-selesai";
         if(row.status==="batal") statusClass="status-batal";
 
-        const totalKeseluruhan = (row.transport || 0) + (row.jasa || 0);
+        const totalKeseluruhan =
+            (row.total_sparepart || 0) +
+            (row.transport || 0) +
+            (row.jasa || 0);
+
 
         const tanggal = row.created_at
             ? new Date(row.created_at).toLocaleDateString("id-ID",{
@@ -441,5 +445,6 @@ document.getElementById("cetakTanggal")
     window.print();
 
 });
+
 
 
