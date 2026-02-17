@@ -35,46 +35,35 @@ font-size:13px;
 opacity:.9;
 }
 
-/* ================= NAVBAR MODEL CARD ================= */
-.main-nav{
+/* ================= NAV ================= */
+.top-nav{
 display:flex;
-justify-content:center;
-gap:25px;
-padding:25px 20px;
-background:#f4f7fb;
-flex-wrap:wrap;
+gap:10px;
+padding:10px;
+background:white;
+position:sticky;
+top:0;
+z-index:10;
+box-shadow:0 2px 6px rgba(0,0,0,0.1);
 }
 
-.nav-card{
+.nav-btn{
 flex:1;
-max-width:320px;
-background:#e9ecef;
-padding:18px 20px;
-border-radius:20px;
+text-align:center;
+padding:10px;
+border-radius:8px;
+background:#eee;
 text-decoration:none;
 color:#333;
+font-size:14px;
 font-weight:600;
-font-size:18px;
-display:flex;
-align-items:center;
-justify-content:center;
-gap:10px;
-transition:.3s;
-box-shadow:0 5px 15px rgba(0,0,0,0.05);
+transition:.25s;
 }
 
-.nav-card i{
-font-size:20px;
-}
-
-.nav-card:hover{
-transform:translateY(-4px);
-box-shadow:0 8px 20px rgba(0,0,0,0.1);
-}
-
-.nav-card.active{
-background:linear-gradient(90deg,#1f6f78,#00c2c7);
+.nav-btn:hover{
+background:#1f6f78;
 color:white;
+transform:translateY(-2px);
 }
 
 /* ================= CONTAINER ================= */
