@@ -12,9 +12,8 @@ color:#333;
 
 /* ================= HEADER ================= */
 .main-header{
-width:100%;
 background:linear-gradient(90deg,#1f6f78,#00c2c7);
-padding:18px 30px;
+padding:25px 30px;
 color:white;
 display:flex;
 justify-content:center;
@@ -26,28 +25,54 @@ align-items:center;
 gap:15px;
 }
 
-/* ================= NAVBAR ================= */
+.logo-area h1{
+margin:0;
+font-size:26px;
+}
+
+.logo-area small{
+font-size:13px;
+opacity:.9;
+}
+
+/* ================= NAVBAR MODEL CARD ================= */
 .main-nav{
-width:100%;
-background:#fff;
 display:flex;
 justify-content:center;
-gap:30px;
-padding:12px 0;
-box-shadow:0 3px 10px rgba(0,0,0,0.05);
+gap:25px;
+padding:25px 20px;
+background:#f4f7fb;
+flex-wrap:wrap;
 }
 
-.main-nav a{
-text-decoration:none;
-color:#1f6f78;
-font-weight:600;
-padding:8px 18px;
+.nav-card{
+flex:1;
+max-width:320px;
+background:#e9ecef;
+padding:18px 20px;
 border-radius:20px;
+text-decoration:none;
+color:#333;
+font-weight:600;
+font-size:18px;
+display:flex;
+align-items:center;
+justify-content:center;
+gap:10px;
 transition:.3s;
+box-shadow:0 5px 15px rgba(0,0,0,0.05);
 }
 
-.main-nav a.active,
-.main-nav a:hover{
+.nav-card i{
+font-size:20px;
+}
+
+.nav-card:hover{
+transform:translateY(-4px);
+box-shadow:0 8px 20px rgba(0,0,0,0.1);
+}
+
+.nav-card.active{
 background:linear-gradient(90deg,#1f6f78,#00c2c7);
 color:white;
 }
@@ -283,6 +308,20 @@ td:nth-child(8)::before{content:"Aksi";}
 
 .detail-grid{
 grid-template-columns:1fr;
+}
+
+}
+
+@media(max-width:768px){
+
+.main-nav{
+flex-direction:column;
+align-items:center;
+}
+
+.nav-card{
+width:100%;
+max-width:100%;
 }
 
 }
