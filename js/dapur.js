@@ -85,13 +85,13 @@ function renderTable(){
     let rows=allOrders;
 
     if(currentFilter!=="all"){
-    rows=allOrders.filter(o =>
-        o.metode?.toLowerCase().includes(currentFilter)
-    );
+        rows=allOrders.filter(o =>
+            o.metode?.toLowerCase().includes(currentFilter)
+        );
     }
 
     if(rows.length===0){
-        tbody.innerHTML=`<tr><td colspan="17">Tidak ada data</td></tr>`;
+        tbody.innerHTML=`<tr><td colspan="6">Tidak ada data</td></tr>`;
         return;
     }
 
@@ -99,43 +99,82 @@ function renderTable(){
 
     rows.forEach((row,i)=>{
         tbody.innerHTML+=`
-           <tr>
+        <tr>
             <td><input type="checkbox" class="row-check" data-id="${row.id}"></td>
             <td>${i+1}</td>
             <td>${row.nama ?? "-"}</td>
             <td>${row.alamat ?? "-"}</td>
             <td>${row.phone ?? "-"}</td>
-            <td>${row.brand ?? "-"}</td>
-            <td>${row.problem ?? "-"}</td>
-            <td>${row.metode ?? "-"}</td>
-            <td>${row.sparepart ?? "-"}</td>
-            <td>${row.transport ?? "0"}</td>
-        
             <td>
-                ${row.bukti 
-                    ? `<a href="${row.bukti}" target="_blank">Lihat</a>` 
-                    : "-"}
+                <button class="detail-btn" data-id="${row.id}">
+                    Detail
+                </button>
             </td>
-        
-            <td>-</td> <!-- Jasa (kalau belum ada kolomnya) -->
-            <td>${row.total ?? "0"}</td>
-            <td>${row.coord ?? "-"}</td>
-        
-            <td>
-                <select class="status-select" data-id="${row.id}">
-                    <option value="pending" ${row.status=="pending"?"selected":""}>Pending</option>
-                    <option value="proses" ${row.status=="proses"?"selected":""}>Proses</option>
-                    <option value="selesai" ${row.status=="selesai"?"selected":""}>Selesai</option>
-                    <option value="batal" ${row.status=="batal"?"selected":""}>Batal</option>
-                </select>
-            </td>
-        
-            <td>${new Date(row.created_at).toLocaleString("id-ID")}</td>
-            <td><button class="hapus" data-id="${row.id}">Hapus</button></td>
         </tr>
         `;
     });
 }
+
+/* ================= DETAIL MODAL ================= */
+
+document.addEventListener("click",e=>{
+    if(!e.target.classList.contains("detail-btn")) return;
+
+    const id=e.target.dataset.id;
+    const data=allOrders.find(o=>o.id==id);
+    if(!data) return;
+
+    document.getElementById("edit-id").value=data.id;
+    document.getElementById("edit-nama").value=data.nama ?? "";
+    document.getElementById("edit-alamat").value=data.alamat ?? "";
+    document.getElementById("edit-phone").value=data.phone ?? "";
+    document.getElementById("edit-brand").value=data.brand ?? "";
+    document.getElementById("edit-problem").value=data.problem ?? "";
+    document.getElementById("edit-status").value=data.status ?? "pending";
+
+    document.getElementById("detailModal").style.display="block";
+});
+
+document.getElementById("closeModal").onclick=()=>{
+    document.getElementById("detailModal").style.display="none";
+};
+
+/* ================= SAVE EDIT ================= */
+
+document.getElementById("saveEdit").onclick=async()=>{
+    const id=document.getElementById("edit-id").value;
+
+    await getSupabase()
+        .from("service_orders")
+        .update({
+            nama:document.getElementById("edit-nama").value,
+            alamat:document.getElementById("edit-alamat").value,
+            phone:document.getElementById("edit-phone").value,
+            brand:document.getElementById("edit-brand").value,
+            problem:document.getElementById("edit-problem").value,
+            status:document.getElementById("edit-status").value
+        })
+        .eq("id",id);
+
+    document.getElementById("detailModal").style.display="none";
+    loadOrders();
+};
+
+/* ================= DELETE FROM MODAL ================= */
+
+document.getElementById("deleteEdit").onclick=async()=>{
+    const id=document.getElementById("edit-id").value;
+
+    if(!confirm("Hapus data ini?")) return;
+
+    await getSupabase()
+        .from("service_orders")
+        .delete()
+        .eq("id",id);
+
+    document.getElementById("detailModal").style.display="none";
+    loadOrders();
+};
 
 /* ================= TAB FILTER ================= */
 document.addEventListener("click",e=>{
@@ -234,6 +273,7 @@ document.addEventListener("DOMContentLoaded",()=>{
     // ✅ Auto-refresh tiap 5 detik
     // setInterval(loadOrders, 5000);
 });
+
 
 
 
