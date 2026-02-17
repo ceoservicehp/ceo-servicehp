@@ -24,16 +24,19 @@ document.addEventListener("DOMContentLoaded", async ()=>{
 
     loadFinance();
 
-    // filter tanggal
-    document.getElementById("filterTanggal")
-    ?.addEventListener("change", filterByDate);
-
-    // reset filter
-    document.getElementById("resetFilter")
-    ?.addEventListener("click", ()=>{
-        document.getElementById("filterTanggal").value="";
-        loadFinance();
-    });
+/* ================= FILTER TANGGAL ================= */
+    document.getElementById("startDate")
+        ?.addEventListener("change", loadFinance);
+        
+        document.getElementById("endDate")
+        ?.addEventListener("change", loadFinance);
+        
+        document.getElementById("resetFilter")
+        ?.addEventListener("click", ()=>{
+            document.getElementById("startDate").value="";
+            document.getElementById("endDate").value="";
+            loadFinance();
+        });
 
 });
 
@@ -54,10 +57,24 @@ async function loadFinance(){
 
     const rows = data || [];
 
-    calculateSummary(rows);
-    renderTable(rows);
-}
+    const start = document.getElementById("startDate")?.value;
+    const end = document.getElementById("endDate")?.value;
 
+    let filteredRows = rows;
+
+    if(start && end){
+        filteredRows = rows.filter(o=>{
+            const created = new Date(o.created_at)
+                .toISOString()
+                .split("T")[0];
+
+            return created >= start && created <= end;
+        });
+    }
+
+    calculateSummary(filteredRows);
+    renderTable(filteredRows);
+}
 
 /* ================= HITUNG SUMMARY ================= */
 function calculateSummary(rows){
@@ -137,36 +154,4 @@ function renderTable(rows){
         </tr>
         `;
     });
-}
-
-
-/* ================= FILTER TANGGAL ================= */
-async function filterByDate(e){
-
-    const selected = e.target.value;
-
-    if(!selected){
-        loadFinance();
-        return;
-    }
-
-    const tbody=document.getElementById("financeTable");
-
-    const { data, error } = await db
-        .from("service_orders")
-        .select("*")
-        .eq("status","selesai")
-        .gte("created_at", selected + "T00:00:00")
-        .lte("created_at", selected + "T23:59:59")
-        .order("created_at",{ascending:false});
-
-    if(error){
-        tbody.innerHTML=`<tr><td colspan="4">Error filter</td></tr>`;
-        return;
-    }
-
-    const rows = data || [];
-
-    calculateSummary(rows);
-    renderTable(rows);
 }
