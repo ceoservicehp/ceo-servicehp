@@ -8,12 +8,33 @@ return;
 }
 
 /* ================= DATA SPAREPART ================= */
-const products=[
-{name:"LCD Samsung",price:150000,img:"images/lcd.jpg"},
-{name:"Baterai Original",price:90000,img:"images/baterai.jpg"},
-{name:"Port Charger",price:50000,img:"images/port.jpg"},
-{name:"Kamera",price:120000,img:"images/kamera.jpg"}
-];
+async function loadProducts(){
+
+    const { data, error } = await db
+        .from("products")
+        .select("*")
+        .eq("is_active",true);
+
+    if(error || !data) return;
+
+    const container=document.getElementById("products-container");
+    container.innerHTML="";
+
+    data.forEach((p,i)=>{
+
+        const div=document.createElement("div");
+        div.className="product-card";
+
+        div.innerHTML=`
+        <img src="${p.image_url}">
+        <h4>${p.name}</h4>
+        <p>${rupiah(p.price)}</p>
+        <button data-id="${p.id}">Tambah</button>
+        `;
+
+        container.appendChild(div);
+    });
+}
 
 let spareparts={}; 
 let transportCost=0;
