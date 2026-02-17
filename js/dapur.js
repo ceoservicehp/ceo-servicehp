@@ -91,13 +91,20 @@ function renderTable(){
     }
 
     if(rows.length===0){
-        tbody.innerHTML=`<tr><td colspan="6">Tidak ada data</td></tr>`;
+        tbody.innerHTML=`<tr><td colspan="7">Tidak ada data</td></tr>`;
         return;
     }
 
     tbody.innerHTML="";
 
     rows.forEach((row,i)=>{
+
+        // badge warna status
+        let statusClass="status-pending";
+        if(row.status==="proses") statusClass="status-proses";
+        if(row.status==="selesai") statusClass="status-selesai";
+        if(row.status==="batal") statusClass="status-batal";
+
         tbody.innerHTML+=`
         <tr>
             <td><input type="checkbox" class="row-check" data-id="${row.id}"></td>
@@ -105,6 +112,11 @@ function renderTable(){
             <td>${row.nama ?? "-"}</td>
             <td>${row.alamat ?? "-"}</td>
             <td>${row.phone ?? "-"}</td>
+            <td>
+                <span class="status-badge ${statusClass}">
+                    ${row.status ?? "pending"}
+                </span>
+            </td>
             <td>
                 <button class="detail-btn" data-id="${row.id}">
                     Detail
@@ -287,6 +299,7 @@ document.addEventListener("DOMContentLoaded",()=>{
     // ✅ Auto-refresh tiap 5 detik
     // setInterval(loadOrders, 5000);
 });
+
 
 
 
