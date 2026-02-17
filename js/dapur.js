@@ -139,11 +139,6 @@ function renderTable(){
                     Detail
                 </button>
             </td>
-            <td>
-                <button class="detail-btn" data-id="${row.id}">
-                    Detail
-                </button>
-            </td>
         </tr>
         `;
     });
@@ -416,4 +411,5 @@ document.getElementById("cetakTanggal")
     window.print();
 
 });
+
 
