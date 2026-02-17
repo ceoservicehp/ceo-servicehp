@@ -1,66 +1,46 @@
 const db = window.supabaseClient;
 
+let spareparts = {}; 
+let transportCost = 0;
+
+let metode,
+    mapSection,
+    transportSection,
+    proof,
+    alamatToko,
+    sparepartPriceEl,
+    transportPriceEl,
+    totalPriceEl,
+    transportRow,
+    ongkir,
+    coordInput,
+    distanceInfo;
+
 document.addEventListener("DOMContentLoaded",()=>{
 
-if(!db){
-alert("Supabase belum terhubung");
-return;
-}
+    if(!db){
+        alert("Supabase belum terhubung");
+        return;
+    }
 
-/* ================= DATA SPAREPART ================= */
-async function loadProducts(){
+    /* ================= AMBIL ELEMENT SETELAH DOM READY ================= */
+    metode = document.getElementById("service-option");
+    mapSection = document.getElementById("map-section");
+    transportSection = document.getElementById("transport-section");
+    proof = document.getElementById("payment-proof-section");
+    alamatToko = document.getElementById("alamat-toko");
 
-    const { data, error } = await db
-        .from("products")
-        .select("*")
-        .eq("is_active",true);
+    sparepartPriceEl = document.getElementById("sparepart-price");
+    transportPriceEl = document.getElementById("transport-price");
+    totalPriceEl = document.getElementById("total-price");
+    transportRow = document.getElementById("transport-row");
 
-    if(error || !data) return;
+    ongkir = document.getElementById("transport-fee");
+    coordInput = document.getElementById("customer-coord");
+    distanceInfo = document.getElementById("distance-info");
 
-    const container=document.getElementById("products-container");
-    container.innerHTML="";
-
-    data.forEach((p,i)=>{
-
-        const div=document.createElement("div");
-        div.className="product-card";
-
-        div.innerHTML=`
-        <img src="${p.image_url}">
-        <h4>${p.name}</h4>
-        <p>${rupiah(p.price)}</p>
-        <button data-id="${p.id}">Tambah</button>
-        `;
-
-        container.appendChild(div);
-    });
-}
-
-let spareparts={}; 
-let transportCost=0;
-
-const TOKO_LAT=-6.200000;
-const TOKO_LNG=106.816666;
-
-/* ================= ELEMENT ================= */
-const container=document.getElementById("products-container");
-const metode=document.getElementById("service-option");
-const mapSection=document.getElementById("map-section");
-const transportSection=document.getElementById("transport-section");
-const proof=document.getElementById("payment-proof-section");
-const alamatToko=document.getElementById("alamat-toko");
-
-const sparepartPriceEl=document.getElementById("sparepart-price");
-const transportPriceEl=document.getElementById("transport-price");
-const totalPriceEl=document.getElementById("total-price");
-const transportRow=document.getElementById("transport-row");
-
-const ongkir=document.getElementById("transport-fee");
-const coordInput=document.getElementById("customer-coord");
-const distanceInfo=document.getElementById("distance-info");
-
-let mapInstance=null;
-let marker=null;
+    loadProducts(); // tetap seperti semula
+});
 
 /* ================= HELPER ================= */
 function rupiah(n){
@@ -177,39 +157,82 @@ marker._icon.classList.add("bounce");
 });
 }
 
-/* ================= RENDER PRODUK ================= */
-products.forEach((p,i)=>{
-const div=document.createElement("div");
-div.className="product-card";
+/* ================= LOAD PRODUK DARI DATABASE ================= */
+async function loadProducts(){
 
-div.innerHTML=`
-<img src="${p.img}">
-<h4>${p.name}</h4>
-<p>${rupiah(p.price)}</p>
-<button data-id="${i}">Tambah</button>
-`;
+    const { data, error } = await db
+        .from("products")
+        .select("*")
+        .eq("is_active", true)
+        .order("created_at", { ascending: false });
 
-container.appendChild(div);
-});
+    if(error){
+        console.error("Gagal load produk:", error);
+        return;
+    }
 
-container.addEventListener("click",e=>{
-const btn = e.target.closest("button");
-if(!btn) return;
+    const container = document.getElementById("products-container");
+    container.innerHTML = "";
 
-const item=products[btn.dataset.id];
+    if(!data || data.length === 0){
+        container.innerHTML = "<p>Belum ada produk tersedia</p>";
+        return;
+    }
 
-if(spareparts[item.name]){
-spareparts[item.name].qty++;
-}else{
-spareparts[item.name]={price:item.price,qty:1};
+    data.forEach((p)=>{
+
+        const hargaTampil = p.promo_price && p.promo_price > 0
+            ? p.promo_price
+            : p.price;
+
+        const div = document.createElement("div");
+        div.className = "product-card";
+
+        div.innerHTML = `
+            <img src="${p.image_url || 'images/no-image.png'}">
+            <h4>${p.name}</h4>
+            <p>${rupiah(hargaTampil)}</p>
+            <button data-id="${p.id}"
+                    data-name="${p.name}"
+                    data-price="${hargaTampil}">
+                Tambah
+            </button>
+        `;
+
+        container.appendChild(div);
+    });
+
+    attachProductEvents();
 }
 
-btn.textContent="✔ Ditambahkan";
-setTimeout(()=>btn.textContent="Tambah",800);
+function attachProductEvents(){
 
-renderCart();
-updateTotal();
-});
+    document.querySelectorAll(".product-card button")
+        .forEach(btn=>{
+
+            btn.onclick = ()=>{
+
+                const name = btn.dataset.name;
+                const price = parseInt(btn.dataset.price);
+
+                if(spareparts[name]){
+                    spareparts[name].qty++;
+                }else{
+                    spareparts[name] = {
+                        price: price,
+                        qty: 1
+                    };
+                }
+
+                btn.textContent="✔ Ditambahkan";
+                setTimeout(()=>btn.textContent="Tambah",800);
+
+                renderCart();
+                updateTotal();
+            };
+
+        });
+}
 
 /* ================= RENDER CART ================= */
 function renderCart(){
@@ -290,34 +313,43 @@ updateTotal();
 }
   
 /* ================= METODE SERVICE ================= */
-metode.addEventListener("change",()=>{
+document.addEventListener("DOMContentLoaded",()=>{
 
-mapSection.style.display="none";
-transportSection.style.display="none";
-proof.style.display="none";
-alamatToko.style.display="none";
-transportRow.style.display="none";
-transportCost=0;
+    if(!db){
+        alert("Supabase belum terhubung");
+        return;
+    }
 
-/* DATANG KE TOKO */
-if(metode.value==="toko"){
-}
+    metode = document.getElementById("service-option");
+    ...
 
-/* HOME SERVICE */
-if(metode.value==="home"){
-mapSection.style.display="block";
-transportSection.style.display="block";
-proof.style.display="block";
-transportRow.style.display="flex";
-initMap();
-}
+    loadProducts();
 
-/* KIRIM PAKET */
-if(metode.value==="paket"){
-alamatToko.style.display="block";
-}
+    if(metode){
+        metode.addEventListener("change",()=>{
+            mapSection.style.display="none";
+            transportSection.style.display="none";
+            proof.style.display="none";
+            alamatToko.style.display="none";
+            transportRow.style.display="none";
+            transportCost=0;
 
-updateTotal();
+            if(metode.value==="home"){
+                mapSection.style.display="block";
+                transportSection.style.display="block";
+                proof.style.display="block";
+                transportRow.style.display="flex";
+                initMap();
+            }
+
+            if(metode.value==="paket"){
+                alamatToko.style.display="block";
+            }
+
+            updateTotal();
+        });
+    }
+
 });
 
 /* ================= GPS ================= */
