@@ -126,13 +126,23 @@ document.addEventListener("click",e=>{
 
     document.getElementById("edit-id").value=data.id;
     document.getElementById("edit-nama").value=data.nama ?? "";
-    document.getElementById("edit-alamat").value=data.alamat ?? "";
     document.getElementById("edit-phone").value=data.phone ?? "";
+    document.getElementById("edit-alamat").value=data.alamat ?? "";
     document.getElementById("edit-brand").value=data.brand ?? "";
     document.getElementById("edit-problem").value=data.problem ?? "";
+    document.getElementById("edit-metode").value=data.metode ?? "";
+    document.getElementById("edit-sparepart").value=data.sparepart ?? "";
+    document.getElementById("edit-transport").value=data.transport ?? "";
+    document.getElementById("edit-total").value=data.total ?? "";
     document.getElementById("edit-status").value=data.status ?? "pending";
+    document.getElementById("edit-coord").value=data.coord ?? "";
 
-    document.getElementById("detailModal").style.display="block";
+    const buktiDiv=document.getElementById("edit-bukti-preview");
+    buktiDiv.innerHTML = data.bukti
+        ? `<a href="${data.bukti}" target="_blank">Lihat Bukti</a>`
+        : "Tidak ada bukti";
+
+    document.getElementById("detailModal").style.display="flex";
 });
 
 document.getElementById("closeModal").onclick=()=>{
@@ -148,11 +158,16 @@ document.getElementById("saveEdit").onclick=async()=>{
         .from("service_orders")
         .update({
             nama:document.getElementById("edit-nama").value,
-            alamat:document.getElementById("edit-alamat").value,
             phone:document.getElementById("edit-phone").value,
+            alamat:document.getElementById("edit-alamat").value,
             brand:document.getElementById("edit-brand").value,
             problem:document.getElementById("edit-problem").value,
-            status:document.getElementById("edit-status").value
+            metode:document.getElementById("edit-metode").value,
+            sparepart:document.getElementById("edit-sparepart").value,
+            transport:document.getElementById("edit-transport").value,
+            total:document.getElementById("edit-total").value,
+            status:document.getElementById("edit-status").value,
+            coord:document.getElementById("edit-coord").value
         })
         .eq("id",id);
 
@@ -160,11 +175,10 @@ document.getElementById("saveEdit").onclick=async()=>{
     loadOrders();
 };
 
-/* ================= DELETE FROM MODAL ================= */
+/* ================= DELETE ================= */
 
 document.getElementById("deleteEdit").onclick=async()=>{
     const id=document.getElementById("edit-id").value;
-
     if(!confirm("Hapus data ini?")) return;
 
     await getSupabase()
@@ -273,6 +287,7 @@ document.addEventListener("DOMContentLoaded",()=>{
     // ✅ Auto-refresh tiap 5 detik
     // setInterval(loadOrders, 5000);
 });
+
 
 
 
