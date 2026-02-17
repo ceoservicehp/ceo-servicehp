@@ -29,10 +29,11 @@ letter-spacing:.5px;
 /* BUTTON */
 .btn{
 border:none;
-padding:8px 14px;
-border-radius:8px;
+padding:12px 18px;
+border-radius:12px;
 cursor:pointer;
-font-weight:bold;
+font-weight:600;
+font-size:14px;
 transition:.25s;
 }
 
@@ -99,24 +100,26 @@ flex-wrap:wrap;
 /* CONTENT */
 .admin-content{
 background:#fff;
-padding:20px;
-border-radius:14px;
-box-shadow:0 8px 22px rgba(0,0,0,0.08);
+padding:30px 28px;
+border-radius:18px;
+box-shadow:0 10px 30px rgba(0,0,0,0.08);
 }
 
 /* SEARCH */
 .search-box{
-margin-bottom:15px;
+margin-bottom:25px;
 }
 
 .search-box input{
 width:100%;
-max-width:300px;
-padding:10px;
-border-radius:8px;
-border:1px solid #ddd;
+max-width:420px;
+padding:14px 16px;
+border-radius:12px;
+border:1px solid #d1d5db;
 outline:none;
+font-size:14px;
 transition:.2s;
+background:#fff;
 }
 
 .search-box input:focus{
@@ -171,15 +174,19 @@ border-color:#00c2c7;
 /* BULK BUTTONS */
 .bulk-actions{
 display:flex;
-gap:10px;
+align-items:center;
+gap:18px;
 flex-wrap:wrap;
-margin-top:15px;
+margin:10px 0 25px 0;
 }
 
 .filter-date{
-padding:8px 10px;
-border-radius:6px;
-border:1px solid #ccc;
+padding:12px 14px;
+border-radius:10px;
+border:1px solid #d1d5db;
+font-size:14px;
+background:#fff;
+min-width:160px;
 }
 
 .btn-print{
@@ -206,18 +213,19 @@ letter-spacing:.5px;
 /* TAB FILTER */
 .order-tabs{
 display:flex;
-gap:10px;
-margin-bottom:15px;
+gap:14px;
+margin-bottom:30px;
 flex-wrap:wrap;
 }
 
 .tab{
-padding:8px 16px;
+padding:10px 22px;
 border:none;
 border-radius:30px;
-background:#e9ecef;
+background:#f1f5f9;
 cursor:pointer;
 font-weight:600;
+font-size:14px;
 transition:.25s;
 }
 
@@ -483,4 +491,5 @@ textarea {
 .search-box input{
   background:#ffffff;
 }
+
 
