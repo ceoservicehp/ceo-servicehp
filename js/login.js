@@ -1,30 +1,58 @@
 "use strict";
 
+/* ================== KONFIG LOGIN ================== */
 const USER = "admin";
 const PASS = "12345";
 
-document.getElementById("loginForm").addEventListener("submit", e=>{
-e.preventDefault();
+/* ================== HANDLE LOGIN ================== */
+document.addEventListener("DOMContentLoaded", ()=>{
 
-const u = document.getElementById("username").value.trim();
-const p = document.getElementById("password").value.trim();
-const err = document.getElementById("errorMsg");
+    const form = document.getElementById("loginForm");
 
-if(u===USER && p===PASS){
+    if(form){ // hanya jalan kalau di login.html
 
-localStorage.setItem("admin_login","true");
+        form.addEventListener("submit", e=>{
+            e.preventDefault();
 
-window.location.href="dapur.html";
-}
-else{
-err.textContent="Username atau password salah!";
-}
+            const u = document.getElementById("username").value.trim();
+            const p = document.getElementById("password").value.trim();
+            const err = document.getElementById("errorMsg");
+
+            if(u===USER && p===PASS){
+
+                localStorage.setItem("admin_login","true");
+
+                window.location.href="dapur.html";
+
+            }else{
+                err.textContent="Username atau password salah!";
+            }
+        });
+    }
+
+    /* ================== PROTECT PAGE ================== */
+    protectPage();
+
 });
 
+/* ================== PROTECT FUNCTION ================== */
+function protectPage(){
 
-/* PROTECT HALAMAN DAPUR */
-if(window.location.pathname.includes("dapur.html")){
-if(localStorage.getItem("admin_login")!=="true"){
-window.location.href="login.html";
+    const isLogin = localStorage.getItem("admin_login");
+
+    const protectedPages = ["dapur.html","keuangan.html"];
+
+    const currentPage = window.location.pathname.split("/").pop();
+
+    if(protectedPages.includes(currentPage)){
+        if(isLogin!=="true"){
+            window.location.href="login.html";
+        }
+    }
 }
+
+/* ================== LOGOUT FUNCTION ================== */
+function logout(){
+    localStorage.removeItem("admin_login");
+    window.location.href="login.html";
 }
