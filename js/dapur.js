@@ -173,6 +173,7 @@ document.addEventListener("DOMContentLoaded",()=>{
         document.getElementById("edit-problem").value=data.problem ?? "";
         document.getElementById("edit-metode").value=data.metode ?? "";
         document.getElementById("edit-sparepart").value=data.sparepart ?? "";
+        document.getElementById("edit-total-sparepart").value=data.total_sparepart ?? 0;
         document.getElementById("edit-transport").value=data.transport ?? 0;
         document.getElementById("edit-jasa").value=data.jasa ?? 0;
         document.getElementById("edit-total").value=data.total ?? 0;
@@ -206,10 +207,12 @@ document.addEventListener("DOMContentLoaded",()=>{
 
         const id=parseInt(document.getElementById("edit-id").value);
 
-        const transport=parseInt(document.getElementById("edit-transport").value) || 0;
-        const jasa=parseInt(document.getElementById("edit-jasa").value) || 0;
-        const total=transport+jasa;
-
+        const spare = parseInt(document.getElementById("edit-total-sparepart").value) || 0;
+        const transport = parseInt(document.getElementById("edit-transport").value) || 0;
+        const jasa = parseInt(document.getElementById("edit-jasa").value) || 0;
+        
+        const total = spare + transport + jasa;
+        
         const {error}=await getSupabase()
             .from("service_orders")
             .update({
@@ -435,5 +438,3 @@ document.getElementById("cetakTanggal")
     window.print();
 
 });
-
-
