@@ -12,24 +12,23 @@ color:#333;
 
 /* ================= HEADER ================= */
 .main-header{
-display:flex;
-justify-content:space-between;
-align-items:center;
-padding:15px 25px;
+width:100%;
 background:linear-gradient(90deg,#1f6f78,#00c2c7);
+padding:18px 30px;
 color:white;
-flex-wrap:wrap;
-gap:15px;
+display:flex;
+align-items:center;
+justify-content:center;
 }
 
 .logo-area{
 display:flex;
 align-items:center;
-gap:12px;
+gap:15px;
 }
 
 .logo-area h1{
-font-size:18px;
+font-size:20px;
 margin:0;
 }
 
@@ -38,24 +37,33 @@ font-size:12px;
 opacity:.9;
 }
 
-.nav-menu{
+/* ================= NAVBAR ================= */
+.main-nav{
+width:100%;
+background:#ffffff;
 display:flex;
-gap:15px;
-flex-wrap:wrap;
+justify-content:center;
+gap:30px;
+padding:12px 0;
+box-shadow:0 3px 10px rgba(0,0,0,0.05);
 }
 
-.nav-menu a{
-color:white;
+.main-nav a{
 text-decoration:none;
-padding:6px 14px;
+color:#1f6f78;
+font-weight:600;
+padding:8px 18px;
 border-radius:20px;
-font-weight:500;
 transition:.3s;
 }
 
-.nav-menu a:hover,
-.nav-menu a.active{
-background:rgba(255,255,255,0.25);
+.main-nav a:hover{
+background:#e8f8f8;
+}
+
+.main-nav a.active{
+background:linear-gradient(90deg,#1f6f78,#00c2c7);
+color:white;
 }
 
 /* ================= CONTAINER ================= */
