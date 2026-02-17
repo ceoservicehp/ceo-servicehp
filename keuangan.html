@@ -47,20 +47,22 @@
 </div>
 
 
-<!-- ================= FILTER ================= -->
+<!-- ================= Filter Tanggal ================= -->
 <div class="filter-box">
 
-<label>Filter Tanggal:</label>
-<input type="date" id="filterTanggal">
+  <div class="date-group">
+    <label for="startDate">Dari Tanggal</label>
+    <input type="date" id="startDate">
+  </div>
 
-<!-- 🔹 TAMBAHAN (Range Filter Future Ready) -->
-<input type="date" id="filterStart">
-<input type="date" id="filterEnd">
+  <div class="date-group">
+    <label for="endDate">Sampai Tanggal</label>
+    <input type="date" id="endDate">
+  </div>
 
-<button id="resetFilter">Reset</button>
+  <button id="resetFilter" class="btn-reset">Reset</button>
 
 </div>
-
 
 <!-- ================= GRAFIK (Optional Future) ================= -->
 <div class="chart-box">
