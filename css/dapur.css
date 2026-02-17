@@ -269,44 +269,110 @@ min-width:700px;
 
 }
 
-/* Modal Detal */
+/* ================= MODAL DETAIL ================= */
+
 .modal {
   display: none;
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.5);
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(4px);
   justify-content: center;
   align-items: center;
+  z-index: 9999;
 }
 
 .modal-box {
-  background: white;
-  width: 90%;
-  max-width: 700px;
-  padding: 20px;
-  border-radius: 10px;
+  background: #ffffff;
+  width: 95%;
+  max-width: 850px;
+  border-radius: 16px;
+  padding: 30px;
   max-height: 90vh;
   overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+  animation: modalFade .2s ease;
+}
+
+@keyframes modalFade {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.modal-box h3 {
+  margin-bottom: 20px;
+  font-size: 22px;
+  font-weight: 600;
 }
 
 .modal-close {
   float: right;
   font-size: 22px;
   cursor: pointer;
+  color: #666;
 }
 
+.modal-close:hover {
+  color: #000;
+}
+
+/* GRID FORM */
 .form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 15px;
-  margin-top: 15px;
+  gap: 18px 25px;
 }
 
+/* FULL WIDTH FIELD */
 .form-grid textarea {
-  min-height: 60px;
+  grid-column: span 2;
 }
 
+.form-grid div {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-grid label {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #444;
+}
+
+.form-grid input,
+.form-grid select,
+.form-grid textarea {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+  transition: 0.2s;
+}
+
+.form-grid input:focus,
+.form-grid select:focus,
+.form-grid textarea:focus {
+  border-color: #009688;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0,150,136,0.15);
+}
+
+textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* BUTTON AREA */
 .modal-actions {
-  margin-top: 20px;
-  text-align: right;
+  margin-top: 25px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.modal-actions .btn {
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-weight: 500;
 }
