@@ -117,6 +117,13 @@ function renderTable(){
             <td>${row.nama ?? "-"}</td>
             <td>${row.alamat ?? "-"}</td>
             <td>${row.phone ?? "-"}</td>
+            <td style="font-size:12px; color:#666;">
+                ${new Date(row.created_at).toLocaleDateString("id-ID",{
+                    day:"2-digit",
+                    month:"short",
+                    year:"numeric"
+                })}
+            </td>
             <td>
                 <span class="status-badge ${statusClass}">
                     ${row.status ?? "pending"}
@@ -125,15 +132,6 @@ function renderTable(){
             <td style="font-weight:600; color:#009688;">
                 ${rupiah(totalKeseluruhan)}
             </td>
-            
-            <td style="font-size:12px; color:#666;">
-                ${new Date(row.created_at).toLocaleDateString("id-ID",{
-                    day:"2-digit",
-                    month:"short",
-                    year:"numeric"
-                })}
-            </td>
-            
             <td>
                 <button class="detail-btn" data-id="${row.id}">
                     Detail
@@ -411,5 +409,3 @@ document.getElementById("cetakTanggal")
     window.print();
 
 });
-
-
