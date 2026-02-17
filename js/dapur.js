@@ -279,16 +279,20 @@ document.addEventListener("change",async e=>{
 
 /* ================= SEARCH ================= */
 document.getElementById("searchNama")
-?.addEventListener("input",e=>{
+?.addEventListener("input", e => {
 
-    const k=e.target.value.toLowerCase();
+    const keyword = e.target.value.toLowerCase();
 
     document.querySelectorAll("#orderTable tr")
-        .forEach(tr=>{
-            const nama=tr.children[2]?.innerText.toLowerCase() || "";
-            tr.style.display=nama.includes(k)?"":"none";
-        });
+        .forEach(tr => {
 
+            const namaCell = tr.children[2];
+            if(!namaCell) return;
+
+            const nama = namaCell.innerText.toLowerCase();
+
+            tr.style.display = nama.includes(keyword) ? "" : "none";
+        });
 });
 
 /* ================= CHECK ALL ================= */
@@ -319,3 +323,73 @@ document.getElementById("hapusTerpilih")
     loadOrders();
 });
 
+/* ================= FILTER TANGGAL ================= */
+document.getElementById("filterTanggal")
+?.addEventListener("change", e => {
+
+    const selected = e.target.value;
+
+    if(!selected){
+        renderTable();
+        return;
+    }
+
+    const filtered = allOrders.filter(o => {
+
+        const created = new Date(o.created_at)
+            .toISOString()
+            .split("T")[0];
+
+        return created === selected;
+    });
+
+    const tbody = document.getElementById("orderTable");
+    tbody.innerHTML = "";
+
+    if(filtered.length === 0){
+        tbody.innerHTML = `<tr><td colspan="8">Tidak ada data</td></tr>`;
+        return;
+    }
+
+    filtered.forEach((row,i)=>{
+
+        let statusClass="status-pending";
+        if(row.status==="proses") statusClass="status-proses";
+        if(row.status==="selesai") statusClass="status-selesai";
+        if(row.status==="batal") statusClass="status-batal";
+
+        const totalKeseluruhan = (row.transport || 0) + (row.jasa || 0);
+
+        tbody.innerHTML+=`
+        <tr>
+            <td><input type="checkbox" class="row-check" data-id="${row.id}"></td>
+            <td>${i+1}</td>
+            <td>${row.nama ?? "-"}</td>
+            <td>${row.alamat ?? "-"}</td>
+            <td>${row.phone ?? "-"}</td>
+            <td>
+                <span class="status-badge ${statusClass}">
+                    ${row.status ?? "pending"}
+                </span>
+            </td>
+            <td style="font-weight:600; color:#009688;">
+                ${rupiah(totalKeseluruhan)}
+            </td>
+            <td>
+                <button class="detail-btn" data-id="${row.id}">
+                    Detail
+                </button>
+            </td>
+        </tr>
+        `;
+    });
+
+});
+
+/* ================= CETAK DATA ================= */
+document.getElementById("cetakTanggal")
+?.addEventListener("click", () => {
+
+    window.print();
+
+});
