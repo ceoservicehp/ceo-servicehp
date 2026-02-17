@@ -1,7 +1,7 @@
 "use strict";
 
 function getSupabase(){
-    return window.db;
+    return window.supabaseClient;
 }
 
 /* ================= GLOBAL ================= */
@@ -226,6 +226,7 @@ document.addEventListener("DOMContentLoaded",()=>{
     // ✅ Auto-refresh tiap 5 detik
     setInterval(loadOrders, 5000);
 });
+
 
 
 
