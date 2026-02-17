@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Keuangan Admin — CEO Service HP</title>
+<title>Dapur Keuangan — CEO Service HP</title>
 
 <link rel="stylesheet" href="css/keuangan.css">
 
@@ -16,11 +16,12 @@
 
 <header class="main-header">
   <h1>📊 Laporan Keuangan Service</h1>
+  <p id="todayDate"></p> <!-- 🔹 TAMBAHAN -->
 </header>
 
 <div class="container">
 
-<!-- SUMMARY BOX -->
+<!-- ================= SUMMARY BOX ================= -->
 <div class="summary-grid">
 
 <div class="card">
@@ -45,12 +46,29 @@
 
 </div>
 
-<!-- FILTER -->
+
+<!-- ================= FILTER ================= -->
 <div class="filter-box">
+
+<label>Filter Tanggal:</label>
 <input type="date" id="filterTanggal">
+
+<!-- 🔹 TAMBAHAN (Range Filter Future Ready) -->
+<input type="date" id="filterStart">
+<input type="date" id="filterEnd">
+
+<button id="resetFilter">Reset</button>
+
 </div>
 
-<!-- TABLE -->
+
+<!-- ================= GRAFIK (Optional Future) ================= -->
+<div class="chart-box">
+<canvas id="financeChart"></canvas>
+</div>
+
+
+<!-- ================= TABLE ================= -->
 <div class="table-wrapper">
 <table>
 <thead>
@@ -61,12 +79,19 @@
 <th>Total</th>
 </tr>
 </thead>
+
 <tbody id="financeTable">
 <tr>
 <td colspan="4">Memuat data...</td>
 </tr>
 </tbody>
 </table>
+</div>
+
+
+<!-- 🔹 EXPORT BUTTON -->
+<div class="export-box">
+<button id="exportExcel">Export Excel</button>
 </div>
 
 </div>
