@@ -18,6 +18,7 @@ document.addEventListener("DOMContentLoaded", ()=>{
 
     handleLoginForm();
     protectPage();
+    handleLogout(); // ⬅ TAMBAHKAN INI
 
 });
 
@@ -64,9 +65,17 @@ function protectPage(){
     }
 }
 
-/* ================== LOGOUT ================== */
-function logout(){
+/* ================== HANDLE LOGOUT ================== */
+function handleLogout(){
 
-    localStorage.removeItem("admin_login");
-    window.location.href = "login.html";
+    const logoutBtn = document.getElementById("logoutBtn");
+
+    if(!logoutBtn) return; // hanya jalan jika tombol ada
+
+    logoutBtn.addEventListener("click", ()=>{
+        localStorage.removeItem("admin_login");
+        window.location.href = "index.html"; 
+        // atau "login.html" kalau mau balik ke login
+    });
+
 }
