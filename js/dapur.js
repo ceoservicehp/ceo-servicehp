@@ -203,44 +203,46 @@ document.addEventListener("DOMContentLoaded",()=>{
     };
 
     /* SAVE EDIT */
-    document.getElementById("saveEdit").onclick=async()=>{
+    document.getElementById("saveEdit").onclick = async () => {
 
-        const id=parseInt(document.getElementById("edit-id").value);
+    const id = parseInt(document.getElementById("edit-id").value);
 
-        const spare = parseInt(document.getElementById("edit-total-sparepart").value) || 0;
-        const transport = parseInt(document.getElementById("edit-transport").value) || 0;
-        const jasa = parseInt(document.getElementById("edit-jasa").value) || 0;
-        
-        const total = spare + transport + jasa;
-        
-        const {error}=await getSupabase()
-            .from("service_orders")
-            .update({
-                nama:document.getElementById("edit-nama").value,
-                phone:document.getElementById("edit-phone").value,
-                alamat:document.getElementById("edit-alamat").value,
-                brand:document.getElementById("edit-brand").value,
-                problem:document.getElementById("edit-problem").value,
-                metode:document.getElementById("edit-metode").value,
-                sparepart:document.getElementById("edit-sparepart").value,
-                total_sparepart: sparepart,
-                transport:transport,
-                jasa:jasa,
-                total:total,
-                status:document.getElementById("edit-status").value,
-                coord:document.getElementById("edit-coord").value
-            })
-            .eq("id",id);
+    const spare = parseInt(document.getElementById("edit-total-sparepart").value) || 0;
+    const transport = parseInt(document.getElementById("edit-transport").value) || 0;
+    const jasa = parseInt(document.getElementById("edit-jasa").value) || 0;
 
-        if(error){
-            alert("Gagal update");
-            console.log(error);
-            return;
-        }
+    const total = spare + transport + jasa;
 
-        document.getElementById("detailModal").style.display="none";
-        loadOrders();
-    };
+    const { error } = await getSupabase()
+        .from("service_orders")
+        .update({
+            nama:document.getElementById("edit-nama").value,
+            phone:document.getElementById("edit-phone").value,
+            alamat:document.getElementById("edit-alamat").value,
+            brand:document.getElementById("edit-brand").value,
+            problem:document.getElementById("edit-problem").value,
+            metode:document.getElementById("edit-metode").value,
+            sparepart:document.getElementById("edit-sparepart").value,
+
+            total_sparepart: spare,   // ✅ FIXED
+            transport: transport,
+            jasa: jasa,
+            total: total,
+
+            status:document.getElementById("edit-status").value,
+            coord:document.getElementById("edit-coord").value
+        })
+        .eq("id", id);
+
+    if(error){
+        alert("Gagal update");
+        console.log(error);
+        return;
+    }
+
+    document.getElementById("detailModal").style.display="none";
+    loadOrders();
+};
 
     /* DELETE */
     document.getElementById("deleteEdit").onclick=async()=>{
@@ -439,4 +441,5 @@ document.getElementById("cetakTanggal")
     window.print();
 
 });
+
 
