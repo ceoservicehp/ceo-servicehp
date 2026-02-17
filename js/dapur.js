@@ -378,6 +378,14 @@ document.getElementById("filterTanggal")
 
         const totalKeseluruhan = (row.transport || 0) + (row.jasa || 0);
 
+        const tanggal = row.created_at
+            ? new Date(row.created_at).toLocaleDateString("id-ID",{
+                day:"2-digit",
+                month:"short",
+                year:"numeric"
+            })
+            : "-";
+
         tbody.innerHTML+=`
         <tr>
             <td><input type="checkbox" class="row-check" data-id="${row.id}"></td>
@@ -385,6 +393,7 @@ document.getElementById("filterTanggal")
             <td>${row.nama ?? "-"}</td>
             <td>${row.alamat ?? "-"}</td>
             <td>${row.phone ?? "-"}</td>
+            <td>${tanggal}</td>
             <td>
                 <span class="status-badge ${statusClass}">
                     ${row.status ?? "pending"}
@@ -411,6 +420,3 @@ document.getElementById("cetakTanggal")
     window.print();
 
 });
-
-
-
