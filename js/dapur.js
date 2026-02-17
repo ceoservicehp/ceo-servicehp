@@ -60,7 +60,7 @@ async function loadOrders(){
         .select("*")
         .order("created_at",{ascending:false});
 
-    console.log("Data dari service_orders:", data, error);  // ✅ cek di console
+    // console.log("Data dari service_orders:", data, error);  // ✅ cek di console
 
     if(error){
         tbody.innerHTML=`<tr><td colspan="16">Error load data</td></tr>`;
@@ -232,8 +232,9 @@ document.addEventListener("DOMContentLoaded",()=>{
         new Date().toLocaleString("id-ID");
 
     // ✅ Auto-refresh tiap 5 detik
-    setInterval(loadOrders, 5000);
+    // setInterval(loadOrders, 5000);
 });
+
 
 
 
