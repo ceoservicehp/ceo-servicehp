@@ -102,14 +102,14 @@ function renderTable(){
     tbody.innerHTML="";
 
     rows.forEach((row,i)=>{
-    
+
         let statusClass="status-pending";
         if(row.status==="proses") statusClass="status-proses";
         if(row.status==="selesai") statusClass="status-selesai";
         if(row.status==="batal") statusClass="status-batal";
-    
+
         const totalKeseluruhan = (row.transport || 0) + (row.jasa || 0);
-    
+
         const tanggal = row.created_at
             ? new Date(row.created_at).toLocaleDateString("id-ID",{
                 day:"2-digit",
@@ -117,7 +117,7 @@ function renderTable(){
                 year:"numeric"
             })
             : "-";
-    
+
         tbody.innerHTML+=`
         <tr>
             <td><input type="checkbox" class="row-check" data-id="${row.id}"></td>
@@ -411,4 +411,5 @@ document.getElementById("cetakTanggal")
     window.print();
 
 });
+
 
