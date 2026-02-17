@@ -91,7 +91,7 @@ function renderTable(){
     }
 
     if(rows.length===0){
-        tbody.innerHTML=`<tr><td colspan="16">Tidak ada data</td></tr>`;
+        tbody.innerHTML=`<tr><td colspan="17">Tidak ada data</td></tr>`;
         return;
     }
 
@@ -99,21 +99,28 @@ function renderTable(){
 
     rows.forEach((row,i)=>{
         tbody.innerHTML+=`
-        <tr>
+           <tr>
             <td><input type="checkbox" class="row-check" data-id="${row.id}"></td>
             <td>${i+1}</td>
             <td>${row.nama ?? "-"}</td>
+            <td>${row.alamat ?? "-"}</td>
             <td>${row.phone ?? "-"}</td>
             <td>${row.brand ?? "-"}</td>
             <td>${row.problem ?? "-"}</td>
-            <td>${row.sparepart ?? "-"}</td>
             <td>${row.metode ?? "-"}</td>
+            <td>${row.sparepart ?? "-"}</td>
             <td>${row.transport ?? "0"}</td>
-            <td>${row.alamat ?? "-"}</td>
-            <td>${row.coord ?? "-"}</td>
+        
             <td>
-                ${row.bukti ? `<a href="${row.bukti}" target="_blank">Lihat</a>` : "-"}
+                ${row.bukti 
+                    ? `<a href="${row.bukti}" target="_blank">Lihat</a>` 
+                    : "-"}
             </td>
+        
+            <td>-</td> <!-- Jasa (kalau belum ada kolomnya) -->
+            <td>${row.total ?? "0"}</td>
+            <td>${row.coord ?? "-"}</td>
+        
             <td>
                 <select class="status-select" data-id="${row.id}">
                     <option value="pending" ${row.status=="pending"?"selected":""}>Pending</option>
@@ -122,6 +129,7 @@ function renderTable(){
                     <option value="batal" ${row.status=="batal"?"selected":""}>Batal</option>
                 </select>
             </td>
+        
             <td>${new Date(row.created_at).toLocaleString("id-ID")}</td>
             <td><button class="hapus" data-id="${row.id}">Hapus</button></td>
         </tr>
@@ -226,6 +234,7 @@ document.addEventListener("DOMContentLoaded",()=>{
     // ✅ Auto-refresh tiap 5 detik
     setInterval(loadOrders, 5000);
 });
+
 
 
 
