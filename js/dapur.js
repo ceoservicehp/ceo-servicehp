@@ -326,6 +326,8 @@ document.getElementById("hapusTerpilih")
 
     const checked = [...document.querySelectorAll(".row-check:checked")];
 
+    console.log("Checked:", checked);
+
     if (checked.length === 0) {
         alert("Pilih data dulu");
         return;
@@ -335,14 +337,19 @@ document.getElementById("hapusTerpilih")
 
     const ids = checked.map(c => parseInt(c.dataset.id));
 
-    const { error } = await getSupabase()
+    console.log("IDs yang akan dihapus:", ids);
+
+    const { data, error } = await getSupabase()
         .from("service_orders")
         .delete()
-        .in("id", ids);
+        .in("id", ids)
+        .select();
+
+    console.log("Delete result:", data);
+    console.log("Delete error:", error);
 
     if (error) {
-        console.error(error);
-        alert("Gagal menghapus data");
+        alert("Gagal menghapus");
         return;
     }
 
@@ -428,4 +435,5 @@ document.getElementById("cetakTanggal")
     window.print();
 
 });
+
 
