@@ -180,3 +180,62 @@ padding:12px;
 }
 
 }
+
+/* ================= FILTER Tanggal ================= */
+
+.filter-box{
+display:flex;
+align-items:flex-end;
+gap:20px;
+flex-wrap:wrap;
+margin-bottom:25px;
+}
+
+.date-group{
+display:flex;
+flex-direction:column;
+gap:6px;
+}
+
+.date-group label{
+font-size:13px;
+font-weight:600;
+color:#1f6f78;
+}
+
+.filter-box input{
+padding:10px 14px;
+border-radius:10px;
+border:1px solid #ddd;
+font-size:14px;
+transition:.2s;
+}
+
+.filter-box input:focus{
+outline:none;
+border-color:#00c2c7;
+box-shadow:0 0 0 2px rgba(0,194,199,0.15);
+}
+
+.btn-reset{
+padding:10px 16px;
+border:none;
+border-radius:10px;
+background:#e74c3c;
+color:white;
+font-weight:600;
+cursor:pointer;
+transition:.2s;
+}
+
+.btn-reset:hover{
+opacity:.9;
+}
+
+/* Responsive */
+@media(max-width:768px){
+.filter-box{
+flex-direction:column;
+align-items:stretch;
+}
+}
