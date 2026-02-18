@@ -22,7 +22,7 @@ border-radius:0 0 20px 20px;
 
 #logo-container{
 display:flex;
-align-items:left;
+align-items:center;
 gap:14px;
 }
 
