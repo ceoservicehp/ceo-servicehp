@@ -13,6 +13,20 @@ document.addEventListener("DOMContentLoaded", ()=>{
     document.getElementById("saveProduct")
         .addEventListener("click", saveProduct);
 
+    /* ===== PREVIEW GAMBAR ===== */
+    document.getElementById("productImage")
+        .addEventListener("change", function(){
+
+            const file = this.files[0];
+            const preview = document.getElementById("imagePreview");
+
+            if(file){
+                preview.src = URL.createObjectURL(file);
+                preview.style.display = "block";
+            }else{
+                preview.style.display = "none";
+            }
+        });
 });
 
 /* ================= LOAD DATA ================= */
@@ -26,12 +40,12 @@ async function loadProducts(){
         .order("created_at",{ascending:false});
 
     if(error){
-        tbody.innerHTML=`<tr><td colspan="8">Error load data</td></tr>`;
+        tbody.innerHTML=`<tr><td colspan="10">Error load data</td></tr>`;
         return;
     }
 
     if(!data || data.length===0){
-        tbody.innerHTML=`<tr><td colspan="8">Belum ada produk</td></tr>`;
+        tbody.innerHTML=`<tr><td colspan="10">Belum ada produk</td></tr>`;
         return;
     }
 
@@ -42,7 +56,15 @@ async function loadProducts(){
         tbody.innerHTML+=`
         <tr>
             <td>${i+1}</td>
+            <td>
+                ${row.image_url 
+                    ? `<img src="${row.image_url}" 
+                           style="width:50px;height:50px;object-fit:cover;border-radius:6px;">`
+                    : "-"
+                }
+            </td>
             <td>${row.name}</td>
+            <td>${row.category || "-"}</td>
             <td>${rupiah(row.price)}</td>
             <td>${rupiah(row.cost_price)}</td>
             <td>${rupiah(row.promo_price)}</td>
@@ -62,6 +84,7 @@ async function saveProduct(){
 
     const id = document.getElementById("productId").value;
     const name = document.getElementById("productName").value;
+    const category = document.getElementById("productCategory").value;
     const price = parseInt(document.getElementById("productPrice").value) || 0;
     const costPrice = parseInt(document.getElementById("productCost").value) || 0;
     const promoPrice = parseInt(document.getElementById("productPromo").value) || 0;
@@ -100,6 +123,7 @@ async function saveProduct(){
 
     const payload = {
         name,
+        category,
         price,
         cost_price: costPrice,
         promo_price: promoPrice,
@@ -154,12 +178,22 @@ async function editProduct(id){
 
     document.getElementById("productId").value = data.id;
     document.getElementById("productName").value = data.name;
+    document.getElementById("productCategory").value = data.category || "";
     document.getElementById("productPrice").value = data.price;
     document.getElementById("productCost").value = data.cost_price;
     document.getElementById("productPromo").value = data.promo_price;
     document.getElementById("productStock").value = data.stock;
     document.getElementById("productDesc").value = data.description;
     document.getElementById("productActive").checked = data.is_active;
+
+    /* Preview gambar lama */
+    const preview = document.getElementById("imagePreview");
+    if(data.image_url){
+        preview.src = data.image_url;
+        preview.style.display = "block";
+    }else{
+        preview.style.display = "none";
+    }
 }
 
 /* ================= DELETE ================= */
@@ -180,6 +214,7 @@ function resetForm(){
 
     document.getElementById("productId").value="";
     document.getElementById("productName").value="";
+    document.getElementById("productCategory").value="";
     document.getElementById("productPrice").value="";
     document.getElementById("productCost").value="";
     document.getElementById("productPromo").value="";
@@ -187,4 +222,7 @@ function resetForm(){
     document.getElementById("productDesc").value="";
     document.getElementById("productImage").value="";
     document.getElementById("productActive").checked=true;
+
+    const preview = document.getElementById("imagePreview");
+    preview.style.display="none";
 }
