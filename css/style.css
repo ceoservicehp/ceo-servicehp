@@ -223,21 +223,21 @@ font-size:22px;
 /* ================= NAV ================= */
 .top-nav{
 display:flex;
-gap:8px;
-padding:10px 5%;
+gap:10px;
+padding:10px;
 background:white;
 position:sticky;
 top:0;
-z-index:1000;
-box-shadow:0 2px 6px rgba(0,0,0,0.08);
+z-index:10;
+box-shadow:0 2px 6px rgba(0,0,0,0.1);
 }
 
 .nav-btn{
 flex:1;
 text-align:center;
-padding:10px 0;
-border-radius:12px;
-background:#eeeeee;
+padding:10px;
+border-radius:8px;
+background:#eee;
 text-decoration:none;
 color:#333;
 font-size:14px;
@@ -245,16 +245,8 @@ font-weight:600;
 transition:.25s;
 }
 
-.nav-btn i{
-margin-right:6px;
-}
-
 .nav-btn:hover{
 background:#1f6f78;
 color:white;
 transform:translateY(-2px);
-box-shadow:0 4px 12px rgba(0,0,0,0.15);
 }
-
-
-
