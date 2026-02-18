@@ -672,7 +672,7 @@ textarea {
   display:flex;
   flex-direction:row;
   align-items:center;
-  gap:20px;
+  gap:15px;
 
   background:#f1fafa;
   padding:16px;
@@ -712,4 +712,16 @@ textarea {
   border-radius:12px;
   padding:8px 12px;
   cursor:pointer;
+}
+
+/* Override supaya selected-item tidak ikut column dari form-grid */
+.form-grid .selected-item{
+  display:flex !important;
+  flex-direction:row !important;
+  align-items:center !important;
+  gap:20px !important;
+}
+
+.form-grid .selected-item div{
+  flex:none !important;
 }
