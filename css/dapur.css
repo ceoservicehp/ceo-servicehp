@@ -555,6 +555,67 @@ textarea {
   background:#ffffff;
 }
 
+/* ================= MOBILE FIX TOTAL ================= */
+@media (max-width: 768px){
+
+  /* Container lebih rapat */
+  .container{
+    padding:15px;
+  }
+
+  .admin-content{
+    padding:20px 16px;
+  }
+
+  /* ================= SEARCH ================= */
+  .search-box input{
+    max-width:100%;
+    font-size:13px;
+    padding:12px;
+  }
+
+  /* ================= BULK ACTION ================= */
+  .bulk-actions{
+    flex-direction:column;
+    align-items:stretch;
+    gap:12px;
+  }
+
+  .filter-date{
+    width:100%;
+  }
+
+  .btn-print,
+  .btn-logout{
+    width:100%;
+  }
+
+  /* ================= ORDER TABS (INI YANG BIKIN RAPI) ================= */
+  .order-tabs{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+  }
+
+  .tab{
+    width:100%;
+    text-align:center;
+    padding:10px;
+    font-size:13px;
+  }
+
+  /* ================= STATUS BAR ================= */
+  .status-bar{
+    padding:14px;
+  }
+
+  .store-status{
+    font-size:14px;
+  }
+
+}
+
+
 
 
 
