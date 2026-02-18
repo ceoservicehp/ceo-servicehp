@@ -13,7 +13,6 @@ document.addEventListener("DOMContentLoaded", async ()=>{
         return;
     }
 
-    // tampilkan tanggal hari ini
     document.getElementById("todayDate").textContent =
         new Date().toLocaleDateString("id-ID",{
             weekday:"long",
@@ -24,14 +23,13 @@ document.addEventListener("DOMContentLoaded", async ()=>{
 
     loadFinance();
 
-/* ================= FILTER TANGGAL ================= */
     document.getElementById("startDate")
         ?.addEventListener("change", loadFinance);
-        
-        document.getElementById("endDate")
+
+    document.getElementById("endDate")
         ?.addEventListener("change", loadFinance);
-        
-        document.getElementById("resetFilter")
+
+    document.getElementById("resetFilter")
         ?.addEventListener("click", ()=>{
             document.getElementById("startDate").value="";
             document.getElementById("endDate").value="";
@@ -39,6 +37,7 @@ document.addEventListener("DOMContentLoaded", async ()=>{
         });
 
 });
+
 
 async function loadFinance(){
 
@@ -76,21 +75,40 @@ async function loadFinance(){
     renderTable(filteredRows);
 }
 
+
 /* ================= HITUNG SUMMARY ================= */
 function calculateSummary(rows){
 
     const today = new Date();
     const todayStr = today.toISOString().split("T")[0];
 
+    /* ===== TOTAL KESELURUHAN ===== */
     const totalAll = rows.reduce((a,b)=>a+(b.total || 0),0);
 
+    /* ===== SERVICE ONLY (JASA + TRANSPORT) ===== */
+    const totalService = rows.reduce((a,b)=>{
+        return a + (b.jasa || 0) + (b.transport || 0);
+    },0);
+
+    /* ===== SPAREPART ===== */
+    const totalSparepart = rows.reduce((a,b)=>{
+        return a + (b.total_sparepart || 0);
+    },0);
+
+    const totalModalSparepart = rows.reduce((a,b)=>{
+        return a + (b.modal_sparepart || 0);
+    },0);
+
+    const labaSparepart = totalSparepart - totalModalSparepart;
+
+    /* ===== HARI INI ===== */
     const totalToday = rows
         .filter(o => 
             o.created_at?.split("T")[0] === todayStr
         )
         .reduce((a,b)=>a+(b.total || 0),0);
 
-    // Awal minggu (Senin)
+    /* ===== MINGGU INI ===== */
     const firstDayOfWeek = new Date(today);
     const day = today.getDay();
     const diff = today.getDate() - day + (day === 0 ? -6 : 1);
@@ -104,6 +122,7 @@ function calculateSummary(rows){
         })
         .reduce((a,b)=>a+(b.total || 0),0);
 
+    /* ===== BULAN INI ===== */
     const monthNow = today.getMonth();
     const yearNow = today.getFullYear();
 
@@ -115,11 +134,20 @@ function calculateSummary(rows){
         })
         .reduce((a,b)=>a+(b.total || 0),0);
 
+    /* ===== TAMPILKAN ===== */
+
     document.getElementById("totalAll").textContent = rupiah(totalAll);
     document.getElementById("totalToday").textContent = rupiah(totalToday);
     document.getElementById("totalWeek").textContent = rupiah(totalWeek);
     document.getElementById("totalMonth").textContent = rupiah(totalMonth);
+
+    /* OPTIONAL: kalau mau tampilkan detail */
+    console.log("Total Service:", totalService);
+    console.log("Total Sparepart:", totalSparepart);
+    console.log("Modal Sparepart:", totalModalSparepart);
+    console.log("Laba Sparepart:", labaSparepart);
 }
+
 
 
 /* ================= RENDER TABLE ================= */
