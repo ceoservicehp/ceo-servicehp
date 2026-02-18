@@ -6,6 +6,8 @@ function rupiah(n){
     return "Rp " + Number(n || 0).toLocaleString("id-ID");
 }
 
+let financeChart;
+
 document.addEventListener("DOMContentLoaded", async ()=>{
 
     if(!db){
@@ -35,10 +37,10 @@ document.addEventListener("DOMContentLoaded", async ()=>{
             document.getElementById("endDate").value="";
             loadFinance();
         });
-
 });
 
 
+/* ================= LOAD DATA ================= */
 async function loadFinance(){
 
     const tbody=document.getElementById("financeTable");
@@ -88,18 +90,21 @@ function calculateSummary(rows){
     let totalModal = 0;
 
     rows.forEach(o=>{
-        totalAll += o.total || 0;
-        totalService += (o.jasa || 0) + (o.transport || 0);
-        totalSparepart += o.total_sparepart || 0;
-        totalModal += o.modal_sparepart || 0;
+        totalAll += Number(o.total) || 0;
+        totalService += (Number(o.jasa) || 0) + (Number(o.transport) || 0);
+        totalSparepart += Number(o.total_sparepart) || 0;
+        totalModal += Number(o.modal_sparepart) || 0;
     });
 
     const totalProfit = totalSparepart - totalModal;
+    const margin = totalSparepart > 0
+        ? ((totalProfit / totalSparepart) * 100).toFixed(1)
+        : 0;
 
     /* ===== HARI INI ===== */
     const totalToday = rows
         .filter(o => o.created_at?.split("T")[0] === todayStr)
-        .reduce((a,b)=>a+(b.total || 0),0);
+        .reduce((a,b)=>a+(Number(b.total) || 0),0);
 
     /* ===== MINGGU INI ===== */
     const firstDayOfWeek = new Date(today);
@@ -113,7 +118,7 @@ function calculateSummary(rows){
             const d = new Date(o.created_at);
             return d >= firstDayOfWeek && d <= today;
         })
-        .reduce((a,b)=>a+(b.total || 0),0);
+        .reduce((a,b)=>a+(Number(b.total) || 0),0);
 
     /* ===== BULAN INI ===== */
     const monthNow = today.getMonth();
@@ -125,7 +130,7 @@ function calculateSummary(rows){
             return d.getMonth()===monthNow &&
                    d.getFullYear()===yearNow;
         })
-        .reduce((a,b)=>a+(b.total || 0),0);
+        .reduce((a,b)=>a+(Number(b.total) || 0),0);
 
     /* ===== UPDATE CARD ===== */
     document.getElementById("totalAll").textContent = rupiah(totalAll);
@@ -133,23 +138,19 @@ function calculateSummary(rows){
     document.getElementById("totalWeek").textContent = rupiah(totalWeek);
     document.getElementById("totalMonth").textContent = rupiah(totalMonth);
 
+    // tambahan card (pastikan ada di HTML)
     document.getElementById("totalService").textContent = rupiah(totalService);
     document.getElementById("totalSparepart").textContent = rupiah(totalSparepart);
     document.getElementById("totalModal").textContent = rupiah(totalModal);
     document.getElementById("totalProfit").textContent = rupiah(totalProfit);
+    document.getElementById("totalMargin").textContent = margin + "%";
 
-    /* Optional debug */
-    console.log("Total Service:", totalService);
-    console.log("Total Sparepart:", totalSparepart);
-    console.log("Modal Sparepart:", totalModal);
-    console.log("Laba Sparepart:", totalProfit);
-
-    generateChart(rows);
+    generateProfitChart(rows);
 }
 
-let financeChart;
 
-function generateChart(rows){
+/* ================= GRAFIK LABA BULANAN ================= */
+function generateProfitChart(rows){
 
     const ctx = document.getElementById("financeChart");
 
@@ -157,9 +158,16 @@ function generateChart(rows){
 
     rows.forEach(o=>{
         const d = new Date(o.created_at);
-        const key = d.getFullYear()+"-"+(d.getMonth()+1);
+        const key = d.toLocaleDateString("id-ID",{
+            month:"short",
+            year:"numeric"
+        });
 
-        monthly[key] = (monthly[key] || 0) + (o.total || 0);
+        const profit =
+            (Number(o.total_sparepart) || 0)
+          - (Number(o.modal_sparepart) || 0);
+
+        monthly[key] = (monthly[key] || 0) + profit;
     });
 
     const labels = Object.keys(monthly);
@@ -170,11 +178,11 @@ function generateChart(rows){
     }
 
     financeChart = new Chart(ctx, {
-        type: 'bar',
+        type: 'line',
         data: {
             labels: labels,
             datasets: [{
-                label: 'Pemasukan Bulanan',
+                label: 'Laba Bersih Bulanan',
                 data: values
             }]
         },
