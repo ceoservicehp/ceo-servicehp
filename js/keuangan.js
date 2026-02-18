@@ -82,30 +82,23 @@ function calculateSummary(rows){
     const today = new Date();
     const todayStr = today.toISOString().split("T")[0];
 
-    /* ===== TOTAL KESELURUHAN ===== */
-    const totalAll = rows.reduce((a,b)=>a+(b.total || 0),0);
+    let totalAll = 0;
+    let totalService = 0;
+    let totalSparepart = 0;
+    let totalModal = 0;
 
-    /* ===== SERVICE ONLY (JASA + TRANSPORT) ===== */
-    const totalService = rows.reduce((a,b)=>{
-        return a + (b.jasa || 0) + (b.transport || 0);
-    },0);
+    rows.forEach(o=>{
+        totalAll += o.total || 0;
+        totalService += (o.jasa || 0) + (o.transport || 0);
+        totalSparepart += o.total_sparepart || 0;
+        totalModal += o.modal_sparepart || 0;
+    });
 
-    /* ===== SPAREPART ===== */
-    const totalSparepart = rows.reduce((a,b)=>{
-        return a + (b.total_sparepart || 0);
-    },0);
-
-    const totalModalSparepart = rows.reduce((a,b)=>{
-        return a + (b.modal_sparepart || 0);
-    },0);
-
-    const labaSparepart = totalSparepart - totalModalSparepart;
+    const totalProfit = totalSparepart - totalModal;
 
     /* ===== HARI INI ===== */
     const totalToday = rows
-        .filter(o => 
-            o.created_at?.split("T")[0] === todayStr
-        )
+        .filter(o => o.created_at?.split("T")[0] === todayStr)
         .reduce((a,b)=>a+(b.total || 0),0);
 
     /* ===== MINGGU INI ===== */
@@ -134,20 +127,65 @@ function calculateSummary(rows){
         })
         .reduce((a,b)=>a+(b.total || 0),0);
 
-    /* ===== TAMPILKAN ===== */
-
+    /* ===== UPDATE CARD ===== */
     document.getElementById("totalAll").textContent = rupiah(totalAll);
     document.getElementById("totalToday").textContent = rupiah(totalToday);
     document.getElementById("totalWeek").textContent = rupiah(totalWeek);
     document.getElementById("totalMonth").textContent = rupiah(totalMonth);
 
-    /* OPTIONAL: kalau mau tampilkan detail */
+    document.getElementById("totalService").textContent = rupiah(totalService);
+    document.getElementById("totalSparepart").textContent = rupiah(totalSparepart);
+    document.getElementById("totalModal").textContent = rupiah(totalModal);
+    document.getElementById("totalProfit").textContent = rupiah(totalProfit);
+
+    /* Optional debug */
     console.log("Total Service:", totalService);
     console.log("Total Sparepart:", totalSparepart);
-    console.log("Modal Sparepart:", totalModalSparepart);
-    console.log("Laba Sparepart:", labaSparepart);
+    console.log("Modal Sparepart:", totalModal);
+    console.log("Laba Sparepart:", totalProfit);
+
+    generateChart(rows);
 }
 
+let financeChart;
+
+function generateChart(rows){
+
+    const ctx = document.getElementById("financeChart");
+
+    const monthly = {};
+
+    rows.forEach(o=>{
+        const d = new Date(o.created_at);
+        const key = d.getFullYear()+"-"+(d.getMonth()+1);
+
+        monthly[key] = (monthly[key] || 0) + (o.total || 0);
+    });
+
+    const labels = Object.keys(monthly);
+    const values = Object.values(monthly);
+
+    if(financeChart){
+        financeChart.destroy();
+    }
+
+    financeChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Pemasukan Bulanan',
+                data: values
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+}
 
 
 /* ================= RENDER TABLE ================= */
