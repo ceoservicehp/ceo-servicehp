@@ -177,13 +177,20 @@ Memuat status layanan...
       </div>
 
       <div>
-        <label>Sparepart</label>
-        <input type="text" id="edit-sparepart">
+        <label>Tambah Sparepart</label>
+        <select id="sparepartSelect">
+          <option value="">Pilih Sparepart</option>
+        </select>
+      
+        <div id="selectedSpareparts"></div>
+      
+        <!-- hidden untuk simpan ke db -->
+        <input type="hidden" id="edit-sparepart">
       </div>
-
+      
       <div>
         <label>Total Sparepart</label>
-        <input type="number" id="edit-total-sparepart">
+        <input type="number" id="edit-total-sparepart" readonly>
       </div>
 
       <div>
@@ -282,9 +289,4 @@ window.location="login.html";
 
 </body>
 </html>
-
-
-
-
-
 
