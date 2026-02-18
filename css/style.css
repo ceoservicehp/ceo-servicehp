@@ -12,46 +12,33 @@ color:#333;
 scroll-behavior:smooth;
 }
 
-/* ===== HEADER ===== */
-.main-header{
-  background: linear-gradient(90deg,#1f6f78,#00c2c7);
-  padding:15px 5%;
-  border-radius:0 0 12px 12px;
-  color:white;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  flex-wrap:wrap;
+/* ================= HEADER ================= */
+header{
+background:linear-gradient(90deg,#1f6f78,#00c2c7);
+padding:16px 5%;
+color:white;
+box-shadow:0 3px 12px rgba(0,0,0,0.2);
+border-radius:0 0 20px 20px;
 }
 
-.logo-area{
-  display:flex;
-  align-items:center;
-  gap:12px;
+#logo-container{
+display:flex;
+align-items:center;
+gap:14px;
 }
 
-.logo{
-  width:55px;
+#logo-container h1{
+margin:0;
+font-size:20px;
+font-weight:700;
+letter-spacing:1px;
 }
 
-/* ===== LOGO TEXT ===== */
-.logo-text{
-  display:flex;
-  flex-direction:column;
-  line-height:1.2;
-}
-
-.logo-text h1{
-  font-size:18px;   /* ukuran kecil seperti sebelumnya */
-  font-weight:600;
-  letter-spacing:1px;
-  margin:0;
-}
-
-.logo-text span{
-  font-size:13px;
-  opacity:.9;
-  letter-spacing:1.5px;
+.tagline{
+font-size:12px;
+opacity:.9;
+letter-spacing:1px;
+margin-top:3px;
 }
 
 .nav-menu a{
@@ -250,3 +237,4 @@ background:#1f6f78;
 color:white;
 transform:translateY(-2px);
 }
+
