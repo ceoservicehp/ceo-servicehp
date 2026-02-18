@@ -15,17 +15,23 @@ scroll-behavior:smooth;
 /* ===== HEADER ===== */
 .main-header{
   background: linear-gradient(90deg,#1f6f78,#00c2c7);
-  padding:25px 5%;        /* lebih seimbang */
-  border-radius:0 0 18px 18px;
+  padding:15px 5%;
+  border-radius:0 0 12px 12px;
   color:white;
   display:flex;
+  justify-content:space-between;
   align-items:center;
-  justify-content:flex-start;
-  gap:18px;
+  flex-wrap:wrap;
+}
+
+.logo-area{
+  display:flex;
+  align-items:center;
+  gap:12px;
 }
 
 .logo{
-  width:65px;   /* sedikit lebih besar dari 55 agar proporsional */
+  width:55px;
 }
 
 /* ===== LOGO TEXT ===== */
@@ -36,16 +42,16 @@ scroll-behavior:smooth;
 }
 
 .logo-text h1{
-  font-size:32px;      /* sebelumnya terlalu kecil */
-  font-weight:700;
-  letter-spacing:2px;
+  font-size:18px;   /* ukuran kecil seperti sebelumnya */
+  font-weight:600;
+  letter-spacing:1px;
   margin:0;
 }
 
 .logo-text span{
-  font-size:14px;
+  font-size:13px;
   opacity:.9;
-  letter-spacing:2px;
+  letter-spacing:1.5px;
 }
 
 .nav-menu a{
@@ -256,3 +262,4 @@ font-size:22px;
   transform:translateY(-3px);
   box-shadow:0 6px 14px rgba(0,0,0,0.1);
 }
+
