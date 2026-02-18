@@ -39,7 +39,24 @@
     <!-- KATEGORI -->
     <div class="form-group">
       <label>Kategori</label>
-      <select id="productCategory"></select>
+    
+      <div style="display:flex;gap:8px;">
+        <select id="productCategory" style="flex:1;"></select>
+    
+        <button type="button" id="addCategoryBtn">
+          ➕
+        </button>
+      </div>
+    
+      <!-- Input Tambah Kategori -->
+      <div id="newCategoryBox" style="margin-top:8px;display:none;">
+        <input type="text" id="newCategoryName" 
+               placeholder="Nama kategori baru">
+    
+        <button type="button" id="saveCategoryBtn">
+          Simpan
+        </button>
+      </div>
     </div>
 
     <div class="form-group">
