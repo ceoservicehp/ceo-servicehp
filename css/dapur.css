@@ -670,58 +670,31 @@ textarea {
 
 .selected-item{
   display:flex;
-  justify-content:space-between;
   align-items:center;
-  background:#f1fafa;
-  padding:10px;
-  border-radius:8px;
-  margin-bottom:8px;
-  font-size:13px;
-}
-
-.selected-item input{
-  width:60px;
-  margin-left:5px;
-  padding:4px;
-}
-
-.selected-item button{
-  background:#c0392b;
-  color:white;
-  border:none;
-  border-radius:6px;
-  padding:4px 8px;
-  cursor:pointer;
-}
-
-.selected-item{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
+  gap:15px;
 
   background:#f1fafa;
-  padding:12px;
-  border-radius:12px;
-  margin-bottom:8px;
+  padding:14px;
+  border-radius:14px;
+  margin-bottom:10px;
   font-size:14px;
 }
 
 .sp-name{
   flex:2;
-  font-weight:600;
+  font-weight:700;
 }
 
 .sp-price{
   flex:1;
   color:#009688;
-  font-weight:500;
+  font-weight:600;
 }
 
 .sp-qty{
-  width:60px;
-  padding:4px;
-  border-radius:8px;
+  width:65px;
+  padding:6px;
+  border-radius:10px;
   border:1px solid #ccc;
   text-align:center;
 }
@@ -730,8 +703,7 @@ textarea {
   background:#c0392b;
   color:white;
   border:none;
-  border-radius:8px;
-  padding:6px 10px;
+  border-radius:10px;
+  padding:6px 12px;
   cursor:pointer;
 }
-
