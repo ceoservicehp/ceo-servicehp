@@ -34,12 +34,30 @@ gap:12px;
 
 .logo{
 width:55px;
-}
-
-.nav-menu{
 display:flex;
 gap:20px;
 }
+
+/* ===== LOGO TEXT ===== */
+.logo-text{
+display:flex;
+flex-direction:column;
+line-height:1.2;
+}
+
+.logo-text h1{
+font-size:22px;   /* 👉 Ubah angka ini untuk besar-kecil */
+font-weight:600;
+letter-spacing:1px;
+margin:0;
+}
+
+.logo-text span{
+font-size:13px;   /* 👉 Ukuran tagline */
+opacity:.9;
+letter-spacing:1.5px;
+}
+
 
 .nav-menu a{
 color:white;
@@ -149,7 +167,6 @@ box-shadow:0 6px 18px rgba(0,194,199,0.25);
 }
 
 
-
 /* ===== CONTACT ===== */
 .contact{
 margin:25px 5%;
@@ -214,3 +231,4 @@ font-size:22px;
 }
 
 }
+
