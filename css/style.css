@@ -228,7 +228,27 @@ font-size:22px;
 
 }
 
+/* ===== NAVBAR ===== */
+.nav-bar{
+background: linear-gradient(90deg,#1f6f78,#00c2c7);
+padding:10px 5%;
+}
 
+.nav-menu{
+display:flex;
+gap:25px;
+justify-content:center;
+flex-wrap:wrap;
+}
 
+.nav-menu a{
+color:white;
+text-decoration:none;
+font-weight:600;
+font-size:14px;
+transition:.25s;
+}
 
-
+.nav-menu a:hover{
+opacity:.8;
+}
