@@ -377,18 +377,27 @@ function hitungTotalSparepart(){
   let total = 0;
 
   selectedParts.forEach(item=>{
-    total += item.harga * item.qty;
+
+    const harga = parseInt(item.harga) || 0;
+    const qty   = parseInt(item.qty) || 0;
+
+    total += harga * qty;
   });
 
-  document.getElementById("edit-total-sparepart").value = total;
+  document.getElementById("edit-total-sparepart").value = total || 0;
 }
 
 /* ================= Update QTY & Remove Part ================= */
 function updateQty(index,value){
-  selectedParts[index].qty = parseInt(value);
+  let qty = parseInt(value);
+  if(isNaN(qty) || qty < 1){
+    qty = 1;
+  }
+  selectedParts[index].qty = qty;
   hitungTotalSparepart();
   renderSelectedParts();
 }
+
 
 function removePart(index){
   selectedParts.splice(index,1);
@@ -580,5 +589,6 @@ document.getElementById("cetakTanggal")
     window.print();
 
 });
+
 
 
