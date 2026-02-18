@@ -385,6 +385,54 @@ textarea {
   font-weight: 500;
 }
 
+/* ================= RESPONSIVE MOBILE ================= */
+@media (max-width: 768px) {
+
+  .modal-box {
+    width: 92%;
+    padding: 18px;
+    border-radius: 14px;
+    max-height: 95vh;
+  }
+
+  .modal-box h3 {
+    font-size: 18px;
+  }
+
+  /* Grid jadi 1 kolom */
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  /* Semua field full width */
+  .form-grid textarea {
+    grid-column: span 1;
+  }
+
+  .form-grid label {
+    font-size: 12px;
+  }
+
+  .form-grid input,
+  .form-grid select,
+  .form-grid textarea {
+    font-size: 13px;
+    padding: 9px 10px;
+  }
+
+  /* Tombol full width biar enak ditekan */
+  .modal-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .modal-actions .btn {
+    width: 100%;
+    text-align: center;
+  }
+}
+
 /* ================= FIX NAVBAR LINK ================= */
 
 .top-nav{
@@ -491,5 +539,6 @@ textarea {
 .search-box input{
   background:#ffffff;
 }
+
 
 
