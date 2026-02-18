@@ -4,175 +4,138 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Service HP Profesional</title>
+<title>CEO Part & Service</title>
 
-<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/ceo-partandservice.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
-<script src="https://unpkg.com/aos@next/dist/aos.js"></script>
 <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css"/>
+
 </head>
 
 <body>
 
-<!-- HEADER -->
-<header>
-<div id="logo-container">
-  <img src="images/logo.png" width="60">
-  <div>
-    <h1>CEO - SERVICE HP</h1>
-    <small class="tagline">CELLULAR ENGINEER OFFICER</small>
+<!-- ================= HEADER ================= -->
+<header class="main-header">
+  <div class="logo-area">
+    <img src="images/logo.png" alt="Logo CEO" class="logo">
+    <div>
+      <h1>CEO Part & Service</h1>
+      <small>CELLULAR ENGINEER OFFICER</small>
+    </div>
   </div>
-</div>
 
-<div class="search-filter">
-<input type="text" id="search-input" placeholder="Cari layanan...">
-<select id="filter-category">
-<option value="">Semua Layanan</option>
-<option value="hardware">Hardware</option>
-<option value="software">Software</option>
-</select>
-</div>
+  <nav class="nav-menu">
+    <a href="#tentang">Tentang</a>
+    <a href="#layanan">Layanan</a>
+    <a href="#keunggulan">Keunggulan</a>
+    <a href="#kontak">Kontak</a>
+  </nav>
 </header>
 
 
-<!-- WELCOME -->
-<div id="welcome">
-<i class="fa-solid fa-screwdriver-wrench"></i>
-Selamat datang di <b>Layanan Service HP Profesional</b>
-</div>
-
-
-<!-- STATUS TOKO -->
-<section id="store-status">
-<div id="store-status-msg" class="store-status"></div>
+<!-- ================= HERO ================= -->
+<section class="hero">
+  <div class="hero-content" data-aos="fade-up">
+    <h2>Spesialis Service & Sparepart HP</h2>
+    <p>Profesional • Transparan • Bergaransi</p>
+    <a href="layanan.html" class="btn-primary">
+      Ajukan Service Sekarang
+    </a>
+  </div>
 </section>
 
 
-<!-- DESKRIPSI -->
-<section id="store-info">
+<!-- ================= TENTANG ================= -->
+<section id="tentang" class="section">
+  <h2 data-aos="fade-up">Tentang Kami</h2>
 
-<button class="accordion">Tentang Layanan</button>
-<div class="panel">
-<p>
-Kami melayani berbagai perbaikan handphone mulai dari kerusakan ringan hingga berat.
-Didukung teknisi berpengalaman dan sparepart berkualitas.
-</p>
-</div>
-
-<button class="accordion">Jam Operasional</button>
-<div class="panel">
-<ul>
-<li>Senin – Minggu</li>
-<li>08.00 – 20.00 WIB</li>
-<li>Garansi servis hingga 7 hari</li>
-</ul>
-</div>
-
-<button class="accordion">Alamat</button>
-<div class="panel">
-<p>Jl. Contoh Alamat No 123</p>
-</div>
-
-</section>
-
-<!-- FORM ORDER SERVICE -->
-<section id="cart">
-<h2>Form Service</h2>
-
-<label>Nama Lengkap</label>
-<input type="text" id="customer-name" required>
-
-<label>Alamat Detail Rumah/Kantor</label>
-<textarea id="customer-address" required></textarea>
-
-<label>No HP</label>
-<input type="tel" id="customer-phone" required>
-
-<label>Merk HP</label>
-<input type="text" id="customer-brand" required>
-
-<label>Keluhan</label>
-<textarea id="customer-problem" required></textarea>
-
-
-<label>Pilih Layanan</label>
-<select id="service-option" required>
-<option value="">Pilih layanan</option>
-<option value="toko">Datang ke Toko</option>
-<option value="home">Home Service</option>
-<option value="paket">Kirim Paket</option>
-</select>
-
-
-<!-- KOORDINAT -->
-<div id="map-section" style="display:none">
-<label>Koordinat Lokasi</label>
-<input type="text" id="customer-coord" placeholder="Klik tombol ambil lokasi">
-<button type="button" id="getLocation">📍 Ambil Lokasi Saya</button>
-</div>
-
-
-<!-- TRANSPORT -->
-<div id="transport-section" style="display:none">
-<label>Biaya Transport</label>
-<input type="text" id="transport-fee" readonly value="Rp 0">
-</div>
-
-<div id="distance-info" style="font-size:12px;color:#666;margin-top:5px;"></div>
-
-<!-- BUKTI TRANSFER -->
-<div id="payment-proof-section" style="display:none">
-<label>Upload Bukti Transfer Transport</label>
-<input type="file" id="payment-proof" accept="image/*">
-</div>
-
-<button id="checkout">Kirim Permintaan Service</button>
+  <p class="section-text" data-aos="fade-up" data-aos-delay="200">
+    CEO Part & Service adalah pusat perbaikan dan penyedia sparepart handphone terpercaya.
+    Kami mengutamakan kualitas pengerjaan, kecepatan pelayanan,
+    serta transparansi biaya untuk kepuasan pelanggan.
+  </p>
 </section>
 
 
-<!-- DAFTAR LAYANAN -->
-<section id="products-container" class="products-grid">
-<!-- generate dari js -->
+<!-- ================= LAYANAN ================= -->
+<section id="layanan" class="section">
+  <h2 data-aos="fade-up">Layanan Kami</h2>
+
+  <div class="grid">
+
+    <div class="card" data-aos="zoom-in">
+      <i class="fa-solid fa-mobile-screen"></i>
+      <h3>Service Hardware</h3>
+      <p>Ganti LCD, baterai, port charger, kamera, dan komponen lainnya.</p>
+    </div>
+
+    <div class="card" data-aos="zoom-in" data-aos-delay="100">
+      <i class="fa-solid fa-laptop-code"></i>
+      <h3>Service Software</h3>
+      <p>Flash, unlock, reset sistem, perbaikan error & bootloop.</p>
+    </div>
+
+    <div class="card" data-aos="zoom-in" data-aos-delay="200">
+      <i class="fa-solid fa-house"></i>
+      <h3>Home Service</h3>
+      <p>Kami datang langsung ke lokasi Anda untuk kemudahan dan efisiensi.</p>
+    </div>
+
+  </div>
 </section>
 
 
+<!-- ================= KEUNGGULAN ================= -->
+<section id="keunggulan" class="section">
+  <h2 data-aos="fade-up">Kenapa Pilih Kami?</h2>
 
-<!-- MODAL DETAIL -->
-<div id="product-modal" class="modal hidden">
-<div class="modal-content">
-<span id="close-product-modal" class="btn-close">&times;</span>
+  <div class="grid">
 
-<img id="modal-product-img" class="modal-img">
-<h2 id="modal-product-name"></h2>
-<p id="modal-product-price"></p>
-<p id="modal-product-desc"></p>
+    <div class="card" data-aos="fade-up">
+      <i class="fa-solid fa-user-check"></i>
+      <h3>Teknisi Berpengalaman</h3>
+    </div>
 
-<button id="modal-add-cart" class="btn-add">
-Pilih Layanan
-</button>
+    <div class="card" data-aos="fade-up" data-aos-delay="100">
+      <i class="fa-solid fa-shield-halved"></i>
+      <h3>Garansi Service</h3>
+    </div>
 
-</div>
-</div>
+    <div class="card" data-aos="fade-up" data-aos-delay="200">
+      <i class="fa-solid fa-tag"></i>
+      <h3>Harga Transparan</h3>
+    </div>
+
+    <div class="card" data-aos="fade-up" data-aos-delay="300">
+      <i class="fa-solid fa-bolt"></i>
+      <h3>Pengerjaan Cepat</h3>
+    </div>
+
+  </div>
+</section>
 
 
+<!-- ================= KONTAK ================= -->
+<section id="kontak" class="contact">
+  <h2>Hubungi Kami</h2>
 
+  <p>📍 Jl. Contoh Alamat No 123</p>
+  <p>📞 0888-0306-0094</p>
+
+  <a href="https://wa.me/6288803060094" target="_blank" class="btn-whatsapp">
+    Chat via WhatsApp
+  </a>
+</section>
+
+
+<!-- ================= FOOTER ================= -->
 <footer>
-© 2026 Service HP — All Rights Reserved
+  © 2026 CEO Part & Service — All Rights Reserved
 </footer>
 
 
-
-<script src="js/script.js"></script>
-
-<script>
-AOS.init({duration:800,once:true});
-</script>
+<script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script src="js/ceo-partandservice.js"></script>
 
 </body>
 </html>
-
-
-
-
-
