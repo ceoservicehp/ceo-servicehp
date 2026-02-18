@@ -20,6 +20,11 @@ let metode,
 let mapInstance = null;
 let marker = null;
 
+/* ================= KOORDINAT TOKO ================= */
+/* GANTI dengan lokasi toko kamu */
+const TOKO_LAT = -6.2088;   // contoh: Jakarta
+const TOKO_LNG = 106.8456;
+
 document.addEventListener("DOMContentLoaded",()=>{
 
     if(!db){
