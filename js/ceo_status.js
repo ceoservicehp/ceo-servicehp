@@ -8,6 +8,36 @@ function rupiah(n){
     return "Rp " + Number(n||0).toLocaleString("id-ID");
 }
 
+function formatSparepart(sparepartJSON){
+
+  if(!sparepartJSON) return "Tidak ada";
+
+  try{
+    const parts = JSON.parse(sparepartJSON);
+
+    if(!Array.isArray(parts) || parts.length === 0){
+      return "Tidak ada";
+    }
+
+    return parts.map(p => {
+      const qty = Number(p.qty || 0);
+      const harga = Number(p.harga || 0);
+      const total = harga * qty;
+
+      return `
+        <div class="sp-item">
+          <span class="sp-name">${p.nama}</span>
+          <span class="sp-qty">x${qty}</span>
+          <span class="sp-total">${rupiah(total)}</span>
+        </div>
+      `;
+    }).join("");
+
+  }catch(e){
+    return "Format tidak valid";
+  }
+}
+
 document.addEventListener("DOMContentLoaded", async ()=>{
 
 const supabase=getSupabase();
@@ -91,7 +121,8 @@ document.getElementById("d-alamat").textContent=dataRow.alamat;
 document.getElementById("d-brand").textContent=dataRow.brand;
 document.getElementById("d-problem").textContent=dataRow.problem;
 document.getElementById("d-metode").textContent=dataRow.metode;
-document.getElementById("d-sparepart").textContent=dataRow.sparepart;
+document.getElementById("d-sparepart").innerHTML =
+  formatSparepart(dataRow.sparepart);
 document.getElementById("d-totalspare").textContent=rupiah(dataRow.total_sparepart);
 document.getElementById("d-transport").textContent=rupiah(dataRow.transport);
 document.getElementById("d-jasa").textContent=rupiah(dataRow.jasa);
