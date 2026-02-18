@@ -16,6 +16,10 @@ let metode,
     coordInput,
     distanceInfo;
 
+/* ================= MAP GLOBAL ================= */
+let mapInstance = null;
+let marker = null;
+
 document.addEventListener("DOMContentLoaded",()=>{
 
     if(!db){
