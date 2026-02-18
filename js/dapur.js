@@ -190,19 +190,21 @@ function renderSelectedParts(){
   selectedParts.forEach((item,index)=>{
     container.innerHTML += `
       <div class="selected-item">
-        <span class="sp-name">${item.nama}</span>
-        <span class="sp-price">Rp ${Number(item.harga).toLocaleString("id-ID")}</span>
-
-        <input type="number"
-          min="1"
-          value="${item.qty}"
-          class="sp-qty"
-          onchange="updateQty(${index}, this.value)">
-
-        <button class="sp-remove"
-          onclick="removePart(${index})">
-          ✕
-        </button>
+        <div class="sp-col sp-name">${item.nama}</div>
+        <div class="sp-col sp-price">
+          Rp ${Number(item.harga).toLocaleString("id-ID")}
+        </div>
+        <div class="sp-col">
+          <input type="number"
+            min="1"
+            value="${item.qty}"
+            class="sp-qty"
+            onchange="updateQty(${index}, this.value)">
+        </div>
+        <div class="sp-col">
+          <button class="sp-remove"
+            onclick="removePart(${index})">✕</button>
+        </div>
       </div>
     `;
   });
@@ -592,6 +594,7 @@ document.getElementById("cetakTanggal")
     window.print();
 
 });
+
 
 
 
