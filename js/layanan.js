@@ -98,24 +98,52 @@ if(paymentMethod){
 
         paymentInfo.innerHTML = "";
 
+        /* ================= TRANSFER ================= */
         if(paymentMethod.value === "Transfer"){
+            const rekening = "1234567890";
+
             paymentInfo.innerHTML = `
-                <p><b>Transfer ke:</b></p>
-                <p>BCA - 1234567890</p>
-                <p>a.n CEO Service HP</p>
+                <div style="background:#f5f5f5;padding:12px;border-radius:8px;">
+                    <p><b>Transfer ke:</b></p>
+                    <p>BCA</p>
+                    <p id="rekening-number" style="font-size:16px;font-weight:bold;">
+                        ${rekening}
+                    </p>
+                    <button id="copy-rekening" 
+                        style="margin-top:8px;padding:6px 10px;border:none;background:#1f6f78;color:#fff;border-radius:6px;cursor:pointer;">
+                        📋 Copy Nomor Rekening
+                    </button>
+                </div>
             `;
+
+            document.getElementById("copy-rekening").onclick = ()=>{
+                navigator.clipboard.writeText(rekening);
+                alert("Nomor rekening berhasil disalin!");
+            };
         }
 
+        /* ================= QRIS ================= */
         if(paymentMethod.value === "QRIS"){
             paymentInfo.innerHTML = `
-                <p><b>Scan QRIS berikut:</b></p>
-                <img src="images/qris.jpg" width="200" style="margin-top:5px;border-radius:8px;">
-            `;
-        }
+                <div style="background:#f5f5f5;padding:12px;border-radius:8px;text-align:center;">
+                    <p><b>Scan atau Download QRIS</b></p>
+                    <img src="images/qris.jpg" 
+                         width="220" 
+                         style="margin-top:8px;border-radius:10px;">
+                    
+                    <br>
 
-        if(paymentMethod.value === "Tunai/Cash"){
-            paymentInfo.innerHTML = `
-                <p>Pembayaran dilakukan langsung saat service selesai.</p>
+                    <a href="images/qris.jpg" 
+                       download="QRIS_CEO_Service_HP.jpg"
+                       style="display:inline-block;margin-top:10px;
+                              padding:6px 12px;
+                              background:#1f6f78;
+                              color:#fff;
+                              border-radius:6px;
+                              text-decoration:none;">
+                        ⬇ Download QRIS
+                    </a>
+                </div>
             `;
         }
     });
