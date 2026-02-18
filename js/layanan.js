@@ -22,8 +22,8 @@ let marker = null;
 
 /* ================= KOORDINAT TOKO ================= */
 /* GANTI dengan lokasi toko kamu */
-const TOKO_LAT = -6.2088;   // contoh: Jakarta
-const TOKO_LNG = 106.8456;
+const TOKO_LAT = -6.16639026634003;   // contoh: Jakarta
+const TOKO_LNG = 106.80295190492956;
 
 document.addEventListener("DOMContentLoaded",()=>{
 
