@@ -23,7 +23,7 @@ document.addEventListener("DOMContentLoaded",()=>{
         return;
     }
 
-    /* ================= AMBIL ELEMENT SETELAH DOM READY ================= */
+    /* ================= AMBIL ELEMENT ================= */
     metode = document.getElementById("service-option");
     mapSection = document.getElementById("map-section");
     transportSection = document.getElementById("transport-section");
@@ -39,7 +39,34 @@ document.addEventListener("DOMContentLoaded",()=>{
     coordInput = document.getElementById("customer-coord");
     distanceInfo = document.getElementById("distance-info");
 
-    loadProducts(); // tetap seperti semula
+    /* ================= EVENT METODE ================= */
+    if(metode){
+        metode.addEventListener("change",()=>{
+
+            mapSection.style.display="none";
+            transportSection.style.display="none";
+            proof.style.display="none";
+            alamatToko.style.display="none";
+            transportRow.style.display="none";
+            transportCost=0;
+
+            if(metode.value==="home"){
+                mapSection.style.display="block";
+                transportSection.style.display="block";
+                proof.style.display="block";
+                transportRow.style.display="flex";
+                initMap();
+            }
+
+            if(metode.value==="paket"){
+                alamatToko.style.display="block";
+            }
+
+            updateTotal();
+        });
+    }
+
+    loadProducts();
 });
 
 /* ================= HELPER ================= */
@@ -55,9 +82,9 @@ const spare=Object.values(spareparts)
 
 const total=spare+transportCost;
 
-sparepartPriceEl.textContent=rupiah(spare);
-transportPriceEl.textContent=rupiah(transportCost);
-totalPriceEl.textContent=rupiah(total);
+if(sparepartPriceEl) sparepartPriceEl.textContent=rupiah(spare);
+if(transportPriceEl) transportPriceEl.textContent=rupiah(transportCost);
+if(totalPriceEl) totalPriceEl.textContent=rupiah(total);
 }
 
 /* ================= HITUNG JARAK ================= */
@@ -311,46 +338,6 @@ updateTotal();
 };
 });
 }
-  
-/* ================= METODE SERVICE ================= */
-document.addEventListener("DOMContentLoaded",()=>{
-
-    if(!db){
-        alert("Supabase belum terhubung");
-        return;
-    }
-
-    metode = document.getElementById("service-option");
-    ...
-
-    loadProducts();
-
-    if(metode){
-        metode.addEventListener("change",()=>{
-            mapSection.style.display="none";
-            transportSection.style.display="none";
-            proof.style.display="none";
-            alamatToko.style.display="none";
-            transportRow.style.display="none";
-            transportCost=0;
-
-            if(metode.value==="home"){
-                mapSection.style.display="block";
-                transportSection.style.display="block";
-                proof.style.display="block";
-                transportRow.style.display="flex";
-                initMap();
-            }
-
-            if(metode.value==="paket"){
-                alamatToko.style.display="block";
-            }
-
-            updateTotal();
-        });
-    }
-
-});
 
 /* ================= GPS ================= */
 document.getElementById("getLocation").onclick=()=>{
@@ -488,4 +475,3 @@ try {
     btn.textContent="Kirim Permintaan Service";
 };
 
-});
