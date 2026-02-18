@@ -670,31 +670,37 @@ textarea {
 
 .selected-item{
   display:flex;
+  flex-direction:row;
   align-items:center;
-  gap:15px;
+  gap:20px;
 
   background:#f1fafa;
-  padding:14px;
-  border-radius:14px;
-  margin-bottom:10px;
-  font-size:14px;
+  padding:16px;
+  border-radius:18px;
+  margin-bottom:12px;
+}
+
+/* setiap kolom jangan full width */
+.sp-col{
+  display:flex;
+  align-items:center;
 }
 
 .sp-name{
-  flex:2;
   font-weight:700;
+  flex:2;
 }
 
 .sp-price{
-  flex:1;
   color:#009688;
   font-weight:600;
+  flex:1;
 }
 
 .sp-qty{
-  width:65px;
+  width:70px;
   padding:6px;
-  border-radius:10px;
+  border-radius:12px;
   border:1px solid #ccc;
   text-align:center;
 }
@@ -703,7 +709,7 @@ textarea {
   background:#c0392b;
   color:white;
   border:none;
-  border-radius:10px;
-  padding:6px 12px;
+  border-radius:12px;
+  padding:8px 12px;
   cursor:pointer;
 }
