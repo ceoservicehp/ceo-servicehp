@@ -25,7 +25,7 @@
 
 <div class="container">
 
-  <!-- FORM -->
+  <!-- ================= FORM ================= -->
   <div class="card">
     <h2>Tambah / Edit Produk</h2>
 
@@ -34,6 +34,19 @@
     <div class="form-group">
       <label>Nama Produk</label>
       <input type="text" id="productName" placeholder="Contoh: LCD Samsung">
+    </div>
+
+    <!-- KATEGORI -->
+    <div class="form-group">
+      <label>Kategori</label>
+      <select id="productCategory">
+        <option value="">-- Pilih Kategori --</option>
+        <option value="LCD">LCD</option>
+        <option value="Baterai">Baterai</option>
+        <option value="Charger">Charger</option>
+        <option value="Mesin">Mesin</option>
+        <option value="Lainnya">Lainnya</option>
+      </select>
     </div>
 
     <div class="form-group">
@@ -62,19 +75,26 @@
         placeholder="Deskripsi produk..."></textarea>
     </div>
 
+    <!-- GAMBAR + PREVIEW -->
     <div class="form-group">
       <label>Gambar Produk</label>
-      <input type="file" id="productImage">
+      <input type="file" id="productImage" accept="image/*">
+
+      <!-- Preview -->
+      <div style="margin-top:10px;">
+        <img id="imagePreview" 
+             src="" 
+             style="max-width:150px;display:none;border-radius:8px;">
+      </div>
     </div>
 
     <div class="form-group">
-        <label>Status Produk</label>
-        <label>
-            <input type="checkbox" id="productActive" checked>
-            Aktif
-        </label>
+      <label>Status Produk</label>
+      <label>
+        <input type="checkbox" id="productActive" checked>
+        Aktif
+      </label>
     </div>
-
 
     <button class="btn-primary" id="saveProduct">
       Simpan Produk
@@ -82,7 +102,7 @@
 
   </div>
 
-  <!-- TABLE -->
+  <!-- ================= TABLE ================= -->
   <div class="card">
     <h2>Daftar Produk</h2>
 
@@ -90,23 +110,21 @@
       <table>
         <thead>
           <tr>
-            <thead>
-              <tr>
-                <th>No</th>
-                <th>Nama</th>
-                <th>Harga</th>
-                <th>Modal</th>
-                <th>Promo</th>
-                <th>Stok</th>
-                <th>Status</th>
-                <th>Aksi</th>
-              </tr>
-            </thead>
+            <th>No</th>
+            <th>Gambar</th>
+            <th>Nama</th>
+            <th>Kategori</th>
+            <th>Harga</th>
+            <th>Modal</th>
+            <th>Promo</th>
+            <th>Stok</th>
+            <th>Status</th>
+            <th>Aksi</th>
           </tr>
         </thead>
         <tbody id="productTable">
           <tr>
-            <td colspan="8">Memuat data...</td>
+            <td colspan="10">Memuat data...</td>
           </tr>
         </tbody>
       </table>
@@ -119,3 +137,6 @@
 <footer class="main-footer">
   © 2026 CEO Service HP — Admin Panel
 </footer>
+
+</body>
+</html>
