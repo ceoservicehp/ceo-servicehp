@@ -240,8 +240,8 @@ border-radius:12px;
 background:#eeeeee;
 text-decoration:none;
 color:#333;
-font-size:8px;
-font-weight:400;
+font-size:12px;
+font-weight:500;
 transition:.25s;
 }
 
@@ -255,4 +255,5 @@ color:white;
 transform:translateY(-2px);
 box-shadow:0 4px 12px rgba(0,0,0,0.15);
 }
+
 
