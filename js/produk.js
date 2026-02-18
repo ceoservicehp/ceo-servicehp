@@ -9,7 +9,8 @@ function rupiah(n){
 document.addEventListener("DOMContentLoaded", ()=>{
 
     loadProducts();
-
+    loadCategories();
+    
     document.getElementById("saveProduct")
         .addEventListener("click", saveProduct);
 
@@ -36,7 +37,10 @@ async function loadProducts(){
 
     const { data, error } = await db
         .from("products")
-        .select("*")
+        .select(`
+            *,
+            categories(name)
+        `)
         .order("created_at",{ascending:false});
 
     if(error){
@@ -64,7 +68,7 @@ async function loadProducts(){
                 }
             </td>
             <td>${row.name}</td>
-            <td>${row.category || "-"}</td>
+            <td>${row.categories?.name || "-"}</td>
             <td>${rupiah(row.price)}</td>
             <td>${rupiah(row.cost_price)}</td>
             <td>${rupiah(row.promo_price)}</td>
@@ -79,12 +83,31 @@ async function loadProducts(){
     });
 }
 
+async function loadCategories(){
+
+    const { data } = await db
+        .from("categories")
+        .select("*")
+        .eq("is_active", true)
+        .order("name");
+
+    const select = document.getElementById("productCategory");
+
+    select.innerHTML = `<option value="">-- Pilih Kategori --</option>`;
+
+    data.forEach(cat=>{
+        select.innerHTML += `
+            <option value="${cat.id}">${cat.name}</option>
+        `;
+    });
+}
+
 /* ================= SAVE ================= */
 async function saveProduct(){
 
     const id = document.getElementById("productId").value;
     const name = document.getElementById("productName").value;
-    const category = document.getElementById("productCategory").value;
+    const categoryId = document.getElementById("productCategory").value || null;
     const price = parseInt(document.getElementById("productPrice").value) || 0;
     const costPrice = parseInt(document.getElementById("productCost").value) || 0;
     const promoPrice = parseInt(document.getElementById("productPromo").value) || 0;
@@ -122,15 +145,15 @@ async function saveProduct(){
     }
 
     const payload = {
-        name,
-        category,
-        price,
-        cost_price: costPrice,
-        promo_price: promoPrice,
-        stock,
-        description: desc,
-        is_active: isActive
-    };
+    name,
+    category_id: categoryId,
+    price,
+    cost_price: costPrice,
+    promo_price: promoPrice,
+    stock,
+    description: desc,
+    is_active: isActive
+};
 
     if(imageUrl){
         payload.image_url = imageUrl;
@@ -178,7 +201,7 @@ async function editProduct(id){
 
     document.getElementById("productId").value = data.id;
     document.getElementById("productName").value = data.name;
-    document.getElementById("productCategory").value = data.category || "";
+    document.getElementById("productCategory").value = data.category_id || "";
     document.getElementById("productPrice").value = data.price;
     document.getElementById("productCost").value = data.cost_price;
     document.getElementById("productPromo").value = data.promo_price;
