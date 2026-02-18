@@ -228,27 +228,40 @@ font-size:22px;
 
 }
 
-/* ===== NAVBAR ===== */
+/* ===== NAV BAR STYLE (MODEL CARD BUTTON) ===== */
+
 .nav-bar{
-background: linear-gradient(90deg,#1f6f78,#00c2c7);
-padding:10px 5%;
+background: #f4f7fb;
+padding:15px 5%;
 }
 
-.nav-menu{
+.nav-wrapper{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+gap:20px;
+}
+
+.nav-item{
+background:#e6e6e6;
+border-radius:16px;
+padding:18px 10px;
 display:flex;
-gap:25px;
+align-items:center;
 justify-content:center;
-flex-wrap:wrap;
-}
-
-.nav-menu a{
-color:white;
+gap:10px;
 text-decoration:none;
+color:#333;
 font-weight:600;
-font-size:14px;
+font-size:18px;
 transition:.25s;
 }
 
-.nav-menu a:hover{
-opacity:.8;
+.nav-item i{
+font-size:20px;
+}
+
+.nav-item:hover{
+background:#d9d9d9;
+transform:translateY(-3px);
+box-shadow:0 6px 14px rgba(0,0,0,0.1);
 }
