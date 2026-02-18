@@ -19,6 +19,9 @@ let metode,
 /* ================= MAP GLOBAL ================= */
 let mapInstance = null;
 let marker = null;
+let paymentSection,
+    paymentMethod,
+    paymentInfo;
 
 /* ================= KOORDINAT TOKO ================= */
 /* GANTI dengan lokasi toko kamu */
@@ -47,25 +50,39 @@ document.addEventListener("DOMContentLoaded",()=>{
     ongkir = document.getElementById("transport-fee");
     coordInput = document.getElementById("customer-coord");
     distanceInfo = document.getElementById("distance-info");
+    paymentSection = document.getElementById("payment-section");
+    paymentMethod = document.getElementById("payment-method");
+    paymentInfo = document.getElementById("payment-info");
+
 
     /* ================= EVENT METODE ================= */
     if(metode){
         metode.addEventListener("change",()=>{
 
-            mapSection.style.display="none";
+           mapSection.style.display="none";
             transportSection.style.display="none";
             proof.style.display="none";
             alamatToko.style.display="none";
             transportRow.style.display="none";
             transportCost=0;
-
-            if(metode.value==="home"){
-                mapSection.style.display="block";
-                transportSection.style.display="block";
-                proof.style.display="block";
-                transportRow.style.display="flex";
-                initMap();
+            
+            if(paymentSection){
+                paymentSection.style.display="none";
             }
+
+               if(metode.value==="home"){
+                    mapSection.style.display="block";
+                    transportSection.style.display="block";
+                    proof.style.display="block";
+                    transportRow.style.display="flex";
+                
+                    if(paymentSection){
+                        paymentSection.style.display="block";
+                    }
+                
+                    initMap();
+                }
+
 
             if(metode.value==="paket"){
                 alamatToko.style.display="block";
@@ -74,7 +91,36 @@ document.addEventListener("DOMContentLoaded",()=>{
             updateTotal();
         });
     }
+    
+/* ================= METODE PEMBAYARAN ================= */
+if(paymentMethod){
+    paymentMethod.addEventListener("change", ()=>{
 
+        paymentInfo.innerHTML = "";
+
+        if(paymentMethod.value === "Transfer"){
+            paymentInfo.innerHTML = `
+                <p><b>Transfer ke:</b></p>
+                <p>BCA - 1234567890</p>
+                <p>a.n CEO Service HP</p>
+            `;
+        }
+
+        if(paymentMethod.value === "QRIS"){
+            paymentInfo.innerHTML = `
+                <p><b>Scan QRIS berikut:</b></p>
+                <img src="images/qris.jpg" width="200" style="margin-top:5px;border-radius:8px;">
+            `;
+        }
+
+        if(paymentMethod.value === "Tunai/Cash"){
+            paymentInfo.innerHTML = `
+                <p>Pembayaran dilakukan langsung saat service selesai.</p>
+            `;
+        }
+    });
+}
+    
     loadProducts();
 });
 
