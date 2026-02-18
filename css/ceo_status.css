@@ -343,3 +343,30 @@ padding:10px;
 }
 
 }
+
+/* ============= Tambah Sparepart =========== */
+.sp-item{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:6px 0;
+  border-bottom:1px solid #eee;
+  font-size:14px;
+}
+
+.sp-name{
+  flex:2;
+  font-weight:600;
+}
+
+.sp-qty{
+  flex:1;
+  text-align:center;
+}
+
+.sp-total{
+  flex:1;
+  text-align:right;
+  color:#009688;
+  font-weight:600;
+}
