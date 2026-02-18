@@ -129,8 +129,6 @@ margin:auto;
 line-height:1.6;
 }
 
-
-
 /* ===== GRID ===== */
 .grid{
 display:grid;
@@ -161,7 +159,6 @@ margin-bottom:8px;
 transform:translateY(-5px);
 box-shadow:0 6px 18px rgba(0,194,199,0.25);
 }
-
 
 /* ===== CONTACT ===== */
 .contact{
@@ -265,3 +262,4 @@ background:#d9d9d9;
 transform:translateY(-3px);
 box-shadow:0 6px 14px rgba(0,0,0,0.1);
 }
+
