@@ -99,16 +99,16 @@ async function loadSpareparts(){
   select.innerHTML = `<option value="">Pilih Sparepart</option>`;
 
   data.forEach(item=>{
-    select.innerHTML += `
-      <option value="${item.id}"
-        data-nama="${item.nama}"
-        data-harga="${item.harga}"
-        data-stok="${item.stok}"
-        ${item.stok <= 0 ? "disabled" : ""}>
-        ${item.nama} (Stok: ${item.stok})
-      </option>
-    `;
-  });
+  select.innerHTML += `
+    <option value="${item.id}"
+      data-nama="${item.nama || item.name}"
+      data-harga="${item.harga || item.price}"
+      data-stok="${item.stok || item.stock}"
+      ${(item.stok || item.stock) <= 0 ? "disabled" : ""}>
+      ${(item.nama || item.name)} (Stok: ${(item.stok || item.stock)})
+    </option>
+  `;
+});
 }
 
 /* ================= RENDER TABLE ================= */
@@ -589,6 +589,7 @@ document.getElementById("cetakTanggal")
     window.print();
 
 });
+
 
 
 
