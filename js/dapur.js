@@ -86,7 +86,7 @@ async function loadSpareparts(){
   const { data, error } = await supabase
     .from("products")
     .select("*")
-    .order("nama", { ascending:true });
+    .order("name", { ascending:true });
 
   if(error){
     console.error(error);
@@ -580,4 +580,5 @@ document.getElementById("cetakTanggal")
     window.print();
 
 });
+
 
