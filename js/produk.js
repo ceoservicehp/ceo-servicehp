@@ -10,7 +10,21 @@ document.addEventListener("DOMContentLoaded", ()=>{
 
     loadProducts();
     loadCategories();
-    
+
+    /* ===== TOGGLE TAMBAH KATEGORI ===== */
+    document.getElementById("addCategoryBtn")
+        ?.addEventListener("click", ()=>{
+
+            const box = document.getElementById("newCategoryBox");
+            box.style.display =
+                box.style.display === "none" ? "block" : "none";
+        });
+
+    /* ===== SAVE CATEGORY ===== */
+    document.getElementById("saveCategoryBtn")
+        ?.addEventListener("click", saveCategory);
+
+    /* ===== SAVE PRODUCT ===== */
     document.getElementById("saveProduct")
         .addEventListener("click", saveProduct);
 
@@ -30,7 +44,53 @@ document.addEventListener("DOMContentLoaded", ()=>{
         });
 });
 
-/* ================= LOAD DATA ================= */
+
+/* ================= SAVE CATEGORY ================= */
+async function saveCategory(){
+
+    const input = document.getElementById("newCategoryName");
+    const name = input.value.trim();
+
+    if(!name){
+        alert("Nama kategori tidak boleh kosong");
+        return;
+    }
+
+    const { data:exist } = await db
+        .from("categories")
+        .select("id")
+        .ilike("name", name)
+        .maybeSingle();
+
+    if(exist){
+        alert("Kategori sudah ada");
+        return;
+    }
+
+    const { data, error } = await db
+        .from("categories")
+        .insert({ name })
+        .select()
+        .single();
+
+    if(error){
+        alert("Gagal tambah kategori");
+        console.log(error);
+        return;
+    }
+
+    await loadCategories();
+
+    document.getElementById("productCategory").value = data.id;
+
+    input.value="";
+    document.getElementById("newCategoryBox").style.display="none";
+
+    alert("Kategori berhasil ditambahkan ✅");
+}
+
+
+/* ================= LOAD PRODUCTS ================= */
 async function loadProducts(){
 
     const tbody = document.getElementById("productTable");
@@ -63,7 +123,7 @@ async function loadProducts(){
             <td>
                 ${row.image_url 
                     ? `<img src="${row.image_url}" 
-                           style="width:50px;height:50px;object-fit:cover;border-radius:6px;">`
+                       style="width:50px;height:50px;object-fit:cover;border-radius:6px;">`
                     : "-"
                 }
             </td>
@@ -83,6 +143,8 @@ async function loadProducts(){
     });
 }
 
+
+/* ================= LOAD CATEGORIES ================= */
 async function loadCategories(){
 
     const { data } = await db
@@ -102,7 +164,8 @@ async function loadCategories(){
     });
 }
 
-/* ================= SAVE ================= */
+
+/* ================= SAVE PRODUCT ================= */
 async function saveProduct(){
 
     const id = document.getElementById("productId").value;
@@ -123,7 +186,6 @@ async function saveProduct(){
 
     let imageUrl = null;
 
-    /* ===== Upload gambar jika ada ===== */
     if(file){
 
         const fileName = Date.now()+"_"+file.name;
@@ -145,50 +207,30 @@ async function saveProduct(){
     }
 
     const payload = {
-    name,
-    category_id: categoryId,
-    price,
-    cost_price: costPrice,
-    promo_price: promoPrice,
-    stock,
-    description: desc,
-    is_active: isActive
-};
+        name,
+        category_id: categoryId,
+        price,
+        cost_price: costPrice,
+        promo_price: promoPrice,
+        stock,
+        description: desc,
+        is_active: isActive
+    };
 
     if(imageUrl){
         payload.image_url = imageUrl;
     }
 
-    /* ===== INSERT ===== */
     if(!id){
-
-        const { error } = await db
-            .from("products")
-            .insert(payload);
-
-        if(error){
-            alert("Gagal tambah produk");
-            console.log(error);
-            return;
-        }
-
+        await db.from("products").insert(payload);
     }else{
-
-        const { error } = await db
-            .from("products")
-            .update(payload)
-            .eq("id",id);
-
-        if(error){
-            alert("Gagal update produk");
-            console.log(error);
-            return;
-        }
+        await db.from("products").update(payload).eq("id",id);
     }
 
     resetForm();
     loadProducts();
 }
+
 
 /* ================= EDIT ================= */
 async function editProduct(id){
@@ -209,7 +251,6 @@ async function editProduct(id){
     document.getElementById("productDesc").value = data.description;
     document.getElementById("productActive").checked = data.is_active;
 
-    /* Preview gambar lama */
     const preview = document.getElementById("imagePreview");
     if(data.image_url){
         preview.src = data.image_url;
@@ -219,18 +260,16 @@ async function editProduct(id){
     }
 }
 
+
 /* ================= DELETE ================= */
 async function deleteProduct(id){
 
     if(!confirm("Hapus produk ini?")) return;
 
-    await db
-        .from("products")
-        .delete()
-        .eq("id",id);
-
+    await db.from("products").delete().eq("id",id);
     loadProducts();
 }
+
 
 /* ================= RESET ================= */
 function resetForm(){
