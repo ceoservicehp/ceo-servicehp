@@ -188,22 +188,29 @@ function renderSelectedParts(){
   container.innerHTML = "";
 
   selectedParts.forEach((item,index)=>{
+
     container.innerHTML += `
       <div class="selected-item">
-        <div>
-          <strong>${item.nama}</strong><br>
-          Rp ${item.harga.toLocaleString()} x 
-          <input type="number" min="1"
-            value="${item.qty}"
-            onchange="updateQty(${index}, this.value)">
-        </div>
+        <span class="sp-name">${item.nama}</span>
 
-        <button onclick="removePart(${index})">✕</button>
+        <span class="sp-price">
+          Rp ${Number(item.harga).toLocaleString("id-ID")}
+        </span>
+
+        <input type="number"
+          min="1"
+          value="${item.qty}"
+          class="sp-qty"
+          onchange="updateQty(${index}, this.value)">
+
+        <button class="sp-remove"
+          onclick="removePart(${index})">
+          ✕
+        </button>
       </div>
     `;
   });
 
-  // simpan string json ke hidden input
   document.getElementById("edit-sparepart").value =
     JSON.stringify(selectedParts);
 }
@@ -589,6 +596,7 @@ document.getElementById("cetakTanggal")
     window.print();
 
 });
+
 
 
 
