@@ -694,3 +694,44 @@ textarea {
   cursor:pointer;
 }
 
+.selected-item{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+
+  background:#f1fafa;
+  padding:12px;
+  border-radius:12px;
+  margin-bottom:8px;
+  font-size:14px;
+}
+
+.sp-name{
+  flex:2;
+  font-weight:600;
+}
+
+.sp-price{
+  flex:1;
+  color:#009688;
+  font-weight:500;
+}
+
+.sp-qty{
+  width:60px;
+  padding:4px;
+  border-radius:8px;
+  border:1px solid #ccc;
+  text-align:center;
+}
+
+.sp-remove{
+  background:#c0392b;
+  color:white;
+  border:none;
+  border-radius:8px;
+  padding:6px 10px;
+  cursor:pointer;
+}
+
