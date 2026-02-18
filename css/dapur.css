@@ -662,3 +662,35 @@ textarea {
   }
 
 }
+
+/* =============== Select Sparepart ============= */
+#selectedSpareparts{
+  margin-top:10px;
+}
+
+.selected-item{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  background:#f1fafa;
+  padding:10px;
+  border-radius:8px;
+  margin-bottom:8px;
+  font-size:13px;
+}
+
+.selected-item input{
+  width:60px;
+  margin-left:5px;
+  padding:4px;
+}
+
+.selected-item button{
+  background:#c0392b;
+  color:white;
+  border:none;
+  border-radius:6px;
+  padding:4px 8px;
+  cursor:pointer;
+}
+
