@@ -188,14 +188,10 @@ function renderSelectedParts(){
   container.innerHTML = "";
 
   selectedParts.forEach((item,index)=>{
-
     container.innerHTML += `
       <div class="selected-item">
         <span class="sp-name">${item.nama}</span>
-
-        <span class="sp-price">
-          Rp ${Number(item.harga).toLocaleString("id-ID")}
-        </span>
+        <span class="sp-price">Rp ${Number(item.harga).toLocaleString("id-ID")}</span>
 
         <input type="number"
           min="1"
@@ -596,6 +592,7 @@ document.getElementById("cetakTanggal")
     window.print();
 
 });
+
 
 
 
