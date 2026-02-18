@@ -7,6 +7,7 @@ function getSupabase(){
 /* ================= GLOBAL ================= */
 let allOrders=[];
 let currentFilter="all";
+let selectedParts = [];
 
 /* ================= STATUS TOKO ================= */
 async function loadStoreStatus(){
@@ -75,6 +76,39 @@ async function loadOrders(){
 
     allOrders=data;
     renderTable();
+}
+
+/* ================= LOAD SPAREPART ================= */
+async function loadSpareparts(){
+  const supabase = getSupabase();
+  if(!supabase) return;
+
+  const { data, error } = await supabase
+    .from("products")
+    .select("*")
+    .order("nama", { ascending:true });
+
+  if(error){
+    console.error(error);
+    return;
+  }
+
+  const select = document.getElementById("sparepartSelect");
+  if(!select) return;
+
+  select.innerHTML = `<option value="">Pilih Sparepart</option>`;
+
+  data.forEach(item=>{
+    select.innerHTML += `
+      <option value="${item.id}"
+        data-nama="${item.nama}"
+        data-harga="${item.harga}"
+        data-stok="${item.stok}"
+        ${item.stok <= 0 ? "disabled" : ""}>
+        ${item.nama} (Stok: ${item.stok})
+      </option>
+    `;
+  });
 }
 
 /* ================= RENDER TABLE ================= */
@@ -148,11 +182,38 @@ function renderTable(){
     });
 }
 
+/* ================= Render Sparepart ================= */
+function renderSelectedParts(){
+  const container = document.getElementById("selectedSpareparts");
+  container.innerHTML = "";
+
+  selectedParts.forEach((item,index)=>{
+    container.innerHTML += `
+      <div class="selected-item">
+        <div>
+          <strong>${item.nama}</strong><br>
+          Rp ${item.harga.toLocaleString()} x 
+          <input type="number" min="1"
+            value="${item.qty}"
+            onchange="updateQty(${index}, this.value)">
+        </div>
+
+        <button onclick="removePart(${index})">✕</button>
+      </div>
+    `;
+  });
+
+  // simpan string json ke hidden input
+  document.getElementById("edit-sparepart").value =
+    JSON.stringify(selectedParts);
+}
+
 /* ================= INIT ================= */
 document.addEventListener("DOMContentLoaded",()=>{
 
     loadOrders();
     loadStoreStatus();
+    loadSpareparts();
 
     document.getElementById("btnOpen").onclick=()=>setStore(true);
     document.getElementById("btnClose").onclick=()=>setStore(false);
@@ -176,7 +237,21 @@ document.addEventListener("DOMContentLoaded",()=>{
         document.getElementById("edit-brand").value=data.brand ?? "";
         document.getElementById("edit-problem").value=data.problem ?? "";
         document.getElementById("edit-metode").value=data.metode ?? "";
-        document.getElementById("edit-sparepart").value=data.sparepart ?? "";
+        // reset dulu
+            selectedParts = [];
+            
+            if(data.sparepart){
+              try{
+                selectedParts = JSON.parse(data.sparepart);
+              }catch(e){
+                selectedParts = [];
+              }
+            }
+            
+            // render ulang sparepart lama
+            renderSelectedParts();
+            hitungTotalSparepart();
+
         document.getElementById("edit-total-sparepart").value=data.total_sparepart ?? 0;
         document.getElementById("edit-transport").value=data.transport ?? 0;
         document.getElementById("edit-jasa").value=data.jasa ?? 0;
@@ -263,6 +338,63 @@ document.addEventListener("DOMContentLoaded",()=>{
     };
 
 });
+
+/* ================= Event Dropdown Sparepart ================= */
+document.getElementById("sparepartSelect")
+?.addEventListener("change", function(){
+
+  const option = this.options[this.selectedIndex];
+  if(!option.value) return;
+
+  const id = option.value;
+  const nama = option.dataset.nama;
+  const harga = parseInt(option.dataset.harga);
+  const stok = parseInt(option.dataset.stok);
+
+  const existing = selectedParts.find(p => p.id === id);
+
+  if(existing){
+    if(existing.qty < stok){
+      existing.qty += 1;
+    }
+  } else {
+    selectedParts.push({
+      id,
+      nama,
+      harga,
+      qty:1
+    });
+  }
+
+  renderSelectedParts();
+  hitungTotalSparepart();
+
+  this.value="";
+});
+
+/* ================= Hitung Total Sparepart ================= */
+function hitungTotalSparepart(){
+  let total = 0;
+
+  selectedParts.forEach(item=>{
+    total += item.harga * item.qty;
+  });
+
+  document.getElementById("edit-total-sparepart").value = total;
+}
+
+/* ================= Update QTY & Remove Part ================= */
+function updateQty(index,value){
+  selectedParts[index].qty = parseInt(value);
+  hitungTotalSparepart();
+  renderSelectedParts();
+}
+
+function removePart(index){
+  selectedParts.splice(index,1);
+  renderSelectedParts();
+  hitungTotalSparepart();
+}
 
 /* ================= TAB FILTER ================= */
 document.addEventListener("click",e=>{
@@ -401,7 +533,10 @@ document.getElementById("filterTanggal")
         if(row.status==="selesai") statusClass="status-selesai";
         if(row.status==="batal") statusClass="status-batal";
 
-        const totalKeseluruhan = (row.transport || 0) + (row.jasa || 0);
+        const totalKeseluruhan =
+          (row.total_sparepart || 0) +
+          (row.transport || 0) +
+          (row.jasa || 0);
 
         const tanggal = row.created_at
             ? new Date(row.created_at).toLocaleDateString("id-ID",{
@@ -445,6 +580,4 @@ document.getElementById("cetakTanggal")
     window.print();
 
 });
-
-
 
