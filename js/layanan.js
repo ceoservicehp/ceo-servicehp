@@ -1,6 +1,9 @@
 const db = window.supabaseClient;
 
-let spareparts = {}; 
+let spareparts = {};
+let allProducts = []; // simpan semua produk
+let currentKeyword = "";
+let currentCategory = "";
 let transportCost = 0;
 
 let metode,
@@ -34,6 +37,19 @@ document.addEventListener("DOMContentLoaded",()=>{
         alert("Supabase belum terhubung");
         return;
     }
+/* ===== SEARCH SPAREPART ===== */
+document.getElementById("searchSparepart")
+?.addEventListener("input", e => {
+    currentKeyword = e.target.value;
+    renderProducts();
+});
+
+/* ===== FILTER KATEGORI ===== */
+document.getElementById("filterCategory")
+?.addEventListener("change", e => {
+    currentCategory = e.target.value;
+    renderProducts();
+});
 
     /* ================= AMBIL ELEMENT ================= */
     metode = document.getElementById("service-option");
@@ -271,7 +287,10 @@ async function loadProducts(){
 
     const { data, error } = await db
         .from("products")
-        .select("*")
+        .select(`
+            *,
+            categories(name)
+        `)
         .eq("is_active", true)
         .order("created_at", { ascending: false });
 
@@ -280,38 +299,8 @@ async function loadProducts(){
         return;
     }
 
-    const container = document.getElementById("products-container");
-    container.innerHTML = "";
-
-    if(!data || data.length === 0){
-        container.innerHTML = "<p>Belum ada produk tersedia</p>";
-        return;
-    }
-
-    data.forEach((p)=>{
-
-        const hargaTampil = p.promo_price && p.promo_price > 0
-            ? p.promo_price
-            : p.price;
-
-        const div = document.createElement("div");
-        div.className = "product-card";
-
-        div.innerHTML = `
-            <img src="${p.image_url || 'images/no-image.png'}">
-            <h4>${p.name}</h4>
-            <p>${rupiah(hargaTampil)}</p>
-            <button data-id="${p.id}"
-                    data-name="${p.name}"
-                    data-price="${hargaTampil}">
-                Tambah
-            </button>
-        `;
-
-        container.appendChild(div);
-    });
-
-    attachProductEvents();
+    allProducts = data || [];
+    renderProducts();
 }
 
 function attachProductEvents(){
@@ -418,6 +407,54 @@ renderCart();
 updateTotal();
 };
 });
+}
+
+/* ================= Render Products================= */
+function renderProducts(){
+
+    const container = document.getElementById("products-container");
+    container.innerHTML = "";
+
+    let filtered = allProducts.filter(p => {
+
+        const matchName = p.name
+            .toLowerCase()
+            .includes(currentKeyword.toLowerCase());
+
+        const matchCategory = !currentCategory ||
+            p.categories?.name === currentCategory;
+
+        return matchName && matchCategory;
+    });
+
+    if(filtered.length === 0){
+        container.innerHTML = "<p>Tidak ada produk ditemukan</p>";
+        return;
+    }
+
+    filtered.forEach((p)=>{
+
+        const hargaTampil = p.promo_price && p.promo_price > 0
+            ? p.promo_price
+            : p.price;
+
+        const div = document.createElement("div");
+        div.className = "product-card";
+
+        div.innerHTML = `
+            <img src="${p.image_url || 'images/no-image.png'}">
+            <h4>${p.name}</h4>
+            <p>${rupiah(hargaTampil)}</p>
+            <button data-name="${p.name}"
+                    data-price="${hargaTampil}">
+                Tambah
+            </button>
+        `;
+
+        container.appendChild(div);
+    });
+
+    attachProductEvents();
 }
 
 /* ================= GPS ================= */
