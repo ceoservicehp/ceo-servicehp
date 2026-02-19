@@ -137,10 +137,15 @@ async function loadProducts(){
             <td>${rupiah(row.promo_price)}</td>
             <td>${row.stock}</td>
             <td>${row.is_active ? "Aktif" : "Nonaktif"}</td>
-            <td>
-                <button onclick="editProduct(${row.id})">Edit</button>
-                <button onclick="deleteProduct(${row.id})">Hapus</button>
+            <td class="action-buttons">
+                <button class="btn-edit" onclick="editProduct(${row.id})">
+                    <i class="fa-solid fa-pen"></i>
+                </button>
+                <button class="btn-delete" onclick="deleteProduct(${row.id})">
+                    <i class="fa-solid fa-trash"></i>
+                </button>
             </td>
+
         </tr>
         `;
     });
