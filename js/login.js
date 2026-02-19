@@ -1,81 +1,106 @@
-"use strict";
+const supabase = window.supabaseClient;
 
-/* ================== KONFIG LOGIN ================== */
-const USER = "admin";
-const PASS = "12345";
-
-/* ================== DAFTAR HALAMAN YANG WAJIB LOGIN ================== */
-const PROTECTED_PAGES = [
-    "dapur.html",
-    "keuangan.html",
-    "produk.html",
-    "pengeluaran.html",
-    "kelola.html"
-];
-
-/* ================== INIT ================== */
-document.addEventListener("DOMContentLoaded", ()=>{
-
-    handleLoginForm();
-    protectPage();
-    handleLogout(); // ⬅ TAMBAHKAN INI
-
+/* ================= GOOGLE LOGIN ================= */
+document.getElementById("googleLogin")
+.addEventListener("click", async () => {
+  await supabase.auth.signInWithOAuth({
+    provider: "google",
+  });
 });
 
-/* ================== HANDLE LOGIN ================== */
-function handleLoginForm(){
+/* ================= LOGIN ================= */
+document.getElementById("loginForm")
+.addEventListener("submit", async (e)=>{
+  e.preventDefault();
 
-    const form = document.getElementById("loginForm");
+  const email = loginEmail.value;
+  const password = loginPassword.value;
 
-    if(!form) return; // hanya jalan di login.html
+  const { error } = await supabase.auth.signInWithPassword({
+    email,
+    password
+  });
 
-    form.addEventListener("submit", e=>{
-        e.preventDefault();
+  if(error){
+    errorMsg.textContent = "Email atau password salah";
+    return;
+  }
 
-        const username = document.getElementById("username").value.trim();
-        const password = document.getElementById("password").value.trim();
-        const errorMsg = document.getElementById("errorMsg");
+  window.location.href = "dapur.html";
+});
 
-        if(username === USER && password === PASS){
+/* ================= REGISTER ================= */
+document.getElementById("registerForm")
+.addEventListener("submit", async (e)=>{
+  e.preventDefault();
 
-            localStorage.setItem("admin_login","true");
+  const email = registerEmail.value;
+  const password = registerPassword.value;
 
-            // redirect ke dapur sebagai default
-            window.location.href = "dapur.html";
+  const { error } = await supabase.auth.signUp({
+    email,
+    password
+  });
 
-        }else{
-            errorMsg.textContent = "Username atau password salah!";
-        }
-    });
+  if(error){
+    errorMsg.textContent = error.message;
+    return;
+  }
 
-}
+  errorMsg.style.color="green";
+  errorMsg.textContent="Akun berhasil dibuat! Silakan cek email untuk verifikasi.";
+});
 
-/* ================== PROTECT PAGE ================== */
-function protectPage(){
+/* ================= RESET PASSWORD ================= */
+document.getElementById("resetForm")
+.addEventListener("submit", async (e)=>{
+  e.preventDefault();
 
-    const currentPage = window.location.pathname.split("/").pop();
+  const email = resetEmail.value;
 
-    if(PROTECTED_PAGES.includes(currentPage)){
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: window.location.origin + "/login.html"
+  });
 
-        const isLogin = localStorage.getItem("admin_login");
+  if(error){
+    errorMsg.textContent="Gagal kirim reset email";
+    return;
+  }
 
-        if(isLogin !== "true"){
-            window.location.href = "login.html";
-        }
-    }
-}
+  errorMsg.style.color="green";
+  errorMsg.textContent="Link reset password sudah dikirim ke email.";
+});
 
-/* ================== HANDLE LOGOUT ================== */
-function handleLogout(){
+/* ================= SWITCH FORM ================= */
+const loginForm = document.getElementById("loginForm");
+const registerForm = document.getElementById("registerForm");
+const resetForm = document.getElementById("resetForm");
+const formTitle = document.getElementById("formTitle");
 
-    const logoutBtn = document.getElementById("logoutBtn");
+document.getElementById("showRegister").onclick = ()=>{
+  loginForm.style.display="none";
+  resetForm.style.display="none";
+  registerForm.style.display="block";
+  formTitle.textContent="Daftar Admin";
+};
 
-    if(!logoutBtn) return; // hanya jalan jika tombol ada
+document.getElementById("showLogin").onclick = ()=>{
+  registerForm.style.display="none";
+  resetForm.style.display="none";
+  loginForm.style.display="block";
+  formTitle.textContent="Admin Login";
+};
 
-    logoutBtn.addEventListener("click", ()=>{
-        localStorage.removeItem("admin_login");
-        window.location.href = "index.html"; 
-        // atau "login.html" kalau mau balik ke login
-    });
+document.getElementById("showReset").onclick = ()=>{
+  loginForm.style.display="none";
+  registerForm.style.display="none";
+  resetForm.style.display="block";
+  formTitle.textContent="Reset Password";
+};
 
-}
+/* ================= AUTO REDIRECT ================= */
+supabase.auth.getSession().then(({ data })=>{
+  if(data.session){
+    window.location.href="dapur.html";
+  }
+});
