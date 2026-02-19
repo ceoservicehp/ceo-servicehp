@@ -114,11 +114,14 @@ document.getElementById("showReset")?.addEventListener("click", () => {
   formTitle.textContent = "Reset Password";
 });
 
-/* ================= AUTO REDIRECT (HANYA DI LOGIN) ================= */
-if (isLoginPage) {
-  db.auth.getSession().then(({ data }) => {
-    if (data.session) {
-      window.location.href = "dapur.html";
-    }
-  });
-}
+/* ================= AUTO REDIRECT (AMAN) ================= */
+document.addEventListener("DOMContentLoaded", async () => {
+
+  const { data } = await db.auth.getSession();
+
+  // Kalau sudah login DAN sedang di login.html
+  if (data.session && window.location.pathname.includes("login.html")) {
+    window.location.replace("dapur.html");
+  }
+
+});
