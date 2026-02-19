@@ -77,7 +77,6 @@ tbody.innerHTML+=`
 <td>${i+1}</td>
 <td>${row.nama}</td>
 <td>${row.alamat}</td>
-<td>${row.phone}</td>
 <td>${tanggal}</td>
 <td><span class="status-badge ${statusClass}">
 ${row.status}
@@ -116,7 +115,6 @@ const dataRow=data.find(o=>o.id===id);
 if(!dataRow) return;
 
 document.getElementById("d-nama").textContent=dataRow.nama;
-document.getElementById("d-phone").textContent=dataRow.phone;
 document.getElementById("d-alamat").textContent=dataRow.alamat;
 document.getElementById("d-brand").textContent=dataRow.brand;
 document.getElementById("d-problem").textContent=dataRow.problem;
