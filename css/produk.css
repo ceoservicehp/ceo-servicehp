@@ -191,3 +191,46 @@ padding:10px;
 }
 
 }
+
+/* ================= ACTION BUTTONS ================= */
+
+.action-buttons{
+    display:flex;
+    gap:8px;
+    justify-content:center;
+}
+
+.action-buttons button{
+    border:none;
+    width:36px;
+    height:36px;
+    border-radius:10px;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:14px;
+    transition:0.25s ease;
+}
+
+/* EDIT */
+.btn-edit{
+    background:linear-gradient(135deg,#00c2c7,#1f6f78);
+    color:#fff;
+}
+
+.btn-edit:hover{
+    transform:translateY(-2px);
+    box-shadow:0 4px 10px rgba(0,194,199,0.4);
+}
+
+/* DELETE */
+.btn-delete{
+    background:linear-gradient(135deg,#c0392b,#e74c3c);
+    color:#fff;
+}
+
+.btn-delete:hover{
+    transform:translateY(-2px);
+    box-shadow:0 4px 10px rgba(231,76,60,0.4);
+}
