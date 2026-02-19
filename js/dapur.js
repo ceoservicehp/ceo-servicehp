@@ -658,6 +658,3 @@ document.getElementById("cetakTanggal")
     window.print();
 
 });
-
-
-
