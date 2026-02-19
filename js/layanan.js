@@ -28,19 +28,6 @@ let paymentSection,
 const TOKO_LAT = -6.16639026634003;   // contoh: Jakarta
 const TOKO_LNG = 106.80295190492956;
 
-/* ================= FORMAT METODE ================= */
-function formatMetode(value){
-    if(!value) return "-";
-
-    const map = {
-        home_service: "Home Service",
-        kirim_paket: "Kirim Paket",
-        datang_ke_toko: "Datang ke Toko"
-    };
-
-    return map[value] || value;
-}
-
 document.addEventListener("DOMContentLoaded",()=>{
 
     if(!db){
@@ -67,19 +54,6 @@ document.addEventListener("DOMContentLoaded",()=>{
     paymentMethod = document.getElementById("payment-method");
     paymentInfo = document.getElementById("payment-info");
 
-
-    function formatMetode(value){
-    if(!value) return "-";
-
-    const map = {
-        home_service: "Home Service",
-        kirim_paket: "Kirim Paket",
-        datang_ke_toko: "Datang ke Toko"
-    };
-
-    return map[value] || value;
-}
-
     /* ================= EVENT METODE ================= */
     if(metode){
         metode.addEventListener("change",()=>{
@@ -95,7 +69,7 @@ document.addEventListener("DOMContentLoaded",()=>{
                 paymentSection.style.display="none";
             }
 
-               if(metode.value==="home_service"){
+               if(metode.value==="Home Service"){
                     mapSection.style.display="block";
                     transportSection.style.display="block";
                     proof.style.display="block";
@@ -109,7 +83,7 @@ document.addEventListener("DOMContentLoaded",()=>{
                 }
 
 
-            if(metode.value==="kirim_paket"){
+            if(metode.value==="Kirim Paket"){
                 alamatToko.style.display="block";
             }
 
@@ -238,7 +212,7 @@ marker._icon.classList.add("bounce");
 },10);
 }
 
-if(metode.value==="datang_ke_toko") return;
+if(metode.value==="Datang ke Toko") return;
 
 const jarak=hitungJarak(lat,lng);
 const res=hitungOngkir(jarak);
@@ -478,7 +452,7 @@ document.getElementById("checkout").onclick = async () => {
         return alert("Lengkapi data");
     }
 
-    if(method==="home_service" && !coordInput.value){
+    if(method==="Home Service" && !coordInput.value){
         window.sending=false;
         btn.disabled=false;
         btn.textContent="Kirim Permintaan Service";
@@ -567,11 +541,11 @@ try {
     msg+=`No HP: ${phone}%0A`;
     msg+=`Merk Hp: ${brand}%0A`;
     msg+=`Keluhan: ${problem}%0A`;
-    msg+=`Metode Service: ${formatMetode(method)}%0A`;
+    msg+=`Metode Service: ${method}%0A`;
     msg+=`Sparepart: ${spareList}%0A`;
 
-    if(method==="home_service") msg+=`Transport: ${rupiah(transportCost)}%0A`;
-    if(method==="kirim_paket") msg+=`Pengiriman ke alamat toko%0A`;
+    if(method==="Home Service") msg+=`Transport: ${rupiah(transportCost)}%0A`;
+    if(method==="Kirim Paket") msg+=`Pengiriman ke alamat toko%0A`;
     msg+=`Total Estimasi: ${rupiah(total)}%0A`;
     msg+=`%0A(Jasa diinformasikan setelah pengecekan teknisi)`;
 
