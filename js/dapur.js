@@ -303,8 +303,8 @@ document.addEventListener("DOMContentLoaded",()=>{
         
         // Preview Bukti Service Selesai (dari admin)
         const buktiSelesaiDiv = document.getElementById("edit-bukti-selesai-preview");
-        buktiSelesaiDiv.innerHTML = data.bukti_selesai
-            ? `<img src="${data.bukti_selesai}" width="150" style="border-radius:8px;">`
+        buktiSelesaiDiv.innerHTML = data.bukti_service
+            ? `<img src="${data.bukti_service}" width="150" style="border-radius:8px;">`
             : "Belum ada bukti service selesai";
 
         document.getElementById("detailModal").style.display="flex";
@@ -378,7 +378,7 @@ const { error } = await supabase
         coord:document.getElementById("edit-coord").value,
 
         // 🔥 INI YANG BENAR
-        bukti_selesai: buktiUrl || existingData?.bukti_selesai || null
+        bukti_service: buktiUrl || existingData?.bukti_service || null
     })
     .eq("id", id);
 
@@ -654,4 +654,5 @@ document.getElementById("cetakTanggal")
     window.print();
 
 });
+
 
