@@ -173,11 +173,34 @@ box-shadow:0 5px 18px rgba(0,194,199,0.5);
 .products-grid{
 margin-top:15px;
 display:grid;
-grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
 gap:15px;
 }
 
+/* 📱 MOBILE = 2 KOLOM FIX */
+@media (max-width:600px){
+  .products-grid{
+    grid-template-columns:repeat(2,1fr);
+  }
+}
+
+/* 📲 TABLET */
+@media (min-width:601px) and (max-width:1024px){
+  .products-grid{
+    grid-template-columns:repeat(3,1fr);
+  }
+}
+
+/* 🖥 DESKTOP */
+@media (min-width:1025px){
+  .products-grid{
+    grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+  }
+}
+
 .product-card{
+display:flex;
+flex-direction:column;
+justify-content:space-between;
 background:white;
 border-radius:14px;
 padding:12px;
@@ -202,6 +225,7 @@ margin-bottom:8px;
 .product-card h4{
 margin:5px 0;
 font-size:15px;
+min-height:40px;
 }
 
 .product-card p{
