@@ -28,6 +28,19 @@ let paymentSection,
 const TOKO_LAT = -6.16639026634003;   // contoh: Jakarta
 const TOKO_LNG = 106.80295190492956;
 
+/* ================= FORMAT METODE ================= */
+function formatMetode(value){
+    if(!value) return "-";
+
+    const map = {
+        home_service: "Home Service",
+        kirim_paket: "Kirim Paket",
+        datang_ke_toko: "Datang ke Toko"
+    };
+
+    return map[value] || value;
+}
+
 document.addEventListener("DOMContentLoaded",()=>{
 
     if(!db){
@@ -54,6 +67,18 @@ document.addEventListener("DOMContentLoaded",()=>{
     paymentMethod = document.getElementById("payment-method");
     paymentInfo = document.getElementById("payment-info");
 
+
+    function formatMetode(value){
+    if(!value) return "-";
+
+    const map = {
+        home_service: "Home Service",
+        kirim_paket: "Kirim Paket",
+        datang_ke_toko: "Datang ke Toko"
+    };
+
+    return map[value] || value;
+}
 
     /* ================= EVENT METODE ================= */
     if(metode){
@@ -389,7 +414,6 @@ box.appendChild(div);
 attachCartEvents();
 }
 
-
 function attachCartEvents(){
 
 document.querySelectorAll(".plus").forEach(btn=>{
@@ -543,7 +567,7 @@ try {
     msg+=`No HP: ${phone}%0A`;
     msg+=`Merk Hp: ${brand}%0A`;
     msg+=`Keluhan: ${problem}%0A`;
-    msg+=`Metode Service: ${method}%0A`;
+    msg+=`Metode Service: ${formatMetode(method)}%0A`;
     msg+=`Sparepart: ${spareList}%0A`;
 
     if(method==="home_service") msg+=`Transport: ${rupiah(transportCost)}%0A`;
