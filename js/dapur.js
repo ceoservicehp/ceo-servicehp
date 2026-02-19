@@ -297,7 +297,7 @@ document.addEventListener("DOMContentLoaded",()=>{
 
         const buktiDiv=document.getElementById("edit-bukti-preview");
         buktiDiv.innerHTML = data.bukti
-            ? `<a href="${data.bukti}" target="_blank">Lihat Bukti</a>`
+            ? `<img src="${data.bukti}" width="150" style="border-radius:8px;">`
             : "Tidak ada bukti";
 
         document.getElementById("detailModal").style.display="flex";
@@ -313,17 +313,46 @@ document.addEventListener("DOMContentLoaded",()=>{
     });
 
     /* SAVE EDIT */
-    document.getElementById("saveEdit").onclick = async () => {
+   document.getElementById("saveEdit").onclick = async () => {
 
+    const supabase = getSupabase();
     const id = parseInt(document.getElementById("edit-id").value);
 
     const spare = parseInt(document.getElementById("edit-total-sparepart").value) || 0;
     const transport = parseInt(document.getElementById("edit-transport").value) || 0;
     const jasa = parseInt(document.getElementById("edit-jasa").value) || 0;
-
     const total = spare + transport + jasa;
 
-    const { error } = await getSupabase()
+    let buktiUrl = null;
+
+    const fileInput = document.getElementById("edit-bukti-file");
+    const file = fileInput.files[0];
+
+    /* ================= UPLOAD FOTO ================= */
+    if(file){
+
+        const fileName = `service-${id}-${Date.now()}.${file.name.split('.').pop()}`;
+
+        const { error:uploadError } = await supabase.storage
+            .from("bukti-service")
+            .upload(fileName, file);
+
+        if(uploadError){
+            alert("Gagal upload foto bukti");
+            console.error(uploadError);
+            return;
+        }
+
+        const { data } = supabase.storage
+            .from("bukti-service")
+            .getPublicUrl(fileName);
+
+        buktiUrl = data.publicUrl;
+    }
+
+    /* ================= UPDATE DATABASE ================= */
+
+    const { error } = await supabase
         .from("service_orders")
         .update({
             nama:document.getElementById("edit-nama").value,
@@ -333,14 +362,15 @@ document.addEventListener("DOMContentLoaded",()=>{
             problem:document.getElementById("edit-problem").value,
             metode:document.getElementById("edit-metode").value,
             sparepart:document.getElementById("edit-sparepart").value,
-
-            total_sparepart: spare,   // ✅ FIXED
+            total_sparepart: spare,
             transport: transport,
             jasa: jasa,
             total: total,
-
             status:document.getElementById("edit-status").value,
-            coord:document.getElementById("edit-coord").value
+            coord:document.getElementById("edit-coord").value,
+
+            // kalau tidak upload baru, pakai yang lama
+            bukti: buktiUrl || document.querySelector("#edit-bukti-preview a")?.href || null
         })
         .eq("id", id);
 
@@ -353,20 +383,6 @@ document.addEventListener("DOMContentLoaded",()=>{
     document.getElementById("detailModal").style.display="none";
     loadOrders();
 };
-
-    /* DELETE */
-    document.getElementById("deleteEdit").onclick=async()=>{
-        const id=parseInt(document.getElementById("edit-id").value);
-        if(!confirm("Hapus data ini?")) return;
-
-        await getSupabase()
-            .from("service_orders")
-            .delete()
-            .eq("id",id);
-
-        document.getElementById("detailModal").style.display="none";
-        loadOrders();
-    };
 
 });
 
@@ -630,12 +646,3 @@ document.getElementById("cetakTanggal")
     window.print();
 
 });
-
-
-
-
-
-
-
-
-
