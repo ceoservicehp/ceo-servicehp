@@ -725,3 +725,14 @@ textarea {
 .form-grid .selected-item div{
   flex:none !important;
 }
+
+/* =============== WA USER ============= */
+.wa-link{
+    color:#009688;
+    font-weight:600;
+    text-decoration:none;
+}
+
+.wa-link:hover{
+    text-decoration:underline;
+}
