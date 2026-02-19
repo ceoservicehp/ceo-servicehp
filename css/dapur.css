@@ -757,3 +757,21 @@ textarea {
 .btn-secondary:hover{
     background:#666;
 }
+
+/* =========== Preview Foto ============= */
+.bukti-link{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:6px 10px;
+  background:#009688;
+  color:#fff;
+  border-radius:6px;
+  text-decoration:none;
+  font-size:14px;
+  transition:0.2s;
+}
+
+.bukti-link:hover{
+  background:#00796b;
+}
