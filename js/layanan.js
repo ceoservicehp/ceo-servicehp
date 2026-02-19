@@ -481,7 +481,9 @@ function renderProducts(){
         div.innerHTML = `
             <img src="${p.image_url || ''}"
                  onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-            <div class="no-img">No Image</div>
+            <div class="no-img">
+                <i class="fa-solid fa-image"></i>
+            </div>
             <h4>${p.name}</h4>
             <p>${rupiah(hargaTampil)}</p>
             <button data-name="${p.name}"
