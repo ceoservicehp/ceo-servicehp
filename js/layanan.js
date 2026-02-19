@@ -479,8 +479,9 @@ function renderProducts(){
         div.className = "product-card";
 
         div.innerHTML = `
-            <img src="${p.image_url || 'images/no-image.png'}"
-            onerror="this.src='images/no-image.png'">
+            <img src="${p.image_url || ''}"
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <div class="no-img">No Image</div>
             <h4>${p.name}</h4>
             <p>${rupiah(hargaTampil)}</p>
             <button data-name="${p.name}"
