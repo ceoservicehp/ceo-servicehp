@@ -162,7 +162,17 @@ function renderTable(){
             <td>${i+1}</td>
             <td>${row.nama ?? "-"}</td>
             <td>${row.alamat ?? "-"}</td>
-            <td>${row.phone ?? "-"}</td>
+            <td>
+                ${
+                    row.phone
+                    ? `<a href="https://wa.me/${formatWa(row.phone)}"
+                         target="_blank"
+                         class="wa-link">
+                         <i class="fab fa-whatsapp"></i> ${row.phone}
+                       </a>`
+                    : "-"
+                }
+            </td>
             <td>${tanggal}</td>
             <td>
                 <span class="status-badge ${statusClass}">
@@ -180,6 +190,18 @@ function renderTable(){
         </tr>
         `;
     });
+}
+
+/* ================= Format WA ================= */
+function formatWa(number){
+    if(!number) return "";
+    number = number.toString().replace(/\D/g,""); // hapus selain angka
+
+    if(number.startsWith("0")){
+        number = "62" + number.substring(1);
+    }
+
+    return number;
 }
 
 /* ================= Render Sparepart ================= */
@@ -566,7 +588,17 @@ document.getElementById("filterTanggal")
             <td>${i+1}</td>
             <td>${row.nama ?? "-"}</td>
             <td>${row.alamat ?? "-"}</td>
-            <td>${row.phone ?? "-"}</td>
+            <td>
+                ${
+                    row.phone
+                    ? `<a href="https://wa.me/${formatWa(row.phone)}"
+                         target="_blank"
+                         class="wa-link">
+                         <i class="fab fa-whatsapp"></i> ${row.phone}
+                       </a>`
+                    : "-"
+                }
+            </td>
             <td>${tanggal}</td>
             <td>
                 <span class="status-badge ${statusClass}">
@@ -594,6 +626,7 @@ document.getElementById("cetakTanggal")
     window.print();
 
 });
+
 
 
 
