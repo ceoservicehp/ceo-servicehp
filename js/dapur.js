@@ -308,6 +308,10 @@ document.addEventListener("DOMContentLoaded",()=>{
         document.getElementById("detailModal").style.display="none";
     };
 
+    document.getElementById("closeEdit")?.addEventListener("click", ()=>{
+    document.getElementById("detailModal").style.display="none";
+    });
+
     /* SAVE EDIT */
     document.getElementById("saveEdit").onclick = async () => {
 
@@ -626,6 +630,7 @@ document.getElementById("cetakTanggal")
     window.print();
 
 });
+
 
 
 
