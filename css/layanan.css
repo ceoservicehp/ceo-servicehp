@@ -471,3 +471,33 @@ background:#d9534f;
 .cart-controls .remove:hover{
 background:#ff6b6b;
 }
+
+/* =========== Search Box dan Kategory =========== */
+.search-box-sp{
+  position:relative;
+  display:flex;
+  align-items:center;
+}
+
+.search-box-sp i{
+  position:absolute;
+  left:14px;
+  color:#888;
+  font-size:14px;
+}
+
+#searchSparepart{
+  padding:12px 15px 12px 38px; /* kasih space kiri buat icon */
+  border-radius:12px;
+  border:1px solid #ddd;
+  font-size:14px;
+  min-width:240px;
+  transition:0.2s;
+}
+
+#searchSparepart:focus{
+  border-color:#009688;
+  box-shadow:0 0 0 2px rgba(0,150,136,0.15);
+  outline:none;
+}
+
