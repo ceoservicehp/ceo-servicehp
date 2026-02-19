@@ -9,16 +9,10 @@ const isLoginPage = window.location.pathname.includes("login");
 document.getElementById("googleLogin")
 ?.addEventListener("click", async () => {
 
-  const { error } = await db.auth.signInWithOAuth({
-    provider: "google",
-    options: {
-      redirectTo: window.location.origin + "/dapur.html"
-    }
+  await db.auth.signInWithOAuth({
+    provider: "google"
   });
 
-  if (error) {
-    console.error(error);
-  }
 });
 
 /* ================= LOGIN ================= */
