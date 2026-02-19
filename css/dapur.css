@@ -736,3 +736,24 @@ textarea {
 .wa-link:hover{
     text-decoration:underline;
 }
+
+/* =========== Tombol Modal ==============*/
+.modal-actions{
+    display:flex;
+    gap:10px;
+    justify-content:flex-end;
+    margin-top:15px;
+}
+
+.modal-actions .btn i{
+    margin-right:6px;
+}
+
+.btn-secondary{
+    background:#888;
+    color:#fff;
+}
+
+.btn-secondary:hover{
+    background:#666;
+}
