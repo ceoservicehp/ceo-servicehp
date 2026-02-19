@@ -213,7 +213,7 @@ marker._icon.classList.add("bounce");
 },10);
 }
 
-if(metode.value==="toko") return;
+if(metode.value==="datang_ke_toko") return;
 
 const jarak=hitungJarak(lat,lng);
 const res=hitungOngkir(jarak);
