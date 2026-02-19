@@ -7,6 +7,9 @@ function rupiah(n){
 }
 
 document.addEventListener("DOMContentLoaded", ()=>{
+/* ===== IMPORT CSV ===== */
+document.getElementById("importBtn")
+    ?.addEventListener("click", importProducts);
 
     loadProducts();
     loadCategories();
@@ -287,4 +290,110 @@ function resetForm(){
 
     const preview = document.getElementById("imagePreview");
     preview.style.display="none";
+}
+
+/* ================= IMPORT PRODUK MASSAL ================= */
+async function importProducts(){
+
+    const fileInput = document.getElementById("importFile");
+    const resultBox = document.getElementById("importResult");
+
+    if(!fileInput.files.length){
+        alert("Pilih file CSV dulu");
+        return;
+    }
+
+    const file = fileInput.files[0];
+    const text = await file.text();
+
+    const rows = text.split("\n").map(r => r.trim()).filter(r => r);
+
+    if(rows.length < 2){
+        alert("File tidak valid");
+        return;
+    }
+
+    const headers = rows[0].split(",").map(h => h.trim());
+
+    const requiredColumns = [
+    "name",
+    "category",
+    "price",
+    "cost",
+    "promo_price",
+    "stock",
+    "description",
+    "is_active",
+    "image_url"
+];
+
+    for(const col of requiredColumns){
+        if(!headers.includes(col)){
+            alert("Kolom CSV tidak lengkap");
+            return;
+        }
+    }
+
+    const productsToInsert = [];
+
+    for(let i=1;i<rows.length;i++){
+
+        const values = rows[i].split(",").map(v => v.trim());
+
+        let rowData = {};
+        headers.forEach((h,index)=>{
+            rowData[h] = values[index] || "";
+        });
+
+        /* ===== CEK / BUAT KATEGORI ===== */
+        let categoryId = null;
+
+        if(rowData.category){
+
+            const { data:exist } = await db
+                .from("categories")
+                .select("id")
+                .ilike("name", rowData.category)
+                .maybeSingle();
+
+            if(exist){
+                categoryId = exist.id;
+            }else{
+                const { data:newCat } = await db
+                    .from("categories")
+                    .insert({ name: rowData.category })
+                    .select()
+                    .single();
+
+                categoryId = newCat.id;
+            }
+        }
+
+        productsToInsert.push({
+        name: rowData.name,
+        category_id: categoryId,
+        price: parseInt(rowData.price) || 0,
+        cost_price: parseInt(rowData.cost) || 0,
+        promo_price: parseInt(rowData.promo_price) || 0,
+        stock: parseInt(rowData.stock) || 0,
+        description: rowData.description || "",
+        image_url: rowData.image_url || null,
+        is_active: rowData.is_active?.toLowerCase() === "true"
+    });
+
+    }
+
+    const { error } = await db
+        .from("products")
+        .insert(productsToInsert);
+
+    if(error){
+        resultBox.innerHTML = "❌ Gagal import data";
+        console.log(error);
+        return;
+    }
+
+    resultBox.innerHTML = "✅ Import berhasil ("+productsToInsert.length+" produk)";
+    fileInput.value = "";
+    loadProducts();
 }
