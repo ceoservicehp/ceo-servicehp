@@ -298,13 +298,17 @@ document.addEventListener("DOMContentLoaded",()=>{
         // Preview Bukti Transfer (dari user)
         const buktiTransferDiv = document.getElementById("edit-bukti-transfer-preview");
         buktiTransferDiv.innerHTML = data.bukti
-            ? `<img src="${data.bukti}" width="150" style="border-radius:8px;">`
+            ? `<a href="${data.bukti}" target="_blank" class="bukti-link">
+                 <i class="fa-solid fa-image"></i> Lihat Bukti
+               </a>`
             : "Tidak ada bukti transfer";
-        
+
         // Preview Bukti Service Selesai (dari admin)
         const buktiSelesaiDiv = document.getElementById("edit-bukti-selesai-preview");
         buktiSelesaiDiv.innerHTML = data.bukti_service
-            ? `<img src="${data.bukti_service}" width="150" style="border-radius:8px;">`
+            ? `<a href="${data.bukti_service}" target="_blank" class="bukti-link">
+                 <i class="fa-solid fa-camera"></i> Lihat Bukti
+               </a>`
             : "Belum ada bukti service selesai";
 
         document.getElementById("detailModal").style.display="flex";
@@ -654,5 +658,6 @@ document.getElementById("cetakTanggal")
     window.print();
 
 });
+
 
 
