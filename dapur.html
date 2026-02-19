@@ -162,7 +162,7 @@ Memuat status layanan...
       </div>
 
       <div>
-        <label>Merk</label>
+        <label>Merk HP</label>
         <input type="text" id="edit-brand">
       </div>
 
@@ -172,7 +172,7 @@ Memuat status layanan...
       </div>
 
       <div>
-        <label>Metode</label>
+        <label>Metode Service</label>
         <input type="text" id="edit-metode">
       </div>
 
@@ -194,12 +194,12 @@ Memuat status layanan...
       </div>
 
       <div>
-        <label>Transport</label>
+        <label>Biaya Transport</label>
         <input type="text" id="edit-transport">
       </div>
 
       <div>
-        <label>Jasa</label>
+        <label>Biaya Jasa</label>
         <input type="number" id="edit-jasa">
       </div>
 
@@ -209,7 +209,7 @@ Memuat status layanan...
       </div>
 
       <div>
-        <label>Status</label>
+        <label>Status Service</label>
         <select id="edit-status">
           <option value="pending">Pending</option>
           <option value="proses">Proses</option>
@@ -230,15 +230,26 @@ Memuat status layanan...
       </div>
 
       <div>
-        <label>Bukti</label>
+        <label>Bukti Transfer</label>
         <div id="edit-bukti-preview"></div>
       </div>
 
     </div>
 
     <div class="modal-actions">
-      <button id="saveEdit" class="btn btn-open">💾 Simpan</button>
-      <button id="deleteEdit" class="btn btn-close">🗑 Hapus</button>
+    
+      <button id="saveEdit" class="btn btn-open">
+        <i class="fa-solid fa-floppy-disk"></i> Simpan
+      </button>
+    
+      <button id="deleteEdit" class="btn btn-close">
+        <i class="fa-solid fa-trash"></i> Hapus
+      </button>
+    
+      <button id="closeEdit" class="btn btn-secondary">
+        <i class="fa-solid fa-xmark"></i> Tutup
+      </button>
+    
     </div>
 
   </div>
@@ -289,4 +300,5 @@ window.location="login.html";
 
 </body>
 </html>
+
 
