@@ -129,10 +129,20 @@ document.getElementById("d-status").textContent=dataRow.status;
 document.getElementById("d-tanggal").textContent=
 new Date(dataRow.created_at).toLocaleString("id-ID");
 
-document.getElementById("d-bukti").innerHTML=
-dataRow.bukti
-? `<a href="${dataRow.bukti}" target="_blank">Lihat Bukti</a>`
-: "Tidak ada";
+// Bukti Transfer (dari user)
+document.getElementById("d-bukti").innerHTML = dataRow.bukti
+  ? `<a href="${dataRow.bukti}" target="_blank" class="bukti-link">
+        <i class="fa-solid fa-receipt"></i> Lihat Bukti Transfer
+     </a>`
+  : "-";
+
+// Bukti Service Selesai (dari admin)
+document.getElementById("d-bukti-service").innerHTML =
+  dataRow.status === "selesai" && dataRow.bukti_service
+    ? `<a href="${dataRow.bukti_service}" target="_blank" class="bukti-link">
+          <i class="fa-solid fa-image"></i> Lihat Bukti Service
+       </a>`
+    : "Service belum selesai";
 
 document.getElementById("detailModal").style.display="flex";
 });
