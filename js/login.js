@@ -2,6 +2,9 @@
 
 const db = window.supabaseClient;
 
+/* ================= CEK HALAMAN ================= */
+const isLoginPage = window.location.pathname.includes("login");
+
 /* ================= GOOGLE LOGIN ================= */
 document.getElementById("googleLogin")
 ?.addEventListener("click", async () => {
@@ -13,14 +16,14 @@ document.getElementById("googleLogin")
     }
   });
 
-  if(error){
+  if (error) {
     console.error(error);
   }
 });
 
 /* ================= LOGIN ================= */
 document.getElementById("loginForm")
-?.addEventListener("submit", async (e)=>{
+?.addEventListener("submit", async (e) => {
   e.preventDefault();
 
   const email = document.getElementById("loginEmail")?.value;
@@ -32,7 +35,7 @@ document.getElementById("loginForm")
     password
   });
 
-  if(error){
+  if (error) {
     errorMsg.textContent = "Email atau password salah";
     return;
   }
@@ -42,7 +45,7 @@ document.getElementById("loginForm")
 
 /* ================= REGISTER ================= */
 document.getElementById("registerForm")
-?.addEventListener("submit", async (e)=>{
+?.addEventListener("submit", async (e) => {
   e.preventDefault();
 
   const email = document.getElementById("registerEmail")?.value;
@@ -54,18 +57,18 @@ document.getElementById("registerForm")
     password
   });
 
-  if(error){
+  if (error) {
     errorMsg.textContent = error.message;
     return;
   }
 
-  errorMsg.style.color="green";
-  errorMsg.textContent="Akun berhasil dibuat! Cek email untuk verifikasi.";
+  errorMsg.style.color = "green";
+  errorMsg.textContent = "Akun berhasil dibuat! Cek email untuk verifikasi.";
 });
 
 /* ================= RESET PASSWORD ================= */
 document.getElementById("resetForm")
-?.addEventListener("submit", async (e)=>{
+?.addEventListener("submit", async (e) => {
   e.preventDefault();
 
   const email = document.getElementById("resetEmail")?.value;
@@ -75,13 +78,13 @@ document.getElementById("resetForm")
     redirectTo: window.location.origin + "/login.html"
   });
 
-  if(error){
-    errorMsg.textContent="Gagal kirim reset email";
+  if (error) {
+    errorMsg.textContent = "Gagal kirim reset email";
     return;
   }
 
-  errorMsg.style.color="green";
-  errorMsg.textContent="Link reset password sudah dikirim.";
+  errorMsg.style.color = "green";
+  errorMsg.textContent = "Link reset password sudah dikirim.";
 });
 
 /* ================= SWITCH FORM ================= */
@@ -90,30 +93,32 @@ const registerForm = document.getElementById("registerForm");
 const resetForm = document.getElementById("resetForm");
 const formTitle = document.getElementById("formTitle");
 
-document.getElementById("showRegister")?.addEventListener("click", ()=>{
-  loginForm.style.display="none";
-  resetForm.style.display="none";
-  registerForm.style.display="block";
-  formTitle.textContent="Daftar Admin";
+document.getElementById("showRegister")?.addEventListener("click", () => {
+  loginForm.style.display = "none";
+  resetForm.style.display = "none";
+  registerForm.style.display = "block";
+  formTitle.textContent = "Daftar Admin";
 });
 
-document.getElementById("showLogin")?.addEventListener("click", ()=>{
-  registerForm.style.display="none";
-  resetForm.style.display="none";
-  loginForm.style.display="block";
-  formTitle.textContent="Admin Login";
+document.getElementById("showLogin")?.addEventListener("click", () => {
+  registerForm.style.display = "none";
+  resetForm.style.display = "none";
+  loginForm.style.display = "block";
+  formTitle.textContent = "Admin Login";
 });
 
-document.getElementById("showReset")?.addEventListener("click", ()=>{
-  loginForm.style.display="none";
-  registerForm.style.display="none";
-  resetForm.style.display="block";
-  formTitle.textContent="Reset Password";
+document.getElementById("showReset")?.addEventListener("click", () => {
+  loginForm.style.display = "none";
+  registerForm.style.display = "none";
+  resetForm.style.display = "block";
+  formTitle.textContent = "Reset Password";
 });
 
-/* ================= AUTO REDIRECT ================= */
-db.auth.getSession().then(({ data })=>{
-  if(data.session){
-    window.location.href="dapur.html";
-  }
-});
+/* ================= AUTO REDIRECT (HANYA DI LOGIN) ================= */
+if (isLoginPage) {
+  db.auth.getSession().then(({ data }) => {
+    if (data.session) {
+      window.location.href = "dapur.html";
+    }
+  });
+}
