@@ -156,10 +156,21 @@ Kirim Permintaan Service
 Silakan pilih sparepart jika diperlukan. Tidak memilih juga tetap bisa kirim permintaan service.
 </p>
 
+<div class="sparepart-tools">
+
+  <div class="search-box-sp">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <input type="text"
+           id="searchSparepart"
+           placeholder="Cari sparepart...">
+  </div>
+  <select id="filterCategory">
+    <option value="">Semua Kategori</option>
+  </select>
+  
+</div>
 <div id="products-container" class="products-grid"></div>
-
 </section>
-
 
 <!-- MODAL -->
 <div id="product-modal" class="modal hidden">
