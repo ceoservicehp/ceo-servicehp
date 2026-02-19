@@ -138,7 +138,7 @@ document.getElementById("d-bukti").innerHTML = dataRow.bukti
 
 // Bukti Service Selesai (dari admin)
 document.getElementById("d-bukti-service").innerHTML =
-  dataRow.status === "selesai" && dataRow.bukti_service
+  dataRow.bukti_service
     ? `<a href="${dataRow.bukti_service}" target="_blank" class="bukti-link">
           <i class="fa-solid fa-image"></i> Lihat Bukti Service
        </a>`
