@@ -70,7 +70,7 @@ document.addEventListener("DOMContentLoaded",()=>{
                 paymentSection.style.display="none";
             }
 
-               if(metode.value==="Home Service"){
+               if(metode.value==="home_service"){
                     mapSection.style.display="block";
                     transportSection.style.display="block";
                     proof.style.display="block";
@@ -84,7 +84,7 @@ document.addEventListener("DOMContentLoaded",()=>{
                 }
 
 
-            if(metode.value==="Kirim Paket"){
+            if(metode.value==="kirim_paket"){
                 alamatToko.style.display="block";
             }
 
@@ -454,7 +454,7 @@ document.getElementById("checkout").onclick = async () => {
         return alert("Lengkapi data");
     }
 
-    if(method==="Home Service" && !coordInput.value){
+    if(method==="home_service" && !coordInput.value){
         window.sending=false;
         btn.disabled=false;
         btn.textContent="Kirim Permintaan Service";
@@ -546,8 +546,8 @@ try {
     msg+=`Metode Service: ${method}%0A`;
     msg+=`Sparepart: ${spareList}%0A`;
 
-    if(method==="Home Service") msg+=`Transport: ${rupiah(transportCost)}%0A`;
-    if(method==="Kirim Paket") msg+=`Pengiriman ke alamat toko%0A`;
+    if(method==="home_service") msg+=`Transport: ${rupiah(transportCost)}%0A`;
+    if(method==="kirim_paket") msg+=`Pengiriman ke alamat toko%0A`;
     msg+=`Total Estimasi: ${rupiah(total)}%0A`;
     msg+=`%0A(Jasa diinformasikan setelah pengecekan teknisi)`;
 
