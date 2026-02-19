@@ -295,10 +295,17 @@ document.addEventListener("DOMContentLoaded",()=>{
         });
         document.getElementById("edit-coord").value=data.coord ?? "";
 
-        const buktiDiv=document.getElementById("edit-bukti-preview");
-        buktiDiv.innerHTML = data.bukti
+        // Preview Bukti Transfer (dari user)
+        const buktiTransferDiv = document.getElementById("edit-bukti-transfer-preview");
+        buktiTransferDiv.innerHTML = data.bukti
             ? `<img src="${data.bukti}" width="150" style="border-radius:8px;">`
-            : "Tidak ada bukti";
+            : "Tidak ada bukti transfer";
+        
+        // Preview Bukti Service Selesai (dari admin)
+        const buktiSelesaiDiv = document.getElementById("edit-bukti-selesai-preview");
+        buktiSelesaiDiv.innerHTML = data.bukti_selesai
+            ? `<img src="${data.bukti_selesai}" width="150" style="border-radius:8px;">`
+            : "Belum ada bukti service selesai";
 
         document.getElementById("detailModal").style.display="flex";
     });
@@ -350,29 +357,30 @@ document.addEventListener("DOMContentLoaded",()=>{
         buktiUrl = data.publicUrl;
     }
 
-    /* ================= UPDATE DATABASE ================= */
+/* ================= UPDATE DATABASE ================= */
+const existingData = allOrders.find(o => o.id === id);
 
-    const { error } = await supabase
-        .from("service_orders")
-        .update({
-            nama:document.getElementById("edit-nama").value,
-            phone:document.getElementById("edit-phone").value,
-            alamat:document.getElementById("edit-alamat").value,
-            brand:document.getElementById("edit-brand").value,
-            problem:document.getElementById("edit-problem").value,
-            metode:document.getElementById("edit-metode").value,
-            sparepart:document.getElementById("edit-sparepart").value,
-            total_sparepart: spare,
-            transport: transport,
-            jasa: jasa,
-            total: total,
-            status:document.getElementById("edit-status").value,
-            coord:document.getElementById("edit-coord").value,
+const { error } = await supabase
+    .from("service_orders")
+    .update({
+        nama:document.getElementById("edit-nama").value,
+        phone:document.getElementById("edit-phone").value,
+        alamat:document.getElementById("edit-alamat").value,
+        brand:document.getElementById("edit-brand").value,
+        problem:document.getElementById("edit-problem").value,
+        metode:document.getElementById("edit-metode").value,
+        sparepart:document.getElementById("edit-sparepart").value,
+        total_sparepart: spare,
+        transport: transport,
+        jasa: jasa,
+        total: total,
+        status:document.getElementById("edit-status").value,
+        coord:document.getElementById("edit-coord").value,
 
-            // kalau tidak upload baru, pakai yang lama
-            bukti: buktiUrl || document.querySelector("#edit-bukti-preview a")?.href || null
-        })
-        .eq("id", id);
+        // 🔥 INI YANG BENAR
+        bukti_selesai: buktiUrl || existingData?.bukti_selesai || null
+    })
+    .eq("id", id);
 
     if(error){
         alert("Gagal update");
@@ -646,3 +654,4 @@ document.getElementById("cetakTanggal")
     window.print();
 
 });
+
