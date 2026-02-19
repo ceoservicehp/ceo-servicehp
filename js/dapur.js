@@ -4,6 +4,21 @@ function getSupabase(){
     return window.supabaseClient;
 }
 
+/* ================= CEK SESSION ADMIN ================= */
+document.addEventListener("DOMContentLoaded", async () => {
+
+    const supabase = getSupabase();
+    if(!supabase) return;
+
+    const { data } = await supabase.auth.getSession();
+
+    if(!data.session){
+        window.location.href = "login.html";
+        return;
+    }
+
+});
+
 /* ================= GLOBAL ================= */
 let allOrders=[];
 let currentFilter="all";
@@ -658,3 +673,4 @@ document.getElementById("cetakTanggal")
     window.print();
 
 });
+
