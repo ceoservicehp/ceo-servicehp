@@ -19,7 +19,7 @@
 
     <img src="images/logo.png" class="logo">
 
-    <h2>Admin Panel</h2>
+    <h2 id="formTitle">Admin Login</h2>
     <p class="subtitle">CEO Service HP</p>
 
     <!-- GOOGLE LOGIN -->
@@ -32,14 +32,33 @@
       <span>atau</span>
     </div>
 
-    <!-- EMAIL LOGIN (opsional) -->
-    <form id="emailLogin">
-      <input type="email" id="email" placeholder="Email Admin" required>
-      <input type="password" id="password" placeholder="Password" required>
+    <!-- LOGIN FORM -->
+    <form id="loginForm">
+      <input type="email" id="loginEmail" placeholder="Email" required>
+      <input type="password" id="loginPassword" placeholder="Password" required>
       <button type="submit" class="login-btn">Masuk</button>
     </form>
 
+    <!-- REGISTER FORM -->
+    <form id="registerForm" style="display:none;">
+      <input type="email" id="registerEmail" placeholder="Email Baru" required>
+      <input type="password" id="registerPassword" placeholder="Password" required>
+      <button type="submit" class="login-btn">Daftar Akun</button>
+    </form>
+
+    <!-- RESET FORM -->
+    <form id="resetForm" style="display:none;">
+      <input type="email" id="resetEmail" placeholder="Masukkan Email Anda" required>
+      <button type="submit" class="login-btn">Kirim Link Reset</button>
+    </form>
+
     <p id="errorMsg"></p>
+
+    <div class="switch-links">
+      <span id="showRegister">Daftar akun</span> |
+      <span id="showLogin">Login</span> |
+      <span id="showReset">Lupa password?</span>
+    </div>
 
   </div>
 
