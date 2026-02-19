@@ -112,6 +112,29 @@
 
   </div>
 
+  <!-- ================= IMPORT MASSAL ================= -->
+<div class="card">
+  <h2>📥 Import Produk Massal (CSV)</h2>
+
+  <div class="form-group">
+    <label>Upload File CSV</label>
+    <input type="file" id="importFile" accept=".csv">
+  </div>
+
+  <small>
+    Format kolom CSV:<br>
+    name,category,price,cost,promo_price,stock,description,is_active
+  </small>
+
+  <br><br>
+
+  <button class="btn-primary" id="importBtn">
+    Import Produk
+  </button>
+
+  <div id="importResult" style="margin-top:10px;"></div>
+</div>
+
   <!-- ================= TABLE ================= -->
   <div class="card">
     <h2>Daftar Produk</h2>
