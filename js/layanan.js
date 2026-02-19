@@ -165,6 +165,8 @@ if(paymentMethod){
 }
     
     loadProducts();
+    loadCategoriesFilter();
+
 });
 
 /* ================= HELPER ================= */
@@ -332,6 +334,39 @@ function attachProductEvents(){
         });
 }
 
+/* ================= LOAD KATEGORI FILTER ================= */
+async function loadCategoriesFilter(){
+
+    const { data, error } = await db
+        .from("categories")
+        .select("name")
+        .eq("is_active", true)
+        .order("name");
+
+    if(error){
+        console.error("Gagal load kategori:", error);
+        return;
+    }
+
+    const select = document.getElementById("filterCategory");
+
+    if(!select) return;
+
+    select.innerHTML = `
+        <option value="all">Semua Kategori</option>
+    `;
+
+    data.forEach(cat=>{
+        select.innerHTML += `
+            <option value="${cat.name}">
+                ${cat.name}
+            </option>
+        `;
+    });
+
+    currentCategory = "all";
+}
+
 /* ================= RENDER CART ================= */
 function renderCart(){
 
@@ -421,7 +456,9 @@ function renderProducts(){
             .toLowerCase()
             .includes(currentKeyword.toLowerCase());
 
-        const matchCategory = !currentCategory ||
+        const matchCategory =
+            currentCategory === "all" ||
+            currentCategory === "" ||
             p.categories?.name === currentCategory;
 
         return matchName && matchCategory;
@@ -442,7 +479,8 @@ function renderProducts(){
         div.className = "product-card";
 
         div.innerHTML = `
-            <img src="${p.image_url || 'images/no-image.png'}">
+            <img src="${p.image_url || 'images/no-image.png'}"
+            onerror="this.src='images/no-image.png'">
             <h4>${p.name}</h4>
             <p>${rupiah(hargaTampil)}</p>
             <button data-name="${p.name}"
