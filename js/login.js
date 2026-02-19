@@ -2,9 +2,6 @@
 
 const db = window.supabaseClient;
 
-/* ================= CEK HALAMAN ================= */
-const isLoginPage = window.location.pathname.includes("login");
-
 /* ================= GOOGLE LOGIN ================= */
 document.getElementById("googleLogin")
 ?.addEventListener("click", async () => {
@@ -15,13 +12,13 @@ document.getElementById("googleLogin")
 
 });
 
-/* ================= LOGIN ================= */
+/* ================= LOGIN EMAIL ================= */
 document.getElementById("loginForm")
-?.addEventListener("submit", async (e) => {
+?.addEventListener("submit", async (e)=>{
   e.preventDefault();
 
-  const email = document.getElementById("loginEmail")?.value;
-  const password = document.getElementById("loginPassword")?.value;
+  const email = document.getElementById("loginEmail").value;
+  const password = document.getElementById("loginPassword").value;
   const errorMsg = document.getElementById("errorMsg");
 
   const { error } = await db.auth.signInWithPassword({
@@ -29,91 +26,20 @@ document.getElementById("loginForm")
     password
   });
 
-  if (error) {
+  if(error){
     errorMsg.textContent = "Email atau password salah";
     return;
   }
 
-  window.location.href = "dapur.html";
+  window.location.replace("dapur.html");
 });
 
-/* ================= REGISTER ================= */
-document.getElementById("registerForm")
-?.addEventListener("submit", async (e) => {
-  e.preventDefault();
-
-  const email = document.getElementById("registerEmail")?.value;
-  const password = document.getElementById("registerPassword")?.value;
-  const errorMsg = document.getElementById("errorMsg");
-
-  const { error } = await db.auth.signUp({
-    email,
-    password
-  });
-
-  if (error) {
-    errorMsg.textContent = error.message;
-    return;
-  }
-
-  errorMsg.style.color = "green";
-  errorMsg.textContent = "Akun berhasil dibuat! Cek email untuk verifikasi.";
-});
-
-/* ================= RESET PASSWORD ================= */
-document.getElementById("resetForm")
-?.addEventListener("submit", async (e) => {
-  e.preventDefault();
-
-  const email = document.getElementById("resetEmail")?.value;
-  const errorMsg = document.getElementById("errorMsg");
-
-  const { error } = await db.auth.resetPasswordForEmail(email, {
-    redirectTo: window.location.origin + "/login.html"
-  });
-
-  if (error) {
-    errorMsg.textContent = "Gagal kirim reset email";
-    return;
-  }
-
-  errorMsg.style.color = "green";
-  errorMsg.textContent = "Link reset password sudah dikirim.";
-});
-
-/* ================= SWITCH FORM ================= */
-const loginForm = document.getElementById("loginForm");
-const registerForm = document.getElementById("registerForm");
-const resetForm = document.getElementById("resetForm");
-const formTitle = document.getElementById("formTitle");
-
-document.getElementById("showRegister")?.addEventListener("click", () => {
-  loginForm.style.display = "none";
-  resetForm.style.display = "none";
-  registerForm.style.display = "block";
-  formTitle.textContent = "Daftar Admin";
-});
-
-document.getElementById("showLogin")?.addEventListener("click", () => {
-  registerForm.style.display = "none";
-  resetForm.style.display = "none";
-  loginForm.style.display = "block";
-  formTitle.textContent = "Admin Login";
-});
-
-document.getElementById("showReset")?.addEventListener("click", () => {
-  loginForm.style.display = "none";
-  registerForm.style.display = "none";
-  resetForm.style.display = "block";
-  formTitle.textContent = "Reset Password";
-});
-
-/* ================= AUTO REDIRECT (AMAN) ================= */
+/* ================= AUTO REDIRECT ================= */
 document.addEventListener("DOMContentLoaded", async () => {
 
   const { data } = await db.auth.getSession();
 
-  // Kalau sudah login DAN sedang di login.html
+  // Kalau sudah login dan sedang di login.html
   if (data.session && window.location.pathname.includes("login.html")) {
     window.location.replace("dapur.html");
   }
