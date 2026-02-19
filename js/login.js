@@ -1,22 +1,33 @@
-const supabase = window.supabaseClient;
+"use strict";
+
+const db = window.supabaseClient;
 
 /* ================= GOOGLE LOGIN ================= */
 document.getElementById("googleLogin")
-.addEventListener("click", async () => {
-  await supabase.auth.signInWithOAuth({
+?.addEventListener("click", async () => {
+
+  const { error } = await db.auth.signInWithOAuth({
     provider: "google",
+    options: {
+      redirectTo: window.location.origin + "/dapur.html"
+    }
   });
+
+  if(error){
+    console.error(error);
+  }
 });
 
 /* ================= LOGIN ================= */
 document.getElementById("loginForm")
-.addEventListener("submit", async (e)=>{
+?.addEventListener("submit", async (e)=>{
   e.preventDefault();
 
-  const email = loginEmail.value;
-  const password = loginPassword.value;
+  const email = document.getElementById("loginEmail")?.value;
+  const password = document.getElementById("loginPassword")?.value;
+  const errorMsg = document.getElementById("errorMsg");
 
-  const { error } = await supabase.auth.signInWithPassword({
+  const { error } = await db.auth.signInWithPassword({
     email,
     password
   });
@@ -31,13 +42,14 @@ document.getElementById("loginForm")
 
 /* ================= REGISTER ================= */
 document.getElementById("registerForm")
-.addEventListener("submit", async (e)=>{
+?.addEventListener("submit", async (e)=>{
   e.preventDefault();
 
-  const email = registerEmail.value;
-  const password = registerPassword.value;
+  const email = document.getElementById("registerEmail")?.value;
+  const password = document.getElementById("registerPassword")?.value;
+  const errorMsg = document.getElementById("errorMsg");
 
-  const { error } = await supabase.auth.signUp({
+  const { error } = await db.auth.signUp({
     email,
     password
   });
@@ -48,17 +60,18 @@ document.getElementById("registerForm")
   }
 
   errorMsg.style.color="green";
-  errorMsg.textContent="Akun berhasil dibuat! Silakan cek email untuk verifikasi.";
+  errorMsg.textContent="Akun berhasil dibuat! Cek email untuk verifikasi.";
 });
 
 /* ================= RESET PASSWORD ================= */
 document.getElementById("resetForm")
-.addEventListener("submit", async (e)=>{
+?.addEventListener("submit", async (e)=>{
   e.preventDefault();
 
-  const email = resetEmail.value;
+  const email = document.getElementById("resetEmail")?.value;
+  const errorMsg = document.getElementById("errorMsg");
 
-  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+  const { error } = await db.auth.resetPasswordForEmail(email, {
     redirectTo: window.location.origin + "/login.html"
   });
 
@@ -68,7 +81,7 @@ document.getElementById("resetForm")
   }
 
   errorMsg.style.color="green";
-  errorMsg.textContent="Link reset password sudah dikirim ke email.";
+  errorMsg.textContent="Link reset password sudah dikirim.";
 });
 
 /* ================= SWITCH FORM ================= */
@@ -77,29 +90,29 @@ const registerForm = document.getElementById("registerForm");
 const resetForm = document.getElementById("resetForm");
 const formTitle = document.getElementById("formTitle");
 
-document.getElementById("showRegister").onclick = ()=>{
+document.getElementById("showRegister")?.addEventListener("click", ()=>{
   loginForm.style.display="none";
   resetForm.style.display="none";
   registerForm.style.display="block";
   formTitle.textContent="Daftar Admin";
-};
+});
 
-document.getElementById("showLogin").onclick = ()=>{
+document.getElementById("showLogin")?.addEventListener("click", ()=>{
   registerForm.style.display="none";
   resetForm.style.display="none";
   loginForm.style.display="block";
   formTitle.textContent="Admin Login";
-};
+});
 
-document.getElementById("showReset").onclick = ()=>{
+document.getElementById("showReset")?.addEventListener("click", ()=>{
   loginForm.style.display="none";
   registerForm.style.display="none";
   resetForm.style.display="block";
   formTitle.textContent="Reset Password";
-};
+});
 
 /* ================= AUTO REDIRECT ================= */
-supabase.auth.getSession().then(({ data })=>{
+db.auth.getSession().then(({ data })=>{
   if(data.session){
     window.location.href="dapur.html";
   }
