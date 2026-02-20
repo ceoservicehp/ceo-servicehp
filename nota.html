@@ -8,6 +8,7 @@
 <link rel="stylesheet" href="css/nota.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
 
@@ -55,11 +56,28 @@
   </div>
 
   <div class="invoice-footer">
-    <div id="qr"></div>
-    <button onclick="window.print()" class="btn-print">
-      <i class="fa-solid fa-print"></i> Print / Save PDF
+
+  <div id="qr"></div>
+
+  <div class="actions">
+    <button onclick="downloadPDF()" class="btn-print">
+      <i class="fa-solid fa-file-pdf"></i> Download PDF
+    </button>
+
+    <button onclick="sendWhatsApp()" class="btn-wa">
+      <i class="fa-brands fa-whatsapp"></i> Kirim WA
     </button>
   </div>
+
+</div>
+
+<div id="watermark" class="watermark"></div>
+
+<div class="signature">
+  <p>Hormat Kami,</p>
+  <canvas id="signature-pad"></canvas>
+  <small>CEO Service HP</small>
+</div>
 
 </div>
 
