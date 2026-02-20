@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Invoice - CEO Service HP</title>
+
+<link rel="stylesheet" href="css/nota.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+</head>
+<body>
+
+<div class="invoice">
+
+  <div class="invoice-header">
+    <div>
+      <h1>CEO SERVICE HP</h1>
+      <p>Cellular Engineer Officer</p>
+      <small>Jl. Contoh No 123</small>
+    </div>
+
+    <div class="invoice-meta">
+      <div><b>Invoice:</b> <span id="inv-number"></span></div>
+      <div><b>Tanggal:</b> <span id="inv-date"></span></div>
+    </div>
+  </div>
+
+  <div class="customer-box">
+    <div><b>Nama:</b> <span id="c-name"></span></div>
+    <div><b>No HP:</b> <span id="c-phone"></span></div>
+    <div><b>Metode:</b> <span id="c-metode"></span></div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Deskripsi</th>
+        <th>Qty</th>
+        <th>Harga</th>
+        <th>Total</th>
+      </tr>
+    </thead>
+    <tbody id="invoice-items"></tbody>
+  </table>
+
+  <div class="summary">
+    <div><span>Subtotal</span><span id="sub-total"></span></div>
+    <div><span>Transport</span><span id="trans-total"></span></div>
+    <div><span>Jasa</span><span id="jasa-total"></span></div>
+    <div class="grand-total">
+      <span>Total</span>
+      <span id="grand-total"></span>
+    </div>
+  </div>
+
+  <div class="invoice-footer">
+    <div id="qr"></div>
+    <button onclick="window.print()" class="btn-print">
+      <i class="fa-solid fa-print"></i> Print / Save PDF
+    </button>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase.js"></script>
+<script src="js/nota.js"></script>
+</body>
+</html>
