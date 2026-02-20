@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Verifikasi Service</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase.js"></script>
+</head>
+<body>
+<h2>Status Service</h2>
+<div id="result"></div>
+
+<script>
+const db = window.supabaseClient;
+const id = new URLSearchParams(window.location.search).get("id");
+
+db.from("service_orders")
+.select("*")
+.eq("id",id)
+.single()
+.then(({data})=>{
+document.getElementById("result").innerHTML =
+`
+<p>Nama: ${data.nama}</p>
+<p>Status: <b>${data.status}</b></p>
+<p>Total: Rp ${data.total.toLocaleString("id-ID")}</p>
+`;
+});
+</script>
+</body>
+</html>
