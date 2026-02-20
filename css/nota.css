@@ -1,0 +1,102 @@
+body{
+font-family:Poppins,sans-serif;
+background:#f4f7fb;
+padding:30px;
+}
+
+.invoice{
+max-width:900px;
+margin:auto;
+background:white;
+padding:35px;
+border-radius:20px;
+box-shadow:0 10px 30px rgba(0,0,0,.12);
+}
+
+.invoice-header{
+display:flex;
+justify-content:space-between;
+border-bottom:2px solid #eee;
+padding-bottom:20px;
+margin-bottom:20px;
+}
+
+.invoice-header h1{
+color:#1f6f78;
+margin:0;
+}
+
+.invoice-meta{
+text-align:right;
+font-size:14px;
+}
+
+.customer-box{
+margin:15px 0 25px;
+font-size:14px;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+}
+
+th{
+background:#1f6f78;
+color:white;
+padding:10px;
+font-size:14px;
+}
+
+td{
+padding:10px;
+border-bottom:1px solid #eee;
+font-size:14px;
+}
+
+.summary{
+margin-top:20px;
+width:300px;
+margin-left:auto;
+font-size:14px;
+}
+
+.summary div{
+display:flex;
+justify-content:space-between;
+margin:6px 0;
+}
+
+.grand-total{
+font-size:18px;
+font-weight:bold;
+color:#1f6f78;
+border-top:2px solid #ddd;
+padding-top:8px;
+}
+
+.invoice-footer{
+margin-top:30px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+
+.btn-print{
+padding:10px 16px;
+background:#1f6f78;
+color:white;
+border:none;
+border-radius:8px;
+cursor:pointer;
+}
+
+.btn-print:hover{
+background:#00c2c7;
+}
+
+@media print{
+body{background:white}
+.btn-print{display:none}
+.invoice{box-shadow:none}
+}
