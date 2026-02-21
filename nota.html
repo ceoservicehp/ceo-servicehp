@@ -14,86 +14,103 @@
 
 <div class="invoice">
 
+  <!-- HEADER -->
   <div class="invoice-header">
-    <div>
+    <div class="brand">
       <h1>CEO SERVICE HP</h1>
       <p>Cellular Engineer Officer</p>
       <small>Jl. Contoh No 123</small>
     </div>
 
     <div class="invoice-meta">
-      <div><b>Invoice:</b> <span id="inv-number"></span></div>
-      <div><b>Tanggal:</b> <span id="inv-date"></span></div>
+      <div><span>Invoice</span><b id="inv-number"></b></div>
+      <div><span>Tanggal</span><b id="inv-date"></b></div>
     </div>
   </div>
 
-  <div class="customer-box">
-    <div><b>Nama:</b> <span id="c-name"></span></div>
-    <div><b>No HP:</b> <span id="c-phone"></span></div>
-    <div><b>Metode:</b> <span id="c-metode"></span></div>
+  <!-- CUSTOMER + SERVICE INFO -->
+  <div class="info-wrapper">
+
+    <div class="customer-box box">
+      <h3>Data Pelanggan</h3>
+      <div><span>Nama</span><b id="c-name"></b></div>
+      <div><span>No HP</span><b id="c-phone"></b></div>
+      <div><span>Metode</span><b id="c-metode"></b></div>
+    </div>
+
+    <div class="service-info box">
+      <h3>Informasi Service</h3>
+      <div><span>Status</span><b id="service-status"></b></div>
+      <div><span>Tgl Masuk</span><b id="service-created"></b></div>
+      <div><span>Tgl Selesai</span><b id="service-finished"></b></div>
+
+      <div id="top-section" style="display:none;">
+        <span>Tempo</span>
+        <b id="top-info"></b>
+      </div>
+
+      <div>
+        <span>Status Bayar</span>
+        <b id="payment-status"></b>
+      </div>
+    </div>
+
   </div>
 
-  <div class="service-info">
-  <div><b>Status Service:</b> <span id="service-status"></span></div>
-  <div><b>Tanggal Masuk:</b> <span id="service-created"></span></div>
-  <div><b>Tanggal Selesai:</b> <span id="service-finished"></span></div>
-  <div id="top-section" style="display:none;">
-    <b>Tempo Pembayaran:</b>
-    <span id="top-info"></span>
+  <!-- TABEL ITEM -->
+  <div class="table-wrapper">
+    <table class="invoice-table">
+      <thead>
+        <tr>
+          <th style="width:50px;">No</th>
+          <th>Deskripsi</th>
+          <th style="width:80px;">Qty</th>
+          <th style="width:120px;">Harga</th>
+          <th style="width:120px;">Total</th>
+        </tr>
+      </thead>
+      <tbody id="invoice-items"></tbody>
+    </table>
   </div>
 
-  <div>
-    <b>Status Pembayaran:</b>
-    <span id="payment-status"></span>
-  </div>
-
-</div>
-
-  <table>
-    <thead>
-      <tr>
-        <th>Deskripsi</th>
-        <th>Qty</th>
-        <th>Harga</th>
-        <th>Total</th>
-      </tr>
-    </thead>
-    <tbody id="invoice-items"></tbody>
-  </table>
-
+  <!-- SUMMARY -->
   <div class="summary">
-    <div><span>Subtotal</span><span id="sub-total"></span></div>
-    <div><span>Transport</span><span id="trans-total"></span></div>
-    <div><span>Jasa</span><span id="jasa-total"></span></div>
+    <div><span>Subtotal</span><b id="sub-total"></b></div>
+    <div><span>Transport</span><b id="trans-total"></b></div>
+    <div><span>Jasa</span><b id="jasa-total"></b></div>
+
     <div class="grand-total">
       <span>Total</span>
-      <span id="grand-total"></span>
+      <b id="grand-total"></b>
     </div>
   </div>
 
+  <!-- FOOTER -->
   <div class="invoice-footer">
 
-  <div id="qr"></div>
+    <div id="qr"></div>
 
-  <div class="actions">
-    <button onclick="downloadPDF()" class="btn-print">
-      <i class="fa-solid fa-file-pdf"></i> Download PDF
-    </button>
+    <div class="actions">
+      <button onclick="downloadPDF()" class="btn-print">
+        <i class="fa-solid fa-file-pdf"></i> Download PDF
+      </button>
 
-    <button onclick="sendWhatsApp()" class="btn-wa">
-      <i class="fa-brands fa-whatsapp"></i> Kirim WA
-    </button>
+      <button onclick="sendWhatsApp()" class="btn-wa">
+        <i class="fa-brands fa-whatsapp"></i> Kirim WhatsApp
+      </button>
+    </div>
+
   </div>
 
-</div>
+  <!-- WATERMARK -->
+  <div id="watermark" class="watermark"></div>
 
-<div id="watermark" class="watermark"></div>
-
-<div class="signature">
-  <p>Hormat Kami,</p>
-  <canvas id="signature-pad"></canvas>
-  <small>CEO Service HP</small>
-</div>
+  <!-- SIGNATURE -->
+  <div class="signature">
+    <p>Hormat Kami,</p>
+    <canvas id="signature-pad"></canvas>
+    <small>CEO Service HP</small>
+  </div>
 
 </div>
 
