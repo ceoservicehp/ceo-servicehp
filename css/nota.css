@@ -1,3 +1,12 @@
+:root{
+--primary:#1f6f78;
+--primary-light:#00c2c7;
+--success:#28a745;
+--danger:#dc3545;
+--bg-soft:#f9fbfc;
+}
+
+
 body{
 font-family:'Poppins',sans-serif;
 background:#f4f7fb;
@@ -25,6 +34,17 @@ align-items:flex-start;
 border-bottom:2px solid #f0f0f0;
 padding-bottom:25px;
 margin-bottom:30px;
+}
+.brand-top{
+display:flex;
+align-items:center;
+gap:15px;
+}
+
+.logo{
+width:60px;
+height:60px;
+object-fit:contain;
 }
 
 .brand h1{
@@ -280,4 +300,44 @@ grid-template-columns:1fr;
 width:100%;
 }
 
+}
+
+/* ================= Status Badge ================= */
+.status-badge{
+padding:6px 14px;
+border-radius:50px;
+font-size:13px;
+font-weight:600;
+color:white;
+display:inline-block;
+}
+
+.status-badge.paid{
+background:var(--success);
+box-shadow:0 5px 15px rgba(40,167,69,.3);
+}
+
+.status-badge.unpaid{
+background:var(--danger);
+box-shadow:0 5px 15px rgba(220,53,69,.3);
+}
+
+/* ================= Animasi Halus ================= */
+.invoice{
+animation:fadeUp .6s ease;
+}
+
+@keyframes fadeUp{
+from{
+opacity:0;
+transform:translateY(20px);
+}
+to{
+opacity:1;
+transform:translateY(0);
+}
+}
+
+.invoice-table tr{
+transition:.2s;
 }
