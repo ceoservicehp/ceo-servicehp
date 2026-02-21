@@ -2,6 +2,23 @@
 
 const db = window.supabaseClient;
 
+/* ================= FUNCTION CEK ROLE ================= */
+async function checkUserRole(email){
+
+  const { data, error } = await db
+    .from("admin_users")
+    .select("role")
+    .eq("email", email)
+    .eq("is_active", true)
+    .single();
+
+  if(error || !data){
+    return null;
+  }
+
+  return data.role;
+}
+
 /* ================= GOOGLE LOGIN ================= */
 document.getElementById("googleLogin")
 ?.addEventListener("click", async () => {
@@ -21,7 +38,7 @@ document.getElementById("loginForm")
   const password = document.getElementById("loginPassword").value;
   const errorMsg = document.getElementById("errorMsg");
 
-  const { error } = await db.auth.signInWithPassword({
+  const { data, error } = await db.auth.signInWithPassword({
     email,
     password
   });
@@ -31,6 +48,19 @@ document.getElementById("loginForm")
     return;
   }
 
+  const user = data.user;
+
+  // 🔥 CEK ROLE DI TABEL admin_users
+  const role = await checkUserRole(user.email);
+
+  if(!role){
+    await db.auth.signOut();
+    errorMsg.textContent = "Akun belum di-ACC Admin.";
+    return;
+  }
+
+  localStorage.setItem("userRole", role);
+
   window.location.replace("dapur.html");
 });
 
@@ -39,9 +69,17 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const { data } = await db.auth.getSession();
 
-  // Kalau sudah login dan sedang di login.html
-  if (data.session && window.location.pathname.includes("login.html")) {
-    window.location.replace("dapur.html");
+  if(data.session){
+
+    const role = await checkUserRole(data.session.user.email);
+
+    if(role){
+      localStorage.setItem("userRole", role);
+      window.location.replace("dapur.html");
+    } else {
+      await db.auth.signOut();
+    }
+
   }
 
 });
