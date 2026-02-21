@@ -13,32 +13,97 @@
 
 <div class="container">
 
+  <!-- HEADER -->
   <div class="header-actions">
-    <h1><i class="fa-solid fa-user-shield"></i> Manajemen Admin</h1>
-    <button class="btn-back" onclick="window.location.href='dapur.html'">
-      <i class="fa-solid fa-arrow-left"></i> Kembali
-    </button>
+    <div>
+      <h1>
+        <i class="fa-solid fa-user-shield"></i>
+        Manajemen Admin
+      </h1>
+      <small class="subtitle">
+        Sistem Kontrol Akses & Keamanan Internal
+      </small>
+    </div>
+
+    <div class="header-buttons">
+      <button class="btn-refresh" id="refreshBtn">
+        <i class="fa-solid fa-rotate"></i> Refresh
+      </button>
+
+      <button class="btn-back" onclick="window.location.href='dapur.html'">
+        <i class="fa-solid fa-arrow-left"></i> Kembali
+      </button>
+    </div>
   </div>
 
-  <table>
-    <thead>
-      <tr>
-        <th>No</th>
-        <th>Nama Lengkap</th>
-        <th>Email</th>
-        <th>No HP</th>
-        <th>Jabatan</th>
-        <th>Role Sistem</th>
-        <th>Status Akun</th>
-        <th>Disetujui Oleh</th>
-        <th>Aksi</th>
-      </tr>
-    </thead>
-    <tbody id="adminTable">
-      <tr><td colspan="9">Loading...</td></tr>
-    </tbody>
-  </table>
+  <!-- FILTER & SEARCH -->
+  <div class="filter-section">
 
+    <div class="search-box">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <input type="text" id="searchAdmin" placeholder="Cari nama / email...">
+    </div>
+
+    <select id="filterStatus">
+      <option value="all">Semua Status</option>
+      <option value="active">Aktif</option>
+      <option value="inactive">Nonaktif</option>
+    </select>
+
+    <select id="filterRole">
+      <option value="all">Semua Role</option>
+      <option value="superadmin">Superadmin</option>
+      <option value="admin">Admin</option>
+      <option value="staff">Staff</option>
+    </select>
+
+  </div>
+
+  <!-- TABLE -->
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>No</th>
+          <th>Nama Lengkap</th>
+          <th>Email</th>
+          <th>No HP</th>
+          <th>Jabatan</th>
+          <th>Role Sistem</th>
+          <th>Status Akun</th>
+          <th>Disetujui Oleh</th>
+          <th>Aksi</th>
+        </tr>
+      </thead>
+
+      <tbody id="adminTable">
+        <tr>
+          <td colspan="9" class="loading">
+            <i class="fa-solid fa-spinner fa-spin"></i>
+            Memuat data...
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<!-- Modal Konfirmasi -->
+<div id="confirmModal" class="modal">
+  <div class="modal-box">
+    <h3 id="confirmTitle">Konfirmasi</h3>
+    <p id="confirmText">Apakah Anda yakin?</p>
+
+    <div class="modal-actions">
+      <button id="confirmYes" class="btn-danger">
+        <i class="fa-solid fa-check"></i> Ya
+      </button>
+      <button id="confirmNo" class="btn-secondary">
+        Batal
+      </button>
+    </div>
+  </div>
 </div>
 
 <!-- Supabase -->
