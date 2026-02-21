@@ -268,7 +268,7 @@ display:none;
 }
 }
 
-/* ================= MOBILE RESPONSIVE SIMPLE ================= */
+/* ================= MOBILE – FONT SLIGHTLY SMALLER ================= */
 @media(max-width:768px){
 
 body{
@@ -277,67 +277,61 @@ padding:15px;
 
 .invoice{
 padding:20px;
+font-size:14px; /* sedikit lebih kecil */
 }
 
-/* Header tetap rapi */
-.invoice-header{
-flex-direction:column;
-gap:15px;
+/* Header */
+.brand h1{
+font-size:20px;
 }
 
-/* Info tetap 1 kolom */
-.info-wrapper{
-grid-template-columns:1fr;
-gap:15px;
+.brand p{
+font-size:13px;
 }
 
-/* Summary full width */
-.summary{
-width:100%;
-margin-left:0;
+.invoice-meta{
+font-size:13px;
 }
 
-/* Font sedikit diperkecil */
-.invoice{
-font-size:14px;
+/* Box */
+.box{
+font-size:13px;
 }
 
-.invoice-table th,
+/* Table */
+.invoice-table th{
+font-size:12px;
+padding:8px;
+}
+
 .invoice-table td{
 font-size:12px;
 padding:8px;
 }
 
-/* Bottom section tetap horizontal */
-.bottom-section{
-flex-direction:row;
-justify-content:space-between;
-align-items:flex-end;
-gap:15px;
+/* Summary */
+.summary{
+width:100%;
+margin-left:0;
+font-size:13px;
 }
 
-/* QR sedikit diperkecil */
+/* QR sedikit lebih kecil */
 #qr canvas{
-width:100px !important;
-height:100px !important;
+width:110px !important;
+height:110px !important;
 }
 
 /* Signature sedikit lebih kecil */
 .signature-img{
-width:120px;
+width:140px;
 }
 
-/* Tombol tetap sejajar */
-.actions{
-margin-top:30px;
-justify-content:space-between;
-}
-
+/* Tombol sedikit lebih kecil */
 .btn-print,
 .btn-wa{
-flex:1;
 font-size:13px;
-padding:10px;
+padding:10px 12px;
 }
 }
 
