@@ -818,3 +818,16 @@ document.getElementById("cetakTanggal")
     window.print();
 
 });
+
+/* ================= LOGOUT ================= */
+async function logout(){
+  const supabase = getSupabase();
+  if(!supabase) return;
+
+  await supabase.auth.signOut();
+  localStorage.removeItem("userRole");
+  window.location.href = "login.html";
+}
+
+document.getElementById("logoutBtn")
+?.addEventListener("click", logout);
