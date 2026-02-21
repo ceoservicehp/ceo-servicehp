@@ -4,7 +4,7 @@ function getSupabase(){
     return window.supabaseClient;
 }
 
-/* ================= CEK SESSION ADMIN ================= */
+/* ================= CEK SESSION + ROLE ================= */
 document.addEventListener("DOMContentLoaded", async () => {
 
     const supabase = getSupabase();
@@ -12,12 +12,59 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const { data } = await supabase.auth.getSession();
 
+    // ❌ Belum login
     if(!data.session){
         window.location.href = "login.html";
         return;
     }
 
+    const userEmail = data.session.user.email;
+
+    // 🔎 Cek di tabel admin_users
+    const { data: roleData, error } = await supabase
+      .from("admin_users")
+      .select("role")
+      .eq("email", userEmail)
+      .eq("is_active", true)
+      .maybeSingle();
+    
+    if(error || !roleData){
+        await supabase.auth.signOut();
+        alert("Akun belum diaktifkan admin.");
+        window.location.href = "login.html";
+        return;
+    }
+    
+    // ✅ Simpan role
+    localStorage.setItem("userRole", roleData.role);
+
+    console.log("Login sebagai:", roleData.role);
+
+    // 🔐 Batasi fitur berdasarkan role
+    applyRolePermission(roleData.role);
+
 });
+
+/* ================= Permission ================= */
+function applyRolePermission(role){
+
+    // STAFF tidak boleh hapus
+    if(role === "staff"){
+        const bulkDelete = document.getElementById("hapusTerpilih");
+        if(bulkDelete) bulkDelete.style.display = "none";
+
+        const deleteBtn = document.getElementById("deleteEdit");
+        if(deleteBtn) deleteBtn.style.display = "none";
+    }
+
+    // ADMIN boleh edit, tapi tidak boleh hapus massal
+    if(role === "admin"){
+        const bulkDelete = document.getElementById("hapusTerpilih");
+        if(bulkDelete) bulkDelete.style.display = "none";
+    }
+
+    // SUPERADMIN full access (tidak perlu disembunyikan)
+}
 
 /* ================= GLOBAL ================= */
 let allOrders=[];
@@ -197,7 +244,7 @@ function renderTable(){
             <td style="font-weight:600; color:#009688;">
                 ${rupiah(totalKeseluruhan)}
             </td>
-            <<td>
+            <td>
               <button class="detail-btn" data-id="${row.id}">
                 Detail
               </button>
@@ -572,6 +619,21 @@ document.addEventListener("click",e=>{
 document.addEventListener("click",async e=>{
     if(!e.target.classList.contains("hapus")) return;
 
+    const { data: sessionData } = await getSupabase().auth.getSession();
+    const email = sessionData.session.user.email;
+    
+    const { data: roleCheck } = await getSupabase()
+      .from("admin_users")
+      .select("role")
+      .eq("email", email)
+      .eq("is_active", true)
+      .maybeSingle();
+    
+    if(roleCheck?.role !== "superadmin"){
+      alert("Tidak punya akses.");
+      return;
+    }
+
     const id=e.target.dataset.id;
     if(!confirm("Hapus data ini?")) return;
 
@@ -625,9 +687,22 @@ document.getElementById("checkAll")
 document.getElementById("hapusTerpilih")
 ?.addEventListener("click", async () => {
 
-    const checked = [...document.querySelectorAll(".row-check:checked")];
+    const { data: sessionData } = await getSupabase().auth.getSession();
+    const email = sessionData.session.user.email;
 
-    console.log("Checked:", checked);
+    const { data: roleCheck } = await getSupabase()
+      .from("admin_users")
+      .select("role")
+      .eq("email", email)
+      .eq("is_active", true)
+      .maybeSingle();
+
+    if(roleCheck?.role !== "superadmin"){
+        alert("Tidak punya akses hapus massal.");
+        return;
+    }
+
+    const checked = [...document.querySelectorAll(".row-check:checked")];
 
     if (checked.length === 0) {
         alert("Pilih data dulu");
@@ -638,16 +713,10 @@ document.getElementById("hapusTerpilih")
 
     const ids = checked.map(c => parseInt(c.dataset.id));
 
-    console.log("IDs yang akan dihapus:", ids);
-
-    const { data, error } = await getSupabase()
+    const { error } = await getSupabase()
         .from("service_orders")
         .delete()
-        .in("id", ids)
-        .select();
-
-    console.log("Delete result:", data);
-    console.log("Delete error:", error);
+        .in("id", ids);
 
     if (error) {
         alert("Gagal menghapus");
@@ -749,9 +818,3 @@ document.getElementById("cetakTanggal")
     window.print();
 
 });
-
-
-
-
-
-
