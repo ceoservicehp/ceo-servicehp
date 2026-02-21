@@ -62,7 +62,7 @@ document.addEventListener("DOMContentLoaded", async ()=>{
 
   if(paymentStatusEl)
     paymentStatusEl.textContent =
-      data.payment_status || "Belum Bayar";
+      data.payment_status || "Belum Lunas";
 
   /* ================= TOP (Tempo) ================= */
 
@@ -183,7 +183,7 @@ function sendWhatsApp(){
 Nama: ${currentData.nama}%0A
 Total: ${rupiah(currentData.total)}%0A
 Status Service: ${currentData.status}%0A
-Status Pembayaran: ${currentData.payment_status || "Belum Bayar"}%0A
+Status Pembayaran: ${currentData.payment_status || "Belum Lunas"}%0A
 Lihat Invoice:%0A${url}`;
 
   window.open(`https://wa.me/${currentData.phone}?text=${msg}`);
