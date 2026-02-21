@@ -320,7 +320,7 @@ document.addEventListener("DOMContentLoaded",()=>{
         document.getElementById("edit-top-days").value = data.top_days || 0;
         document.getElementById("edit-amount-paid").value = data.amount_paid || 0;
         document.getElementById("edit-remaining").value = data.remaining_amount || 0;
-        document.getElementById("edit-payment-status").value = data.payment_status || "Belum Bayar";
+        document.getElementById("edit-payment-status").value = data.payment_status || "Belum Lunas";
         document.getElementById("edit-due-date").value = data.due_date || "-";
         document.getElementById("edit-status").value=data.status ?? "pending";
         document.getElementById("edit-tanggal-selesai").value =
@@ -538,7 +538,7 @@ function hitungPembayaran(){
   let sisa = total - paid;
   if(sisa < 0) sisa = 0;
 
-  let status = "Belum Bayar";
+  let status = "Belum Lunas";
   let dueDate = null;
 
   if(paid >= total && total > 0){
@@ -749,6 +749,7 @@ document.getElementById("cetakTanggal")
     window.print();
 
 });
+
 
 
 
