@@ -169,18 +169,17 @@ function downloadPDF(){
 
   const element = document.querySelector(".invoice");
 
-  // Tambah class ke body & invoice
   document.body.classList.add("pdf-body");
   element.classList.add("pdf-mode");
 
   const opt = {
-    margin: 0,
-    filename: "Invoice_CEO_"+currentData.id+".pdf",
+    margin: 10,
+    filename: "Invoice_"+currentData.id+".pdf",
     image: { type: 'jpeg', quality: 1 },
     html2canvas: { 
-      scale: 3,                // lebih tajam
-      useCORS:true,
-      backgroundColor:"#ffffff"
+      scale: 2,
+      backgroundColor:"#ffffff",
+      useCORS:true
     },
     jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
   };
