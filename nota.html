@@ -92,28 +92,18 @@
 
   <!-- FOOTER -->
   <div class="invoice-footer">
-
-    <div id="qr"></div>
-
-    <div class="actions">
-      <button onclick="downloadPDF()" class="btn-print">
-        <i class="fa-solid fa-file-pdf"></i> Download PDF
-      </button>
-
-      <button onclick="sendWhatsApp()" class="btn-wa">
-        <i class="fa-brands fa-whatsapp"></i> Kirim WhatsApp
-      </button>
-    </div>
-
-  </div>
-
+    
   <!-- WATERMARK -->
   <div id="watermark" class="watermark"></div>
 
-  <!-- SIGNATURE -->
-   <div class="bottom-section">
-    <div id="qr"></div>
-  
+  <!-- BOTTOM SECTION -->
+  <div class="bottom-section">
+
+    <div class="qr-section">
+      <p class="qr-label">Scan untuk Verifikasi</p>
+      <div id="qr"></div>
+    </div>
+
     <div class="signature">
       <p>Hormat Kami,</p>
       <img src="images/signature.png" class="signature-img">
@@ -122,6 +112,18 @@
         Cellular Engineering Officer
       </small>
     </div>
+
+  </div>
+
+  <!-- ACTION BUTTONS (DI PALING BAWAH) -->
+  <div class="actions">
+    <button onclick="downloadPDF()" class="btn-print">
+      <i class="fa-solid fa-file-pdf"></i> Download PDF
+    </button>
+
+    <button onclick="sendWhatsApp()" class="btn-wa">
+      <i class="fa-brands fa-whatsapp"></i> Kirim WhatsApp
+    </button>
   </div>
 </div>
 
