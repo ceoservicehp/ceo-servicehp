@@ -239,8 +239,8 @@ function renderSelectedParts(){
             onchange="updateQty(${index}, this.value)">
         </div>
         <div class="sp-col">
-          <button class="sp-remove"
-            onclick="Part(${index})">✕</button>
+         <button class="sp-remove"
+          onclick="removePart(${index})">✕</button>
         </div>
       </div>
     `;
@@ -731,5 +731,6 @@ document.getElementById("cetakTanggal")
     window.print();
 
 });
+
 
 
