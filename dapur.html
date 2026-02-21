@@ -214,41 +214,6 @@ Memuat status layanan...
         <input type="text" id="edit-total">
       </div>
 
-      <!-- ================= SISTEM PEMBAYARAN ================= -->
-<div class="payment-section">
-
-  <label>
-    <input type="checkbox" id="edit-use-top">
-    Gunakan TOP (Tempo Pembayaran)
-  </label>
-
-  <div>
-    <label>Lama Tempo (Hari)</label>
-    <input type="number" id="edit-top-days" min="0" placeholder="Contoh: 7">
-  </div>
-
-  <div>
-    <label>Jumlah Dibayar</label>
-    <input type="number" id="edit-amount-paid" min="0" placeholder="0">
-  </div>
-
-  <div>
-    <label>Sisa Tagihan</label>
-    <input type="number" id="edit-remaining" readonly>
-  </div>
-
-  <div>
-    <label>Status Pembayaran</label>
-    <input type="text" id="edit-payment-status" readonly>
-  </div>
-
-  <div>
-    <label>Jatuh Tempo</label>
-    <input type="text" id="edit-due-date" readonly>
-  </div>
-
-</div>
-
       <div>
         <label>Status Service</label>
         <select id="edit-status">
@@ -284,6 +249,41 @@ Memuat status layanan...
         <label>Preview Bukti Service Selesai</label>
         <div id="edit-bukti-selesai-preview"></div>
       </div>
+
+<!-- ================= SISTEM PEMBAYARAN ================= -->
+<div class="payment-section">
+
+  <label>
+    <input type="checkbox" id="edit-use-top">
+    Gunakan TOP (Tempo Pembayaran)
+  </label>
+
+  <div>
+    <label>Lama Tempo (Hari)</label>
+    <input type="number" id="edit-top-days" min="0" placeholder="Contoh: 7">
+  </div>
+
+  <div>
+    <label>Jumlah Dibayar</label>
+    <input type="number" id="edit-amount-paid" min="0" placeholder="0">
+  </div>
+
+  <div>
+    <label>Sisa Tagihan</label>
+    <input type="number" id="edit-remaining" readonly>
+  </div>
+
+  <div>
+    <label>Status Pembayaran</label>
+    <input type="text" id="edit-payment-status" readonly>
+  </div>
+
+  <div>
+    <label>Jatuh Tempo</label>
+    <input type="text" id="edit-due-date" readonly>
+  </div>
+
+</div>
 
     <div class="modal-actions">
     
@@ -329,5 +329,6 @@ year:"numeric"
 
 </body>
 </html>
+
 
 
