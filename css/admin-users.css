@@ -1,0 +1,109 @@
+body{
+  font-family:'Segoe UI',sans-serif;
+  background:#f1f5f9;
+  margin:0;
+  padding:30px;
+}
+
+.container{
+  max-width:1200px;
+  margin:auto;
+  background:white;
+  padding:30px;
+  border-radius:12px;
+  box-shadow:0 10px 30px rgba(0,0,0,.08);
+}
+
+h1{
+  margin:0;
+  color:#0f172a;
+}
+
+.header-actions{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:20px;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+}
+
+th{
+  background:#1e293b;
+  color:white;
+  padding:12px;
+  font-size:14px;
+  text-align:left;
+}
+
+td{
+  padding:12px;
+  border-bottom:1px solid #eee;
+  font-size:14px;
+}
+
+.badge{
+  padding:6px 12px;
+  border-radius:20px;
+  font-size:12px;
+  font-weight:600;
+}
+
+.badge-active{
+  background:#d1fae5;
+  color:#065f46;
+}
+
+.badge-inactive{
+  background:#fee2e2;
+  color:#991b1b;
+}
+
+.role-badge{
+  padding:5px 10px;
+  border-radius:6px;
+  font-size:12px;
+  font-weight:600;
+  background:#e0f2fe;
+  color:#0369a1;
+}
+
+.action-btn{
+  padding:6px 12px;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+  font-size:12px;
+  margin-right:5px;
+}
+
+.btn-approve{
+  background:#16a34a;
+  color:white;
+}
+
+.btn-disable{
+  background:#dc2626;
+  color:white;
+}
+
+.btn-back{
+  background:#64748b;
+  color:white;
+  padding:8px 14px;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+}
+
+@media(max-width:900px){
+  table{
+    font-size:12px;
+  }
+  th, td{
+    padding:8px;
+  }
+}
