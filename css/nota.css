@@ -262,6 +262,11 @@ height:auto;
 margin:8px 0;
 }
 
+.signature{
+position:relative;
+top:-20px;  /* naikkan sedikit */
+}
+
 .bottom-section{
 display:flex;
 justify-content:space-between;
