@@ -169,23 +169,25 @@ function downloadPDF(){
 
   const element = document.querySelector(".invoice");
 
-  // Tambahkan class khusus PDF
+  // Tambah class ke body & invoice
+  document.body.classList.add("pdf-body");
   element.classList.add("pdf-mode");
 
   const opt = {
-    margin: 0.3,
+    margin: 0,
     filename: "Invoice_CEO_"+currentData.id+".pdf",
     image: { type: 'jpeg', quality: 1 },
     html2canvas: { 
-      scale: 2,
-      backgroundColor: "#ffffff"
+      scale: 3,                // lebih tajam
+      useCORS:true,
+      backgroundColor:"#ffffff"
     },
-    jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
   };
 
   html2pdf().set(opt).from(element).save().then(()=>{
-    // Hapus class setelah selesai
     element.classList.remove("pdf-mode");
+    document.body.classList.remove("pdf-body");
   });
 }
 
