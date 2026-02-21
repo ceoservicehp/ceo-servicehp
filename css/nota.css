@@ -239,7 +239,7 @@ left:50%;
 transform:translate(-50%,-50%) rotate(-25deg);
 font-size:90px;
 font-weight:800;
-opacity:.05;
+opacity:.08; /* sedikit dinaikkan agar normal di web */
 pointer-events:none;
 z-index:0;
 white-space:nowrap;
@@ -343,7 +343,7 @@ transform:translateY(0);
 transition:.2s;
 }
 
-/* ================= PDF MODE (STABIL UNTUK html2pdf) ================= */
+/* ================= PDF MODE FINAL (FIX WASH OUT) ================= */
 
 .invoice.pdf-mode{
 box-shadow:none !important;
@@ -352,40 +352,48 @@ background:#ffffff !important;
 padding:25px !important;
 }
 
+/* Matikan background soft agar tidak wash */
 .invoice.pdf-mode .box{
 background:#ffffff !important;
-border:1px solid #ddd !important;
+border:1px solid #ccc !important;
 }
 
+/* Header tabel dibuat hitam solid agar kontras */
 .invoice.pdf-mode .invoice-table th{
 background:#000 !important;
 color:#fff !important;
 }
 
-.invoice.pdf-mode .invoice-table td{
-color:#000 !important;
-}
-
+/* Semua teks paksa hitam */
+.invoice.pdf-mode .invoice-table td,
 .invoice.pdf-mode .summary span,
-.invoice.pdf-mode .summary b{
+.invoice.pdf-mode .summary b,
+.invoice.pdf-mode .brand h1,
+.invoice.pdf-mode .brand p,
+.invoice.pdf-mode .brand small,
+.invoice.pdf-mode .invoice-meta span,
+.invoice.pdf-mode .invoice-meta b{
 color:#000 !important;
 }
 
+/* Total lebih tegas */
 .invoice.pdf-mode .grand-total{
 color:#000 !important;
 border-top:2px solid #000 !important;
 }
 
+/* Hilangkan tombol */
 .invoice.pdf-mode .actions{
 display:none !important;
 }
 
+/* ⚠️ INI BAGIAN PALING PENTING */
 .invoice.pdf-mode .watermark{
-opacity:.06 !important;
-font-size:120px !important;
-color:#000 !important;
+display:none !important;   /* BUKAN opacity, tapi benar-benar hilang */
 }
 
+/* Hindari efek transparan html2canvas */
 .invoice.pdf-mode *{
 text-shadow:none !important;
+box-shadow:none !important;
 }
