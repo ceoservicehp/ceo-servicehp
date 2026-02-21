@@ -397,3 +397,21 @@ display:none !important;   /* BUKAN opacity, tapi benar-benar hilang */
 text-shadow:none !important;
 box-shadow:none !important;
 }
+
+/* ================= FORCE SOLID BACKGROUND FOR PDF ================= */
+
+.invoice.pdf-mode{
+background:#ffffff !important;
+position:relative !important;
+isolation:isolate !important; /* PUTUS efek parent */
+}
+
+/* Paksa semua warna asli muncul */
+.invoice.pdf-mode *{
+opacity:1 !important;
+}
+
+/* Hilangkan background body saat PDF */
+body.pdf-body{
+background:#ffffff !important;
+}
