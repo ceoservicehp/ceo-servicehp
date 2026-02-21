@@ -319,6 +319,10 @@ document.addEventListener("DOMContentLoaded",()=>{
         document.getElementById("edit-payment-status").value = data.payment_status || "Belum Bayar";
         document.getElementById("edit-due-date").value = data.due_date || "-";
         document.getElementById("edit-status").value=data.status ?? "pending";
+        document.getElementById("edit-tanggal-selesai").value =
+        data.tanggal_selesai
+            ? new Date(data.tanggal_selesai).toLocaleString("id-ID")
+            : "-";
         document.getElementById("edit-tanggal").value =
         new Date(data.created_at).toLocaleString("id-ID",{
             weekday:"long",
@@ -399,6 +403,15 @@ document.addEventListener("DOMContentLoaded",()=>{
 /* ================= UPDATE DATABASE ================= */
 const existingData = allOrders.find(o => o.id === id);
 
+let tanggalSelesai = existingData?.tanggal_selesai || null;
+
+if(
+  document.getElementById("edit-status").value === "selesai" &&
+  !tanggalSelesai
+){
+  tanggalSelesai = new Date().toISOString();
+}
+
 const { error } = await supabase
     .from("service_orders")
     .update({
@@ -413,7 +426,8 @@ const { error } = await supabase
         transport: transport,
         jasa: jasa,
         total: total,
-        status:document.getElementById("edit-status").value,
+        status: document.getElementById("edit-status").value,
+        tanggal_selesai: tanggalSelesai,
         coord:document.getElementById("edit-coord").value,
 
         /* ===== SIMPAN DATA TOP ===== */
@@ -731,6 +745,7 @@ document.getElementById("cetakTanggal")
     window.print();
 
 });
+
 
 
 
