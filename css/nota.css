@@ -343,38 +343,49 @@ transform:translateY(0);
 transition:.2s;
 }
 
-/* ================= PDF MODE ================= */
-@media print {
+/* ================= PDF MODE (STABIL UNTUK html2pdf) ================= */
 
-body{
-background:white !important;
-padding:0 !important;
-}
-
-.invoice{
+.invoice.pdf-mode{
 box-shadow:none !important;
 border-radius:0 !important;
-padding:20px !important;
+background:#ffffff !important;
+padding:25px !important;
 }
 
-.actions,
-.btn-print,
-.btn-wa{
-display:none !important;
-}
-
-.box{
-background:white !important;
+.invoice.pdf-mode .box{
+background:#ffffff !important;
 border:1px solid #ddd !important;
 }
 
-.invoice-footer{
-margin-top:20px !important;
+.invoice.pdf-mode .invoice-table th{
+background:#000 !important;
+color:#fff !important;
 }
 
-.watermark{
-opacity:.07 !important;
+.invoice.pdf-mode .invoice-table td{
+color:#000 !important;
+}
+
+.invoice.pdf-mode .summary span,
+.invoice.pdf-mode .summary b{
+color:#000 !important;
+}
+
+.invoice.pdf-mode .grand-total{
+color:#000 !important;
+border-top:2px solid #000 !important;
+}
+
+.invoice.pdf-mode .actions{
+display:none !important;
+}
+
+.invoice.pdf-mode .watermark{
+opacity:.06 !important;
 font-size:120px !important;
+color:#000 !important;
 }
 
+.invoice.pdf-mode *{
+text-shadow:none !important;
 }
