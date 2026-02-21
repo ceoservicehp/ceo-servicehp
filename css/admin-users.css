@@ -1,60 +1,129 @@
+/* ================= GLOBAL ================= */
 body{
-  font-family:'Segoe UI',sans-serif;
+  font-family:'Segoe UI',system-ui,sans-serif;
   background:#f1f5f9;
   margin:0;
   padding:30px;
+  color:#0f172a;
 }
 
 .container{
   max-width:1200px;
   margin:auto;
-  background:white;
+  background:#ffffff;
   padding:30px;
-  border-radius:12px;
-  box-shadow:0 10px 30px rgba(0,0,0,.08);
+  border-radius:16px;
+  box-shadow:0 15px 40px rgba(0,0,0,.06);
 }
 
-h1{
-  margin:0;
-  color:#0f172a;
-}
-
+/* ================= HEADER ================= */
 .header-actions{
   display:flex;
   justify-content:space-between;
   align-items:center;
-  margin-bottom:20px;
+  margin-bottom:25px;
 }
 
+h1{
+  margin:0;
+  font-size:22px;
+  font-weight:700;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+/* ================= BUTTON ================= */
+.btn-back{
+  background:#64748b;
+  color:white;
+  padding:8px 14px;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+  font-size:13px;
+  transition:0.2s;
+}
+
+.btn-back:hover{
+  background:#475569;
+}
+
+/* ================= FILTER BAR ================= */
+.filter-bar{
+  display:flex;
+  gap:10px;
+  margin-bottom:20px;
+  flex-wrap:wrap;
+}
+
+.filter-bar input,
+.filter-bar select{
+  padding:8px 12px;
+  border:1px solid #cbd5e1;
+  border-radius:8px;
+  font-size:13px;
+  background:white;
+}
+
+.filter-bar button{
+  background:#0f172a;
+  color:white;
+  border:none;
+  padding:8px 14px;
+  border-radius:8px;
+  cursor:pointer;
+  font-size:13px;
+}
+
+.filter-bar button:hover{
+  background:#1e293b;
+}
+
+/* ================= TABLE ================= */
 table{
   width:100%;
   border-collapse:collapse;
+  font-size:14px;
+}
+
+thead{
+  background:#0f172a;
 }
 
 th{
-  background:#1e293b;
   color:white;
-  padding:12px;
-  font-size:14px;
+  padding:14px;
   text-align:left;
+  font-weight:600;
+  font-size:13px;
 }
 
 td{
-  padding:12px;
-  border-bottom:1px solid #eee;
-  font-size:14px;
+  padding:14px;
+  border-bottom:1px solid #e2e8f0;
 }
 
+tbody tr{
+  transition:0.2s;
+}
+
+tbody tr:hover{
+  background:#f8fafc;
+}
+
+/* ================= BADGE ================= */
 .badge{
-  padding:6px 12px;
+  padding:6px 14px;
   border-radius:20px;
   font-size:12px;
   font-weight:600;
+  display:inline-block;
 }
 
 .badge-active{
-  background:#d1fae5;
-  color:#065f46;
+  background:#dcfce7;
+  color:#166534;
 }
 
 .badge-inactive{
@@ -62,22 +131,39 @@ td{
   color:#991b1b;
 }
 
+/* ================= ROLE BADGE ================= */
 .role-badge{
-  padding:5px 10px;
+  padding:6px 12px;
   border-radius:6px;
   font-size:12px;
   font-weight:600;
-  background:#e0f2fe;
-  color:#0369a1;
+  text-transform:capitalize;
 }
 
+.role-super{
+  background:#ede9fe;
+  color:#5b21b6;
+}
+
+.role-admin{
+  background:#e0f2fe;
+  color:#075985;
+}
+
+.role-staff{
+  background:#fef9c3;
+  color:#854d0e;
+}
+
+/* ================= ACTION BUTTON ================= */
 .action-btn{
   padding:6px 12px;
   border:none;
-  border-radius:6px;
+  border-radius:8px;
   cursor:pointer;
   font-size:12px;
   margin-right:5px;
+  transition:0.2s;
 }
 
 .btn-approve{
@@ -85,25 +171,99 @@ td{
   color:white;
 }
 
+.btn-approve:hover{
+  background:#15803d;
+}
+
 .btn-disable{
   background:#dc2626;
   color:white;
 }
 
-.btn-back{
-  background:#64748b;
-  color:white;
-  padding:8px 14px;
-  border:none;
-  border-radius:6px;
-  cursor:pointer;
+.btn-disable:hover{
+  background:#b91c1c;
 }
 
+/* ================= LOADING ================= */
+.loading{
+  text-align:center;
+  padding:20px;
+  font-size:14px;
+  color:#64748b;
+}
+
+/* ================= MODAL ================= */
+#confirmModal{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.4);
+  justify-content:center;
+  align-items:center;
+  z-index:1000;
+}
+
+.modal-content{
+  background:white;
+  padding:25px;
+  border-radius:12px;
+  width:350px;
+  box-shadow:0 20px 40px rgba(0,0,0,.15);
+  text-align:center;
+}
+
+.modal-content h3{
+  margin-top:0;
+  margin-bottom:10px;
+}
+
+.modal-actions{
+  margin-top:20px;
+  display:flex;
+  justify-content:center;
+  gap:10px;
+}
+
+.modal-actions button{
+  padding:8px 14px;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+  font-size:13px;
+}
+
+.confirm-yes{
+  background:#16a34a;
+  color:white;
+}
+
+.confirm-no{
+  background:#e2e8f0;
+}
+
+/* ================= RESPONSIVE ================= */
 @media(max-width:900px){
+
+  body{
+    padding:15px;
+  }
+
+  .container{
+    padding:20px;
+  }
+
   table{
     font-size:12px;
   }
+
   th, td{
-    padding:8px;
+    padding:10px;
   }
+
+  .header-actions{
+    flex-direction:column;
+    align-items:flex-start;
+    gap:10px;
+  }
+
 }
