@@ -248,15 +248,30 @@ color:#000;
 
 /* ================= SIGNATURE ================= */
 .signature{
-margin-top:50px;
-text-align:right;
+margin-top:40px;
+display:flex;
+flex-direction:column;
+align-items:flex-end;
+justify-content:flex-end;
+margin-right:20px; /* supaya tidak terlalu mepet kanan */
 }
 
 .signature-img{
-width:180px;
+width:170px;
 height:auto;
-margin:10px 0;
-object-fit:contain;
+margin:8px 0;
+}
+
+.bottom-section{
+display:flex;
+justify-content:space-between;
+align-items:flex-end;
+margin-top:50px;
+}
+
+#qr canvas{
+width:140px !important;
+height:140px !important;
 }
 
 /* ================= PRINT MODE ================= */
