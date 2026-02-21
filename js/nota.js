@@ -96,12 +96,14 @@ document.addEventListener("DOMContentLoaded", async ()=>{
         const total = (item.harga || 0) * (item.qty || 0);
         subtotal += total;
 
+        items.forEach((item, index) => {
         tbody.innerHTML += `
           <tr>
+            <td>${index + 1}</td>
             <td>${item.nama}</td>
             <td>${item.qty}</td>
             <td>${rupiah(item.harga)}</td>
-            <td>${rupiah(total)}</td>
+            <td>${rupiah(item.total)}</td>
           </tr>
         `;
       });
