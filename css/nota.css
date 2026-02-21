@@ -343,27 +343,25 @@ transform:translateY(0);
 transition:.2s;
 }
 
-/* ================= PDF MODE – FORMAL PRINT STYLE ================= */
+/* ================= PDF MODE – CEO BRAND FORMAL ================= */
 
 body.pdf-body{
   background:#ffffff !important;
   padding:0 !important;
 }
 
-/* Hilangkan card style */
+/* Hilangkan card style & paksa posisi ke atas */
 .invoice.pdf-mode{
   background:#ffffff !important;
   box-shadow:none !important;
   border-radius:0 !important;
-  padding:20px !important;
-}
-
-/* Hilangkan animasi */
-.invoice.pdf-mode{
+  padding:25px !important;
+  margin:0 !important;
+  min-height:277mm !important; /* supaya tidak turun */
   animation:none !important;
 }
 
-/* Hilangkan hover effect */
+/* Hilangkan hover */
 .invoice.pdf-mode .invoice-table tr:hover{
   background:none !important;
 }
@@ -378,34 +376,55 @@ body.pdf-body{
   display:none !important;
 }
 
-/* Box jadi formal */
+/* BOX FORMAL DENGAN WARNA BRAND */
 .invoice.pdf-mode .box{
   background:#ffffff !important;
-  border:1px solid #000 !important;
+  border:1px solid var(--primary) !important;
 }
 
-/* Header tabel jadi hitam solid */
+/* HEADER TABEL SESUAI WARNA CEO */
 .invoice.pdf-mode .invoice-table th{
-  background:#000 !important;
-  color:#fff !important;
+  background:var(--primary) !important;
+  color:#ffffff !important;
 }
 
-/* Border tabel lebih jelas */
+/* Border tabel lebih clean */
 .invoice.pdf-mode .invoice-table td{
-  border-bottom:1px solid #000 !important;
+  border-bottom:1px solid #999 !important;
   color:#000 !important;
 }
 
-/* Semua teks jadi hitam (formal) */
-.invoice.pdf-mode *{
+/* Judul & Brand tetap warna CEO */
+.invoice.pdf-mode .brand h1{
+  color:var(--primary) !important;
+}
+
+.invoice.pdf-mode .brand p,
+.invoice.pdf-mode .brand small{
+  color:#333 !important;
+}
+
+/* Garis pemisah header */
+.invoice.pdf-mode .invoice-header{
+  border-bottom:2px solid var(--primary) !important;
+}
+
+/* Summary tetap rapi */
+.invoice.pdf-mode .summary span,
+.invoice.pdf-mode .summary b{
   color:#000 !important;
+}
+
+/* Total lebih tegas dan pakai warna CEO */
+.invoice.pdf-mode .grand-total{
+  border-top:2px solid var(--primary) !important;
+  color:var(--primary) !important;
+  font-weight:700 !important;
+}
+
+/* Pastikan tidak ada efek transparan */
+.invoice.pdf-mode *{
   text-shadow:none !important;
   box-shadow:none !important;
   opacity:1 !important;
-}
-
-/* Total lebih tegas */
-.invoice.pdf-mode .grand-total{
-  border-top:2px solid #000 !important;
-  font-weight:700 !important;
 }
