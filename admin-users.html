@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manajemen Admin — CEO Service HP</title>
+
+<link rel="stylesheet" href="css/admin-users.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body>
+
+<div class="container">
+
+  <div class="header-actions">
+    <h1><i class="fa-solid fa-user-shield"></i> Manajemen Admin</h1>
+    <button class="btn-back" onclick="window.location.href='dapur.html'">
+      <i class="fa-solid fa-arrow-left"></i> Kembali
+    </button>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>No</th>
+        <th>Nama Lengkap</th>
+        <th>Email</th>
+        <th>No HP</th>
+        <th>Jabatan</th>
+        <th>Role Sistem</th>
+        <th>Status Akun</th>
+        <th>Disetujui Oleh</th>
+        <th>Aksi</th>
+      </tr>
+    </thead>
+    <tbody id="adminTable">
+      <tr><td colspan="9">Loading...</td></tr>
+    </tbody>
+  </table>
+
+</div>
+
+<!-- Supabase -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase.js"></script>
+<script src="js/admin-users.js"></script>
+
+</body>
+</html>
