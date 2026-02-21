@@ -343,75 +343,37 @@ transform:translateY(0);
 transition:.2s;
 }
 
-/* ================= PDF MODE FINAL (FIX WASH OUT) ================= */
+/* ================= PDF MODE CLEAN & STABLE ================= */
+
+body.pdf-body{
+  background:#ffffff !important;
+}
 
 .invoice.pdf-mode{
-box-shadow:none !important;
-border-radius:0 !important;
-background:#ffffff !important;
-padding:25px !important;
-}
-
-/* Matikan background soft agar tidak wash */
-.invoice.pdf-mode .box{
-background:#ffffff !important;
-border:1px solid #ccc !important;
-}
-
-/* Header tabel dibuat hitam solid agar kontras */
-.invoice.pdf-mode .invoice-table th{
-background:#000 !important;
-color:#fff !important;
-}
-
-/* Semua teks paksa hitam */
-.invoice.pdf-mode .invoice-table td,
-.invoice.pdf-mode .summary span,
-.invoice.pdf-mode .summary b,
-.invoice.pdf-mode .brand h1,
-.invoice.pdf-mode .brand p,
-.invoice.pdf-mode .brand small,
-.invoice.pdf-mode .invoice-meta span,
-.invoice.pdf-mode .invoice-meta b{
-color:#000 !important;
-}
-
-/* Total lebih tegas */
-.invoice.pdf-mode .grand-total{
-color:#000 !important;
-border-top:2px solid #000 !important;
+  background:#ffffff !important;
+  box-shadow:none !important;
+  border-radius:0 !important;
 }
 
 /* Hilangkan tombol */
 .invoice.pdf-mode .actions{
-display:none !important;
+  display:none !important;
 }
 
-/* ⚠️ INI BAGIAN PALING PENTING */
+/* Hilangkan watermark agar tidak wash */
 .invoice.pdf-mode .watermark{
-display:none !important;   /* BUKAN opacity, tapi benar-benar hilang */
+  display:none !important;
 }
 
-/* Hindari efek transparan html2canvas */
+/* Box tetap ada tapi putih */
+.invoice.pdf-mode .box{
+  background:#ffffff !important;
+  border:1px solid #ddd !important;
+}
+
+/* Warna primary tetap muncul (jangan paksa hitam) */
+/* Hanya pastikan tidak ada opacity */
 .invoice.pdf-mode *{
-text-shadow:none !important;
-box-shadow:none !important;
-}
-
-/* ================= FORCE SOLID BACKGROUND FOR PDF ================= */
-
-.invoice.pdf-mode{
-background:#ffffff !important;
-position:relative !important;
-isolation:isolate !important; /* PUTUS efek parent */
-}
-
-/* Paksa semua warna asli muncul */
-.invoice.pdf-mode *{
-opacity:1 !important;
-}
-
-/* Hilangkan background body saat PDF */
-body.pdf-body{
-background:#ffffff !important;
+  opacity:1 !important;
+  text-shadow:none !important;
 }
