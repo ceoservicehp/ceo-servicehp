@@ -90,30 +90,48 @@ gap:20px;
 margin-bottom:30px;
 }
 
+/* ================= INFO BOX IMPROVED ================= */
+
 .box{
 background:#f9fbfc;
-padding:18px;
-border-radius:12px;
-border:1px solid #eef2f5;
+padding:25px;
+border-radius:14px;
+border:1px solid #e6eef2;
 font-size:14px;
+min-height:190px; /* supaya tinggi seimbang */
 }
 
 .box h3{
 color:var(--primary);
+font-size:18px;
+font-weight:600;
+margin-bottom:18px;
 }
 
+/* Layout label & value lebih rapat dan rapi */
 .box div{
-display:flex;
-justify-content:space-between;
-margin:6px 0;
+display:grid;
+grid-template-columns:140px 1fr;
+gap:12px;
+align-items:center;
+margin:10px 0;
 }
 
+/* Label */
 .box span{
-color:#777;
+color:#666;
 }
 
+/* Value */
 .box b{
-color:#333;
+color:#222;
+font-weight:600;
+}
+
+/* Divider halus antar baris */
+.box div:not(:last-child){
+border-bottom:1px dashed #e5e5e5;
+padding-bottom:6px;
 }
 
 /* ================= TABLE ================= */
@@ -300,6 +318,11 @@ font-size:13px;
 }
 
 /* Box */
+.box div{
+grid-template-columns:110px 1fr;
+gap:8px;
+}
+  
 .box{
 font-size:13px;
 }
