@@ -775,3 +775,12 @@ textarea {
 .bukti-link:hover{
   background:#00796b;
 }
+
+/* ============== TOP =============== */
+.payment-section{
+  margin-top:15px;
+  padding:15px;
+  background:#f3fbff;
+  border-radius:12px;
+  border:1px dashed #00c2c7;
+}
