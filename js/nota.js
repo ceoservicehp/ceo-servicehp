@@ -147,7 +147,7 @@ document.addEventListener("DOMContentLoaded", async ()=>{
   /* ================= QR VERIFICATION ================= */
 
   const verifyUrl =
-    window.location.origin + "/cek.html?id=" + data.id;
+    window.location.origin + "/verifikasi.html?id=" + data.id;
 
   QRCode.toCanvas(
     document.createElement("canvas"),
