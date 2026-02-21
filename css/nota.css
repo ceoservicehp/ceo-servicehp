@@ -343,16 +343,29 @@ transform:translateY(0);
 transition:.2s;
 }
 
-/* ================= PDF MODE CLEAN & STABLE ================= */
+/* ================= PDF MODE – FORMAL PRINT STYLE ================= */
 
 body.pdf-body{
   background:#ffffff !important;
+  padding:0 !important;
 }
 
+/* Hilangkan card style */
 .invoice.pdf-mode{
   background:#ffffff !important;
   box-shadow:none !important;
   border-radius:0 !important;
+  padding:20px !important;
+}
+
+/* Hilangkan animasi */
+.invoice.pdf-mode{
+  animation:none !important;
+}
+
+/* Hilangkan hover effect */
+.invoice.pdf-mode .invoice-table tr:hover{
+  background:none !important;
 }
 
 /* Hilangkan tombol */
@@ -360,20 +373,39 @@ body.pdf-body{
   display:none !important;
 }
 
-/* Hilangkan watermark agar tidak wash */
+/* Hilangkan watermark */
 .invoice.pdf-mode .watermark{
   display:none !important;
 }
 
-/* Box tetap ada tapi putih */
+/* Box jadi formal */
 .invoice.pdf-mode .box{
   background:#ffffff !important;
-  border:1px solid #ddd !important;
+  border:1px solid #000 !important;
 }
 
-/* Warna primary tetap muncul (jangan paksa hitam) */
-/* Hanya pastikan tidak ada opacity */
+/* Header tabel jadi hitam solid */
+.invoice.pdf-mode .invoice-table th{
+  background:#000 !important;
+  color:#fff !important;
+}
+
+/* Border tabel lebih jelas */
+.invoice.pdf-mode .invoice-table td{
+  border-bottom:1px solid #000 !important;
+  color:#000 !important;
+}
+
+/* Semua teks jadi hitam (formal) */
 .invoice.pdf-mode *{
-  opacity:1 !important;
+  color:#000 !important;
   text-shadow:none !important;
+  box-shadow:none !important;
+  opacity:1 !important;
+}
+
+/* Total lebih tegas */
+.invoice.pdf-mode .grand-total{
+  border-top:2px solid #000 !important;
+  font-weight:700 !important;
 }
