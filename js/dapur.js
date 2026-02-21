@@ -240,7 +240,7 @@ function renderSelectedParts(){
         </div>
         <div class="sp-col">
           <button class="sp-remove"
-            onclick="removePart(${index})">✕</button>
+            onclick="Part(${index})">✕</button>
         </div>
       </div>
     `;
@@ -262,6 +262,19 @@ document.addEventListener("DOMContentLoaded",()=>{
 
     document.getElementById("tanggalOtomatis").textContent=
         new Date().toLocaleString("id-ID");
+
+    /* ===== EVENT SISTEM TOP ===== */
+    document.getElementById("edit-amount-paid")
+    ?.addEventListener("input", hitungPembayaran);
+    
+    document.getElementById("edit-use-top")
+    ?.addEventListener("change", hitungPembayaran);
+    
+    document.getElementById("edit-top-days")
+    ?.addEventListener("input", hitungPembayaran);
+    
+    document.getElementById("edit-total")
+    ?.addEventListener("input", hitungPembayaran);
 
     /* ================= DETAIL MODAL ================= */
 
@@ -298,6 +311,13 @@ document.addEventListener("DOMContentLoaded",()=>{
         document.getElementById("edit-transport").value=data.transport ?? 0;
         document.getElementById("edit-jasa").value=data.jasa ?? 0;
         document.getElementById("edit-total").value=data.total ?? 0;
+        /* ===== LOAD DATA TOP ===== */
+        document.getElementById("edit-use-top").checked = data.use_top || false;
+        document.getElementById("edit-top-days").value = data.top_days || 0;
+        document.getElementById("edit-amount-paid").value = data.amount_paid || 0;
+        document.getElementById("edit-remaining").value = data.remaining_amount || 0;
+        document.getElementById("edit-payment-status").value = data.payment_status || "Belum Bayar";
+        document.getElementById("edit-due-date").value = data.due_date || "-";
         document.getElementById("edit-status").value=data.status ?? "pending";
         document.getElementById("edit-tanggal").value =
         new Date(data.created_at).toLocaleString("id-ID",{
@@ -396,6 +416,16 @@ const { error } = await supabase
         status:document.getElementById("edit-status").value,
         coord:document.getElementById("edit-coord").value,
 
+        /* ===== SIMPAN DATA TOP ===== */
+        use_top: document.getElementById("edit-use-top").checked,
+        top_days: parseInt(document.getElementById("edit-top-days").value) || 0,
+        amount_paid: parseInt(document.getElementById("edit-amount-paid").value) || 0,
+        remaining_amount: parseInt(document.getElementById("edit-remaining").value) || 0,
+        payment_status: document.getElementById("edit-payment-status").value,
+        due_date: document.getElementById("edit-due-date").value === "-" 
+                  ? null 
+                  : document.getElementById("edit-due-date").value,
+
         // 🔥 INI YANG BENAR
         bukti_service: buktiUrl || existingData?.bukti_service || null
     })
@@ -477,6 +507,34 @@ function removePart(index){
   selectedParts.splice(index,1);
   renderSelectedParts();
   hitungTotalSparepart();
+}
+
+/* ================= HITUNG PEMBAYARAN (TOP) ================= */
+function hitungPembayaran(){
+
+  const total = parseInt(document.getElementById("edit-total").value) || 0;
+  const paid = parseInt(document.getElementById("edit-amount-paid").value) || 0;
+  const useTop = document.getElementById("edit-use-top")?.checked || false;
+  const topDays = parseInt(document.getElementById("edit-top-days")?.value) || 0;
+
+  let sisa = total - paid;
+  if(sisa < 0) sisa = 0;
+
+  let status = "Belum Bayar";
+  let dueDate = null;
+
+  if(paid >= total && total > 0){
+    status = "Lunas";
+  }
+  else if(useTop && sisa > 0){
+    const today = new Date();
+    today.setDate(today.getDate() + topDays);
+    dueDate = today.toISOString().split("T")[0];
+  }
+
+  document.getElementById("edit-remaining").value = sisa;
+  document.getElementById("edit-payment-status").value = status;
+  document.getElementById("edit-due-date").value = dueDate || "-";
 }
 
 /* ================= TAB FILTER ================= */
@@ -673,4 +731,5 @@ document.getElementById("cetakTanggal")
     window.print();
 
 });
+
 
