@@ -197,10 +197,14 @@ function renderTable(){
             <td style="font-weight:600; color:#009688;">
                 ${rupiah(totalKeseluruhan)}
             </td>
-            <td>
-                <button class="detail-btn" data-id="${row.id}">
-                    Detail
-                </button>
+            <<td>
+              <button class="detail-btn" data-id="${row.id}">
+                Detail
+              </button>
+            
+              <a href="../nota.html?id=${row.id}" target="_blank" class="nota-btn">
+                Nota
+              </a>
             </td>
         </tr>
         `;
@@ -745,6 +749,7 @@ document.getElementById("cetakTanggal")
     window.print();
 
 });
+
 
 
 
