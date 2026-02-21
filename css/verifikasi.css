@@ -26,6 +26,7 @@ box-shadow:0 10px 30px rgba(0,0,0,.1);
 h2{
 margin-top:0;
 color:var(--primary);
+text-align:center;
 }
 
 .item{
@@ -53,4 +54,11 @@ font-weight:600;
 .error{
 color:var(--danger);
 font-weight:600;
+text-align:center;
+}
+
+.success{
+color:var(--success);
+font-weight:600;
+text-align:center;
 }
