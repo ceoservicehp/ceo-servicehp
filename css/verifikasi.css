@@ -1,0 +1,56 @@
+:root{
+--primary:#1f6f78;
+--success:#28a745;
+--danger:#dc3545;
+}
+
+body{
+font-family:Poppins, sans-serif;
+background:#f4f7fb;
+display:flex;
+justify-content:center;
+align-items:center;
+min-height:100vh;
+margin:0;
+}
+
+.card{
+background:white;
+width:100%;
+max-width:500px;
+padding:30px;
+border-radius:16px;
+box-shadow:0 10px 30px rgba(0,0,0,.1);
+}
+
+h2{
+margin-top:0;
+color:var(--primary);
+}
+
+.item{
+margin:12px 0;
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+
+.badge{
+padding:6px 14px;
+border-radius:50px;
+color:white;
+font-size:13px;
+font-weight:600;
+}
+
+.badge.proses{ background:orange; }
+.badge.selesai{ background:var(--success); }
+.badge.batal{ background:var(--danger); }
+
+.badge.lunas{ background:var(--success); }
+.badge.belum{ background:var(--danger); }
+
+.error{
+color:var(--danger);
+font-weight:600;
+}
