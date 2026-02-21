@@ -32,27 +32,78 @@
       <span>atau</span>
     </div>
 
-    <!-- LOGIN FORM -->
+    <!-- ================= LOGIN FORM ================= -->
     <form id="loginForm">
-      <input type="email" id="loginEmail" placeholder="Email" required>
-      <input type="password" id="loginPassword" placeholder="Password" required>
-      <button type="submit" class="login-btn">Masuk</button>
+
+      <input type="email"
+             id="loginEmail"
+             placeholder="Email Profesional"
+             required>
+
+      <input type="password"
+             id="loginPassword"
+             placeholder="Password"
+             required>
+
+      <button type="submit" class="login-btn">
+        Masuk
+      </button>
+
     </form>
 
-    <!-- REGISTER FORM -->
+    <!-- ================= REGISTER FORM ================= -->
     <form id="registerForm" style="display:none;">
-      <input type="email" id="registerEmail" placeholder="Email Baru" required>
-      <input type="password" id="registerPassword" placeholder="Password" required>
-      <button type="submit" class="login-btn">Daftar Akun</button>
+
+      <input type="text"
+             id="registerName"
+             placeholder="Nama Lengkap"
+             required>
+
+      <input type="email"
+             id="registerEmail"
+             placeholder="Email Profesional"
+             required>
+
+      <input type="tel"
+             id="registerPhone"
+             placeholder="No HP (08xxxxxxxxxx)"
+             required>
+
+      <input type="text"
+             id="registerPosition"
+             placeholder="Jabatan (Contoh: Staff Teknisi)"
+             required>
+
+      <input type="password"
+             id="registerPassword"
+             placeholder="Password (min 6 karakter)"
+             required>
+
+      <button type="submit" class="login-btn">
+        Daftar Akun
+      </button>
+
+      <small style="display:block;margin-top:10px;color:#64748b;font-size:12px;">
+        Akun akan aktif setelah disetujui oleh Superadmin.
+      </small>
+
     </form>
 
-    <!-- RESET FORM -->
+    <!-- ================= RESET FORM ================= -->
     <form id="resetForm" style="display:none;">
-      <input type="email" id="resetEmail" placeholder="Masukkan Email Anda" required>
-      <button type="submit" class="login-btn">Kirim Link Reset</button>
+
+      <input type="email"
+             id="resetEmail"
+             placeholder="Masukkan Email Anda"
+             required>
+
+      <button type="submit" class="login-btn">
+        Kirim Link Reset
+      </button>
+
     </form>
 
-    <p id="errorMsg"></p>
+    <p id="errorMsg" style="color:#dc2626;font-size:13px;margin-top:10px;"></p>
 
     <div class="switch-links">
       <span id="showRegister">Daftar akun</span> |
