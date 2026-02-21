@@ -95,30 +95,29 @@ document.addEventListener("DOMContentLoaded", async ()=>{
 
   let subtotal = 0;
 
-  if(data.sparepart){
-    try{
-      const items = JSON.parse(data.sparepart);
+ if(data.sparepart){
+  try{
+    const items = JSON.parse(data.sparepart);
 
-      items.forEach(item=>{
-        const total = (item.harga || 0) * (item.qty || 0);
-        subtotal += total;
+    items.forEach((item, index)=>{
+      const total = (item.harga || 0) * (item.qty || 0);
+      subtotal += total;
 
-        items.forEach((item, index) => {
-        tbody.innerHTML += `
-          <tr>
-            <td>${index + 1}</td>
-            <td>${item.nama}</td>
-            <td>${item.qty}</td>
-            <td>${rupiah(item.harga)}</td>
-            <td>${rupiah(item.total)}</td>
-          </tr>
-        `;
-      });
+      tbody.innerHTML += `
+        <tr>
+          <td>${index + 1}</td>
+          <td>${item.nama}</td>
+          <td>${item.qty}</td>
+          <td>${rupiah(item.harga)}</td>
+          <td>${rupiah(total)}</td>
+        </tr>
+      `;
+    });
 
-    }catch(e){
-      console.log("Format sparepart salah");
-    }
+  }catch(e){
+    console.log("Format sparepart salah");
   }
+}
 
   document.getElementById("sub-total").textContent = rupiah(subtotal);
   document.getElementById("trans-total").textContent = rupiah(data.transport || 0);
