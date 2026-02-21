@@ -277,7 +277,13 @@ padding:15px;
 
 .invoice{
 padding:20px;
-font-size:14px; /* sedikit lebih kecil */
+font-size:14px;
+}
+
+/* INFO jadi menurun */
+.info-wrapper{
+grid-template-columns:1fr;
+gap:15px;
 }
 
 /* Header */
