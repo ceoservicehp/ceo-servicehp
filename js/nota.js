@@ -173,11 +173,11 @@ function downloadPDF(){
   element.classList.add("pdf-mode");
 
   const opt = {
-    margin: 10,
+    margin: 0,
     filename: "Invoice_"+currentData.id+".pdf",
     image: { type: 'jpeg', quality: 1 },
     html2canvas: { 
-      scale: 2,
+      scale: 3,
       backgroundColor:"#ffffff",
       useCORS:true
     },
