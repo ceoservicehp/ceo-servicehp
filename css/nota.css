@@ -268,30 +268,77 @@ display:none;
 }
 }
 
-/* ================= MOBILE ================= */
+/* ================= MOBILE RESPONSIVE SIMPLE ================= */
 @media(max-width:768px){
+
+body{
+padding:15px;
+}
 
 .invoice{
 padding:20px;
 }
 
+/* Header tetap rapi */
 .invoice-header{
 flex-direction:column;
 gap:15px;
 }
 
-.invoice-meta{
-text-align:left;
-}
-
+/* Info tetap 1 kolom */
 .info-wrapper{
 grid-template-columns:1fr;
+gap:15px;
 }
 
+/* Summary full width */
 .summary{
 width:100%;
+margin-left:0;
 }
 
+/* Font sedikit diperkecil */
+.invoice{
+font-size:14px;
+}
+
+.invoice-table th,
+.invoice-table td{
+font-size:12px;
+padding:8px;
+}
+
+/* Bottom section tetap horizontal */
+.bottom-section{
+flex-direction:row;
+justify-content:space-between;
+align-items:flex-end;
+gap:15px;
+}
+
+/* QR sedikit diperkecil */
+#qr canvas{
+width:100px !important;
+height:100px !important;
+}
+
+/* Signature sedikit lebih kecil */
+.signature-img{
+width:120px;
+}
+
+/* Tombol tetap sejajar */
+.actions{
+margin-top:30px;
+justify-content:space-between;
+}
+
+.btn-print,
+.btn-wa{
+flex:1;
+font-size:13px;
+padding:10px;
+}
 }
 
 /* ================= Status Badge ================= */
