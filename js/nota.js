@@ -46,6 +46,13 @@ document.addEventListener("DOMContentLoaded", async ()=>{
   const createdEl = document.getElementById("service-created");
   const finishedEl = document.getElementById("service-finished");
   const paymentStatusEl = document.getElementById("payment-status");
+  const paymentEl = document.getElementById("payment-status");
+
+  if(paymentEl.innerText.toLowerCase().includes("lunas")){
+    paymentEl.classList.add("paid");
+  }else{
+    paymentEl.classList.add("unpaid");
+  }
 
   if(serviceStatusEl)
     serviceStatusEl.textContent = data.status || "-";
