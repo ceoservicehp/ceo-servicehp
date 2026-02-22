@@ -21,13 +21,18 @@ document.addEventListener("DOMContentLoaded", async ()=>{
 
     await checkFinanceAccess();
 
-    document.getElementById("todayDate").textContent =
-        new Date().toLocaleDateString("id-ID",{
+    const tanggalEl = document.getElementById("tanggalOtomatis");
+
+    if(tanggalEl){
+        const now = new Date();
+        tanggalEl.textContent = "Tanggal: " +
+        now.toLocaleDateString("id-ID",{
             weekday:"long",
             day:"2-digit",
             month:"long",
             year:"numeric"
         });
+    }
 
     setupTabs();
     setupFilters();
