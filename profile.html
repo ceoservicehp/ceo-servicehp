@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Profil Akun — CEO Service HP</title>
+
+<link rel="stylesheet" href="css/profile.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase.js"></script>
+<script src="js/auth.js"></script>
+<script defer src="js/profile.js"></script>
+</head>
+
+<body>
+<div class="wrapper">
+
+<!-- HEADER -->
+<header class="main-header">
+  <div class="header-inner">
+    <div class="brand">
+      <img src="images/logo.png" width="50">
+      <div>
+        <h1>CEO ORDER SERVICE</h1>
+        <small>Cellular Engineer Officer</small>
+      </div>
+    </div>
+    <button id="logoutBtn" class="btn-logout">
+      <i class="fa-solid fa-right-from-bracket"></i> Logout
+    </button>
+  </div>
+</header>
+
+<!-- MAIN -->
+<main class="container">
+
+<div class="profile-card">
+
+  <!-- LEFT SIDE -->
+  <div class="profile-left">
+    <img id="profilePhoto" src="images/default-user.png" class="profile-photo">
+
+    <input type="file" id="uploadPhoto" hidden>
+    <button class="btn-upload" onclick="document.getElementById('uploadPhoto').click()">
+      Ubah Foto
+    </button>
+
+    <h2 id="fullName">Nama Admin</h2>
+    <span id="roleBadge" class="role-badge">Role</span>
+    <p class="employee-id" id="employeeId">CEO-0000</p>
+  </div>
+
+  <!-- RIGHT SIDE -->
+  <div class="profile-right">
+
+    <!-- INFORMASI PRIBADI -->
+    <section>
+      <h3>Informasi Pribadi</h3>
+      <div class="grid-2">
+        <input type="text" id="nameInput" placeholder="Nama Lengkap">
+        <input type="email" id="emailInput" placeholder="Email" disabled>
+        <input type="text" id="phoneInput" placeholder="Nomor HP">
+        <input type="date" id="birthInput">
+        <input type="text" id="addressInput" placeholder="Alamat">
+        <select id="genderInput">
+          <option value="">Jenis Kelamin</option>
+          <option>Laki-laki</option>
+          <option>Perempuan</option>
+        </select>
+      </div>
+    </section>
+
+    <!-- INFORMASI PROFESIONAL -->
+    <section>
+      <h3>Informasi Profesional</h3>
+      <div class="grid-2">
+        <input type="text" id="positionInput" placeholder="Jabatan">
+        <input type="text" id="roleInput" disabled>
+      </div>
+    </section>
+
+    <!-- INFORMASI BANK -->
+    <section>
+      <h3>Informasi Rekening</h3>
+      <div class="grid-2">
+        <input type="text" id="bankNameInput" placeholder="Nama Bank">
+        <input type="text" id="bankNumberInput" placeholder="Nomor Rekening">
+        <input type="text" id="bankOwnerInput" placeholder="Atas Nama">
+      </div>
+    </section>
+
+    <!-- DOKUMEN -->
+    <section>
+      <h3>Dokumen & Tanda Tangan</h3>
+      <div class="grid-2">
+        <input type="file" id="uploadKTP">
+        <input type="file" id="uploadSignature">
+      </div>
+    </section>
+
+    <!-- PREFERENSI -->
+    <section>
+      <h3>Preferensi Sistem</h3>
+      <div class="grid-2">
+        <label><input type="checkbox" id="emailNotif"> Email Notification</label>
+        <label><input type="checkbox" id="waNotif"> WhatsApp Notification</label>
+        <label><input type="checkbox" id="financeNotif"> Finance Alert</label>
+        <select id="themeSelect">
+          <option value="light">Light Theme</option>
+          <option value="dark">Dark Theme</option>
+        </select>
+      </div>
+    </section>
+
+    <button id="saveProfile" class="btn-save">
+      Simpan Perubahan
+    </button>
+
+  </div>
+</div>
+
+</main>
+
+<footer class="main-footer">
+© 2026 CEO Service HP — Profile System
+</footer>
+
+</div>
+</body>
+</html>
