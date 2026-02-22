@@ -14,8 +14,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
     }
 
-    const { data } = await db.auth.getUser();
-    const user = data?.user;
+    const { data: authData } = await db.auth.getUser();
+    const user = authData?.user;
 
     if(!user){
         window.location.href = "login.html";
@@ -40,11 +40,11 @@ async function loadProfile(user){
     const { data, error } = await db
         .from("admin_users")
         .select("*")
-        .eq("email", user.email)
+        .eq("user_id", user.id)
         .single();
 
-    if(error){
-        console.log("Profile belum ada, membuat baru...");
+    // Jika belum ada profile → buat
+    if(error || !data){
         await createInitialProfile(user);
         return;
     }
@@ -53,6 +53,9 @@ async function loadProfile(user){
 }
 
 
+/* ========================================= */
+/* CREATE INITIAL PROFILE */
+/* ========================================= */
 async function createInitialProfile(user){
 
     const employeeId = generateEmployeeId();
@@ -74,25 +77,25 @@ async function createInitialProfile(user){
 /* ========================================= */
 function fillProfileData(data){
 
-    document.getElementById("fullName").textContent = data.name || "-";
-    document.getElementById("roleBadge").textContent = data.role || "-";
-    document.getElementById("employeeId").textContent = data.employee_id || "-";
+    setText("fullName", data.name);
+    setText("roleBadge", data.role);
+    setText("employeeId", data.employee_id);
 
-    document.getElementById("nameInput").value = data.name || "";
-    document.getElementById("emailInput").value = data.email || "";
-    document.getElementById("phoneInput").value = data.phone || "";
-    document.getElementById("birthInput").value = data.birth_date || "";
-    document.getElementById("addressInput").value = data.address || "";
-    document.getElementById("genderInput").value = data.gender || "";
-    document.getElementById("positionInput").value = data.position || "";
-    document.getElementById("roleInput").value = data.role || "";
-    document.getElementById("bankNameInput").value = data.bank_name || "";
-    document.getElementById("bankNumberInput").value = data.bank_number || "";
-    document.getElementById("bankOwnerInput").value = data.bank_owner || "";
+    setValue("nameInput", data.name);
+    setValue("emailInput", data.email);
+    setValue("phoneInput", data.phone);
+    setValue("birthInput", data.birth_date);
+    setValue("addressInput", data.address);
+    setValue("genderInput", data.gender);
+    setValue("positionInput", data.position);
+    setValue("roleInput", data.role);
+    setValue("bankNameInput", data.bank_name);
+    setValue("bankNumberInput", data.bank_number);
+    setValue("bankOwnerInput", data.bank_owner);
 
-    document.getElementById("emailNotif").checked = data.email_notif || false;
-    document.getElementById("waNotif").checked = data.wa_notif || false;
-    document.getElementById("financeNotif").checked = data.finance_notif || false;
+    setChecked("emailNotif", data.email_notif);
+    setChecked("waNotif", data.wa_notif);
+    setChecked("financeNotif", data.finance_notif);
 
     if(data.photo_url){
         document.getElementById("profilePhoto").src = data.photo_url;
@@ -111,18 +114,18 @@ document.getElementById("saveProfile")
 async function saveProfile(){
 
     const updateData = {
-        name: document.getElementById("nameInput").value,
-        phone: document.getElementById("phoneInput").value,
-        birth_date: document.getElementById("birthInput").value,
-        address: document.getElementById("addressInput").value,
-        gender: document.getElementById("genderInput").value,
-        position: document.getElementById("positionInput").value,
-        bank_name: document.getElementById("bankNameInput").value,
-        bank_number: document.getElementById("bankNumberInput").value,
-        bank_owner: document.getElementById("bankOwnerInput").value,
-        email_notif: document.getElementById("emailNotif").checked,
-        wa_notif: document.getElementById("waNotif").checked,
-        finance_notif: document.getElementById("financeNotif").checked
+        name: getValue("nameInput"),
+        phone: getValue("phoneInput"),
+        birth_date: getValue("birthInput"),
+        address: getValue("addressInput"),
+        gender: getValue("genderInput"),
+        position: getValue("positionInput"),
+        bank_name: getValue("bankNameInput"),
+        bank_number: getValue("bankNumberInput"),
+        bank_owner: getValue("bankOwnerInput"),
+        email_notif: getChecked("emailNotif"),
+        wa_notif: getChecked("waNotif"),
+        finance_notif: getChecked("financeNotif")
     };
 
     const { error } = await db
@@ -136,7 +139,6 @@ async function saveProfile(){
     }
 
     alert("Profil berhasil diperbarui.");
-    location.reload();
 }
 
 
@@ -154,52 +156,57 @@ function generateEmployeeId(){
 /* ========================================= */
 function setupUploadHandlers(){
 
-    document.getElementById("uploadPhoto")
+    setupUpload("uploadPhoto", "admin-photos", "photo_url");
+    setupUpload("uploadKTP", "admin-documents", "ktp_url");
+    setupUpload("uploadSignature", "admin-signatures", "signature_url");
+}
+
+function setupUpload(inputId, bucket, field){
+
+    document.getElementById(inputId)
     ?.addEventListener("change", async e=>{
+
         const file = e.target.files[0];
         if(!file) return;
 
-        const url = await uploadFile("admin-photos", file, `photo-${currentUserId}`);
-        await updateField("photo_url", url);
+        const path = `${currentUserId}/${field}`;
 
-        document.getElementById("profilePhoto").src = url;
-    });
+        const url = await uploadFile(bucket, file, path);
+        if(!url){
+            alert("Upload gagal.");
+            return;
+        }
 
-    document.getElementById("uploadKTP")
-    ?.addEventListener("change", async e=>{
-        const file = e.target.files[0];
-        if(!file) return;
+        await updateField(field, url);
 
-        const url = await uploadFile("admin-documents", file, `ktp-${currentUserId}`);
-        await updateField("ktp_url", url);
+        if(field === "photo_url"){
+            document.getElementById("profilePhoto").src = url;
+        }
 
-        alert("KTP berhasil diupload.");
-    });
-
-    document.getElementById("uploadSignature")
-    ?.addEventListener("change", async e=>{
-        const file = e.target.files[0];
-        if(!file) return;
-
-        const url = await uploadFile("admin-signatures", file, `sign-${currentUserId}`);
-        await updateField("signature_url", url);
-
-        alert("Tanda tangan berhasil diupload.");
+        alert("Upload berhasil.");
     });
 }
 
 
+/* ========================================= */
+/* STORAGE (SIGNED URL SAFE VERSION) */
+/* ========================================= */
 async function uploadFile(bucket, file, path){
 
-    await db.storage
+    const { error } = await db.storage
         .from(bucket)
         .upload(path, file, { upsert: true });
 
-    const { data } = db.storage
-        .from(bucket)
-        .getPublicUrl(path);
+    if(error){
+        console.log(error);
+        return null;
+    }
 
-    return data.publicUrl;
+    const { data } = await db.storage
+        .from(bucket)
+        .createSignedUrl(path, 60 * 60 * 24 * 365); // 1 tahun
+
+    return data?.signedUrl || null;
 }
 
 
@@ -212,13 +219,12 @@ async function updateField(field, value){
 
 
 /* ========================================= */
-/* ROLE BADGE STYLE */
+/* ROLE BADGE */
 /* ========================================= */
 function styleRoleBadge(role){
 
     const badge = document.getElementById("roleBadge");
-
-    badge.classList.remove("superadmin","admin","staff");
+    if(!badge) return;
 
     if(role === "superadmin"){
         badge.style.background = "#8e44ad";
@@ -255,10 +261,32 @@ function applySavedTheme(){
 }
 
 function applyTheme(theme){
+    document.body.classList.toggle("dark-mode", theme === "dark");
+}
 
-    if(theme === "dark"){
-        document.body.classList.add("dark-mode");
-    }else{
-        document.body.classList.remove("dark-mode");
-    }
+
+/* ========================================= */
+/* SMALL HELPERS */
+/* ========================================= */
+function setText(id, value){
+    const el = document.getElementById(id);
+    if(el) el.textContent = value || "-";
+}
+
+function setValue(id, value){
+    const el = document.getElementById(id);
+    if(el) el.value = value || "";
+}
+
+function setChecked(id, value){
+    const el = document.getElementById(id);
+    if(el) el.checked = !!value;
+}
+
+function getValue(id){
+    return document.getElementById(id)?.value || "";
+}
+
+function getChecked(id){
+    return document.getElementById(id)?.checked || false;
 }
