@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dapur Keuangan — CEO Service HP</title>
+<title>Laporan Keuangan — CEO Service HP</title>
 
 <link rel="stylesheet" href="css/keuangan.css">
 
@@ -11,96 +11,81 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/supabase.js"></script>
-<script src="js/auth.js"></script>
 <script defer src="js/keuangan.js"></script>
 </head>
 
 <body>
 
 <header class="main-header">
-  <h1>📊 Laporan Keuangan Service</h1>
-  <p id="todayDate"></p> <!-- 🔹 TAMBAHAN -->
+  <h1>📊 Financial Dashboard</h1>
+  <p id="todayDate"></p>
 </header>
 
 <div class="container">
 
-<!-- ================= SUMMARY BOX ================= -->
+<!-- ================= SUMMARY ================= -->
 <div class="summary-grid">
 
-<div class="card">
-<h3>Total Keseluruhan</h3>
-<p id="totalAll">Rp 0</p>
-</div>
+  <div class="card highlight">
+    <h3>Total Pemasukan</h3>
+    <p id="totalIncome">Rp 0</p>
+  </div>
 
-<div class="card">
-<h3>Hari Ini</h3>
-<p id="totalToday">Rp 0</p>
-</div>
+  <div class="card expense">
+    <h3>Total Pengeluaran</h3>
+    <p id="totalExpense">Rp 0</p>
+  </div>
 
-<div class="card">
-<h3>Minggu Ini</h3>
-<p id="totalWeek">Rp 0</p>
-</div>
+  <div class="card profit">
+    <h3>Laba Bersih</h3>
+    <p id="netProfit">Rp 0</p>
+  </div>
 
-<div class="card">
-<h3>Bulan Ini</h3>
-<p id="totalMonth">Rp 0</p>
-</div>
-
-<div class="card">
-<h3>Total Service (Jasa + Transport)</h3>
-<p id="totalService">Rp 0</p>
-</div>
-
-<div class="card">
-<h3>Penjualan Sparepart</h3>
-<p id="totalSparepart">Rp 0</p>
-</div>
-
-<div class="card">
-<h3>Modal Sparepart</h3>
-<p id="totalModal">Rp 0</p>
-</div>
-
-<div class="card">
-<h3>Laba Bersih Sparepart</h3>
-<p id="totalProfit">Rp 0</p>
-</div>
-
-<div class="card">
-<h3>Margin Sparepart</h3>
-<p id="totalMargin">0%</p>
-</div>
-
-<div class="card">
-<h3>🏆 Sparepart Paling Menguntungkan</h3>
-<ul id="topProducts"></ul>
-</div>
-
+  <div class="card margin">
+    <h3>Margin</h3>
+    <p id="profitMargin">0%</p>
+  </div>
 
 </div>
 
 
-<!-- ================= Filter Tanggal ================= -->
+<!-- ================= FILTER ================= -->
 <div class="filter-box">
 
+  <div class="quick-filter">
+    <button data-range="today">Hari Ini</button>
+    <button data-range="week">Minggu Ini</button>
+    <button data-range="month">Bulan Ini</button>
+  </div>
+
   <div class="date-group">
-    <label for="startDate">Dari Tanggal</label>
+    <label>Dari</label>
     <input type="date" id="startDate">
   </div>
 
   <div class="date-group">
-    <label for="endDate">Sampai Tanggal</label>
+    <label>Sampai</label>
     <input type="date" id="endDate">
   </div>
 
+  <button id="applyFilter" class="btn-primary">Terapkan</button>
   <button id="resetFilter" class="btn-reset">Reset</button>
 
 </div>
 
-<!-- ================= GRAFIK (Optional Future) ================= -->
+
+<!-- ================= TAB NAVIGATION ================= -->
+<div class="tabs">
+  <button class="tab active" data-tab="summary">Ringkasan</button>
+  <button class="tab" data-tab="income">Pemasukan</button>
+  <button class="tab" data-tab="expense">Pengeluaran</button>
+  <button class="tab" data-tab="report">Laporan</button>
+</div>
+
+
+<!-- ================= CHART ================= -->
 <div class="chart-box">
-<canvas id="financeChart"></canvas>
+  <canvas id="financeChart"></canvas>
 </div>
 
 
@@ -110,9 +95,9 @@
 <thead>
 <tr>
 <th>No</th>
-<th>Nama</th>
+<th>Keterangan</th>
 <th>Tanggal</th>
-<th>Total</th>
+<th>Jumlah</th>
 </tr>
 </thead>
 
@@ -125,7 +110,7 @@
 </div>
 
 
-<!-- 🔹 EXPORT BUTTON -->
+<!-- ================= EXPORT ================= -->
 <div class="export-box">
 <button id="exportExcel">Export Excel</button>
 </div>
@@ -133,7 +118,7 @@
 </div>
 
 <footer class="main-footer">
-© 2026 CEO Service HP — Admin Panel
+© 2026 CEO Service HP — Financial System
 </footer>
 
 </body>
