@@ -231,64 +231,51 @@ function generateChart(income,expense){
 /* ================= RENDER TABLE ================= */
 function renderByTab(income = incomeData, expense = expenseData){
 
-    const tbody = document.getElementById("financeTable");
+    const incomeWrapper = document.getElementById("incomeTableWrapper");
+    const expenseWrapper = document.getElementById("expenseTableWrapper");
     const reportSection = document.getElementById("reportSection");
-    const tableWrapper = document.querySelector(".table-wrapper");
 
-    // default state
+    incomeWrapper.style.display = "none";
+    expenseWrapper.style.display = "none";
     reportSection.style.display = "none";
-    tableWrapper.style.display = "block";
-    tbody.innerHTML = "";
 
-    /* ================= INCOME ================= */
     if(currentTab==="income"){
 
-    if(income.length===0){
-        tbody.innerHTML=`<tr><td colspan="7">Belum ada pemasukan</td></tr>`;
-        return;
+        incomeWrapper.style.display = "block";
+
+        const tbody = document.getElementById("incomeTable");
+        tbody.innerHTML="";
+
+        income.forEach((row,i)=>{
+            tbody.innerHTML+=`
+            <tr>
+                <td>${i+1}</td>
+                <td>${row.nama}</td>
+                <td>${row.metode || "-"}</td>
+                <td>${row.status}</td>
+                <td>${new Date(row.created_at).toLocaleDateString("id-ID")}</td>
+                <td>${row.tanggal_selesai ? new Date(row.tanggal_selesai).toLocaleDateString("id-ID") : "-"}</td>
+                <td style="color:#27ae60;font-weight:600;">
+                    ${rupiah(row.total)}
+                </td>
+            </tr>`;
+        });
     }
 
-    income.forEach((row,i)=>{
-
-        const tanggalMasuk = new Date(row.created_at)
-            .toLocaleDateString("id-ID");
-
-        const tanggalSelesai = row.tanggal_selesai
-            ? new Date(row.tanggal_selesai).toLocaleDateString("id-ID")
-            : "-";
-
-        tbody.innerHTML+=`
-        <tr>
-            <td>${i+1}</td>
-            <td>${row.nama}</td>
-            <td>${row.metode || "-"}</td>
-            <td>
-              <span class="status-badge ${row.status}">
-                ${row.status}
-              </span>
-            </td>
-            <td>${tanggalMasuk}</td>
-            <td>${tanggalSelesai}</td>
-            <td style="color:#27ae60;font-weight:600;">
-                ${rupiah(row.total)}
-            </td>
-        </tr>`;
-    });
-}
-        
-    /* ================= EXPENSE ================= */
     else if(currentTab==="expense"){
 
-        if(expense.length===0){
-            tbody.innerHTML=`<tr><td colspan="4">Belum ada pengeluaran</td></tr>`;
-            return;
-        }
+        expenseWrapper.style.display = "block";
+
+        const tbody = document.getElementById("expenseTable");
+        tbody.innerHTML="";
 
         expense.forEach((row,i)=>{
             tbody.innerHTML+=`
             <tr>
                 <td>${i+1}</td>
                 <td>${row.title}</td>
+                <td>${row.category}</td>
+                <td>${row.notes || "-"}</td>
                 <td>${new Date(row.created_at).toLocaleDateString("id-ID")}</td>
                 <td style="color:#e74c3c;font-weight:600;">
                     ${rupiah(row.amount)}
@@ -296,6 +283,12 @@ function renderByTab(income = incomeData, expense = expenseData){
             </tr>`;
         });
     }
+
+    else if(currentTab==="report"){
+        reportSection.style.display = "block";
+        renderReport(income, expense);
+    }
+}
 
     /* ================= REPORT MODE ================= */
     else if(currentTab==="report"){
