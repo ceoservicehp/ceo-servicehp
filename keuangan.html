@@ -17,115 +17,111 @@
 <body>
 
 <header class="main-header">
-  <h1>📊 Financial Dashboard</h1>
-  <p id="todayDate"></p>
+  <div class="header-content">
+    <h1>📊 Financial Dashboard</h1>
+    <p id="todayDate"></p>
+  </div>
 </header>
 
 <div class="container">
 
-<!-- ================= SUMMARY ================= -->
-<div class="summary-grid">
+  <!-- ================= SUMMARY ================= -->
+  <div class="summary-grid">
 
-  <div class="card highlight">
-    <h3>Total Pemasukan</h3>
-    <p id="totalIncome">Rp 0</p>
+    <div class="card highlight">
+      <h3>Total Pemasukan</h3>
+      <p id="totalIncome">Rp 0</p>
+    </div>
+
+    <div class="card expense">
+      <h3>Total Pengeluaran</h3>
+      <p id="totalExpense">Rp 0</p>
+    </div>
+
+    <div class="card profit">
+      <h3>Laba Bersih</h3>
+      <p id="netProfit">Rp 0</p>
+    </div>
+
+    <div class="card margin">
+      <h3>Margin</h3>
+      <p id="profitMargin">0%</p>
+    </div>
+
   </div>
 
-  <div class="card expense">
-    <h3>Total Pengeluaran</h3>
-    <p id="totalExpense">Rp 0</p>
+  <!-- ================= FILTER ================= -->
+  <div class="filter-box">
+
+    <div class="quick-filter">
+      <button data-range="today">Hari Ini</button>
+      <button data-range="week">Minggu Ini</button>
+      <button data-range="month">Bulan Ini</button>
+    </div>
+
+    <div class="date-group">
+      <label>Dari</label>
+      <input type="date" id="startDate">
+    </div>
+
+    <div class="date-group">
+      <label>Sampai</label>
+      <input type="date" id="endDate">
+    </div>
+
+    <button id="applyFilter" class="btn-primary">Terapkan</button>
+    <button id="resetFilter" class="btn-reset">Reset</button>
+
   </div>
 
-  <div class="card profit">
-    <h3>Laba Bersih</h3>
-    <p id="netProfit">Rp 0</p>
+  <!-- ================= TAB NAVIGATION ================= -->
+  <div class="tabs">
+    <button class="tab active" data-tab="summary">Ringkasan</button>
+    <button class="tab" data-tab="income">Pemasukan</button>
+    <button class="tab" data-tab="expense">Pengeluaran</button>
+    <button class="tab" data-tab="report">Laporan</button>
   </div>
 
-  <div class="card margin">
-    <h3>Margin</h3>
-    <p id="profitMargin">0%</p>
+  <!-- ================= ACTION BAR ================= -->
+  <div class="action-bar">
+    <button id="exportExcel" class="btn-success">Export Excel</button>
+    <button id="exportPDF" class="btn-dark">Export PDF</button>
+    <button id="addExpenseBtn" class="btn-primary">+ Tambah Pengeluaran</button>
+  </div>
+
+  <!-- ================= CHART ================= -->
+  <div class="chart-box">
+    <canvas id="financeChart"></canvas>
+  </div>
+
+  <!-- ================= TABLE ================= -->
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>No</th>
+          <th>Keterangan</th>
+          <th>Tanggal</th>
+          <th>Jumlah</th>
+        </tr>
+      </thead>
+      <tbody id="financeTable">
+        <tr>
+          <td colspan="4">Memuat data...</td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 
 </div>
 
-
-<!-- ================= FILTER ================= -->
-<div class="filter-box">
-
-  <div class="quick-filter">
-    <button data-range="today">Hari Ini</button>
-    <button data-range="week">Minggu Ini</button>
-    <button data-range="month">Bulan Ini</button>
-  </div>
-
-  <div class="date-group">
-    <label>Dari</label>
-    <input type="date" id="startDate">
-  </div>
-
-  <div class="date-group">
-    <label>Sampai</label>
-    <input type="date" id="endDate">
-  </div>
-
-  <button id="applyFilter" class="btn-primary">Terapkan</button>
-  <button id="resetFilter" class="btn-reset">Reset</button>
-
-</div>
-
-
-<!-- ================= TAB NAVIGATION ================= -->
-<div class="tabs">
-  <button class="tab active" data-tab="summary">Ringkasan</button>
-  <button class="tab" data-tab="income">Pemasukan</button>
-  <button class="tab" data-tab="expense">Pengeluaran</button>
-  <button class="tab" data-tab="report">Laporan</button>
-</div>
-
-
-<!-- ================= CHART ================= -->
-<div class="chart-box">
-  <canvas id="financeChart"></canvas>
-</div>
-
-
-<!-- ================= TABLE ================= -->
-<div class="table-wrapper">
-<table>
-<thead>
-<tr>
-<th>No</th>
-<th>Keterangan</th>
-<th>Tanggal</th>
-<th>Jumlah</th>
-</tr>
-</thead>
-
-<tbody id="financeTable">
-<tr>
-<td colspan="4">Memuat data...</td>
-</tr>
-</tbody>
-</table>
-</div>
-
-
-<!-- ================= EXPORT ================= -->
-<div class="export-box">
-<button id="exportExcel">Export Excel</button>
-</div>
-
-<button id="addExpenseBtn" class="btn-primary">
-+ Tambah Pengeluaran
-</button>
-</div>
-
+<!-- ================= MODAL TAMBAH PENGELUARAN ================= -->
 <div id="expenseModal" class="modal">
   <div class="modal-content">
     <h3>Tambah Pengeluaran</h3>
 
     <input type="text" id="expTitle" placeholder="Judul Pengeluaran">
-    
+
     <select id="expCategory">
       <option value="Gaji">Gaji</option>
       <option value="Listrik">Listrik</option>
@@ -139,12 +135,12 @@
     <textarea id="expNotes" placeholder="Catatan (opsional)"></textarea>
 
     <div class="modal-actions">
-      <button id="saveExpense">Simpan</button>
-      <button id="closeModal">Batal</button>
+      <button id="saveExpense" class="btn-success">Simpan</button>
+      <button id="closeModal" class="btn-reset">Batal</button>
     </div>
   </div>
 </div>
-  
+
 <footer class="main-footer">
 © 2026 CEO Service HP — Financial System
 </footer>
