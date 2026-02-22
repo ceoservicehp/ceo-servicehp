@@ -1,7 +1,6 @@
 "use strict";
 
 const db = window.supabaseClient;
-
 let currentUserId = null;
 
 /* ========================================= */
@@ -41,13 +40,11 @@ async function loadProfile(user){
         .from("admin_users")
         .select("*")
         .eq("user_id", user.id)
-        .single();
+        .maybeSingle();
 
-    // Jika belum ada profile → buat
-    if(error?.code === "PGRST116"){ 
-    // no rows found
-    await createInitialProfile(user);
-    return;
+    if(!data){
+        await createInitialProfile(user);
+        return;
     }
 
     fillProfileData(data);
@@ -59,15 +56,22 @@ async function loadProfile(user){
 /* ========================================= */
 async function createInitialProfile(user){
 
-    const employeeId = generateEmployeeId();
+    const employeeId = "CEO-" + Date.now();
 
-    await db.from("admin_users").insert([{
+    const { error } = await db.from("admin_users").insert([{
         user_id: user.id,
         email: user.email,
-        name: user.email,
+        full_name: user.email,
         role: "staff",
-        employee_id: employeeId
+        employee_id: employeeId,
+        theme_prefer: "light"
     }]);
+
+    if(error){
+        console.log(error);
+        alert("Gagal membuat profil awal.");
+        return;
+    }
 
     await loadProfile(user);
 }
@@ -78,11 +82,11 @@ async function createInitialProfile(user){
 /* ========================================= */
 function fillProfileData(data){
 
-    setText("fullName", data.name);
+    setText("fullName", data.full_name);
     setText("roleBadge", data.role);
     setText("employeeId", data.employee_id);
 
-    setValue("nameInput", data.name);
+    setValue("nameInput", data.full_name);
     setValue("emailInput", data.email);
     setValue("phoneInput", data.phone);
     setValue("birthInput", data.birth_date);
@@ -91,8 +95,7 @@ function fillProfileData(data){
     setValue("positionInput", data.position);
     setValue("roleInput", data.role);
     setValue("bankNameInput", data.bank_name);
-    setValue("bankNumberInput", data.bank_number);
-    setValue("bankOwnerInput", data.bank_owner);
+    setValue("bankNumberInput", data.bank_accoun);
 
     setChecked("emailNotif", data.email_notif);
     setChecked("waNotif", data.wa_notif);
@@ -100,6 +103,12 @@ function fillProfileData(data){
 
     if(data.photo_url){
         document.getElementById("profilePhoto").src = data.photo_url;
+    }
+
+    if(data.theme_prefer){
+        applyTheme(data.theme_prefer);
+        const select = document.getElementById("themeSelect");
+        if(select) select.value = data.theme_prefer;
     }
 
     styleRoleBadge(data.role);
@@ -115,18 +124,18 @@ document.getElementById("saveProfile")
 async function saveProfile(){
 
     const updateData = {
-        name: getValue("nameInput"),
+        full_name: getValue("nameInput"),
         phone: getValue("phoneInput"),
         birth_date: getValue("birthInput"),
         address: getValue("addressInput"),
         gender: getValue("genderInput"),
         position: getValue("positionInput"),
         bank_name: getValue("bankNameInput"),
-        bank_number: getValue("bankNumberInput"),
-        bank_owner: getValue("bankOwnerInput"),
+        bank_accoun: getValue("bankNumberInput"),
         email_notif: getChecked("emailNotif"),
         wa_notif: getChecked("waNotif"),
-        finance_notif: getChecked("financeNotif")
+        finance_notif: getChecked("financeNotif"),
+        theme_prefer: getValue("themeSelect")
     };
 
     const { error } = await db
@@ -135,6 +144,7 @@ async function saveProfile(){
         .eq("user_id", currentUserId);
 
     if(error){
+        console.log(error);
         alert("Gagal menyimpan profil.");
         return;
     }
@@ -144,17 +154,9 @@ async function saveProfile(){
 
 
 /* ========================================= */
-/* EMPLOYEE ID GENERATOR */
-/* ========================================= */
-function generateEmployeeId(){
-    return "CEO-" + Date.now();
-}
-
-/* ========================================= */
 /* UPLOAD HANDLER */
 /* ========================================= */
 function setupUploadHandlers(){
-
     setupUpload("uploadPhoto", "admin-photos", "photo_url");
     setupUpload("uploadKTP", "admin-documents", "ktp_url");
     setupUpload("uploadSignature", "admin-signatures", "signature_url");
@@ -170,13 +172,26 @@ function setupUpload(inputId, bucket, field){
 
         const path = `${currentUserId}/${field}`;
 
-        const url = await uploadFile(bucket, file, path);
-        if(!url){
+        const { error } = await db.storage
+            .from(bucket)
+            .upload(path, file, { upsert: true });
+
+        if(error){
+            console.log(error);
             alert("Upload gagal.");
             return;
         }
 
-        await updateField(field, url);
+        const { data } = await db.storage
+            .from(bucket)
+            .createSignedUrl(path, 60 * 60 * 24 * 365);
+
+        const url = data?.signedUrl;
+
+        await db
+            .from("admin_users")
+            .update({ [field]: url })
+            .eq("user_id", currentUserId);
 
         if(field === "photo_url"){
             document.getElementById("profilePhoto").src = url;
@@ -188,52 +203,16 @@ function setupUpload(inputId, bucket, field){
 
 
 /* ========================================= */
-/* STORAGE (SIGNED URL SAFE VERSION) */
-/* ========================================= */
-async function uploadFile(bucket, file, path){
-
-    const { error } = await db.storage
-        .from(bucket)
-        .upload(path, file, { upsert: true });
-
-    if(error){
-        console.log(error);
-        return null;
-    }
-
-    const { data } = await db.storage
-        .from(bucket)
-        .createSignedUrl(path, 60 * 60 * 24 * 365); // 1 tahun
-
-    return data?.signedUrl || null;
-}
-
-
-async function updateField(field, value){
-    await db
-        .from("admin_users")
-        .update({ [field]: value })
-        .eq("user_id", currentUserId);
-}
-
-
-/* ========================================= */
 /* ROLE BADGE */
 /* ========================================= */
 function styleRoleBadge(role){
-
     const badge = document.getElementById("roleBadge");
     if(!badge) return;
 
-    if(role === "superadmin"){
-        badge.style.background = "#8e44ad";
-    }
-    else if(role === "admin"){
-        badge.style.background = "#2c5364";
-    }
-    else{
-        badge.style.background = "#7f8c8d";
-    }
+    badge.style.background =
+        role === "superadmin" ? "#8e44ad" :
+        role === "admin" ? "#2c5364" :
+        "#7f8c8d";
 }
 
 
@@ -241,22 +220,24 @@ function styleRoleBadge(role){
 /* THEME SWITCHER */
 /* ========================================= */
 function setupThemeSwitcher(){
-
     const select = document.getElementById("themeSelect");
     if(!select) return;
 
-    select.addEventListener("change", e=>{
+    select.addEventListener("change", async e=>{
         const theme = e.target.value;
         localStorage.setItem("theme", theme);
         applyTheme(theme);
+
+        await db
+            .from("admin_users")
+            .update({ theme_prefer: theme })
+            .eq("user_id", currentUserId);
     });
 }
 
 function applySavedTheme(){
     const saved = localStorage.getItem("theme") || "light";
     applyTheme(saved);
-    const select = document.getElementById("themeSelect");
-    if(select) select.value = saved;
 }
 
 function applyTheme(theme){
@@ -265,7 +246,7 @@ function applyTheme(theme){
 
 
 /* ========================================= */
-/* SMALL HELPERS */
+/* HELPERS */
 /* ========================================= */
 function setText(id, value){
     const el = document.getElementById(id);
