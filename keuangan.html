@@ -115,8 +115,36 @@
 <button id="exportExcel">Export Excel</button>
 </div>
 
+<button id="addExpenseBtn" class="btn-primary">
++ Tambah Pengeluaran
+</button>
 </div>
 
+<div id="expenseModal" class="modal">
+  <div class="modal-content">
+    <h3>Tambah Pengeluaran</h3>
+
+    <input type="text" id="expTitle" placeholder="Judul Pengeluaran">
+    
+    <select id="expCategory">
+      <option value="Gaji">Gaji</option>
+      <option value="Listrik">Listrik</option>
+      <option value="Beli Sparepart">Beli Sparepart</option>
+      <option value="Operasional">Operasional</option>
+      <option value="Lainnya">Lainnya</option>
+    </select>
+
+    <input type="number" id="expAmount" placeholder="Jumlah">
+
+    <textarea id="expNotes" placeholder="Catatan (opsional)"></textarea>
+
+    <div class="modal-actions">
+      <button id="saveExpense">Simpan</button>
+      <button id="closeModal">Batal</button>
+    </div>
+  </div>
+</div>
+  
 <footer class="main-footer">
 © 2026 CEO Service HP — Financial System
 </footer>
