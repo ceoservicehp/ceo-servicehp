@@ -238,24 +238,39 @@ function renderByTab(income = incomeData, expense = expenseData){
     /* ================= INCOME ================= */
     if(currentTab==="income"){
 
-        if(income.length===0){
-            tbody.innerHTML=`<tr><td colspan="4">Belum ada pemasukan</td></tr>`;
-            return;
-        }
-
-        income.forEach((row,i)=>{
-            tbody.innerHTML+=`
-            <tr>
-                <td>${i+1}</td>
-                <td>${row.nama}</td>
-                <td>${new Date(row.created_at).toLocaleDateString("id-ID")}</td>
-                <td style="color:#27ae60;font-weight:600;">
-                    ${rupiah(row.total)}
-                </td>
-            </tr>`;
-        });
+    if(income.length===0){
+        tbody.innerHTML=`<tr><td colspan="7">Belum ada pemasukan</td></tr>`;
+        return;
     }
 
+    income.forEach((row,i)=>{
+
+        const tanggalMasuk = new Date(row.created_at)
+            .toLocaleDateString("id-ID");
+
+        const tanggalSelesai = row.tanggal_selesai
+            ? new Date(row.tanggal_selesai).toLocaleDateString("id-ID")
+            : "-";
+
+        tbody.innerHTML+=`
+        <tr>
+            <td>${i+1}</td>
+            <td>${row.nama}</td>
+            <td>${row.metode || "-"}</td>
+            <td>
+              <span class="status-badge ${row.status}">
+                ${row.status}
+              </span>
+            </td>
+            <td>${tanggalMasuk}</td>
+            <td>${tanggalSelesai}</td>
+            <td style="color:#27ae60;font-weight:600;">
+                ${rupiah(row.total)}
+            </td>
+        </tr>`;
+    });
+}
+        
     /* ================= EXPENSE ================= */
     else if(currentTab==="expense"){
 
