@@ -1,52 +1,90 @@
-/* ========================================= */
-/* RESET & BASE */
-/* ========================================= */
 *{
 box-sizing:border-box;
-margin:0;
-padding:0;
-font-family:Poppins,sans-serif;
 }
 
 body{
-background:#eef2f5;
-color:#1f2937;
+margin:0;
+font-family:Poppins, sans-serif;
+background:#f4f7fb;
+color:#333;
 }
 
-.wrapper{
-min-height:100vh;
-display:flex;
-flex-direction:column;
-}
-
-/* ========================================= */
-/* HEADER (GRADIENT TURQUOISE) */
-/* ========================================= */
+/* ================= HEADER ================= */
 header{
-background:linear-gradient(90deg,#1f7a7a,#1eb5b0);
+background:linear-gradient(90deg,#1f6f78,#00c2c7);
+padding:16px 5%;
 color:white;
-padding:18px 30px;
-box-shadow:0 4px 12px rgba(0,0,0,0.1);
+box-shadow:0 3px 12px rgba(0,0,0,0.2);
+border-radius:0 0 20px 20px;
 }
 
 #logo-container{
 display:flex;
 align-items:center;
-justify-content:space-between;
-max-width:1200px;
-margin:auto;
+gap:14px;
 }
 
 #logo-container h1{
 font-size:20px;
 font-weight:700;
-letter-spacing:.5px;
+letter-spacing:1px;
+margin:0;
 }
 
 .tagline{
-font-size:11px;
-opacity:.85;
+font-size:12px;
+opacity:.9;
+letter-spacing:1px;
+margin-top:3px;
 }
+
+/* BUTTON */
+.btn{
+border:none;
+padding:12px 18px;
+border-radius:12px;
+cursor:pointer;
+font-weight:600;
+font-size:14px;
+transition:.25s;
+}
+
+.btn-logout{
+background:#c0392b;
+color:white;
+}
+
+/* ================= NAV ================= */
+.top-nav{
+display:flex;
+gap:10px;
+padding:10px;
+background:white;
+position:sticky;
+top:0;
+z-index:10;
+box-shadow:0 2px 6px rgba(0,0,0,0.1);
+}
+
+.nav-btn{
+flex:1;
+text-align:center;
+padding:10px;
+border-radius:8px;
+background:#eee;
+text-decoration:none;
+color:#333;
+font-size:14px;
+font-weight:600;
+transition:.25s;
+}
+
+.nav-btn:hover{
+background:#1f6f78;
+color:white;
+transform:translateY(-2px);
+}
+
 
 /* BUTTON */
 .btn{
@@ -342,13 +380,14 @@ box-shadow:0 20px 50px rgba(0,0,0,0.15);
 /* ========================================= */
 /* FOOTER */
 /* ========================================= */
-.main-footer{
-background:#123f3f;
-color:#e5e7eb;
+footer{
+margin-top:30px;
+background:linear-gradient(90deg,#0b1c22,#2b4d58);
+color:#fff;
 text-align:center;
-padding:18px;
+padding:14px;
 font-size:12px;
-margin-top:auto;
+letter-spacing:.5px;
 }
 
 /* ========================================= */
