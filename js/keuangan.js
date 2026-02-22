@@ -11,12 +11,15 @@ let currentTab = "summary";
 let incomeData = [];
 let expenseData = [];
 
+/* ================= INIT ================= */
 document.addEventListener("DOMContentLoaded", async ()=>{
 
     if(!db){
         alert("Supabase belum terhubung");
         return;
     }
+
+    await checkFinanceAccess();
 
     document.getElementById("todayDate").textContent =
         new Date().toLocaleDateString("id-ID",{
@@ -28,8 +31,35 @@ document.addEventListener("DOMContentLoaded", async ()=>{
 
     setupTabs();
     setupFilters();
+    setupExpenseForm();
+    setupExportButtons();
+
     await loadFinance();
 });
+
+
+/* ================= ROLE LOCK ================= */
+async function checkFinanceAccess(){
+
+    const { data: userData } = await db.auth.getUser();
+    const user = userData?.user;
+
+    if(!user){
+        window.location.href = "login.html";
+        return;
+    }
+
+    const { data } = await db
+        .from("admin_users")
+        .select("role")
+        .eq("id", user.id)
+        .single();
+
+    if(!data || data.role === "staff"){
+        alert("Halaman keuangan hanya untuk admin.");
+        window.location.href = "dashboard.html";
+    }
+}
 
 
 /* ================= TAB SYSTEM ================= */
@@ -53,8 +83,7 @@ function setupFilters(){
     document.querySelectorAll(".quick-filter button")
     .forEach(btn=>{
         btn.addEventListener("click", ()=>{
-            const range = btn.dataset.range;
-            applyQuickFilter(range);
+            applyQuickFilter(btn.dataset.range);
         });
     });
 
@@ -98,52 +127,6 @@ function applyQuickFilter(type){
     document.getElementById("endDate").value = end;
 
     loadFinance();
-}
-
-
-/* ================= setup Expense Form ================= */
-function setupExpenseForm(){
-
-const modal=document.getElementById("expenseModal");
-
-document.getElementById("addExpenseBtn")
-?.addEventListener("click",()=>{
-    modal.style.display="flex";
-});
-
-document.getElementById("closeModal")
-?.addEventListener("click",()=>{
-    modal.style.display="none";
-});
-
-document.getElementById("saveExpense")
-?.addEventListener("click",async()=>{
-
-    const title=document.getElementById("expTitle").value;
-    const category=document.getElementById("expCategory").value;
-    const amount=document.getElementById("expAmount").value;
-    const notes=document.getElementById("expNotes").value;
-
-    if(!title || !amount){
-        alert("Isi semua data");
-        return;
-    }
-
-    const {error}=await db.from("expenses").insert([{
-        title,
-        category,
-        amount,
-        notes
-    }]);
-
-    if(error){
-        alert("Gagal simpan");
-        return;
-    }
-
-    modal.style.display="none";
-    loadFinance();
-});
 }
 
 
@@ -195,14 +178,10 @@ function filterByDate(){
 /* ================= SUMMARY ================= */
 function calculateSummary(income, expense){
 
-    const totalIncome = income
-        .reduce((a,b)=>a+(Number(b.total)||0),0);
-
-    const totalExpense = expense
-        .reduce((a,b)=>a+(Number(b.amount)||0),0);
+    const totalIncome = income.reduce((a,b)=>a+(Number(b.total)||0),0);
+    const totalExpense = expense.reduce((a,b)=>a+(Number(b.amount)||0),0);
 
     const net = totalIncome - totalExpense;
-
     const margin = totalIncome>0
         ? ((net/totalIncome)*100).toFixed(1)
         : 0;
@@ -233,35 +212,30 @@ function generateChart(income,expense){
                 data:[income,expense]
             }]
         },
-        options:{
-            responsive:true
-        }
+        options:{ responsive:true }
     });
 }
 
 
-/* ================= RENDER BY TAB ================= */
+/* ================= RENDER TABLE ================= */
 function renderByTab(income = incomeData, expense = expenseData){
 
     const tbody=document.getElementById("financeTable");
-
     tbody.innerHTML="";
 
     if(currentTab==="income"){
+
         if(income.length===0){
             tbody.innerHTML=`<tr><td colspan="4">Belum ada pemasukan</td></tr>`;
             return;
         }
 
         income.forEach((row,i)=>{
-            const tanggal = new Date(row.created_at)
-            .toLocaleDateString("id-ID");
-
             tbody.innerHTML+=`
             <tr>
                 <td>${i+1}</td>
                 <td>${row.nama}</td>
-                <td>${tanggal}</td>
+                <td>${new Date(row.created_at).toLocaleDateString("id-ID")}</td>
                 <td style="color:#27ae60;font-weight:600;">
                     ${rupiah(row.total)}
                 </td>
@@ -270,20 +244,18 @@ function renderByTab(income = incomeData, expense = expenseData){
     }
 
     else if(currentTab==="expense"){
+
         if(expense.length===0){
             tbody.innerHTML=`<tr><td colspan="4">Belum ada pengeluaran</td></tr>`;
             return;
         }
 
         expense.forEach((row,i)=>{
-            const tanggal = new Date(row.created_at)
-            .toLocaleDateString("id-ID");
-
             tbody.innerHTML+=`
             <tr>
                 <td>${i+1}</td>
                 <td>${row.title}</td>
-                <td>${tanggal}</td>
+                <td>${new Date(row.created_at).toLocaleDateString("id-ID")}</td>
                 <td style="color:#e74c3c;font-weight:600;">
                     ${rupiah(row.amount)}
                 </td>
@@ -295,8 +267,94 @@ function renderByTab(income = incomeData, expense = expenseData){
         tbody.innerHTML=`
         <tr>
             <td colspan="4">
-            Gunakan tab untuk melihat detail pemasukan atau pengeluaran.
+            Gunakan tab Pemasukan atau Pengeluaran untuk melihat detail.
             </td>
         </tr>`;
     }
+}
+
+
+/* ================= EXPENSE MODAL ================= */
+function setupExpenseForm(){
+
+    const modal=document.getElementById("expenseModal");
+
+    document.getElementById("addExpenseBtn")
+    ?.addEventListener("click",()=> modal.style.display="flex");
+
+    document.getElementById("closeModal")
+    ?.addEventListener("click",()=> modal.style.display="none");
+
+    document.getElementById("saveExpense")
+    ?.addEventListener("click",async()=>{
+
+        const title=document.getElementById("expTitle").value;
+        const category=document.getElementById("expCategory").value;
+        const amount=document.getElementById("expAmount").value;
+        const notes=document.getElementById("expNotes").value;
+
+        if(!title || !amount){
+            alert("Isi semua data.");
+            return;
+        }
+
+        const user = await db.auth.getUser();
+
+        const {error}=await db.from("expenses").insert([{
+            title,
+            category,
+            amount,
+            notes,
+            created_by: user.data.user.id
+        }]);
+
+        if(error){
+            alert("Gagal simpan pengeluaran.");
+            return;
+        }
+
+        modal.style.display="none";
+        loadFinance();
+    });
+}
+
+
+/* ================= EXPORT ================= */
+function setupExportButtons(){
+
+    document.getElementById("exportExcel")
+    ?.addEventListener("click", exportToCSV);
+
+    document.getElementById("exportPDF")
+    ?.addEventListener("click", generatePDF);
+}
+
+function exportToCSV(){
+
+    let rows = [];
+
+    if(currentTab==="income"){
+        rows = incomeData.map(o=>[o.nama,o.total,o.created_at]);
+    }
+    else if(currentTab==="expense"){
+        rows = expenseData.map(o=>[o.title,o.category,o.amount,o.created_at]);
+    }
+    else{
+        alert("Pilih tab Pemasukan atau Pengeluaran dulu.");
+        return;
+    }
+
+    let csv="data:text/csv;charset=utf-8,";
+    rows.forEach(r=> csv+=r.join(",")+"\n");
+
+    const link=document.createElement("a");
+    link.href=encodeURI(csv);
+    link.download="laporan_keuangan.csv";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+function generatePDF(){
+    window.print(); // versi ringan & stabil
 }
