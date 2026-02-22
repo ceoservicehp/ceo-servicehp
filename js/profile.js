@@ -95,7 +95,7 @@ function fillProfileData(data){
     setValue("positionInput", data.position);
     setValue("roleInput", data.role);
     setValue("bankNameInput", data.bank_name);
-    setValue("bankNumberInput", data.bank_accoun);
+    setValue("bankNumberInput", data.bank_account_number);
 
     setChecked("emailNotif", data.email_notif);
     setChecked("waNotif", data.wa_notif);
@@ -131,7 +131,7 @@ async function saveProfile(){
         gender: getValue("genderInput"),
         position: getValue("positionInput"),
         bank_name: getValue("bankNameInput"),
-        bank_accoun: getValue("bankNumberInput"),
+        bank_account_number: getValue("bankNumberInput"),
         email_notif: getChecked("emailNotif"),
         wa_notif: getChecked("waNotif"),
         finance_notif: getChecked("financeNotif"),
