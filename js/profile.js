@@ -44,9 +44,10 @@ async function loadProfile(user){
         .single();
 
     // Jika belum ada profile → buat
-    if(error || !data){
-        await createInitialProfile(user);
-        return;
+    if(error?.code === "PGRST116"){ 
+    // no rows found
+    await createInitialProfile(user);
+    return;
     }
 
     fillProfileData(data);
@@ -146,10 +147,8 @@ async function saveProfile(){
 /* EMPLOYEE ID GENERATOR */
 /* ========================================= */
 function generateEmployeeId(){
-    const random = Math.floor(1000 + Math.random() * 9000);
-    return "CEO-" + random;
+    return "CEO-" + Date.now();
 }
-
 
 /* ========================================= */
 /* UPLOAD HANDLER */
