@@ -108,29 +108,49 @@
   </div>
 
   <!-- ================= TABLE ================= -->
- <div class="table-wrapper">
-    <table class="admin-table">
-    
-    <thead>
-    <tr>
-    <th>No</th>
-    <th>Nama</th>
-    <th>Metode</th>
-    <th>Status</th>
-    <th>Tanggal Masuk</th>
-    <th>Tanggal Selesai</th>
-    <th>Total</th>
-    </tr>
-    </thead>
-    
-    <tbody id="financeTable">
-    <tr>
-    <td colspan="7">Memuat data...</td>
-    </tr>
-    </tbody>
-    
-    </table>
-  </div>
+ <!-- INCOME TABLE -->
+<div id="incomeTableWrapper" class="table-wrapper">
+<table class="admin-table">
+<thead>
+<tr>
+<th>No</th>
+<th>Nama</th>
+<th>Metode</th>
+<th>Status</th>
+<th>Tanggal Masuk</th>
+<th>Tanggal Selesai</th>
+<th>Total</th>
+</tr>
+</thead>
+<tbody id="incomeTable">
+<tr>
+<td colspan="7">Memuat data...</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+
+<!-- EXPENSE TABLE -->
+<div id="expenseTableWrapper" class="table-wrapper" style="display:none;">
+<table class="admin-table">
+<thead>
+<tr>
+<th>No</th>
+<th>Judul</th>
+<th>Kategori</th>
+<th>Catatan</th>
+<th>Tanggal</th>
+<th>Jumlah</th>
+</tr>
+</thead>
+<tbody id="expenseTable">
+<tr>
+<td colspan="6">Memuat data...</td>
+</tr>
+</tbody>
+</table>
+</div>
  <!-- ================= Laporan ================= -->
 <div id="reportSection" class="report-section" style="display:none;">
 
