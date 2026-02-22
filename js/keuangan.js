@@ -235,19 +235,23 @@ function renderByTab(income = incomeData, expense = expenseData){
     const expenseWrapper = document.getElementById("expenseTableWrapper");
     const reportSection = document.getElementById("reportSection");
 
-    incomeWrapper.style.display = "none";
-    expenseWrapper.style.display = "none";
-    reportSection.style.display = "none";
+    // reset display
+    if(incomeWrapper) incomeWrapper.style.display = "none";
+    if(expenseWrapper) expenseWrapper.style.display = "none";
+    if(reportSection) reportSection.style.display = "none";
 
-    if(currentTab==="income"){
+    /* ================= INCOME ================= */
+    if(currentTab === "income"){
 
-        incomeWrapper.style.display = "block";
+        if(incomeWrapper) incomeWrapper.style.display = "block";
 
         const tbody = document.getElementById("incomeTable");
-        tbody.innerHTML="";
+        if(!tbody) return;
+
+        tbody.innerHTML = "";
 
         income.forEach((row,i)=>{
-            tbody.innerHTML+=`
+            tbody.innerHTML += `
             <tr>
                 <td>${i+1}</td>
                 <td>${row.nama}</td>
@@ -262,15 +266,18 @@ function renderByTab(income = incomeData, expense = expenseData){
         });
     }
 
-    else if(currentTab==="expense"){
+    /* ================= EXPENSE ================= */
+    else if(currentTab === "expense"){
 
-        expenseWrapper.style.display = "block";
+        if(expenseWrapper) expenseWrapper.style.display = "block";
 
         const tbody = document.getElementById("expenseTable");
-        tbody.innerHTML="";
+        if(!tbody) return;
+
+        tbody.innerHTML = "";
 
         expense.forEach((row,i)=>{
-            tbody.innerHTML+=`
+            tbody.innerHTML += `
             <tr>
                 <td>${i+1}</td>
                 <td>${row.title}</td>
@@ -284,20 +291,13 @@ function renderByTab(income = incomeData, expense = expenseData){
         });
     }
 
-    else if(currentTab==="report"){
-        reportSection.style.display = "block";
+    /* ================= REPORT ================= */
+    else if(currentTab === "report"){
+        if(reportSection) reportSection.style.display = "block";
         renderReport(income, expense);
     }
+
 }
-
-    /* ================= REPORT MODE ================= */
-    else if(currentTab==="report"){
-
-        tableWrapper.style.display = "none";
-        reportSection.style.display = "block";
-
-        renderReport(income, expense);
-    }
 
     /* ================= SUMMARY MODE ================= */
     else if(currentTab==="summary"){
