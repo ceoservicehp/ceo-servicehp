@@ -226,9 +226,16 @@ function generateChart(income,expense){
 /* ================= RENDER TABLE ================= */
 function renderByTab(income = incomeData, expense = expenseData){
 
-    const tbody=document.getElementById("financeTable");
-    tbody.innerHTML="";
+    const tbody = document.getElementById("financeTable");
+    const reportSection = document.getElementById("reportSection");
+    const tableWrapper = document.querySelector(".table-wrapper");
 
+    // default state
+    reportSection.style.display = "none";
+    tableWrapper.style.display = "block";
+    tbody.innerHTML = "";
+
+    /* ================= INCOME ================= */
     if(currentTab==="income"){
 
         if(income.length===0){
@@ -249,6 +256,7 @@ function renderByTab(income = incomeData, expense = expenseData){
         });
     }
 
+    /* ================= EXPENSE ================= */
     else if(currentTab==="expense"){
 
         if(expense.length===0){
@@ -269,7 +277,17 @@ function renderByTab(income = incomeData, expense = expenseData){
         });
     }
 
-    else{
+    /* ================= REPORT MODE ================= */
+    else if(currentTab==="report"){
+
+        tableWrapper.style.display = "none";
+        reportSection.style.display = "block";
+
+        renderReport(income, expense);
+    }
+
+    /* ================= SUMMARY MODE ================= */
+    else if(currentTab==="summary"){
         tbody.innerHTML=`
         <tr>
             <td colspan="4">
@@ -278,7 +296,6 @@ function renderByTab(income = incomeData, expense = expenseData){
         </tr>`;
     }
 }
-
 
 /* ================= EXPENSE MODAL ================= */
 function setupExpenseForm(){
@@ -361,6 +378,43 @@ function exportToCSV(){
     document.body.removeChild(link);
 }
 
+/* ================= LAPORAN ================= */
+function renderReport(income, expense){
+
+    const totalIncome = income.reduce((a,b)=>a+(Number(b.total)||0),0);
+    const totalExpense = expense.reduce((a,b)=>a+(Number(b.amount)||0),0);
+    const net = totalIncome-totalExpense;
+    const margin = totalIncome>0
+        ? ((net/totalIncome)*100).toFixed(1)
+        : 0;
+
+    document.getElementById("reportIncome").textContent = rupiah(totalIncome);
+    document.getElementById("reportExpense").textContent = rupiah(totalExpense);
+    document.getElementById("reportProfit").textContent = rupiah(net);
+    document.getElementById("reportMargin").textContent = margin+"%";
+
+    const breakdown = {};
+    expense.forEach(e=>{
+        breakdown[e.category] = (breakdown[e.category]||0) + Number(e.amount);
+    });
+
+    const ul = document.getElementById("expenseBreakdown");
+    ul.innerHTML = "";
+
+    Object.keys(breakdown).forEach(cat=>{
+        ul.innerHTML += `
+            <li>
+              ${cat} : <strong>${rupiah(breakdown[cat])}</strong>
+            </li>
+        `;
+    });
+
+    const start = document.getElementById("startDate").value || "-";
+    const end = document.getElementById("endDate").value || "-";
+
+    document.getElementById("reportPeriod").textContent =
+        "Periode: " + start + " s/d " + end;
+}
 function generatePDF(){
     window.print(); // versi ringan & stabil
 }
