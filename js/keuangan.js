@@ -52,10 +52,16 @@ async function checkFinanceAccess(){
     const { data } = await db
         .from("admin_users")
         .select("role")
-        .eq("id", user.id)
+        .eq("email", user.email)
         .single();
 
-    if(!data || data.role === "staff"){
+    if(!data){
+        alert("Akun tidak terdaftar sebagai admin.");
+        window.location.href = "dapur.html";
+        return;
+    }
+
+    if(data.role !== "admin" && data.role !== "superadmin"){
         alert("Halaman keuangan hanya untuk admin.");
         window.location.href = "dashboard.html";
     }
