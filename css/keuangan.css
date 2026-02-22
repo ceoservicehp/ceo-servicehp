@@ -337,3 +337,39 @@ align-items:stretch;
 justify-content:center;
 }
 }
+
+/* ================= Laporan ================= */
+.report-section{
+background:white;
+padding:30px;
+border-radius:16px;
+box-shadow:0 8px 25px rgba(0,0,0,0.05);
+margin-top:30px;
+}
+
+.report-section h2{
+margin-bottom:10px;
+}
+
+.report-summary{
+display:grid;
+grid-template-columns:repeat(2,1fr);
+gap:15px;
+margin:20px 0;
+}
+
+.report-summary div{
+background:#f4f7fb;
+padding:15px;
+border-radius:8px;
+}
+
+#expenseBreakdown{
+list-style:none;
+padding:0;
+}
+
+#expenseBreakdown li{
+padding:8px 0;
+border-bottom:1px solid #eee;
+}
