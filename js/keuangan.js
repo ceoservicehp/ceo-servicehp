@@ -227,7 +227,6 @@ function generateChart(income,expense){
     });
 }
 
-
 /* ================= RENDER TABLE ================= */
 function renderByTab(income = incomeData, expense = expenseData){
 
@@ -264,6 +263,7 @@ function renderByTab(income = incomeData, expense = expenseData){
                 </td>
             </tr>`;
         });
+
     }
 
     /* ================= EXPENSE ================= */
@@ -289,25 +289,25 @@ function renderByTab(income = incomeData, expense = expenseData){
                 </td>
             </tr>`;
         });
+
     }
 
     /* ================= REPORT ================= */
     else if(currentTab === "report"){
+
         if(reportSection) reportSection.style.display = "block";
         renderReport(income, expense);
+
     }
 
-}
+    /* ================= SUMMARY ================= */
+    else if(currentTab === "summary"){
 
-    /* ================= SUMMARY MODE ================= */
-    else if(currentTab==="summary"){
-        tbody.innerHTML=`
-        <tr>
-            <td colspan="4">
-            Gunakan tab Pemasukan atau Pengeluaran untuk melihat detail.
-            </td>
-        </tr>`;
+        // boleh kosong atau tampilkan pesan default
+        console.log("Mode summary aktif");
+
     }
+
 }
 
 /* ================= EXPENSE MODAL ================= */
