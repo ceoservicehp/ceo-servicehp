@@ -6,20 +6,32 @@
 <title>Laporan Keuangan — CEO Service HP</title>
 
 <link rel="stylesheet" href="css/keuangan.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-<script src="js/auth.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/supabase.js"></script>
+<script src="js/auth.js"></script>
 <script defer src="js/keuangan.js"></script>
 </head>
 
 <body>
 
-<header class="main-header">
-  <div class="header-content">
-    <h1>📊 Financial Dashboard</h1>
-    <p id="todayDate"></p>
+<div class="wrapper">
+
+<!-- HEADER -->
+<header>
+  <div id="logo-container">
+    <img src="images/logo.png" width="55">
+
+    <div>
+      <h1>CEO ORDER SERVICE</h1>
+      <div class="tagline">CELLULAR ENGINEER OFFICER</div>
+    </div>
+
+    <button id="logoutBtn" class="btn btn-logout">
+      <i class="fa-solid fa-right-from-bracket"></i> Logout
+    </button>
   </div>
 </header>
 
@@ -174,9 +186,11 @@
   </div>
 </div>
 
+<!-- FOOTER -->
 <footer class="main-footer">
-© 2026 CEO Service HP — Financial System
+© 2026 CEO Service HP — Admin Panel
 </footer>
 
+</div> <!-- wrapper -->
 </body>
 </html>
