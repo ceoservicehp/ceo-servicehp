@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Admin Login - CEO Service HP</title>
+<title>Login - CEO Service HP</title>
 
 <link rel="stylesheet" href="css/login.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -17,10 +17,11 @@
 
   <div class="login-card">
 
-    <img src="images/logo.png" class="logo">
-
-    <h2 id="formTitle">Admin Login</h2>
-    <p class="subtitle">CEO Service HP</p>
+    <div class="logo-area">
+      <img src="images/logo.png" class="logo">
+      <h2 id="formTitle">Admin Login</h2>
+      <p class="subtitle">Sistem Internal CEO Service HP</p>
+    </div>
 
     <!-- GOOGLE LOGIN -->
     <button id="googleLogin" class="google-btn">
@@ -33,81 +34,84 @@
     </div>
 
     <!-- ================= LOGIN FORM ================= -->
-    <form id="loginForm">
+    <form id="loginForm" class="auth-form">
 
-      <input type="email"
-             id="loginEmail"
-             placeholder="Email Profesional"
-             required>
+      <div class="input-group">
+        <i class="fa-solid fa-envelope"></i>
+        <input type="email" id="loginEmail" placeholder="Email" required>
+      </div>
 
-      <input type="password"
-             id="loginPassword"
-             placeholder="Password"
-             required>
+      <div class="input-group">
+        <i class="fa-solid fa-lock"></i>
+        <input type="password" id="loginPassword" placeholder="Password" required>
+      </div>
 
       <button type="submit" class="login-btn">
+        <i class="fa-solid fa-right-to-bracket"></i>
         Masuk
       </button>
 
     </form>
 
     <!-- ================= REGISTER FORM ================= -->
-    <form id="registerForm" style="display:none;">
+    <form id="registerForm" class="auth-form" style="display:none;">
 
-      <input type="text"
-             id="registerName"
-             placeholder="Nama Lengkap"
-             required>
+      <div class="input-group">
+        <i class="fa-solid fa-user"></i>
+        <input type="text" id="registerName" placeholder="Nama Lengkap" required>
+      </div>
 
-      <input type="email"
-             id="registerEmail"
-             placeholder="Email Profesional"
-             required>
+      <div class="input-group">
+        <i class="fa-solid fa-envelope"></i>
+        <input type="email" id="registerEmail" placeholder="Email Aktif" required>
+      </div>
 
-      <input type="tel"
-             id="registerPhone"
-             placeholder="No HP (08xxxxxxxxxx)"
-             required>
+      <div class="input-group">
+        <i class="fa-solid fa-phone"></i>
+        <input type="tel" id="registerPhone" placeholder="No HP (08xxxxxxxxxx)" required>
+      </div>
 
-      <input type="text"
-             id="registerPosition"
-             placeholder="Jabatan (Contoh: Staff Teknisi)"
-             required>
+      <div class="input-group">
+        <i class="fa-solid fa-briefcase"></i>
+        <input type="text" id="registerPosition" placeholder="Jabatan (Contoh: Staff Teknisi)" required>
+      </div>
 
-      <input type="password"
-             id="registerPassword"
-             placeholder="Password (min 6 karakter)"
-             required>
+      <div class="input-group">
+        <i class="fa-solid fa-lock"></i>
+        <input type="password" id="registerPassword" placeholder="Password (min 6 karakter)" required>
+      </div>
 
       <button type="submit" class="login-btn">
+        <i class="fa-solid fa-user-plus"></i>
         Daftar Akun
       </button>
 
-      <small style="display:block;margin-top:10px;color:#64748b;font-size:12px;">
+      <div class="info-box">
         Akun akan aktif setelah disetujui oleh Superadmin.
-      </small>
+      </div>
 
     </form>
 
     <!-- ================= RESET FORM ================= -->
-    <form id="resetForm" style="display:none;">
+    <form id="resetForm" class="auth-form" style="display:none;">
 
-      <input type="email"
-             id="resetEmail"
-             placeholder="Masukkan Email Anda"
-             required>
+      <div class="input-group">
+        <i class="fa-solid fa-envelope"></i>
+        <input type="email" id="resetEmail" placeholder="Masukkan Email Anda" required>
+      </div>
 
       <button type="submit" class="login-btn">
+        <i class="fa-solid fa-paper-plane"></i>
         Kirim Link Reset
       </button>
 
     </form>
 
-    <p id="errorMsg" style="color:#dc2626;font-size:13px;margin-top:10px;"></p>
+    <div id="alertBox" class="alert-box" style="display:none;"></div>
 
     <div class="switch-links">
-      <span id="showRegister">Daftar akun</span> |
-      <span id="showLogin">Login</span> |
+      <span id="showRegister">Daftar akun</span>
+      <span id="showLogin" style="display:none;">Login</span>
       <span id="showReset">Lupa password?</span>
     </div>
 
