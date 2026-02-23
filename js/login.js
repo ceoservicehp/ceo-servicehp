@@ -211,3 +211,48 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
 });
+
+/* ================= SWITCH FORM ================= */
+
+const loginForm = document.getElementById("loginForm");
+const registerForm = document.getElementById("registerForm");
+const resetForm = document.getElementById("resetForm");
+
+const showRegisterBtn = document.getElementById("showRegister");
+const showLoginBtn = document.getElementById("showLogin");
+const showResetBtn = document.getElementById("showReset");
+const formTitle = document.getElementById("formTitle");
+
+function showLogin(){
+  loginForm.style.display = "block";
+  registerForm.style.display = "none";
+  resetForm.style.display = "none";
+  formTitle.textContent = "Admin Login";
+
+  showRegisterBtn.style.display = "inline";
+  showLoginBtn.style.display = "none";
+}
+
+function showRegister(){
+  loginForm.style.display = "none";
+  registerForm.style.display = "block";
+  resetForm.style.display = "none";
+  formTitle.textContent = "Daftar Akun";
+
+  showRegisterBtn.style.display = "none";
+  showLoginBtn.style.display = "inline";
+}
+
+function showReset(){
+  loginForm.style.display = "none";
+  registerForm.style.display = "none";
+  resetForm.style.display = "block";
+  formTitle.textContent = "Reset Password";
+
+  showRegisterBtn.style.display = "inline";
+  showLoginBtn.style.display = "inline";
+}
+
+showRegisterBtn?.addEventListener("click", showRegister);
+showLoginBtn?.addEventListener("click", showLogin);
+showResetBtn?.addEventListener("click", showReset);
