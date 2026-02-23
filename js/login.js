@@ -5,7 +5,6 @@ const db = window.supabaseClient;
 /* ================= ELEMENT ================= */
 const alertBox = document.getElementById("alertBox");
 
-/* ================= ALERT ================= */
 function showAlert(message, type="error"){
   alertBox.style.display = "block";
   alertBox.className = "alert-box";
@@ -19,19 +18,17 @@ function clearAlert(){
 }
 
 /* ================= CEK ROLE ================= */
-async function checkUserRole(email){
+async function checkUserRole(user){
 
   const { data } = await db
     .from("admin_users")
     .select("role,is_active")
-    .eq("email", email)
+    .eq("user_id", user.id)
     .maybeSingle();
 
   if(!data) return null;
 
-  if(!data.is_active){
-    return "pending";
-  }
+  if(!data.is_active) return "pending";
 
   return data.role;
 }
@@ -42,12 +39,13 @@ async function ensureAdminRecord(user){
   const { data } = await db
     .from("admin_users")
     .select("id")
-    .eq("email", user.email)
+    .eq("user_id", user.id)
     .maybeSingle();
 
   if(!data){
 
     await db.from("admin_users").insert({
+      user_id: user.id, // WAJIB untuk RLS
       full_name: user.user_metadata?.full_name || user.email,
       email: user.email,
       phone: user.user_metadata?.phone || null,
@@ -96,7 +94,7 @@ document.getElementById("loginForm")
 
   await ensureAdminRecord(user);
 
-  const role = await checkUserRole(user.email);
+  const role = await checkUserRole(user);
 
   if(role === "pending"){
     await db.auth.signOut();
@@ -112,7 +110,6 @@ document.getElementById("loginForm")
 
   localStorage.setItem("userRole", role);
 
-  // redirect setelah login
   window.location.replace("profile.html");
 });
 
@@ -150,7 +147,14 @@ document.getElementById("registerForm")
     return;
   }
 
-  await db.from("admin_users").insert({
+  if(!data.user){
+    showAlert("Gagal membuat akun.");
+    return;
+  }
+
+  // Insert ke admin_users sesuai RLS
+  const { error: insertError } = await db.from("admin_users").insert({
+    user_id: data.user.id,
     full_name: name,
     email: email,
     phone: phone,
@@ -159,6 +163,11 @@ document.getElementById("registerForm")
     is_active: false,
     approved_by: null
   });
+
+  if(insertError){
+    showAlert("Gagal menyimpan data admin.");
+    return;
+  }
 
   showAlert("Registrasi berhasil! Tunggu persetujuan Superadmin.", "success");
 
@@ -196,7 +205,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     await ensureAdminRecord(user);
 
-    const role = await checkUserRole(user.email);
+    const role = await checkUserRole(user);
 
     if(role === "pending"){
       await db.auth.signOut();
@@ -228,7 +237,6 @@ function showLogin(){
   registerForm.style.display = "none";
   resetForm.style.display = "none";
   formTitle.textContent = "Admin Login";
-
   showRegisterBtn.style.display = "inline";
   showLoginBtn.style.display = "none";
 }
@@ -238,7 +246,6 @@ function showRegister(){
   registerForm.style.display = "block";
   resetForm.style.display = "none";
   formTitle.textContent = "Daftar Akun";
-
   showRegisterBtn.style.display = "none";
   showLoginBtn.style.display = "inline";
 }
@@ -248,7 +255,6 @@ function showReset(){
   registerForm.style.display = "none";
   resetForm.style.display = "block";
   formTitle.textContent = "Reset Password";
-
   showRegisterBtn.style.display = "inline";
   showLoginBtn.style.display = "inline";
 }
