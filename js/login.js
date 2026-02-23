@@ -167,18 +167,8 @@ registerForm?.addEventListener("submit", async (e)=>{
     return;
   }
 
-  // Simpan record admin (pending)
-  await db.from("admin_users").upsert({
-    user_id: data.user.id,
-    full_name: name,
-    email,
-    phone,
-    position,
-    role: "staff",
-    is_active: false
-  }, {
-    onConflict: "user_id"
-  });
+  // ⚠️ JANGAN insert ke admin_users di sini
+  // karena belum ada session login (email belum diverifikasi)
 
   showAlert(
     "Registrasi berhasil! Silakan cek email Anda untuk verifikasi sebelum login.",
