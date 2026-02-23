@@ -37,10 +37,17 @@ document.addEventListener("DOMContentLoaded", async () => {
 async function loadProfile(user){
 
     const { data, error } = await db
-    .from("admin_users")
-    .select("*")
-    .single();
-    
+        .from("admin_users")
+        .select("*")
+        .eq("user_id", user.id)   // 🔥 WAJIB
+        .maybeSingle();
+
+    if(error){
+        console.log(error);
+        alert("Gagal memuat profil.");
+        return;
+    }
+
     if(!data){
         await createInitialProfile(user);
         return;
@@ -57,14 +64,14 @@ async function createInitialProfile(user){
 
     const employeeId = "CEO-" + Date.now();
 
-    const { error } = await db.from("admin_users").insert([{
+    const { error } = await db.from("admin_users").insert({
         user_id: user.id,
         email: user.email,
         full_name: user.email,
         role: "staff",
         employee_id: employeeId,
         theme_prefer: "light"
-    }]);
+    });
 
     if(error){
         console.log(error);
@@ -73,44 +80,6 @@ async function createInitialProfile(user){
     }
 
     await loadProfile(user);
-}
-
-
-/* ========================================= */
-/* FILL UI */
-/* ========================================= */
-function fillProfileData(data){
-
-    setText("fullName", data.full_name);
-    setText("roleBadge", data.role);
-    setText("employeeId", data.employee_id);
-
-    setValue("nameInput", data.full_name);
-    setValue("emailInput", data.email);
-    setValue("phoneInput", data.phone);
-    setValue("birthInput", data.birth_date);
-    setValue("addressInput", data.address);
-    setValue("genderInput", data.gender);
-    setValue("positionInput", data.position);
-    setValue("roleInput", data.role);
-    setValue("bankNameInput", data.bank_name);
-    setValue("bankNumberInput", data.bank_account_number);
-
-    setChecked("emailNotif", data.email_notif);
-    setChecked("waNotif", data.wa_notif);
-    setChecked("financeNotif", data.finance_notif);
-
-    if(data.photo_url){
-        document.getElementById("profilePhoto").src = data.photo_url;
-    }
-
-    if(data.theme_prefer){
-        applyTheme(data.theme_prefer);
-        const select = document.getElementById("themeSelect");
-        if(select) select.value = data.theme_prefer;
-    }
-
-    styleRoleBadge(data.role);
 }
 
 
@@ -140,6 +109,7 @@ async function saveProfile(){
     const { error } = await db
         .from("admin_users")
         .update(updateData)
+        .eq("user_id", currentUserId);   // 🔥 WAJIB
 
     if(error){
         console.log(error);
@@ -189,6 +159,7 @@ function setupUpload(inputId, bucket, field){
         await db
             .from("admin_users")
             .update({ [field]: url })
+            .eq("user_id", currentUserId);   // 🔥 WAJIB
 
         if(field === "photo_url"){
             document.getElementById("profilePhoto").src = url;
@@ -196,6 +167,40 @@ function setupUpload(inputId, bucket, field){
 
         alert("Upload berhasil.");
     });
+}
+
+
+/* ========================================= */
+/* THEME SWITCHER */
+/* ========================================= */
+function setupThemeSwitcher(){
+    const select = document.getElementById("themeSelect");
+    if(!select) return;
+
+    select.addEventListener("change", async e=>{
+        const theme = e.target.value;
+
+        localStorage.setItem("theme", theme);
+        applyTheme(theme);
+
+        await db
+            .from("admin_users")
+            .update({ theme_prefer: theme })
+            .eq("user_id", currentUserId);   // 🔥 WAJIB
+    });
+}
+
+
+/* ========================================= */
+/* THEME */
+/* ========================================= */
+function applySavedTheme(){
+    const saved = localStorage.getItem("theme") || "light";
+    applyTheme(saved);
+}
+
+function applyTheme(theme){
+    document.body.classList.toggle("dark-mode", theme === "dark");
 }
 
 
@@ -210,35 +215,6 @@ function styleRoleBadge(role){
         role === "superadmin" ? "#8e44ad" :
         role === "admin" ? "#2c5364" :
         "#7f8c8d";
-}
-
-
-/* ========================================= */
-/* THEME SWITCHER */
-/* ========================================= */
-function setupThemeSwitcher(){
-    const select = document.getElementById("themeSelect");
-    if(!select) return;
-
-    select.addEventListener("change", async e=>{
-        const theme = e.target.value;
-        localStorage.setItem("theme", theme);
-        applyTheme(theme);
-
-        await db
-            .from("admin_users")
-            .update({ theme_prefer: theme })
-
-    });
-}
-
-function applySavedTheme(){
-    const saved = localStorage.getItem("theme") || "light";
-    applyTheme(saved);
-}
-
-function applyTheme(theme){
-    document.body.classList.toggle("dark-mode", theme === "dark");
 }
 
 
