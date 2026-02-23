@@ -109,9 +109,13 @@ loginForm?.addEventListener("submit", async (e)=>{
   const { data, error } = await db.auth.signInWithPassword({ email, password });
 
   if(error){
-    showAlert("Email atau password salah.");
+    if(error.message.includes("Email not confirmed")){
+      showAlert("Silakan verifikasi email Anda terlebih dahulu.");
+    } else {
+      showAlert("Email atau password salah.");
+    }
     return;
-  }
+}
 
   const user = data.user;
   await ensureAdminRecord(user);
@@ -152,27 +156,35 @@ registerForm?.addEventListener("submit", async (e)=>{
   const { data, error } = await db.auth.signUp({
     email,
     password,
-    options:{ data:{ full_name:name, phone, position } }
+    options:{
+      emailRedirectTo: window.location.origin + "/login.html",
+      data:{ full_name:name, phone, position }
+    }
   });
 
-  if(error || !data.user){
-    showAlert("Gagal membuat akun.");
+  if(error){
+    showAlert(error.message);
     return;
   }
 
+  // Simpan record admin (pending)
   await db.from("admin_users").upsert({
-  user_id: data.user.id,
-  full_name: name,
-  email,
-  phone,
-  position,
-  role: "staff",
-  is_active: false
-}, {
-  onConflict: "user_id"
-});
+    user_id: data.user.id,
+    full_name: name,
+    email,
+    phone,
+    position,
+    role: "staff",
+    is_active: false
+  }, {
+    onConflict: "user_id"
+  });
 
-  showAlert("Registrasi berhasil. Tunggu persetujuan Superadmin.", "success");
+  showAlert(
+    "Registrasi berhasil! Silakan cek email Anda untuk verifikasi sebelum login.",
+    "success"
+  );
+
   registerForm.reset();
 });
 
