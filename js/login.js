@@ -2,24 +2,41 @@
 
 const db = window.supabaseClient;
 
+/* ================= ELEMENT ================= */
+const alertBox = document.getElementById("alertBox");
+
+/* ================= ALERT ================= */
+function showAlert(message, type="error"){
+  alertBox.style.display = "block";
+  alertBox.className = "alert-box";
+  alertBox.classList.add(type === "success" ? "alert-success" : "alert-error");
+  alertBox.textContent = message;
+}
+
+function clearAlert(){
+  alertBox.style.display = "none";
+  alertBox.textContent = "";
+}
+
 /* ================= CEK ROLE ================= */
 async function checkUserRole(email){
 
-  const { data, error } = await db
+  const { data } = await db
     .from("admin_users")
-    .select("role")
+    .select("role,is_active")
     .eq("email", email)
-    .eq("is_active", true)
     .maybeSingle();
 
-  if(error || !data){
-    return null;
+  if(!data) return null;
+
+  if(!data.is_active){
+    return "pending";
   }
 
   return data.role;
 }
 
-/* ================= CEK / INSERT USER ================= */
+/* ================= ENSURE RECORD ================= */
 async function ensureAdminRecord(user){
 
   const { data } = await db
@@ -60,10 +77,10 @@ document.getElementById("googleLogin")
 document.getElementById("loginForm")
 ?.addEventListener("submit", async (e)=>{
   e.preventDefault();
+  clearAlert();
 
   const email = document.getElementById("loginEmail").value;
   const password = document.getElementById("loginPassword").value;
-  const errorMsg = document.getElementById("errorMsg");
 
   const { data, error } = await db.auth.signInWithPassword({
     email,
@@ -71,7 +88,7 @@ document.getElementById("loginForm")
   });
 
   if(error){
-    errorMsg.textContent = "Email atau password salah.";
+    showAlert("Email atau password salah.");
     return;
   }
 
@@ -81,30 +98,38 @@ document.getElementById("loginForm")
 
   const role = await checkUserRole(user.email);
 
+  if(role === "pending"){
+    await db.auth.signOut();
+    showAlert("Akun Anda belum disetujui oleh Superadmin.");
+    return;
+  }
+
   if(!role){
     await db.auth.signOut();
-    errorMsg.textContent = "Akun belum diaktifkan oleh Superadmin.";
+    showAlert("Akun tidak ditemukan.");
     return;
   }
 
   localStorage.setItem("userRole", role);
-  window.location.replace("dapur.html");
+
+  // redirect setelah login
+  window.location.replace("profile.html");
 });
 
 /* ================= REGISTER ================= */
 document.getElementById("registerForm")
 ?.addEventListener("submit", async (e)=>{
   e.preventDefault();
+  clearAlert();
 
   const name = document.getElementById("registerName").value;
   const email = document.getElementById("registerEmail").value;
   const phone = document.getElementById("registerPhone").value;
   const position = document.getElementById("registerPosition").value;
   const password = document.getElementById("registerPassword").value;
-  const errorMsg = document.getElementById("errorMsg");
 
   if(password.length < 6){
-    errorMsg.textContent = "Password minimal 6 karakter.";
+    showAlert("Password minimal 6 karakter.");
     return;
   }
 
@@ -121,7 +146,7 @@ document.getElementById("registerForm")
   });
 
   if(error){
-    errorMsg.textContent = error.message;
+    showAlert(error.message);
     return;
   }
 
@@ -135,29 +160,29 @@ document.getElementById("registerForm")
     approved_by: null
   });
 
-  errorMsg.style.color = "green";
-  errorMsg.textContent = "Registrasi berhasil. Tunggu persetujuan Superadmin.";
+  showAlert("Registrasi berhasil! Tunggu persetujuan Superadmin.", "success");
+
+  document.getElementById("registerForm").reset();
 });
 
 /* ================= RESET PASSWORD ================= */
 document.getElementById("resetForm")
 ?.addEventListener("submit", async (e)=>{
   e.preventDefault();
+  clearAlert();
 
   const email = document.getElementById("resetEmail").value;
-  const errorMsg = document.getElementById("errorMsg");
 
   const { error } = await db.auth.resetPasswordForEmail(email,{
     redirectTo: window.location.origin + "/login.html"
   });
 
   if(error){
-    errorMsg.textContent = "Gagal mengirim email reset.";
+    showAlert("Gagal mengirim email reset.");
     return;
   }
 
-  errorMsg.style.color = "green";
-  errorMsg.textContent = "Link reset password telah dikirim.";
+  showAlert("Link reset password telah dikirim.", "success");
 });
 
 /* ================= AUTO REDIRECT ================= */
@@ -173,11 +198,15 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const role = await checkUserRole(user.email);
 
+    if(role === "pending"){
+      await db.auth.signOut();
+      showAlert("Akun Anda belum disetujui oleh Superadmin.");
+      return;
+    }
+
     if(role){
       localStorage.setItem("userRole", role);
-      window.location.replace("dapur.html");
-    }else{
-      await db.auth.signOut();
+      window.location.replace("profile.html");
     }
   }
 
