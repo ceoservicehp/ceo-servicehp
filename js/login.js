@@ -162,13 +162,13 @@ registerForm?.addEventListener("submit", async (e)=>{
     }
   });
 
+  // 🔍 TAMBAHKAN DEBUG DI SINI
+  console.log("SIGNUP RESULT:", data, error);
+
   if(error){
     showAlert(error.message);
     return;
   }
-
-  // ⚠️ JANGAN insert ke admin_users di sini
-  // karena belum ada session login (email belum diverifikasi)
 
   showAlert(
     "Registrasi berhasil! Silakan cek email Anda untuk verifikasi sebelum login.",
