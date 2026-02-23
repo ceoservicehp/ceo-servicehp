@@ -82,6 +82,43 @@ async function createInitialProfile(user){
     await loadProfile(user);
 }
 
+/* ========================================= */
+/* FILL UI */
+/* ========================================= */
+function fillProfileData(data){
+
+    setText("fullName", data.full_name);
+    setText("roleBadge", data.role);
+    setText("employeeId", data.employee_id);
+
+    setValue("nameInput", data.full_name);
+    setValue("emailInput", data.email);
+    setValue("phoneInput", data.phone);
+    setValue("birthInput", data.birth_date);
+    setValue("addressInput", data.address);
+    setValue("genderInput", data.gender);
+    setValue("positionInput", data.position);
+    setValue("roleInput", data.role);
+    setValue("bankNameInput", data.bank_name);
+    setValue("bankNumberInput", data.bank_account_number);
+
+    setChecked("emailNotif", data.email_notif);
+    setChecked("waNotif", data.wa_notif);
+    setChecked("financeNotif", data.finance_notif);
+
+    if(data.photo_url){
+        document.getElementById("profilePhoto").src = data.photo_url;
+    }
+
+    if(data.theme_prefer){
+        applyTheme(data.theme_prefer);
+        const select = document.getElementById("themeSelect");
+        if(select) select.value = data.theme_prefer;
+    }
+
+    styleRoleBadge(data.role);
+}
+
 
 /* ========================================= */
 /* SAVE PROFILE */
