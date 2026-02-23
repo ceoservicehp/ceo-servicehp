@@ -24,6 +24,11 @@ body{
   margin-bottom:25px;
 }
 
+.subtitle{
+  color:#64748b;
+  font-size:13px;
+}
+
 h1{
   margin:0;
   font-size:22px;
@@ -33,32 +38,70 @@ h1{
   gap:10px;
 }
 
-/* ================= BUTTON ================= */
+/* ================= HEADER BUTTON ================= */
+.header-buttons{
+  display:flex;
+  gap:10px;
+}
+
+.btn-refresh,
 .btn-back{
-  background:#64748b;
-  color:white;
   padding:8px 14px;
   border:none;
   border-radius:8px;
   cursor:pointer;
   font-size:13px;
-  transition:0.2s;
+  transition:.2s;
+}
+
+.btn-refresh{
+  background:#0f172a;
+  color:white;
+}
+
+.btn-refresh:hover{
+  background:#1e293b;
+}
+
+.btn-back{
+  background:#64748b;
+  color:white;
 }
 
 .btn-back:hover{
   background:#475569;
 }
 
-/* ================= FILTER BAR ================= */
-.filter-bar{
+/* ================= FILTER ================= */
+.filter-section{
   display:flex;
-  gap:10px;
+  gap:12px;
   margin-bottom:20px;
   flex-wrap:wrap;
+  align-items:center;
 }
 
-.filter-bar input,
-.filter-bar select{
+.search-box{
+  position:relative;
+}
+
+.search-box input{
+  padding:8px 12px 8px 32px;
+  border:1px solid #cbd5e1;
+  border-radius:8px;
+  font-size:13px;
+}
+
+.search-box i{
+  position:absolute;
+  left:10px;
+  top:50%;
+  transform:translateY(-50%);
+  color:#94a3b8;
+  font-size:12px;
+}
+
+.filter-section select{
   padding:8px 12px;
   border:1px solid #cbd5e1;
   border-radius:8px;
@@ -66,21 +109,11 @@ h1{
   background:white;
 }
 
-.filter-bar button{
-  background:#0f172a;
-  color:white;
-  border:none;
-  padding:8px 14px;
-  border-radius:8px;
-  cursor:pointer;
-  font-size:13px;
-}
-
-.filter-bar button:hover{
-  background:#1e293b;
-}
-
 /* ================= TABLE ================= */
+.table-wrapper{
+  overflow:auto;
+}
+
 table{
   width:100%;
   border-collapse:collapse;
@@ -104,15 +137,11 @@ td{
   border-bottom:1px solid #e2e8f0;
 }
 
-tbody tr{
-  transition:0.2s;
-}
-
 tbody tr:hover{
   background:#f8fafc;
 }
 
-/* ================= BADGE ================= */
+/* ================= STATUS BADGE ================= */
 .badge{
   padding:6px 14px;
   border-radius:20px;
@@ -131,6 +160,11 @@ tbody tr:hover{
   color:#991b1b;
 }
 
+.badge-pending{
+  background:#fef9c3;
+  color:#854d0e;
+}
+
 /* ================= ROLE BADGE ================= */
 .role-badge{
   padding:6px 12px;
@@ -140,7 +174,7 @@ tbody tr:hover{
   text-transform:capitalize;
 }
 
-.role-super{
+.role-superadmin{
   background:#ede9fe;
   color:#5b21b6;
 }
@@ -151,8 +185,8 @@ tbody tr:hover{
 }
 
 .role-staff{
-  background:#fef9c3;
-  color:#854d0e;
+  background:#f1f5f9;
+  color:#334155;
 }
 
 /* ================= ACTION BUTTON ================= */
@@ -163,7 +197,7 @@ tbody tr:hover{
   cursor:pointer;
   font-size:12px;
   margin-right:5px;
-  transition:0.2s;
+  transition:.2s;
 }
 
 .btn-approve{
@@ -184,6 +218,15 @@ tbody tr:hover{
   background:#b91c1c;
 }
 
+.btn-delete{
+  background:#334155;
+  color:white;
+}
+
+.btn-delete:hover{
+  background:#1e293b;
+}
+
 /* ================= LOADING ================= */
 .loading{
   text-align:center;
@@ -193,7 +236,7 @@ tbody tr:hover{
 }
 
 /* ================= MODAL ================= */
-#confirmModal{
+.modal{
   display:none;
   position:fixed;
   inset:0;
@@ -203,18 +246,13 @@ tbody tr:hover{
   z-index:1000;
 }
 
-.modal-content{
+.modal-box{
   background:white;
   padding:25px;
   border-radius:12px;
   width:350px;
   box-shadow:0 20px 40px rgba(0,0,0,.15);
   text-align:center;
-}
-
-.modal-content h3{
-  margin-top:0;
-  margin-bottom:10px;
 }
 
 .modal-actions{
@@ -224,20 +262,12 @@ tbody tr:hover{
   gap:10px;
 }
 
-.modal-actions button{
-  padding:8px 14px;
-  border:none;
-  border-radius:8px;
-  cursor:pointer;
-  font-size:13px;
-}
-
-.confirm-yes{
-  background:#16a34a;
+.btn-danger{
+  background:#dc2626;
   color:white;
 }
 
-.confirm-no{
+.btn-secondary{
   background:#e2e8f0;
 }
 
@@ -265,5 +295,4 @@ tbody tr:hover{
     align-items:flex-start;
     gap:10px;
   }
-
 }
