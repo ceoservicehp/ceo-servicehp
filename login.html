@@ -14,7 +14,6 @@
 <body>
 
 <div class="login-wrapper">
-
   <div class="login-card">
 
     <div class="logo-area">
@@ -38,16 +37,20 @@
 
       <div class="input-group">
         <i class="fa-solid fa-envelope"></i>
-        <input type="email" id="loginEmail" placeholder="Email" required>
+        <input type="email"
+               id="loginEmail"
+               placeholder="Email"
+               autocomplete="username"
+               required>
       </div>
 
       <div class="input-group">
         <i class="fa-solid fa-lock"></i>
         <input type="password"
-         id="loginPassword"
-         placeholder="Password"
-         autocomplete="current-password"
-         required>
+               id="loginPassword"
+               placeholder="Password"
+               autocomplete="current-password"
+               required>
       </div>
 
       <button type="submit" class="login-btn">
@@ -62,31 +65,47 @@
 
       <div class="input-group">
         <i class="fa-solid fa-user"></i>
-        <input type="text" id="registerName" placeholder="Nama Lengkap" required>
+        <input type="text"
+               id="registerName"
+               placeholder="Nama Lengkap"
+               autocomplete="name"
+               required>
       </div>
 
       <div class="input-group">
         <i class="fa-solid fa-envelope"></i>
-        <input type="email" id="registerEmail" placeholder="Email Aktif" required>
+        <input type="email"
+               id="registerEmail"
+               placeholder="Email Aktif"
+               autocomplete="email"
+               required>
       </div>
 
       <div class="input-group">
         <i class="fa-solid fa-phone"></i>
-        <input type="tel" id="registerPhone" placeholder="No HP (08xxxxxxxxxx)" required>
+        <input type="tel"
+               id="registerPhone"
+               placeholder="No HP (08xxxxxxxxxx)"
+               autocomplete="tel"
+               required>
       </div>
 
       <div class="input-group">
         <i class="fa-solid fa-briefcase"></i>
-        <input type="text" id="registerPosition" placeholder="Jabatan (Contoh: Staff Teknisi)" required>
+        <input type="text"
+               id="registerPosition"
+               placeholder="Jabatan (Contoh: Staff Teknisi)"
+               autocomplete="organization-title"
+               required>
       </div>
 
       <div class="input-group">
         <i class="fa-solid fa-lock"></i>
         <input type="password"
-         id="registerPassword"
-         placeholder="Password (min 6 karakter)"
-         autocomplete="new-password"
-         required>
+               id="registerPassword"
+               placeholder="Password (min 6 karakter)"
+               autocomplete="new-password"
+               required>
       </div>
 
       <button type="submit" class="login-btn">
@@ -105,7 +124,11 @@
 
       <div class="input-group">
         <i class="fa-solid fa-envelope"></i>
-        <input type="email" id="resetEmail" placeholder="Masukkan Email Anda" required>
+        <input type="email"
+               id="resetEmail"
+               placeholder="Masukkan Email Anda"
+               autocomplete="email"
+               required>
       </div>
 
       <button type="submit" class="login-btn">
@@ -116,33 +139,39 @@
     </form>
 
     <!-- ================= UPDATE PASSWORD ================= -->
-<form id="updatePasswordForm" class="auth-form" style="display:none;">
+    <form id="updatePasswordForm" class="auth-form" style="display:none;">
 
-  <div class="input-group">
-    <i class="fa-solid fa-lock"></i>
-    <input type="password"
-           id="newPassword"
-           placeholder="Password Baru"
-           autocomplete="new-password"
-           required>
-  </div>
+      <!-- Hidden username untuk accessibility -->
+      <input type="email"
+             id="recoveryEmail"
+             autocomplete="username"
+             style="display:none;">
 
-  <div class="input-group">
-    <i class="fa-solid fa-lock"></i>
-    <input type="password"
-           id="confirmPassword"
-           placeholder="Konfirmasi Password"
-           autocomplete="new-password"
-           required>
-  </div>
+      <div class="input-group">
+        <i class="fa-solid fa-lock"></i>
+        <input type="password"
+               id="newPassword"
+               placeholder="Password Baru"
+               autocomplete="new-password"
+               required>
+      </div>
 
-  <button type="submit" class="login-btn">
-    <i class="fa-solid fa-check"></i>
-    Update Password
-  </button>
+      <div class="input-group">
+        <i class="fa-solid fa-lock"></i>
+        <input type="password"
+               id="confirmPassword"
+               placeholder="Konfirmasi Password"
+               autocomplete="new-password"
+               required>
+      </div>
 
-</form>
-    
+      <button type="submit" class="login-btn">
+        <i class="fa-solid fa-check"></i>
+        Update Password
+      </button>
+
+    </form>
+
     <div id="alertBox" class="alert-box" style="display:none;"></div>
 
     <div class="switch-links">
@@ -152,7 +181,6 @@
     </div>
 
   </div>
-
 </div>
 
 <script src="js/login.js"></script>
