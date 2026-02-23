@@ -4,7 +4,17 @@ const db = window.supabaseClient;
 
 /* ================= ELEMENT ================= */
 const alertBox = document.getElementById("alertBox");
+const loginForm = document.getElementById("loginForm");
+const registerForm = document.getElementById("registerForm");
+const resetForm = document.getElementById("resetForm");
+const updatePasswordForm = document.getElementById("updatePasswordForm");
+const formTitle = document.getElementById("formTitle");
 
+const showRegisterBtn = document.getElementById("showRegister");
+const showLoginBtn = document.getElementById("showLogin");
+const showResetBtn = document.getElementById("showReset");
+
+/* ================= ALERT ================= */
 function showAlert(message, type="error"){
   alertBox.style.display = "block";
   alertBox.className = "alert-box";
@@ -14,12 +24,10 @@ function showAlert(message, type="error"){
 
 function clearAlert(){
   alertBox.style.display = "none";
-  alertBox.textContent = "";
 }
 
 /* ================= CEK ROLE ================= */
 async function checkUserRole(user){
-
   const { data } = await db
     .from("admin_users")
     .select("role,is_active")
@@ -27,15 +35,12 @@ async function checkUserRole(user){
     .maybeSingle();
 
   if(!data) return null;
-
   if(!data.is_active) return "pending";
-
   return data.role;
 }
 
 /* ================= ENSURE RECORD ================= */
 async function ensureAdminRecord(user){
-
   const { data } = await db
     .from("admin_users")
     .select("id")
@@ -43,47 +48,63 @@ async function ensureAdminRecord(user){
     .maybeSingle();
 
   if(!data){
-
     await db.from("admin_users").insert({
-      user_id: user.id, // WAJIB untuk RLS
+      user_id: user.id,
       full_name: user.user_metadata?.full_name || user.email,
       email: user.email,
       phone: user.user_metadata?.phone || null,
       position: user.user_metadata?.position || "Staff",
       role: "staff",
-      is_active: false,
-      approved_by: null
+      is_active: false
     });
-
   }
 }
 
-/* ================= GOOGLE LOGIN ================= */
-document.getElementById("googleLogin")
-?.addEventListener("click", async () => {
+/* ================= INIT ================= */
+document.addEventListener("DOMContentLoaded", async () => {
 
-  await db.auth.signInWithOAuth({
-    provider: "google",
-    options:{
-      redirectTo: window.location.origin + "/login.html"
+  const params = new URLSearchParams(window.location.search);
+  const isRecovery = params.get("type") === "recovery";
+
+  if(isRecovery){
+    loginForm.style.display = "none";
+    registerForm.style.display = "none";
+    resetForm.style.display = "none";
+    updatePasswordForm.style.display = "block";
+    formTitle.textContent = "Buat Password Baru";
+    return;
+  }
+
+  const { data } = await db.auth.getSession();
+
+  if(data.session){
+    const user = data.session.user;
+
+    await ensureAdminRecord(user);
+    const role = await checkUserRole(user);
+
+    if(role === "pending"){
+      await db.auth.signOut();
+      showAlert("Akun belum disetujui.");
+      return;
     }
-  });
 
+    if(role){
+      localStorage.setItem("userRole", role);
+      window.location.replace("profile.html");
+    }
+  }
 });
 
-/* ================= LOGIN EMAIL ================= */
-document.getElementById("loginForm")
-?.addEventListener("submit", async (e)=>{
+/* ================= LOGIN ================= */
+loginForm?.addEventListener("submit", async (e)=>{
   e.preventDefault();
   clearAlert();
 
-  const email = document.getElementById("loginEmail").value;
-  const password = document.getElementById("loginPassword").value;
+  const email = loginForm.loginEmail.value;
+  const password = loginForm.loginPassword.value;
 
-  const { data, error } = await db.auth.signInWithPassword({
-    email,
-    password
-  });
+  const { data, error } = await db.auth.signInWithPassword({ email, password });
 
   if(error){
     showAlert("Email atau password salah.");
@@ -91,14 +112,12 @@ document.getElementById("loginForm")
   }
 
   const user = data.user;
-
   await ensureAdminRecord(user);
-
   const role = await checkUserRole(user);
 
   if(role === "pending"){
     await db.auth.signOut();
-    showAlert("Akun Anda belum disetujui oleh Superadmin.");
+    showAlert("Akun belum disetujui.");
     return;
   }
 
@@ -109,21 +128,19 @@ document.getElementById("loginForm")
   }
 
   localStorage.setItem("userRole", role);
-
   window.location.replace("profile.html");
 });
 
 /* ================= REGISTER ================= */
-document.getElementById("registerForm")
-?.addEventListener("submit", async (e)=>{
+registerForm?.addEventListener("submit", async (e)=>{
   e.preventDefault();
   clearAlert();
 
-  const name = document.getElementById("registerName").value;
-  const email = document.getElementById("registerEmail").value;
-  const phone = document.getElementById("registerPhone").value;
-  const position = document.getElementById("registerPosition").value;
-  const password = document.getElementById("registerPassword").value;
+  const name = registerForm.registerName.value;
+  const email = registerForm.registerEmail.value;
+  const phone = registerForm.registerPhone.value;
+  const position = registerForm.registerPosition.value;
+  const password = registerForm.registerPassword.value;
 
   if(password.length < 6){
     showAlert("Password minimal 6 karakter.");
@@ -133,57 +150,37 @@ document.getElementById("registerForm")
   const { data, error } = await db.auth.signUp({
     email,
     password,
-    options:{
-      data:{
-        full_name: name,
-        phone: phone,
-        position: position
-      }
-    }
+    options:{ data:{ full_name:name, phone, position } }
   });
 
-  if(error){
-    showAlert(error.message);
-    return;
-  }
-
-  if(!data.user){
+  if(error || !data.user){
     showAlert("Gagal membuat akun.");
     return;
   }
 
-  // Insert ke admin_users sesuai RLS
-  const { error: insertError } = await db.from("admin_users").insert({
+  await db.from("admin_users").insert({
     user_id: data.user.id,
     full_name: name,
-    email: email,
-    phone: phone,
-    position: position,
+    email,
+    phone,
+    position,
     role: "staff",
-    is_active: false,
-    approved_by: null
+    is_active: false
   });
 
-  if(insertError){
-    showAlert("Gagal menyimpan data admin.");
-    return;
-  }
-
-  showAlert("Registrasi berhasil! Tunggu persetujuan Superadmin.", "success");
-
-  document.getElementById("registerForm").reset();
+  showAlert("Registrasi berhasil. Tunggu persetujuan Superadmin.", "success");
+  registerForm.reset();
 });
 
-/* ================= RESET PASSWORD ================= */
-document.getElementById("resetForm")
-?.addEventListener("submit", async (e)=>{
+/* ================= RESET REQUEST ================= */
+resetForm?.addEventListener("submit", async (e)=>{
   e.preventDefault();
   clearAlert();
 
-  const email = document.getElementById("resetEmail").value;
+  const email = resetForm.resetEmail.value;
 
   const { error } = await db.auth.resetPasswordForEmail(email,{
-    redirectTo: window.location.origin + "/login.html"
+    redirectTo: window.location.origin + "/login.html?type=recovery"
   });
 
   if(error){
@@ -194,69 +191,61 @@ document.getElementById("resetForm")
   showAlert("Link reset password telah dikirim.", "success");
 });
 
-/* ================= AUTO REDIRECT ================= */
-document.addEventListener("DOMContentLoaded", async () => {
+/* ================= UPDATE PASSWORD ================= */
+updatePasswordForm?.addEventListener("submit", async (e)=>{
+  e.preventDefault();
+  clearAlert();
 
-  const { data } = await db.auth.getSession();
+  const newPassword = updatePasswordForm.newPassword.value;
+  const confirmPassword = updatePasswordForm.confirmPassword.value;
 
-  if(data.session){
-
-    const user = data.session.user;
-
-    await ensureAdminRecord(user);
-
-    const role = await checkUserRole(user);
-
-    if(role === "pending"){
-      await db.auth.signOut();
-      showAlert("Akun Anda belum disetujui oleh Superadmin.");
-      return;
-    }
-
-    if(role){
-      localStorage.setItem("userRole", role);
-      window.location.replace("profile.html");
-    }
+  if(newPassword.length < 6){
+    showAlert("Password minimal 6 karakter.");
+    return;
   }
 
+  if(newPassword !== confirmPassword){
+    showAlert("Konfirmasi password tidak cocok.");
+    return;
+  }
+
+  const { error } = await db.auth.updateUser({ password:newPassword });
+
+  if(error){
+    showAlert("Gagal mengubah password.");
+    return;
+  }
+
+  showAlert("Password berhasil diperbarui.", "success");
+
+  setTimeout(()=>{
+    window.location.replace("login.html");
+  },2000);
 });
 
 /* ================= SWITCH FORM ================= */
-
-const loginForm = document.getElementById("loginForm");
-const registerForm = document.getElementById("registerForm");
-const resetForm = document.getElementById("resetForm");
-
-const showRegisterBtn = document.getElementById("showRegister");
-const showLoginBtn = document.getElementById("showLogin");
-const showResetBtn = document.getElementById("showReset");
-const formTitle = document.getElementById("formTitle");
-
 function showLogin(){
   loginForm.style.display = "block";
   registerForm.style.display = "none";
   resetForm.style.display = "none";
+  updatePasswordForm.style.display = "none";
   formTitle.textContent = "Admin Login";
-  showRegisterBtn.style.display = "inline";
-  showLoginBtn.style.display = "none";
 }
 
 function showRegister(){
   loginForm.style.display = "none";
   registerForm.style.display = "block";
   resetForm.style.display = "none";
+  updatePasswordForm.style.display = "none";
   formTitle.textContent = "Daftar Akun";
-  showRegisterBtn.style.display = "none";
-  showLoginBtn.style.display = "inline";
 }
 
 function showReset(){
   loginForm.style.display = "none";
   registerForm.style.display = "none";
   resetForm.style.display = "block";
+  updatePasswordForm.style.display = "none";
   formTitle.textContent = "Reset Password";
-  showRegisterBtn.style.display = "inline";
-  showLoginBtn.style.display = "inline";
 }
 
 showRegisterBtn?.addEventListener("click", showRegister);
