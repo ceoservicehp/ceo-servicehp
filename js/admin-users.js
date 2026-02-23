@@ -3,8 +3,9 @@
 const db = window.supabaseClient;
 
 let allAdmins = [];
-let selectedAction = null;
 let selectedUserId = null;
+let selectedAction = null;
+let currentUserEmail = null;
 
 document.addEventListener("DOMContentLoaded", async () => {
   await checkSuperAdmin();
@@ -13,7 +14,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   initModal();
 });
 
-/* ================= SECURITY CHECK ================= */
+/* ================= SECURITY ================= */
 async function checkSuperAdmin(){
 
   const { data } = await db.auth.getSession();
@@ -23,12 +24,12 @@ async function checkSuperAdmin(){
     return;
   }
 
-  const email = data.session.user.email;
+  currentUserEmail = data.session.user.email;
 
   const { data: roleData } = await db
     .from("admin_users")
     .select("role,is_active")
-    .eq("email", email)
+    .eq("email", currentUserEmail)
     .maybeSingle();
 
   if(!roleData || roleData.role !== "superadmin" || !roleData.is_active){
@@ -37,7 +38,7 @@ async function checkSuperAdmin(){
   }
 }
 
-/* ================= LOAD DATA ================= */
+/* ================= LOAD ================= */
 async function loadAdmins(){
 
   const tbody = document.getElementById("adminTable");
@@ -64,12 +65,12 @@ async function loadAdmins(){
   renderTable(allAdmins);
 }
 
-/* ================= RENDER TABLE ================= */
+/* ================= RENDER ================= */
 function renderTable(data){
 
   const tbody = document.getElementById("adminTable");
 
-  if(!data || data.length === 0){
+  if(!data.length){
     tbody.innerHTML = `<tr><td colspan="9">Tidak ada data</td></tr>`;
     return;
   }
@@ -79,9 +80,13 @@ function renderTable(data){
   data.forEach((admin, index)=>{
 
     const roleClass =
-      admin.role === "superadmin" ? "role-super" :
+      admin.role === "superadmin" ? "role-superadmin" :
       admin.role === "admin" ? "role-admin" :
       "role-staff";
+
+    const statusBadge = admin.is_active
+      ? `<span class="badge badge-active">Aktif</span>`
+      : `<span class="badge badge-inactive">Nonaktif</span>`;
 
     tbody.innerHTML += `
       <tr>
@@ -89,31 +94,40 @@ function renderTable(data){
         <td>${admin.full_name ?? "-"}</td>
         <td>${admin.email}</td>
         <td>${admin.phone ?? "-"}</td>
-        <td>${admin.position ?? "-"}</td>
         <td>
-          <span class="role-badge ${roleClass}">
-            ${admin.role}
-          </span>
+          <select data-id="${admin.id}" class="edit-position">
+            <option ${admin.position==="Owner"?"selected":""}>Owner</option>
+            <option ${admin.position==="Manager"?"selected":""}>Manager</option>
+            <option ${admin.position==="Staff"?"selected":""}>Staff</option>
+            <option ${admin.position==="Teknisi"?"selected":""}>Teknisi</option>
+          </select>
         </td>
         <td>
-          <span class="badge ${admin.is_active ? 'badge-active':'badge-inactive'}">
-            ${admin.is_active ? 'Aktif':'Nonaktif'}
-          </span>
+          <select data-id="${admin.id}" class="edit-role">
+            <option value="superadmin" ${admin.role==="superadmin"?"selected":""}>Superadmin</option>
+            <option value="admin" ${admin.role==="admin"?"selected":""}>Admin</option>
+            <option value="staff" ${admin.role==="staff"?"selected":""}>Staff</option>
+          </select>
         </td>
-        <td>${admin.approved_by ?? '-'}</td>
+        <td>${statusBadge}</td>
+        <td>${admin.approved_by ?? "-"}</td>
         <td>
           ${
-            !admin.is_active
-            ? `<button class="action-btn btn-approve"
-                 data-id="${admin.id}"
-                 data-action="approve">
-                 Approve
-               </button>`
-            : `<button class="action-btn btn-disable"
-                 data-id="${admin.id}"
-                 data-action="disable">
-                 Nonaktifkan
-               </button>`
+            admin.email !== currentUserEmail
+            ? `
+              <button class="action-btn btn-approve"
+                data-id="${admin.id}"
+                data-action="toggle">
+                ${admin.is_active ? "Nonaktifkan":"Aktifkan"}
+              </button>
+
+              <button class="action-btn btn-delete"
+                data-id="${admin.id}"
+                data-action="delete">
+                Hapus
+              </button>
+            `
+            : `<span style="font-size:12px;color:#64748b;">Akun Anda</span>`
           }
         </td>
       </tr>
@@ -121,9 +135,36 @@ function renderTable(data){
   });
 
   bindActionButtons();
+  bindInlineEditors();
 }
 
-/* ================= BIND BUTTON EVENTS ================= */
+/* ================= INLINE EDIT ================= */
+function bindInlineEditors(){
+
+  document.querySelectorAll(".edit-role").forEach(select=>{
+    select.addEventListener("change", async e=>{
+      const id = e.target.dataset.id;
+      const newRole = e.target.value;
+
+      await db.from("admin_users")
+        .update({ role:newRole })
+        .eq("id", id);
+    });
+  });
+
+  document.querySelectorAll(".edit-position").forEach(select=>{
+    select.addEventListener("change", async e=>{
+      const id = e.target.dataset.id;
+      const newPosition = e.target.value;
+
+      await db.from("admin_users")
+        .update({ position:newPosition })
+        .eq("id", id);
+    });
+  });
+}
+
+/* ================= BUTTON ================= */
 function bindActionButtons(){
 
   document.querySelectorAll(".action-btn")
@@ -131,59 +172,9 @@ function bindActionButtons(){
       btn.addEventListener("click", e=>{
         selectedUserId = e.target.dataset.id;
         selectedAction = e.target.dataset.action;
-
         showConfirmModal(selectedAction);
       });
     });
-}
-
-/* ================= FILTER & SEARCH ================= */
-function initFilters(){
-
-  document.getElementById("searchAdmin")
-    ?.addEventListener("input", e=>{
-      const keyword = e.target.value.toLowerCase();
-
-      const filtered = allAdmins.filter(a =>
-        a.full_name?.toLowerCase().includes(keyword) ||
-        a.email?.toLowerCase().includes(keyword)
-      );
-
-      renderTable(filtered);
-    });
-
-  document.getElementById("filterStatus")
-    ?.addEventListener("change", e=>{
-      applyFilters();
-    });
-
-  document.getElementById("filterRole")
-    ?.addEventListener("change", e=>{
-      applyFilters();
-    });
-
-  document.getElementById("refreshBtn")
-    ?.addEventListener("click", loadAdmins);
-}
-
-function applyFilters(){
-
-  const status = document.getElementById("filterStatus").value;
-  const role = document.getElementById("filterRole").value;
-
-  let filtered = [...allAdmins];
-
-  if(status !== "all"){
-    filtered = filtered.filter(a =>
-      status === "active" ? a.is_active : !a.is_active
-    );
-  }
-
-  if(role !== "all"){
-    filtered = filtered.filter(a => a.role === role);
-  }
-
-  renderTable(filtered);
 }
 
 /* ================= MODAL ================= */
@@ -201,12 +192,12 @@ function showConfirmModal(action){
   const title = document.getElementById("confirmTitle");
   const text = document.getElementById("confirmText");
 
-  if(action === "approve"){
-    title.textContent = "Approve Akun";
-    text.textContent = "Setujui dan aktifkan akun ini?";
+  if(action === "delete"){
+    title.textContent = "Hapus Akun";
+    text.textContent = "Yakin ingin menghapus akun ini?";
   }else{
-    title.textContent = "Nonaktifkan Akun";
-    text.textContent = "Nonaktifkan akun ini?";
+    title.textContent = "Ubah Status";
+    text.textContent = "Yakin ingin mengubah status akun ini?";
   }
 
   document.getElementById("confirmModal").style.display = "flex";
@@ -216,33 +207,70 @@ function closeModal(){
   document.getElementById("confirmModal").style.display = "none";
 }
 
-/* ================= EXECUTE ACTION ================= */
+/* ================= EXECUTE ================= */
 async function executeAction(){
 
   if(!selectedUserId) return;
 
-  const { data: session } = await db.auth.getSession();
-  const approver = session.session.user.email;
+  if(selectedAction === "toggle"){
 
-  if(selectedAction === "approve"){
-    await db
-      .from("admin_users")
-      .update({
-        is_active:true,
-        approved_by: approver
-      })
+    const user = allAdmins.find(a=>a.id===selectedUserId);
+
+    await db.from("admin_users")
+      .update({ is_active: !user.is_active })
       .eq("id", selectedUserId);
   }
 
-  if(selectedAction === "disable"){
-    await db
-      .from("admin_users")
-      .update({
-        is_active:false
-      })
+  if(selectedAction === "delete"){
+    await db.from("admin_users")
+      .delete()
       .eq("id", selectedUserId);
   }
 
   closeModal();
   loadAdmins();
+}
+
+/* ================= FILTER ================= */
+function initFilters(){
+
+  document.getElementById("searchAdmin")
+    ?.addEventListener("input", applyFilters);
+
+  document.getElementById("filterStatus")
+    ?.addEventListener("change", applyFilters);
+
+  document.getElementById("filterRole")
+    ?.addEventListener("change", applyFilters);
+
+  document.getElementById("refreshBtn")
+    ?.addEventListener("click", loadAdmins);
+}
+
+function applyFilters(){
+
+  const keyword = document.getElementById("searchAdmin").value.toLowerCase();
+  const status = document.getElementById("filterStatus").value;
+  const role = document.getElementById("filterRole").value;
+
+  let filtered = [...allAdmins];
+
+  if(keyword){
+    filtered = filtered.filter(a =>
+      a.full_name?.toLowerCase().includes(keyword) ||
+      a.email?.toLowerCase().includes(keyword)
+    );
+  }
+
+  if(status !== "all"){
+    filtered = filtered.filter(a =>
+      status === "active" ? a.is_active : !a.is_active
+    );
+  }
+
+  if(role !== "all"){
+    filtered = filtered.filter(a => a.role === role);
+  }
+
+  renderTable(filtered);
 }
