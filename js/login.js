@@ -48,15 +48,17 @@ async function ensureAdminRecord(user){
     .maybeSingle();
 
   if(!data){
-    await db.from("admin_users").insert({
-      user_id: user.id,
-      full_name: user.user_metadata?.full_name || user.email,
-      email: user.email,
-      phone: user.user_metadata?.phone || null,
-      position: user.user_metadata?.position || "Staff",
-      role: "staff",
-      is_active: false
-    });
+  await db.from("admin_users").upsert({
+    user_id: user.id,
+    full_name: user.user_metadata?.full_name || user.email,
+    email: user.email,
+    phone: user.user_metadata?.phone || null,
+    position: user.user_metadata?.position || "Staff",
+    role: "staff",
+    is_active: false
+  }, {
+    onConflict: "user_id"
+  });
   }
 }
 
@@ -158,15 +160,17 @@ registerForm?.addEventListener("submit", async (e)=>{
     return;
   }
 
-  await db.from("admin_users").insert({
-    user_id: data.user.id,
-    full_name: name,
-    email,
-    phone,
-    position,
-    role: "staff",
-    is_active: false
-  });
+  await db.from("admin_users").upsert({
+  user_id: data.user.id,
+  full_name: name,
+  email,
+  phone,
+  position,
+  role: "staff",
+  is_active: false
+}, {
+  onConflict: "user_id"
+});
 
   showAlert("Registrasi berhasil. Tunggu persetujuan Superadmin.", "success");
   registerForm.reset();
@@ -177,6 +181,10 @@ resetForm?.addEventListener("submit", async (e)=>{
   e.preventDefault();
   clearAlert();
 
+  const btn = resetForm.querySelector("button");
+  btn.disabled = true;
+  btn.textContent = "Mengirim...";
+
   const email = resetForm.resetEmail.value;
 
   const { error } = await db.auth.resetPasswordForEmail(email,{
@@ -184,11 +192,18 @@ resetForm?.addEventListener("submit", async (e)=>{
   });
 
   if(error){
-    showAlert("Gagal mengirim email reset.");
+    showAlert("Terlalu banyak permintaan. Coba lagi nanti.");
+    btn.disabled = false;
+    btn.textContent = "Kirim Link Reset";
     return;
   }
 
   showAlert("Link reset password telah dikirim.", "success");
+
+setTimeout(()=>{
+  btn.disabled = false;
+  btn.textContent = "Kirim Link Reset";
+}, 3000);
 });
 
 /* ================= UPDATE PASSWORD ================= */
