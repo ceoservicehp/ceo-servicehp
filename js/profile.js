@@ -37,11 +37,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 async function loadProfile(user){
 
     const { data, error } = await db
-        .from("admin_users")
-        .select("*")
-        .eq("user_id", user.id)
-        .maybeSingle();
-
+    .from("admin_users")
+    .select("*")
+    .single();
+    
     if(!data){
         await createInitialProfile(user);
         return;
@@ -141,7 +140,6 @@ async function saveProfile(){
     const { error } = await db
         .from("admin_users")
         .update(updateData)
-        .eq("user_id", currentUserId);
 
     if(error){
         console.log(error);
@@ -191,7 +189,6 @@ function setupUpload(inputId, bucket, field){
         await db
             .from("admin_users")
             .update({ [field]: url })
-            .eq("user_id", currentUserId);
 
         if(field === "photo_url"){
             document.getElementById("profilePhoto").src = url;
@@ -231,7 +228,7 @@ function setupThemeSwitcher(){
         await db
             .from("admin_users")
             .update({ theme_prefer: theme })
-            .eq("user_id", currentUserId);
+
     });
 }
 
