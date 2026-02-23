@@ -68,15 +68,27 @@ document.addEventListener("DOMContentLoaded", async () => {
   const params = new URLSearchParams(window.location.search);
   const isRecovery = params.get("type") === "recovery";
 
+  // ================= RECOVERY MODE =================
   if(isRecovery){
     loginForm.style.display = "none";
     registerForm.style.display = "none";
     resetForm.style.display = "none";
     updatePasswordForm.style.display = "block";
     formTitle.textContent = "Buat Password Baru";
-    return;
+
+    // isi hidden email untuk accessibility
+    const { data } = await db.auth.getSession();
+    if(data.session){
+      const recoveryEmailInput = document.getElementById("recoveryEmail");
+      if(recoveryEmailInput){
+        recoveryEmailInput.value = data.session.user.email;
+      }
+    }
+
+    return; // stop di sini kalau recovery
   }
 
+  // ================= NORMAL SESSION CHECK =================
   const { data } = await db.auth.getSession();
 
   if(data.session){
@@ -96,6 +108,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       window.location.replace("profile.html");
     }
   }
+
 });
 
 /* ================= LOGIN ================= */
