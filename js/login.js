@@ -191,12 +191,11 @@ registerForm?.addEventListener("submit", async (e)=>{
     return;
   }
 
-  const { error } = await db.auth.signUp({
+  const { data, error } = await db.auth.signUp({
     email,
     password,
     options:{
-      emailRedirectTo: window.location.origin + "/login.html",
-      data:{ full_name:name, phone, position }
+      emailRedirectTo: window.location.origin + "/login.html"
     }
   });
 
@@ -205,10 +204,31 @@ registerForm?.addEventListener("submit", async (e)=>{
     return;
   }
 
+  const user = data.user;
+
+  if(user){
+    const { error: profileError } = await db
+      .from("profiles")
+      .insert({
+        id: user.id,
+        email: email,
+        full_name: name,
+        phone: phone,
+        position: position,
+        role: "staff",
+        is_active: false
+      });
+
+    if(profileError){
+      console.error("PROFILE INSERT ERROR:", profileError);
+      showAlert("Gagal membuat profil.");
+      return;
+    }
+  }
+
   showAlert("Registrasi berhasil! Cek email untuk verifikasi.", "success");
   registerForm.reset();
 });
-
 /* ================= SWITCH FORM ================= */
 function showLogin(){
   loginForm.style.display = "block";
