@@ -12,7 +12,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         alert("Supabase belum terhubung");
         return;
     }
-
+    
+    const { data: sessionCheck } = await db.auth.getSession();
+    console.log("SESSION CHECK:", sessionCheck);
+    
     const { data: authData, error } = await db.auth.getUser();
 
     if(error){
@@ -44,10 +47,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 async function loadProfile(user){
 
     const { data, error } = await db
-        .from("admin_users")
-        .select("*")
-        .eq("user_id", user.id)
-        .maybeSingle();
+      .from("admin_users")
+      .select("*")
+      .maybeSingle();
 
     if(error){
         console.log("LOAD PROFILE ERROR:", error);
