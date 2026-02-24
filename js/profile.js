@@ -113,11 +113,12 @@ function fillProfileData(data){
     setValue("genderInput", data.gender);
     setValue("positionInput", data.position);
     setValue("roleInput", data.role);
+
     setValue("bankNameInput", data.bank_name);
-    setValue("bankNumberInput", data.bank_account_number);
+    setValue("bankNumberInput", data.bank_account); // 🔥 disesuaikan
 
     setChecked("emailNotif", data.email_notif);
-    setChecked("waNotif", data.wa_notif);
+    setChecked("waNotif", data.wa_notifikasi);      // 🔥 disesuaikan
     setChecked("financeNotif", data.finance_notif);
 
     if(data.photo_url){
@@ -133,7 +134,6 @@ function fillProfileData(data){
     styleRoleBadge(data.role);
 }
 
-
 /* ========================================= */
 /* SAVE PROFILE */
 /* ========================================= */
@@ -147,30 +147,34 @@ async function saveProfile(){
         gender: getValue("genderInput"),
         position: getValue("positionInput"),
         bank_name: getValue("bankNameInput"),
-        bank_account: getValue("bankNumberInput"),
+        bank_account: getValue("bankNumberInput"),   // 🔥 diperbaiki
         email_notif: getChecked("emailNotif"),
-        wa_notif: getChecked("waNotif"),
+        wa_notifikasi: getChecked("waNotif"),        // 🔥 diperbaiki
         finance_notif: getChecked("financeNotif"),
         theme_prefer: getValue("themeSelect")
     };
 
-    const { data, error } = await db
-      .from("admin_users")
-      .update(updateData)
-      .eq("user_id", currentUserId)
-      .select();
-    
     console.log("UPDATE DATA:", updateData);
+
+    const { data, error } = await db
+        .from("admin_users")
+        .update(updateData)
+        .eq("user_id", currentUserId)
+        .select();
+
     console.log("UPDATE RESULT:", data);
     console.log("UPDATE ERROR:", error);
 
     if(error){
-        console.log("UPDATE ERROR:", error);
+        alert("Gagal menyimpan profil.");
         return;
     }
 
     alert("Profil berhasil diperbarui.");
 }
+
+document.getElementById("saveProfile")
+?.addEventListener("click", saveProfile);
 
 /* ========================================= */
 /* UPLOAD HANDLER */
