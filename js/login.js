@@ -28,37 +28,55 @@ function clearAlert(){
 
 /* ================= CEK ROLE ================= */
 async function checkUserRole(user){
-  const { data } = await db
+
+  const { data, error } = await db
     .from("profiles")
     .select("role,is_active")
-    .eq("user_id", user.id)
+    .eq("id", user.id) // ✅ pakai id
     .maybeSingle();
+
+  if(error){
+    console.log("CHECK ROLE ERROR:", error);
+    return null;
+  }
 
   if(!data) return null;
   if(!data.is_active) return "pending";
+
   return data.role;
 }
 
 /* ================= ENSURE RECORD ================= */
 async function ensureAdminRecord(user){
-  const { data } = await db
+
+  const { data, error } = await db
     .from("profiles")
     .select("id")
-    .eq("user_id", user.id)
+    .eq("id", user.id) // ✅ pakai id
     .maybeSingle();
 
+  if(error){
+    console.log("ENSURE CHECK ERROR:", error);
+    return;
+  }
+
   if(!data){
-  await db.from("profiles").upsert({
-    user_id: user.id,
-    full_name: user.user_metadata?.full_name || user.email,
-    email: user.email,
-    phone: user.user_metadata?.phone || null,
-    position: user.user_metadata?.position || "Staff",
-    role: "staff",
-    is_active: false
-  }, {
-    onConflict: "user_id"
-  });
+
+    const { error: insertError } = await db
+      .from("profiles")
+      .insert({
+        id: user.id, // ✅ wajib id
+        full_name: user.user_metadata?.full_name || user.email,
+        phone: user.user_metadata?.phone || null,
+        position: user.user_metadata?.position || "Staff",
+        role: "staff",
+        is_active: false
+      });
+
+    if(insertError){
+      console.log("INSERT PROFILE ERROR:", insertError);
+    }
+
   }
 }
 
