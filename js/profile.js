@@ -13,13 +13,15 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
     }
 
-    const { data: { user }, error } = await db.auth.getUser();
+    // 🔥 Ambil session dulu (lebih stabil dari getUser)
+    const { data: sessionData } = await db.auth.getSession();
 
-    if(error || !user){
+    if(!sessionData.session){
         window.location.href = "login.html";
         return;
     }
 
+    const user = sessionData.session.user;
     currentUserId = user.id;
 
     applySavedTheme();
