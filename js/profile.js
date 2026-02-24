@@ -46,12 +46,15 @@ document.addEventListener("DOMContentLoaded", async () => {
 /* ========================================= */
 async function loadProfile(user){
 
-    const { data, error } = await db
-        .from("admin_users")
-        .select("*")
-        .eq("user_id", user.id)
-        .limit(1);
-
+   const { data, error } = await db
+      .from("admin_users")
+      .select("*")
+      .eq("user_id", user.id);
+    
+    console.log("USER ID:", user.id);
+    console.log("PROFILE DATA:", data);
+    console.log("PROFILE ERROR:", error);
+    
     if(error){
         console.log("LOAD PROFILE ERROR:", error);
         return;
