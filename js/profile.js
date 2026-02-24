@@ -13,7 +13,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
     }
 
-    // 🔥 Ambil session dulu (lebih stabil dari getUser)
     const { data: sessionData } = await db.auth.getSession();
 
     if(!sessionData.session){
@@ -41,44 +40,19 @@ async function loadProfile(user){
         .from("profiles")
         .select("*")
         .eq("id", user.id)
-        .single();
+        .maybeSingle();
 
-    if(error && error.code !== "PGRST116"){
+    if(error){
         console.log("LOAD PROFILE ERROR:", error);
         return;
     }
 
     if(!data){
-        await createInitialProfile(user);
+        alert("Profil tidak ditemukan.");
         return;
     }
 
     fillProfileData(data);
-}
-
-
-/* ========================================= */
-/* CREATE INITIAL PROFILE */
-/* ========================================= */
-async function createInitialProfile(user){
-
-    const employeeId = "CEO-" + Date.now();
-
-    const { error } = await db
-        .from("profiles")
-        .insert({
-            id: user.id,
-            full_name: user.user_metadata?.full_name || user.email,
-            role: "staff",
-            employee_id: employeeId
-        });
-
-    if(error){
-        console.log("CREATE PROFILE ERROR:", error);
-        return;
-    }
-
-    await loadProfile(user);
 }
 
 
@@ -101,7 +75,8 @@ function fillProfileData(data){
     setValue("bankNumberInput", data.bank_account);
 
     if(data.photo_url){
-        document.getElementById("profilePhoto").src = data.photo_url;
+        const img = document.getElementById("profilePhoto");
+        if(img) img.src = data.photo_url;
     }
 
     if(data.theme_prefer){
@@ -186,7 +161,8 @@ function setupUpload(inputId, bucket, field){
           .update({ [field]: url })
           .eq("id", currentUserId);
 
-        document.getElementById("profilePhoto").src = url;
+        const img = document.getElementById("profilePhoto");
+        if(img) img.src = url;
     });
 }
 
