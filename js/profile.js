@@ -12,21 +12,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         alert("Supabase belum terhubung");
         return;
     }
-    
-    const { data: sessionCheck } = await db.auth.getSession();
-    console.log("SESSION CHECK:", sessionCheck);
-    
-    const { data: authData, error } = await db.auth.getUser();
 
-    if(error){
-        console.log("AUTH ERROR:", error);
-        window.location.href = "login.html";
-        return;
-    }
+    const { data: { user }, error } = await db.auth.getUser();
 
-    const user = authData?.user;
-
-    if(!user){
+    if(error || !user){
         window.location.href = "login.html";
         return;
     }
@@ -46,27 +35,25 @@ document.addEventListener("DOMContentLoaded", async () => {
 /* ========================================= */
 async function loadProfile(user){
 
-   const { data, error } = await db
-      .from("admin_users")
-      .select("*")
-      .eq("user_id", user.id);
-    
-    console.log("USER ID:", user.id);
-    console.log("PROFILE DATA:", data);
-    console.log("PROFILE ERROR:", error);
-    
-    if(error){
+    const { data, error } = await db
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .single();
+
+    if(error && error.code !== "PGRST116"){
         console.log("LOAD PROFILE ERROR:", error);
         return;
     }
 
-    if(!data || data.length === 0){
+    if(!data){
         await createInitialProfile(user);
         return;
     }
 
-    fillProfileData(data[0]);
+    fillProfileData(data);
 }
+
 
 /* ========================================= */
 /* CREATE INITIAL PROFILE */
@@ -76,19 +63,16 @@ async function createInitialProfile(user){
     const employeeId = "CEO-" + Date.now();
 
     const { error } = await db
-        .from("admin_users")
+        .from("profiles")
         .insert({
-            user_id: user.id,
-            email: user.email,
-            full_name: user.email,
+            id: user.id,
+            full_name: user.user_metadata?.full_name || user.email,
             role: "staff",
-            employee_id: employeeId,
-            theme_prefer: "light"
+            employee_id: employeeId
         });
 
     if(error){
         console.log("CREATE PROFILE ERROR:", error);
-        alert("Gagal membuat profil awal.");
         return;
     }
 
@@ -106,20 +90,13 @@ function fillProfileData(data){
     setText("employeeId", data.employee_id);
 
     setValue("nameInput", data.full_name);
-    setValue("emailInput", data.email);
     setValue("phoneInput", data.phone);
     setValue("birthInput", data.birth_date);
     setValue("addressInput", data.address);
     setValue("genderInput", data.gender);
     setValue("positionInput", data.position);
-    setValue("roleInput", data.role);
-
     setValue("bankNameInput", data.bank_name);
-    setValue("bankNumberInput", data.bank_account); // 🔥 disesuaikan
-
-    setChecked("emailNotif", data.email_notif);
-    setChecked("waNotif", data.wa_notifikasi);      // 🔥 disesuaikan
-    setChecked("financeNotif", data.finance_notif);
+    setValue("bankNumberInput", data.bank_account);
 
     if(data.photo_url){
         document.getElementById("profilePhoto").src = data.photo_url;
@@ -134,6 +111,7 @@ function fillProfileData(data){
     styleRoleBadge(data.role);
 }
 
+
 /* ========================================= */
 /* SAVE PROFILE */
 /* ========================================= */
@@ -147,25 +125,17 @@ async function saveProfile(){
         gender: getValue("genderInput"),
         position: getValue("positionInput"),
         bank_name: getValue("bankNameInput"),
-        bank_account: getValue("bankNumberInput"),   // 🔥 diperbaiki
-        email_notif: getChecked("emailNotif"),
-        wa_notifikasi: getChecked("waNotif"),        // 🔥 diperbaiki
-        finance_notif: getChecked("financeNotif"),
+        bank_account: getValue("bankNumberInput"),
         theme_prefer: getValue("themeSelect")
     };
 
-    console.log("UPDATE DATA:", updateData);
-
-    const { data, error } = await db
-        .from("admin_users")
+    const { error } = await db
+        .from("profiles")
         .update(updateData)
-        .eq("user_id", currentUserId)
-        .select();
-
-    console.log("UPDATE RESULT:", data);
-    console.log("UPDATE ERROR:", error);
+        .eq("id", currentUserId);
 
     if(error){
+        console.log("UPDATE ERROR:", error);
         alert("Gagal menyimpan profil.");
         return;
     }
@@ -176,13 +146,12 @@ async function saveProfile(){
 document.getElementById("saveProfile")
 ?.addEventListener("click", saveProfile);
 
+
 /* ========================================= */
 /* UPLOAD HANDLER */
 /* ========================================= */
 function setupUploadHandlers(){
     setupUpload("uploadPhoto", "admin-photos", "photo_url");
-    setupUpload("uploadKTP", "admin-documents", "ktp_url");
-    setupUpload("uploadSignature", "admin-signatures", "signature_url");
 }
 
 function setupUpload(inputId, bucket, field){
@@ -201,7 +170,6 @@ function setupUpload(inputId, bucket, field){
 
         if(uploadError){
             console.log("UPLOAD ERROR:", uploadError);
-            alert("Upload gagal.");
             return;
         }
 
@@ -211,23 +179,12 @@ function setupUpload(inputId, bucket, field){
 
         const url = data?.signedUrl;
 
-        const { error: updateError } = await db
-          .from("admin_users")
+        await db
+          .from("profiles")
           .update({ [field]: url })
-          .eq("user_id", currentUserId)
-          .select();
-        
-        if(updateError){
-            console.log("PHOTO UPDATE ERROR:", updateError);
-            alert("Gagal menyimpan URL file.");
-            return;
-        }
+          .eq("id", currentUserId);
 
-        if(field === "photo_url"){
-            document.getElementById("profilePhoto").src = url;
-        }
-
-        alert("Upload berhasil.");
+        document.getElementById("profilePhoto").src = url;
     });
 }
 
@@ -246,9 +203,9 @@ function setupThemeSwitcher(){
         applyTheme(theme);
 
         await db
-            .from("admin_users")
+            .from("profiles")
             .update({ theme_prefer: theme })
-            .eq("user_id", currentUserId);
+            .eq("id", currentUserId);
     });
 }
 
@@ -293,15 +250,6 @@ function setValue(id, value){
     if(el) el.value = value || "";
 }
 
-function setChecked(id, value){
-    const el = document.getElementById(id);
-    if(el) el.checked = !!value;
-}
-
 function getValue(id){
     return document.getElementById(id)?.value || "";
-}
-
-function getChecked(id){
-    return document.getElementById(id)?.checked || false;
 }
