@@ -61,24 +61,44 @@ async function loadProfile(user){
 /* ========================================= */
 function fillProfileData(data){
 
+    // LEFT PANEL
     setText("fullName", data.full_name);
     setText("roleBadge", data.role);
     setText("employeeId", data.employee_id);
 
+    // PERSONAL
     setValue("nameInput", data.full_name);
+    setValue("emailInput", data.email);
     setValue("phoneInput", data.phone);
     setValue("birthInput", data.birth_date);
     setValue("addressInput", data.address);
     setValue("genderInput", data.gender);
+
+    // PROFESIONAL
     setValue("positionInput", data.position);
+    setValue("roleInput", data.role);
+
+    // BANK
     setValue("bankNameInput", data.bank_name);
     setValue("bankNumberInput", data.bank_account);
+    setValue("bankOwnerInput", data.bank_owner);
 
+    // NOTIFICATION
+    const emailNotif = document.getElementById("emailNotif");
+    const waNotif = document.getElementById("waNotif");
+    const financeNotif = document.getElementById("financeNotif");
+
+    if(emailNotif) emailNotif.checked = data.email_notification || false;
+    if(waNotif) waNotif.checked = data.wa_notification || false;
+    if(financeNotif) financeNotif.checked = data.finance_notification || false;
+
+    // PHOTO
     if(data.photo_url){
         const img = document.getElementById("profilePhoto");
         if(img) img.src = data.photo_url;
     }
 
+    // THEME
     if(data.theme_prefer){
         applyTheme(data.theme_prefer);
         const select = document.getElementById("themeSelect");
@@ -103,7 +123,12 @@ async function saveProfile(){
         position: getValue("positionInput"),
         bank_name: getValue("bankNameInput"),
         bank_account: getValue("bankNumberInput"),
-        theme_prefer: getValue("themeSelect")
+        bank_owner: getValue("bankOwnerInput"),
+        email_notification: document.getElementById("emailNotif")?.checked || false,
+        wa_notification: document.getElementById("waNotif")?.checked || false,
+        finance_notification: document.getElementById("financeNotif")?.checked || false,
+        theme_prefer: getValue("themeSelect"),
+        updated_at: new Date()
     };
 
     const { error } = await db
@@ -129,6 +154,8 @@ document.getElementById("saveProfile")
 /* ========================================= */
 function setupUploadHandlers(){
     setupUpload("uploadPhoto", "admin-photos", "photo_url");
+    setupUpload("uploadKTP", "admin-documents", "ktp_url");
+    setupUpload("uploadSignature", "admin-documents", "signature_url");
 }
 
 function setupUpload(inputId, bucket, field){
@@ -161,8 +188,10 @@ function setupUpload(inputId, bucket, field){
           .update({ [field]: url })
           .eq("id", currentUserId);
 
-        const img = document.getElementById("profilePhoto");
-        if(img) img.src = url;
+        if(field === "photo_url"){
+            const img = document.getElementById("profilePhoto");
+            if(img) img.src = url;
+        }
     });
 }
 
@@ -231,6 +260,7 @@ function setValue(id, value){
 function getValue(id){
     return document.getElementById(id)?.value || "";
 }
+
 
 /* ========================================= */
 /* LOGOUT */
