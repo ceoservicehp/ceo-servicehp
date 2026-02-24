@@ -111,6 +111,25 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 });
 
+/* ================= GOOGLE LOGIN ================= */
+document.getElementById("googleLogin")
+?.addEventListener("click", async () => {
+
+  console.log("Google login clicked");
+
+  const { error } = await db.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo: window.location.origin + "/login.html"
+    }
+  });
+
+  if(error){
+    console.log("Google OAuth Error:", error);
+    showAlert("Login Google gagal.");
+  }
+});
+
 /* ================= LOGIN ================= */
 loginForm?.addEventListener("submit", async (e)=>{
   e.preventDefault();
