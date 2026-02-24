@@ -24,15 +24,21 @@ async function checkSuperAdmin(){
     return;
   }
 
-  currentUserEmail = data.session.user.email;
+  const userId = data.session.user.id;
 
-  const { data: roleData } = await db
+  const { data: roleData, error } = await db
     .from("profiles")
     .select("role,is_active")
-    .eq("email", currentUserEmail)
+    .eq("id", userId)
     .maybeSingle();
 
-  if(!roleData || roleData.role !== "superadmin" || !roleData.is_active){
+  if(error || !roleData){
+    alert("Akses ditolak.");
+    window.location.href = "dapur.html";
+    return;
+  }
+
+  if(roleData.role !== "superadmin" || roleData.is_active !== true){
     alert("Akses ditolak.");
     window.location.href = "dapur.html";
   }
