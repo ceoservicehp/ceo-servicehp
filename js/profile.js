@@ -47,13 +47,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 async function loadProfile(user){
 
     const { data, error } = await db
-      .from("admin_users")
-      .select("*")
-      .eq("user_id", user.id)   // 🔥 WAJIB ADA
-      .maybeSingle();
+        .from("admin_users")
+        .select("*")
+        .eq("user_id", user.id)   // WAJIB
+        .maybeSingle();
 
     if(error){
-        console.log("LOAD PROFILE ERROR:", error);
+        console.log("LOAD PROFILE ERROR:", error.message);
         alert("Gagal memuat profil.");
         return;
     }
