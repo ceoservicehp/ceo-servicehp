@@ -2,32 +2,6 @@
 
 const db = window.supabaseClient;
 
-/* ================= AUTH LISTENER ================= */
-db.auth.onAuthStateChange(async (event, session) => {
-
-  console.log("AUTH EVENT:", event);
-
-  if(event === "SIGNED_IN" && session){
-
-    const user = session.user;
-
-    await ensureAdminRecord(user);
-    const role = await checkUserRole(user);
-
-    if(role === "pending"){
-      await db.auth.signOut();
-      showAlert("Akun belum disetujui.");
-      return;
-    }
-
-    if(role){
-      localStorage.setItem("userRole", role);
-      window.location.replace("profile.html");
-    }
-  }
-
-});
-
 /* ================= ELEMENT ================= */
 const alertBox = document.getElementById("alertBox");
 const loginForm = document.getElementById("loginForm");
@@ -52,94 +26,53 @@ function clearAlert(){
   alertBox.style.display = "none";
 }
 
-/* ================= CEK ROLE ================= */
-async function checkUserRole(user){
+/* ================= ENSURE PROFILE ================= */
+async function ensureProfile(user){
 
-  const { data, error } = await db
+  const { data } = await db
     .from("profiles")
-    .select("role,is_active")
-    .eq("id", user.id) // ✅ pakai id
+    .select("id")
+    .eq("id", user.id)
     .maybeSingle();
 
-  if(error){
-    console.log("CHECK ROLE ERROR:", error);
-    return null;
+  if(!data){
+    await db.from("profiles").insert({
+      id: user.id,
+      full_name: user.user_metadata?.full_name || user.email,
+      phone: user.user_metadata?.phone || null,
+      position: user.user_metadata?.position || "Staff",
+      role: "staff",
+      is_active: false
+    });
   }
+}
+
+/* ================= CEK ROLE ================= */
+async function getUserRole(user){
+
+  const { data } = await db
+    .from("profiles")
+    .select("role,is_active")
+    .eq("id", user.id)
+    .maybeSingle();
 
   if(!data) return null;
   if(!data.is_active) return "pending";
-
   return data.role;
 }
 
-/* ================= ENSURE RECORD ================= */
-async function ensureAdminRecord(user){
+/* ================= AUTH LISTENER ================= */
+db.auth.onAuthStateChange(async (event, session) => {
 
-  const { data, error } = await db
-    .from("profiles")
-    .select("id")
-    .eq("id", user.id) // ✅ pakai id
-    .maybeSingle();
+  console.log("AUTH EVENT:", event);
 
-  if(error){
-    console.log("ENSURE CHECK ERROR:", error);
-    return;
-  }
+  if(event === "SIGNED_IN" && session){
 
-  if(!data){
+    const user = session.user;
 
-    const { error: insertError } = await db
-      .from("profiles")
-      .insert({
-        id: user.id, // ✅ wajib id
-        full_name: user.user_metadata?.full_name || user.email,
-        phone: user.user_metadata?.phone || null,
-        position: user.user_metadata?.position || "Staff",
-        role: "staff",
-        is_active: false
-      });
+    await ensureProfile(user);
 
-    if(insertError){
-      console.log("INSERT PROFILE ERROR:", insertError);
-    }
-
-  }
-}
-
-/* ================= INIT ================= */
-document.addEventListener("DOMContentLoaded", async () => {
-
-  const params = new URLSearchParams(window.location.search);
-  const isRecovery = params.get("type") === "recovery";
-
-  // ================= RECOVERY MODE =================
-  if(isRecovery){
-    loginForm.style.display = "none";
-    registerForm.style.display = "none";
-    resetForm.style.display = "none";
-    updatePasswordForm.style.display = "block";
-    formTitle.textContent = "Buat Password Baru";
-
-    // isi hidden email untuk accessibility
-    const { data } = await db.auth.getSession();
-    if(data.session){
-      const recoveryEmailInput = document.getElementById("recoveryEmail");
-      if(recoveryEmailInput){
-        recoveryEmailInput.value = data.session.user.email;
-      }
-    }
-
-    return; // stop di sini kalau recovery
-  }
-
-  // ================= NORMAL SESSION CHECK =================
-  const { data } = await db.auth.getSession();
-
-  if(data.session){
-    const user = data.session.user;
-
-    await ensureAdminRecord(user);
-    const role = await checkUserRole(user);
+    const role = await getUserRole(user);
 
     if(role === "pending"){
       await db.auth.signOut();
@@ -155,23 +88,39 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 });
 
+/* ================= INIT ================= */
+document.addEventListener("DOMContentLoaded", async () => {
+
+  const params = new URLSearchParams(window.location.search);
+  const isRecovery = params.get("type") === "recovery";
+
+  if(isRecovery){
+    loginForm.style.display = "none";
+    registerForm.style.display = "none";
+    resetForm.style.display = "none";
+    updatePasswordForm.style.display = "block";
+    formTitle.textContent = "Buat Password Baru";
+    return;
+  }
+
+  const { data } = await db.auth.getSession();
+
+  if(data.session){
+    window.location.replace("profile.html");
+  }
+});
+
 /* ================= GOOGLE LOGIN ================= */
 document.getElementById("googleLogin")
 ?.addEventListener("click", async () => {
 
-  console.log("Google login clicked");
-
-  const { error } = await db.auth.signInWithOAuth({
+  await db.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: window.location.origin + "/login.html"
+      redirectTo: window.location.origin + "/profile.html"
     }
   });
 
-  if(error){
-    console.log("Google OAuth Error:", error);
-    showAlert("Login Google gagal.");
-  }
 });
 
 /* ================= LOGIN ================= */
@@ -185,17 +134,15 @@ loginForm?.addEventListener("submit", async (e)=>{
   const { data, error } = await db.auth.signInWithPassword({ email, password });
 
   if(error){
-    if(error.message.includes("Email not confirmed")){
-      showAlert("Silakan verifikasi email Anda terlebih dahulu.");
-    } else {
-      showAlert("Email atau password salah.");
-    }
+    showAlert("Email atau password salah.");
     return;
-}
+  }
 
   const user = data.user;
-  await ensureAdminRecord(user);
-  const role = await checkUserRole(user);
+
+  await ensureProfile(user);
+
+  const role = await getUserRole(user);
 
   if(role === "pending"){
     await db.auth.signOut();
@@ -204,7 +151,6 @@ loginForm?.addEventListener("submit", async (e)=>{
   }
 
   if(!role){
-    await db.auth.signOut();
     showAlert("Akun tidak ditemukan.");
     return;
   }
@@ -229,7 +175,7 @@ registerForm?.addEventListener("submit", async (e)=>{
     return;
   }
 
-  const { data, error } = await db.auth.signUp({
+  const { error } = await db.auth.signUp({
     email,
     password,
     options:{
@@ -238,82 +184,13 @@ registerForm?.addEventListener("submit", async (e)=>{
     }
   });
 
-  // 🔍 TAMBAHKAN DEBUG DI SINI
-  console.log("SIGNUP RESULT:", data, error);
-
   if(error){
     showAlert(error.message);
     return;
   }
 
-  showAlert(
-    "Registrasi berhasil! Silakan cek email Anda untuk verifikasi sebelum login.",
-    "success"
-  );
-
+  showAlert("Registrasi berhasil! Cek email untuk verifikasi.", "success");
   registerForm.reset();
-});
-
-/* ================= RESET REQUEST ================= */
-resetForm?.addEventListener("submit", async (e)=>{
-  e.preventDefault();
-  clearAlert();
-
-  const btn = resetForm.querySelector("button");
-  btn.disabled = true;
-  btn.textContent = "Mengirim...";
-
-  const email = resetForm.resetEmail.value;
-
-  const { error } = await db.auth.resetPasswordForEmail(email,{
-    redirectTo: window.location.origin + "/login.html?type=recovery"
-  });
-
-  if(error){
-    showAlert("Terlalu banyak permintaan. Coba lagi nanti.");
-    btn.disabled = false;
-    btn.textContent = "Kirim Link Reset";
-    return;
-  }
-
-  showAlert("Link reset password telah dikirim.", "success");
-
-setTimeout(()=>{
-  btn.disabled = false;
-  btn.textContent = "Kirim Link Reset";
-}, 3000);
-});
-
-/* ================= UPDATE PASSWORD ================= */
-updatePasswordForm?.addEventListener("submit", async (e)=>{
-  e.preventDefault();
-  clearAlert();
-
-  const newPassword = updatePasswordForm.newPassword.value;
-  const confirmPassword = updatePasswordForm.confirmPassword.value;
-
-  if(newPassword.length < 6){
-    showAlert("Password minimal 6 karakter.");
-    return;
-  }
-
-  if(newPassword !== confirmPassword){
-    showAlert("Konfirmasi password tidak cocok.");
-    return;
-  }
-
-  const { error } = await db.auth.updateUser({ password:newPassword });
-
-  if(error){
-    showAlert("Gagal mengubah password.");
-    return;
-  }
-
-  showAlert("Password berhasil diperbarui.", "success");
-
-  setTimeout(()=>{
-    window.location.replace("login.html");
-  },2000);
 });
 
 /* ================= SWITCH FORM ================= */
