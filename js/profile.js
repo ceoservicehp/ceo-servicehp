@@ -49,11 +49,11 @@ async function loadProfile(user){
     const { data, error } = await db
         .from("admin_users")
         .select("*")
-        .eq("user_id", user.id);
+        .eq("user_id", user.id)
+        .limit(1);
 
     if(error){
-        console.log("LOAD PROFILE ERROR:", error.message);
-        alert("Gagal memuat profil.");
+        console.log("LOAD PROFILE ERROR:", error);
         return;
     }
 
@@ -134,9 +134,6 @@ function fillProfileData(data){
 /* ========================================= */
 /* SAVE PROFILE */
 /* ========================================= */
-document.getElementById("saveProfile")
-?.addEventListener("click", saveProfile);
-
 async function saveProfile(){
 
     const updateData = {
@@ -157,17 +154,16 @@ async function saveProfile(){
     const { error } = await db
         .from("admin_users")
         .update(updateData)
-        .eq("user_id", currentUserId);
+        .eq("user_id", currentUserId)
+        .select(); // penting supaya tidak 400
 
     if(error){
         console.log("UPDATE ERROR:", error);
-        alert("Gagal menyimpan profil.");
         return;
     }
 
     alert("Profil berhasil diperbarui.");
 }
-
 
 /* ========================================= */
 /* UPLOAD HANDLER */
@@ -205,10 +201,11 @@ function setupUpload(inputId, bucket, field){
         const url = data?.signedUrl;
 
         const { error: updateError } = await db
-            .from("admin_users")
-            .update({ [field]: url })
-            .eq("user_id", currentUserId);
-
+          .from("admin_users")
+          .update({ [field]: url })
+          .eq("user_id", currentUserId)
+          .select();
+        
         if(updateError){
             console.log("PHOTO UPDATE ERROR:", updateError);
             alert("Gagal menyimpan URL file.");
