@@ -27,7 +27,7 @@ async function checkSuperAdmin(){
   currentUserEmail = data.session.user.email;
 
   const { data: roleData } = await db
-    .from("admin_users")
+    .from("profiles")
     .select("role,is_active")
     .eq("email", currentUserEmail)
     .maybeSingle();
@@ -52,7 +52,7 @@ async function loadAdmins(){
   `;
 
   const { data, error } = await db
-    .from("admin_users")
+    .from("profiles")
     .select("*")
     .order("created_at", { ascending:false });
 
@@ -146,7 +146,7 @@ function bindInlineEditors(){
       const id = e.target.dataset.id;
       const newRole = e.target.value;
 
-      await db.from("admin_users")
+      await db.from("profiles")
         .update({ role:newRole })
         .eq("id", id);
     });
@@ -157,7 +157,7 @@ function bindInlineEditors(){
       const id = e.target.dataset.id;
       const newPosition = e.target.value;
 
-      await db.from("admin_users")
+      await db.from("profiles")
         .update({ position:newPosition })
         .eq("id", id);
     });
@@ -216,13 +216,13 @@ async function executeAction(){
 
     const user = allAdmins.find(a=>a.id===selectedUserId);
 
-    await db.from("admin_users")
+    await db.from("profiles")
       .update({ is_active: !user.is_active })
       .eq("id", selectedUserId);
   }
 
   if(selectedAction === "delete"){
-    await db.from("admin_users")
+    await db.from("profiles")
       .delete()
       .eq("id", selectedUserId);
   }
