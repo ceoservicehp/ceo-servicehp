@@ -29,7 +29,7 @@ function clearAlert(){
 /* ================= CEK ROLE ================= */
 async function checkUserRole(user){
   const { data } = await db
-    .from("admin_users")
+    .from("profiles")
     .select("role,is_active")
     .eq("user_id", user.id)
     .maybeSingle();
@@ -42,13 +42,13 @@ async function checkUserRole(user){
 /* ================= ENSURE RECORD ================= */
 async function ensureAdminRecord(user){
   const { data } = await db
-    .from("admin_users")
+    .from("profiles")
     .select("id")
     .eq("user_id", user.id)
     .maybeSingle();
 
   if(!data){
-  await db.from("admin_users").upsert({
+  await db.from("profiles").upsert({
     user_id: user.id,
     full_name: user.user_metadata?.full_name || user.email,
     email: user.email,
