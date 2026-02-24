@@ -147,18 +147,22 @@ async function saveProfile(){
         gender: getValue("genderInput"),
         position: getValue("positionInput"),
         bank_name: getValue("bankNameInput"),
-        bank_account_number: getValue("bankNumberInput"),
+        bank_account: getValue("bankNumberInput"),
         email_notif: getChecked("emailNotif"),
         wa_notif: getChecked("waNotif"),
         finance_notif: getChecked("financeNotif"),
         theme_prefer: getValue("themeSelect")
     };
 
-    const { error } = await db
-        .from("admin_users")
-        .update(updateData)
-        .eq("user_id", currentUserId)
-        .select(); // penting supaya tidak 400
+    const { data, error } = await db
+      .from("admin_users")
+      .update(updateData)
+      .eq("user_id", currentUserId)
+      .select();
+    
+    console.log("UPDATE DATA:", updateData);
+    console.log("UPDATE RESULT:", data);
+    console.log("UPDATE ERROR:", error);
 
     if(error){
         console.log("UPDATE ERROR:", error);
