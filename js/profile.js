@@ -49,8 +49,7 @@ async function loadProfile(user){
     const { data, error } = await db
         .from("admin_users")
         .select("*")
-        .eq("user_id", user.id)   // WAJIB
-        .maybeSingle();
+        .eq("user_id", user.id);
 
     if(error){
         console.log("LOAD PROFILE ERROR:", error.message);
@@ -58,12 +57,12 @@ async function loadProfile(user){
         return;
     }
 
-    if(!data){
+    if(!data || data.length === 0){
         await createInitialProfile(user);
         return;
     }
 
-    fillProfileData(data);
+    fillProfileData(data[0]);
 }
 
 /* ========================================= */
