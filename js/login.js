@@ -2,6 +2,32 @@
 
 const db = window.supabaseClient;
 
+/* ================= AUTH LISTENER ================= */
+db.auth.onAuthStateChange(async (event, session) => {
+
+  console.log("AUTH EVENT:", event);
+
+  if(event === "SIGNED_IN" && session){
+
+    const user = session.user;
+
+    await ensureAdminRecord(user);
+    const role = await checkUserRole(user);
+
+    if(role === "pending"){
+      await db.auth.signOut();
+      showAlert("Akun belum disetujui.");
+      return;
+    }
+
+    if(role){
+      localStorage.setItem("userRole", role);
+      window.location.replace("profile.html");
+    }
+  }
+
+});
+
 /* ================= ELEMENT ================= */
 const alertBox = document.getElementById("alertBox");
 const loginForm = document.getElementById("loginForm");
