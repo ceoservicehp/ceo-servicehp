@@ -13,7 +13,14 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
     }
 
-    const { data: authData } = await db.auth.getUser();
+    const { data: authData, error } = await db.auth.getUser();
+
+    if(error){
+        console.log("AUTH ERROR:", error);
+        window.location.href = "login.html";
+        return;
+    }
+
     const user = authData?.user;
 
     if(!user){
@@ -39,15 +46,16 @@ async function loadProfile(user){
     const { data, error } = await db
         .from("admin_users")
         .select("*")
-        .eq("user_id", user.id)   // 🔥 WAJIB
+        .eq("user_id", user.id)
         .maybeSingle();
 
     if(error){
-        console.log(error);
+        console.log("LOAD PROFILE ERROR:", error);
         alert("Gagal memuat profil.");
         return;
     }
 
+    // Jika belum ada record → buat
     if(!data){
         await createInitialProfile(user);
         return;
@@ -64,23 +72,26 @@ async function createInitialProfile(user){
 
     const employeeId = "CEO-" + Date.now();
 
-    const { error } = await db.from("admin_users").insert({
-        user_id: user.id,
-        email: user.email,
-        full_name: user.email,
-        role: "staff",
-        employee_id: employeeId,
-        theme_prefer: "light"
-    });
+    const { error } = await db
+        .from("admin_users")
+        .insert({
+            user_id: user.id,
+            email: user.email,
+            full_name: user.email,
+            role: "staff",
+            employee_id: employeeId,
+            theme_prefer: "light"
+        });
 
     if(error){
-        console.log(error);
+        console.log("CREATE PROFILE ERROR:", error);
         alert("Gagal membuat profil awal.");
         return;
     }
 
     await loadProfile(user);
 }
+
 
 /* ========================================= */
 /* FILL UI */
@@ -146,10 +157,10 @@ async function saveProfile(){
     const { error } = await db
         .from("admin_users")
         .update(updateData)
-        .eq("user_id", currentUserId);   // 🔥 WAJIB
+        .eq("user_id", currentUserId);
 
     if(error){
-        console.log(error);
+        console.log("UPDATE ERROR:", error);
         alert("Gagal menyimpan profil.");
         return;
     }
@@ -177,12 +188,12 @@ function setupUpload(inputId, bucket, field){
 
         const path = `${currentUserId}/${field}`;
 
-        const { error } = await db.storage
+        const { error: uploadError } = await db.storage
             .from(bucket)
             .upload(path, file, { upsert: true });
 
-        if(error){
-            console.log(error);
+        if(uploadError){
+            console.log("UPLOAD ERROR:", uploadError);
             alert("Upload gagal.");
             return;
         }
@@ -193,10 +204,16 @@ function setupUpload(inputId, bucket, field){
 
         const url = data?.signedUrl;
 
-        await db
+        const { error: updateError } = await db
             .from("admin_users")
             .update({ [field]: url })
-            .eq("user_id", currentUserId);   // 🔥 WAJIB
+            .eq("user_id", currentUserId);
+
+        if(updateError){
+            console.log("PHOTO UPDATE ERROR:", updateError);
+            alert("Gagal menyimpan URL file.");
+            return;
+        }
 
         if(field === "photo_url"){
             document.getElementById("profilePhoto").src = url;
@@ -223,7 +240,7 @@ function setupThemeSwitcher(){
         await db
             .from("admin_users")
             .update({ theme_prefer: theme })
-            .eq("user_id", currentUserId);   // 🔥 WAJIB
+            .eq("user_id", currentUserId);
     });
 }
 
