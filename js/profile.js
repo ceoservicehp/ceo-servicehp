@@ -49,6 +49,7 @@ async function loadProfile(user){
     const { data, error } = await db
       .from("admin_users")
       .select("*")
+      .eq("user_id", user.id)   // 🔥 WAJIB ADA
       .maybeSingle();
 
     if(error){
@@ -57,7 +58,6 @@ async function loadProfile(user){
         return;
     }
 
-    // Jika belum ada record → buat
     if(!data){
         await createInitialProfile(user);
         return;
@@ -65,7 +65,6 @@ async function loadProfile(user){
 
     fillProfileData(data);
 }
-
 
 /* ========================================= */
 /* CREATE INITIAL PROFILE */
