@@ -231,3 +231,13 @@ function setValue(id, value){
 function getValue(id){
     return document.getElementById(id)?.value || "";
 }
+
+/* ========================================= */
+/* LOGOUT */
+/* ========================================= */
+document.getElementById("logoutBtn")
+?.addEventListener("click", async () => {
+  await db.auth.signOut();
+  localStorage.removeItem("userRole");
+  window.location.href = "login.html";
+});
