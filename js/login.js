@@ -29,42 +29,59 @@ function clearAlert(){
 /* ================= ENSURE PROFILE ================= */
 async function ensureProfile(user){
 
-  const { data } = await db
+  const { data, error } = await db
     .from("profiles")
     .select("id")
     .eq("id", user.id)
     .maybeSingle();
 
+  if(error){
+    console.error("CHECK PROFILE ERROR:", error);
+    return;
+  }
+
   if(!data){
-    await db.from("profiles").insert({
-      id: user.id,
-      full_name: user.user_metadata?.full_name || user.email,
-      phone: user.user_metadata?.phone || null,
-      position: user.user_metadata?.position || "Staff",
-      role: "staff",
-      is_active: false
-    });
+    const { error: insertError } = await db
+      .from("profiles")
+      .insert({
+        id: user.id,
+        email: user.email, // ✅ WAJIB ADA
+        full_name: user.user_metadata?.full_name || user.email,
+        phone: user.user_metadata?.phone || null,
+        position: user.user_metadata?.position || "Staff",
+        role: "staff",
+        is_active: false
+      });
+
+    if(insertError){
+      console.error("INSERT PROFILE ERROR:", insertError);
+    }
   }
 }
 
 /* ================= CEK ROLE ================= */
 async function getUserRole(user){
 
-  const { data } = await db
+  const { data, error } = await db
     .from("profiles")
     .select("role,is_active")
     .eq("id", user.id)
     .maybeSingle();
 
+  if(error){
+    console.error("ROLE ERROR:", error);
+    return null;
+  }
+
   if(!data) return null;
-  if(!data.is_active) return "pending";
+
+  if(data.is_active !== true) return "pending";
+
   return data.role;
 }
 
 /* ================= AUTH LISTENER ================= */
 db.auth.onAuthStateChange(async (event, session) => {
-
-  console.log("AUTH EVENT:", event);
 
   if(event === "SIGNED_IN" && session){
 
@@ -76,16 +93,15 @@ db.auth.onAuthStateChange(async (event, session) => {
 
     if(role === "pending"){
       await db.auth.signOut();
-      showAlert("Akun belum disetujui.");
+      showAlert("Akun belum disetujui admin.");
       return;
     }
 
     if(role){
       localStorage.setItem("userRole", role);
-      window.location.replace("profile.html");
+      window.location.href = "profile.html";
     }
   }
-
 });
 
 /* ================= INIT ================= */
@@ -106,7 +122,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const { data } = await db.auth.getSession();
 
   if(data.session){
-    window.location.replace("profile.html");
+    window.location.href = "profile.html";
   }
 });
 
@@ -117,7 +133,7 @@ document.getElementById("googleLogin")
   await db.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: window.location.origin + "/profile.html"
+      redirectTo: window.location.origin + "/login.html"
     }
   });
 
@@ -146,7 +162,7 @@ loginForm?.addEventListener("submit", async (e)=>{
 
   if(role === "pending"){
     await db.auth.signOut();
-    showAlert("Akun belum disetujui.");
+    showAlert("Akun belum disetujui admin.");
     return;
   }
 
@@ -156,7 +172,7 @@ loginForm?.addEventListener("submit", async (e)=>{
   }
 
   localStorage.setItem("userRole", role);
-  window.location.replace("profile.html");
+  window.location.href = "profile.html";
 });
 
 /* ================= REGISTER ================= */
