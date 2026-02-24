@@ -16,6 +16,7 @@ const showResetBtn = document.getElementById("showReset");
 
 /* ================= ALERT ================= */
 function showAlert(message, type="error"){
+  if(!alertBox) return;
   alertBox.style.display = "block";
   alertBox.className = "alert-box";
   alertBox.classList.add(type === "success" ? "alert-success" : "alert-error");
@@ -23,107 +24,55 @@ function showAlert(message, type="error"){
 }
 
 function clearAlert(){
-  alertBox.style.display = "none";
+  if(alertBox) alertBox.style.display = "none";
 }
 
-/* ================= ENSURE PROFILE ================= */
+/* ================= ENSURE PROFILE (LOGIN SAJA) ================= */
 async function ensureProfile(user){
 
-  const { data, error } = await db
+  const { data } = await db
     .from("profiles")
     .select("id")
     .eq("id", user.id)
     .maybeSingle();
 
-  if(error){
-    console.error("CHECK PROFILE ERROR:", error);
-    return;
-  }
-
   if(!data){
-    const { error: insertError } = await db
-      .from("profiles")
-      .insert({
-        id: user.id,
-        email: user.email, // ✅ WAJIB ADA
-        full_name: user.user_metadata?.full_name || user.email,
-        phone: user.user_metadata?.phone || null,
-        position: user.user_metadata?.position || "Staff",
-        role: "staff",
-        is_active: false
-      });
-
-    if(insertError){
-      console.error("INSERT PROFILE ERROR:", insertError);
-    }
+    await db.from("profiles").insert({
+      id: user.id,
+      email: user.email,
+      full_name: user.user_metadata?.full_name || user.email,
+      phone: user.user_metadata?.phone || null,
+      position: user.user_metadata?.position || "Staff",
+      role: "staff",
+      is_active: false
+    });
   }
 }
 
-/* ================= CEK ROLE ================= */
+/* ================= GET ROLE ================= */
 async function getUserRole(user){
 
-  const { data, error } = await db
+  const { data } = await db
     .from("profiles")
     .select("role,is_active")
     .eq("id", user.id)
     .maybeSingle();
 
-  if(error){
-    console.error("ROLE ERROR:", error);
-    return null;
-  }
-
   if(!data) return null;
-
   if(data.is_active !== true) return "pending";
 
   return data.role;
 }
 
-/* ================= AUTH LISTENER ================= */
-db.auth.onAuthStateChange(async (event, session) => {
-
-  if(event === "SIGNED_IN" && session){
-
-    const user = session.user;
-
-    await ensureProfile(user);
-
-    const role = await getUserRole(user);
-
-    if(role === "pending"){
-      await db.auth.signOut();
-      showAlert("Akun belum disetujui admin.");
-      return;
-    }
-
-    if(role){
-      localStorage.setItem("userRole", role);
-      window.location.href = "profile.html";
-    }
-  }
-});
-
 /* ================= INIT ================= */
 document.addEventListener("DOMContentLoaded", async () => {
-
-  const params = new URLSearchParams(window.location.search);
-  const isRecovery = params.get("type") === "recovery";
-
-  if(isRecovery){
-    loginForm.style.display = "none";
-    registerForm.style.display = "none";
-    resetForm.style.display = "none";
-    updatePasswordForm.style.display = "block";
-    formTitle.textContent = "Buat Password Baru";
-    return;
-  }
 
   const { data } = await db.auth.getSession();
 
   if(data.session){
     window.location.href = "profile.html";
   }
+
 });
 
 /* ================= GOOGLE LOGIN ================= */
@@ -156,6 +105,7 @@ loginForm?.addEventListener("submit", async (e)=>{
 
   const user = data.user;
 
+  // Profile dibuat saat login pertama
   await ensureProfile(user);
 
   const role = await getUserRole(user);
@@ -167,7 +117,7 @@ loginForm?.addEventListener("submit", async (e)=>{
   }
 
   if(!role){
-    showAlert("Akun tidak ditemukan.");
+    showAlert("Profil tidak ditemukan.");
     return;
   }
 
@@ -191,11 +141,12 @@ registerForm?.addEventListener("submit", async (e)=>{
     return;
   }
 
-  const { data, error } = await db.auth.signUp({
+  const { error } = await db.auth.signUp({
     email,
     password,
     options:{
-      emailRedirectTo: window.location.origin + "/login.html"
+      emailRedirectTo: window.location.origin + "/login.html",
+      data:{ full_name:name, phone, position }
     }
   });
 
@@ -204,31 +155,10 @@ registerForm?.addEventListener("submit", async (e)=>{
     return;
   }
 
-  const user = data.user;
-
-  if(user){
-    const { error: profileError } = await db
-      .from("profiles")
-      .insert({
-        id: user.id,
-        email: email,
-        full_name: name,
-        phone: phone,
-        position: position,
-        role: "staff",
-        is_active: false
-      });
-
-    if(profileError){
-      console.error("PROFILE INSERT ERROR:", profileError);
-      showAlert("Gagal membuat profil.");
-      return;
-    }
-  }
-
   showAlert("Registrasi berhasil! Cek email untuk verifikasi.", "success");
   registerForm.reset();
 });
+
 /* ================= SWITCH FORM ================= */
 function showLogin(){
   loginForm.style.display = "block";
