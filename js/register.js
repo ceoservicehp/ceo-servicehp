@@ -36,29 +36,31 @@ registerForm?.addEventListener("submit", async (e)=>{
   }
 
   // 1️⃣ Buat akun di Supabase Auth
-  const { data, error } = await db.auth.signUp({
-    email,
-    password
-  });
-
-  if(error){
-    showAlert(error.message);
-    return;
-  }
-
-  const user = data.user;
-
-  if(!user){
-    showAlert("Gagal membuat akun.");
-    return;
-  }
-
-  // 2️⃣ Insert ke tabel admin_users
-  const { data, error } = await db.auth.signUp({
-  email: "test12345@gmail.com",
-  password: "12345678"
+  const { data: signUpData, error } = await db.auth.signUp({
+  email,
+  password
 });
 
+if(error){
+  showAlert(error.message);
+  return;
+}
+
+const user = signUpData.user;
+
+const { error: insertError } = await db
+  .from("admin_users")
+  .insert([
+    {
+      user_id: user.id,
+      full_name: name,
+      phone,
+      position,
+      role: "admin",
+      is_active: false
+    }
+  ]);
+  
 console.log(data, error);
 
   if(insertError){
