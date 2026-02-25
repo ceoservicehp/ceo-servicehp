@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Daftar Akun - CEO Service HP</title>
+
+<link rel="stylesheet" href="css/login.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase.js"></script>
+</head>
+<body>
+
+<div class="login-wrapper">
+  <div class="login-card">
+
+    <div class="logo-area">
+      <img src="images/logo.png" class="logo">
+      <h2>Daftar Admin</h2>
+      <p class="subtitle">Akun harus disetujui Superadmin</p>
+    </div>
+
+    <form id="registerForm" class="auth-form">
+
+      <div class="input-group">
+        <i class="fa-solid fa-user"></i>
+        <input type="text" id="registerName" placeholder="Nama Lengkap" required>
+      </div>
+
+      <div class="input-group">
+        <i class="fa-solid fa-envelope"></i>
+        <input type="email" id="registerEmail" placeholder="Email Aktif" required>
+      </div>
+
+      <div class="input-group">
+        <i class="fa-solid fa-phone"></i>
+        <input type="tel" id="registerPhone" placeholder="No HP" required>
+      </div>
+
+      <div class="input-group">
+        <i class="fa-solid fa-briefcase"></i>
+        <input type="text" id="registerPosition" placeholder="Jabatan" required>
+      </div>
+
+      <div class="input-group">
+        <i class="fa-solid fa-lock"></i>
+        <input type="password" id="registerPassword" placeholder="Password (min 6 karakter)" required>
+      </div>
+
+      <button type="submit" class="login-btn">
+        <i class="fa-solid fa-user-plus"></i>
+        Daftar Akun
+      </button>
+
+      <div class="info-box">
+        Akun akan aktif setelah disetujui oleh Superadmin.
+      </div>
+
+    </form>
+
+    <div id="alertBox" class="alert-box" style="display:none;"></div>
+
+    <div class="switch-links">
+      <a href="login.html">Kembali ke Login</a>
+    </div>
+
+  </div>
+</div>
+
+<script src="js/login.js"></script>
+</body>
+</html>
