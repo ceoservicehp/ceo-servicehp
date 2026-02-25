@@ -231,11 +231,11 @@ async function compressImage(file){
 /* UPLOAD HANDLER */
 /* ========================================= */
 function setupUploadHandlers(){
-    setupUpload("uploadPhoto", "admin-photos", "photo_url");
-    setupUpload("uploadKTP", "admin-documents", "ktp_url");
-    setupUpload("uploadSignature", "admin-documents", "signature_url");
+    setupUpload("uploadPhoto", "photo_url", "photo_url");
+    setupUpload("uploadKTP", "ktp_url", "ktp_url");
+    setupUpload("uploadSignature", "signatur.url", "signature_url");
 }
-
+    
    function setupUpload(inputId, bucket, field){
 
     document.getElementById(inputId)
