@@ -6,7 +6,6 @@ let allAdmins = [];
 let selectedUserId = null;
 let selectedAction = null;
 
-/* ================= INIT ================= */
 document.addEventListener("DOMContentLoaded", async () => {
   await checkSuperAdmin();
   await loadAdmins();
@@ -16,7 +15,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 /* ================= SECURITY ================= */
 async function checkSuperAdmin(){
-
   const { data } = await db.auth.getSession();
 
   if(!data?.session){
@@ -35,38 +33,35 @@ async function checkSuperAdmin(){
   if(!roleData || roleData.role !== "superadmin" || !roleData.is_active){
     alert("Akses ditolak.");
     window.location.href = "dapur.html";
-    return;
   }
 }
 
-/* ================= LOAD DATA (JOIN) ================= */
+/* ================= LOAD DATA ================= */
 async function loadAdmins(){
 
   const tbody = document.getElementById("adminTable");
 
   tbody.innerHTML = `
     <tr>
-      <td colspan="9" class="loading">
-        <i class="fa-solid fa-spinner fa-spin"></i> Memuat...
-      </td>
+      <td colspan="9">Memuat...</td>
     </tr>
   `;
 
   const { data, error } = await db
-  .from("admin_users")
-  .select(`
-    id,
-    user_id,
-    nama,
-    email,
-    phone,
-    position,
-    role,
-    is_active,
-    approved_by,
-    created_at
-  `)
-  .order("created_at", { ascending: false });
+    .from("admin_users")
+    .select(`
+      id,
+      user_id,
+      nama,
+      email,
+      phone,
+      position,
+      role,
+      is_active,
+      approved_by,
+      created_at
+    `)
+    .order("created_at", { ascending: false });
 
   if(error){
     tbody.innerHTML = `<tr><td colspan="9">Error load data</td></tr>`;
@@ -125,9 +120,8 @@ function renderTable(data){
   bindActionButtons();
 }
 
-/* ================= BUTTON ACTION ================= */
+/* ================= BUTTON ================= */
 function bindActionButtons(){
-
   document.querySelectorAll(".action-btn")
     .forEach(btn=>{
       btn.addEventListener("click", e=>{
@@ -141,14 +135,13 @@ function bindActionButtons(){
 /* ================= MODAL ================= */
 function initModal(){
   document.getElementById("confirmYes")
-    .addEventListener("click", executeAction);
+    ?.addEventListener("click", executeAction);
 
   document.getElementById("confirmNo")
-    .addEventListener("click", closeModal);
+    ?.addEventListener("click", closeModal);
 }
 
 function showConfirmModal(action){
-
   const title = document.getElementById("confirmTitle");
   const text = document.getElementById("confirmText");
 
@@ -173,7 +166,6 @@ async function executeAction(){
   if(!selectedUserId) return;
 
   if(selectedAction === "toggle"){
-
     const user = allAdmins.find(a=>a.id===selectedUserId);
 
     await db.from("admin_users")
@@ -220,7 +212,8 @@ function applyFilters(){
       a.nama?.toLowerCase().includes(keyword) ||
       a.email?.toLowerCase().includes(keyword)
     );
-    
+  }
+
   if(status !== "all"){
     filtered = filtered.filter(a =>
       status === "active" ? a.is_active : !a.is_active
