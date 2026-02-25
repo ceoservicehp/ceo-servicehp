@@ -183,10 +183,23 @@ async function loadSignature(){
   }
 
   if(data?.signature_url){
-    const img = document.getElementById("ttdImg");
-    if(img){
-      img.src = data.signature_url;
-      img.style.display = "block";
+
+    const imgElement = document.getElementById("ttdImg");
+    if(!imgElement) return;
+
+    try{
+      const response = await fetch(data.signature_url);
+      const blob = await response.blob();
+
+      const reader = new FileReader();
+      reader.onloadend = function(){
+        imgElement.src = reader.result; // BASE64
+        imgElement.style.display = "block";
+      };
+      reader.readAsDataURL(blob);
+
+    }catch(err){
+      console.log("Gagal convert signature:", err);
     }
   }
 
@@ -197,7 +210,6 @@ async function loadSignature(){
     }
   }
 }
-
 
 /* ================= DOWNLOAD PDF ================= */
 function downloadPDF(){
