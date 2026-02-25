@@ -88,13 +88,14 @@ function renderTable(data){
       ? `<span class="badge badge-active">Aktif</span>`
       : `<span class="badge badge-inactive">Nonaktif</span>`;
 
-    const roleDropdown = `
-      <select class="role-select" data-id="${admin.id}">
-        <option value="admin" ${admin.role==="admin"?"selected":""}>Admin</option>
-        <option value="superadmin" ${admin.role==="superadmin"?"selected":""}>Superadmin</option>
-      </select>
-    `;
-
+   const roleDropdown = `
+    <select class="role-select" data-id="${admin.id}">
+      <option value="staff" ${admin.role==="staff"?"selected":""}>Staff</option>
+      <option value="admin" ${admin.role==="admin"?"selected":""}>Admin</option>
+      <option value="superadmin" ${admin.role==="superadmin"?"selected":""}>Superadmin</option>
+    </select>
+  `;
+    
     const positionInput = `
       <input type="text" 
         class="position-input"
