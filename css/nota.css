@@ -496,3 +496,12 @@ display:flex;
 justify-content:center;
 gap:15px;
 }
+
+/* ================= SIGNATURE ================= */
+.signature-img{
+  width:160px;
+  height:90px;
+  background-size:contain;
+  background-repeat:no-repeat;
+  background-position:center;
+}
