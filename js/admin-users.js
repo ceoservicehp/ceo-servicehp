@@ -91,8 +91,6 @@ function renderTable(data){
 
   data.forEach((admin, index)=>{
 
-    const profile = admin.profiles || {};
-
     const statusBadge = admin.is_active
       ? `<span class="badge badge-active">Aktif</span>`
       : `<span class="badge badge-inactive">Nonaktif</span>`;
@@ -100,10 +98,10 @@ function renderTable(data){
     tbody.innerHTML += `
       <tr>
         <td>${index+1}</td>
-        <td>${profile.full_name ?? "-"}</td>
-        <td>${profile.email ?? "-"}</td>
-        <td>${profile.phone ?? "-"}</td>
-        <td>${profile.position ?? "-"}</td>
+        <td>${admin.nama ?? "-"}</td>
+        <td>${admin.email ?? "-"}</td>
+        <td>${admin.phone ?? "-"}</td>
+        <td>${admin.position ?? "-"}</td>
         <td>${admin.role}</td>
         <td>${statusBadge}</td>
         <td>${admin.approved_by ?? "-"}</td>
@@ -219,11 +217,10 @@ function applyFilters(){
 
   if(keyword){
     filtered = filtered.filter(a =>
-      a.profiles?.full_name?.toLowerCase().includes(keyword) ||
-      a.profiles?.email?.toLowerCase().includes(keyword)
+      a.nama?.toLowerCase().includes(keyword) ||
+      a.email?.toLowerCase().includes(keyword)
     );
-  }
-
+    
   if(status !== "all"){
     filtered = filtered.filter(a =>
       status === "active" ? a.is_active : !a.is_active
