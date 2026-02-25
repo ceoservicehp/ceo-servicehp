@@ -233,7 +233,7 @@ async function compressImage(file){
 function setupUploadHandlers(){
     setupUpload("uploadPhoto", "photo_url", "photo_url");
     setupUpload("uploadKTP", "ktp_url", "ktp_url");
-    setupUpload("uploadSignature", "signature.url", "signature_url");
+    setupUpload("uploadSignature", "signature_url", "signature_url");
 }
     
    function setupUpload(inputId, bucket, field){
