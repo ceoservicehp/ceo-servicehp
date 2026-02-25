@@ -18,17 +18,19 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
     }
 
-    const userEmail = data.session.user.email;
+    const userId = data.session.user.id;
 
-    // 🔎 Cek di tabel admin_users
     const { data: roleData, error } = await supabase
       .from("admin_users")
-      .select("role")
-      .eq("email", userEmail)
-      .eq("is_active", true)
+      .select("role, is_active")
+      .eq("user_id", userId)
       .maybeSingle();
     
-    if(error || !roleData){
+    if(error){
+      console.error(error);
+    }
+    
+    if(!roleData || !roleData.is_active){
         await supabase.auth.signOut();
         alert("Akun belum diaktifkan admin.");
         window.location.href = "login.html";
@@ -620,12 +622,12 @@ document.addEventListener("click",async e=>{
     if(!e.target.classList.contains("hapus")) return;
 
     const { data: sessionData } = await getSupabase().auth.getSession();
-    const email = sessionData.session.user.email;
+    const userId = sessionData.session.user.id;
     
     const { data: roleCheck } = await getSupabase()
       .from("admin_users")
       .select("role")
-      .eq("email", email)
+      .eq("user_id", userId)
       .eq("is_active", true)
       .maybeSingle();
     
@@ -688,12 +690,12 @@ document.getElementById("hapusTerpilih")
 ?.addEventListener("click", async () => {
 
     const { data: sessionData } = await getSupabase().auth.getSession();
-    const email = sessionData.session.user.email;
+    const userId = sessionData.session.user.id;
 
     const { data: roleCheck } = await getSupabase()
       .from("admin_users")
       .select("role")
-      .eq("email", email)
+      .eq("user_id", userId)
       .eq("is_active", true)
       .maybeSingle();
 
@@ -831,3 +833,4 @@ async function logout(){
 
 document.getElementById("logoutBtn")
 ?.addEventListener("click", logout);
+
