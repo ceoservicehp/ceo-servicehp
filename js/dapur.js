@@ -4,6 +4,8 @@ function getSupabase(){
     return window.supabaseClient;
 }
 
+console.log("DAPUR JS VERSI BARU");
+
 /* ================= CEK SESSION + ROLE ================= */
 document.addEventListener("DOMContentLoaded", async () => {
 
@@ -833,4 +835,5 @@ async function logout(){
 
 document.getElementById("logoutBtn")
 ?.addEventListener("click", logout);
+
 
