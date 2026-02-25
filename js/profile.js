@@ -24,11 +24,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     currentUserId = user.id;
 
     applySavedTheme();
-    setupThemeSwitcher();
     setupUploadHandlers();
 
     await loadProfile(user);
-    await loadRole(); // 🔥 ambil role dari admin_users
+    await loadRole();
 });
 
 
@@ -48,7 +47,7 @@ async function loadProfile(user){
         return;
     }
 
-    // 🔥 Jika belum ada profile → buat otomatis
+    // AUTO CREATE PROFILE
     if(!data){
 
         const { error: insertError } = await db
@@ -65,14 +64,28 @@ async function loadProfile(user){
             return;
         }
 
-        return loadProfile(user); // reload
+        return loadProfile(user);
+    }
+
+    // AUTO GENERATE EMPLOYEE ID
+    if(!data.employee_id){
+        const random = Math.floor(Math.random() * 9000) + 1000;
+        const employeeId = "CEO-" + random;
+
+        await db
+          .from("profiles")
+          .update({ employee_id: employeeId })
+          .eq("id", user.id);
+
+        data.employee_id = employeeId;
     }
 
     fillProfileData(data);
 }
 
+
 /* ========================================= */
-/* LOAD ROLE DARI admin_users */
+/* LOAD ROLE */
 /* ========================================= */
 async function loadRole(){
 
@@ -95,46 +108,31 @@ async function loadRole(){
 /* ========================================= */
 function fillProfileData(data){
 
-    // LEFT PANEL
     setText("fullName", data.full_name);
     setText("employeeId", data.employee_id);
 
-    // PERSONAL
     setValue("nameInput", data.full_name);
     setValue("emailInput", data.email);
     setValue("phoneInput", data.phone);
     setValue("birthInput", data.birth_date);
     setValue("addressInput", data.address);
     setValue("genderInput", data.gender);
-
-    // PROFESIONAL
     setValue("positionInput", data.position);
-
-    // BANK
     setValue("bankNameInput", data.bank_name);
     setValue("bankNumberInput", data.bank_account);
     setValue("bankOwnerInput", data.bank_owner);
 
-    // NOTIFICATION
-    const emailNotif = document.getElementById("emailNotif");
-    const waNotif = document.getElementById("waNotif");
-    const financeNotif = document.getElementById("financeNotif");
+    document.getElementById("emailNotif").checked = data.email_notification || false;
+    document.getElementById("waNotif").checked = data.wa_notification || false;
+    document.getElementById("financeNotif").checked = data.finance_notification || false;
 
-    if(emailNotif) emailNotif.checked = data.email_notification || false;
-    if(waNotif) waNotif.checked = data.wa_notification || false;
-    if(financeNotif) financeNotif.checked = data.finance_notification || false;
-
-    // PHOTO
     if(data.photo_url){
-        const img = document.getElementById("profilePhoto");
-        if(img) img.src = data.photo_url;
+        document.getElementById("profilePhoto").src = data.photo_url;
     }
 
-    // THEME
     if(data.theme_prefer){
         applyTheme(data.theme_prefer);
-        const select = document.getElementById("themeSelect");
-        if(select) select.value = data.theme_prefer;
+        document.getElementById("themeSelect").value = data.theme_prefer;
     }
 }
 
@@ -154,36 +152,73 @@ async function saveProfile(){
         bank_name: getValue("bankNameInput"),
         bank_account: getValue("bankNumberInput"),
         bank_owner: getValue("bankOwnerInput"),
-        email_notification: document.getElementById("emailNotif")?.checked || false,
-        wa_notification: document.getElementById("waNotif")?.checked || false,
-        finance_notification: document.getElementById("financeNotif")?.checked || false,
+        email_notification: document.getElementById("emailNotif").checked,
+        wa_notification: document.getElementById("waNotif").checked,
+        finance_notification: document.getElementById("financeNotif").checked,
         theme_prefer: getValue("themeSelect"),
         updated_at: new Date()
     };
 
-    // 🔥 VALIDASI DULU
     if(!updateData.full_name){
         alert("Nama tidak boleh kosong.");
         return;
     }
 
+    // UPDATE PROFILE
     const { error } = await db
         .from("profiles")
         .update(updateData)
         .eq("id", currentUserId);
 
     if(error){
-        console.log("UPDATE ERROR:", error);
+        console.log("UPDATE PROFILE ERROR:", error);
         alert("Gagal menyimpan profil.");
         return;
     }
 
+    // SYNC KE admin_users
+    await db
+        .from("admin_users")
+        .update({
+            nama: updateData.full_name,
+            phone: updateData.phone,
+            position: updateData.position
+        })
+        .eq("user_id", currentUserId);
+
     setText("fullName", updateData.full_name);
+    applyTheme(updateData.theme_prefer);
+
     alert("Profil berhasil diperbarui.");
 }
 
 document.getElementById("saveProfile")
 ?.addEventListener("click", saveProfile);
+
+
+/* ========================================= */
+/* IMAGE COMPRESS */
+/* ========================================= */
+async function compressImage(file){
+
+    const bitmap = await createImageBitmap(file);
+    const canvas = document.createElement("canvas");
+
+    const maxWidth = 800;
+    const scale = maxWidth / bitmap.width;
+
+    canvas.width = maxWidth;
+    canvas.height = bitmap.height * scale;
+
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+
+    return new Promise(resolve=>{
+        canvas.toBlob(blob=>{
+            resolve(blob);
+        }, "image/jpeg", 0.7);
+    });
+}
 
 
 /* ========================================= */
@@ -203,11 +238,18 @@ function setupUpload(inputId, bucket, field){
         const file = e.target.files[0];
         if(!file) return;
 
+        // PREVIEW
+        if(field === "photo_url"){
+            document.getElementById("profilePhoto").src =
+                URL.createObjectURL(file);
+        }
+
+        const compressed = await compressImage(file);
         const path = `${currentUserId}/${field}`;
 
         const { error: uploadError } = await db.storage
             .from(bucket)
-            .upload(path, file, { upsert: true });
+            .upload(path, compressed, { upsert: true });
 
         if(uploadError){
             console.log("UPLOAD ERROR:", uploadError);
@@ -224,11 +266,6 @@ function setupUpload(inputId, bucket, field){
           .from("profiles")
           .update({ [field]: url })
           .eq("id", currentUserId);
-
-        if(field === "photo_url"){
-            const img = document.getElementById("profilePhoto");
-            if(img) img.src = url;
-        }
     });
 }
 
@@ -243,6 +280,7 @@ function applySavedTheme(){
 
 function applyTheme(theme){
     document.body.classList.toggle("dark-mode", theme === "dark");
+    localStorage.setItem("theme", theme);
 }
 
 
