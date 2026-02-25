@@ -58,17 +58,18 @@ console.log("SIGNUP RESULT:", signUpData, signUpError);
 
   // 🔥 Insert ke admin_users
   const { error: insertError } = await db
-    .from("admin_users")
-    .insert([
-      {
-        user_id: user.id,
-        full_name: name,
-        phone,
-        position,
-        role: "admin",
-        is_active: false
-      }
-    ]);
+  .from("admin_users")
+  .insert([
+    {
+      user_id: user.id,
+      nama: name,
+      email: email,
+      phone: phone,
+      position: position,
+      role: "admin",
+      is_active: false
+    }
+  ]);
 
   if(insertError){
     console.error(insertError);
