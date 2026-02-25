@@ -54,18 +54,12 @@ registerForm?.addEventListener("submit", async (e)=>{
   }
 
   // 2️⃣ Insert ke tabel admin_users
-  const { error: insertError } = await db
-    .from("admin_users")
-    .insert([
-      {
-        user_id: user.id,
-        full_name: name,
-        phone: phone,
-        position: position,
-        role: "admin",
-        is_active: false
-      }
-    ]);
+  const { data, error } = await db.auth.signUp({
+  email: "test12345@gmail.com",
+  password: "12345678"
+});
+
+console.log(data, error);
 
   if(insertError){
     console.error(insertError);
