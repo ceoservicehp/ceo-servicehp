@@ -7,30 +7,26 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const { data } = await db.auth.getSession();
 
-    // ❌ Kalau belum login → kembali ke login
     if(!data.session){
         window.location.replace("login.html");
         return;
     }
 
-    const userEmail = data.session.user.email;
+    const userId = data.session.user.id;
 
-    // 🔥 CEK ROLE DI TABEL admin_users
-    const { data: roleData } = await db
+    // 🔥 GANTI email → user_id
+    const { data: roleData, error } = await db
         .from("admin_users")
-        .select("role")
-        .eq("email", userEmail)
-        .eq("is_active", true)
-        .single();
+        .select("role, is_active")
+        .eq("user_id", userId)
+        .maybeSingle();
 
-    // ❌ Kalau tidak ada role → logout + kembali ke login
-    if(!roleData){
+    if(error || !roleData || roleData.is_active !== true){
         await db.auth.signOut();
         window.location.replace("login.html");
         return;
     }
 
-    // ✅ Simpan role untuk kontrol fitur
     localStorage.setItem("userRole", roleData.role);
 
     console.log("Login sebagai:", roleData.role);
