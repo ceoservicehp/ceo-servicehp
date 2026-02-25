@@ -70,7 +70,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const { data } = await db.auth.getSession();
 
   if(data.session){
-    window.location.href = "profile.html";
+    window.location.href = "dapur.html";
   }
 
 });
@@ -122,7 +122,7 @@ loginForm?.addEventListener("submit", async (e)=>{
   }
 
   localStorage.setItem("userRole", role);
-  window.location.href = "profile.html";
+  window.location.href = "dapur.html";
 });
 
 /* ================= REGISTER ================= */
