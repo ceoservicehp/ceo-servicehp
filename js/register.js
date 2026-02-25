@@ -36,11 +36,14 @@ registerForm?.addEventListener("submit", async (e)=>{
   }
 
   // 1️⃣ Buat akun di Supabase Auth
-  const { data: signUpData, error } = await db.auth.signUp({
+ const { data: signUpData, error } = await db.auth.signUp({
   email,
-  password
+  password,
+  options: {
+    emailRedirectTo: "https://ceo-servicehp.vercel.app/login.html"
+  }
 });
-
+  
 if(error){
   showAlert(error.message);
   return;
