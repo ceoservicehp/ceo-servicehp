@@ -36,13 +36,13 @@ registerForm?.addEventListener("submit", async (e)=>{
   }
 
   // 🔥 Signup dengan redirect Vercel
-  const { data: signUpData, error: signUpError } = await db.auth.signUp({
+  const { data: signUpData, error: signUpError } =
+  await db.auth.signUp({
     email,
-    password,
-    options: {
-      emailRedirectTo: "https://ceo-servicehp.vercel.app/login.html"
-    }
+    password
   });
+
+console.log("SIGNUP RESULT:", signUpData, signUpError);
 
   if(signUpError){
     showAlert(signUpError.message);
