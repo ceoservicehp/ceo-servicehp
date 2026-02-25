@@ -105,23 +105,34 @@ loginForm?.addEventListener("submit", async (e)=>{
 
   const user = data.user;
 
-  // Profile dibuat saat login pertama
-  await ensureProfile(user);
+  // Ambil role dari admin_users
+  const { data: adminData, error: roleError } = await db
+    .from("admin_users")
+    .select("role, is_active")
+    .eq("user_id", user.id)
+    .maybeSingle();
 
-  const role = await getUserRole(user);
+  if(roleError){
+    console.error(roleError);
+    showAlert("Gagal mengambil data admin.");
+    return;
+  }
 
-  if(role === "pending"){
+  if(!adminData){
     await db.auth.signOut();
-    showAlert("Akun belum disetujui admin.");
+    showAlert("Akun tidak terdaftar sebagai admin.");
     return;
   }
 
-  if(!role){
-    showAlert("Profil tidak ditemukan.");
+  if(!adminData.is_active){
+    await db.auth.signOut();
+    showAlert("Akun belum diaktifkan admin.");
     return;
   }
 
-  localStorage.setItem("userRole", role);
+  localStorage.setItem("userRole", adminData.role);
+  localStorage.setItem("userId", user.id);
+
   window.location.href = "dapur.html";
 });
 
