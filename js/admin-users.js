@@ -5,7 +5,9 @@ const db = window.supabaseClient;
 let allAdmins = [];
 let selectedUserId = null;
 let selectedAction = null;
+let currentUserId = null;
 
+/* ================= INIT ================= */
 document.addEventListener("DOMContentLoaded", async () => {
   await checkSuperAdmin();
   await loadAdmins();
@@ -22,12 +24,12 @@ async function checkSuperAdmin(){
     return;
   }
 
-  const userId = data.session.user.id;
+  currentUserId = data.session.user.id;
 
   const { data: roleData } = await db
     .from("admin_users")
     .select("role, is_active")
-    .eq("user_id", userId)
+    .eq("user_id", currentUserId)
     .maybeSingle();
 
   if(!roleData || roleData.role !== "superadmin" || !roleData.is_active){
@@ -41,11 +43,7 @@ async function loadAdmins(){
 
   const tbody = document.getElementById("adminTable");
 
-  tbody.innerHTML = `
-    <tr>
-      <td colspan="9">Memuat...</td>
-    </tr>
-  `;
+  tbody.innerHTML = `<tr><td colspan="9">Memuat...</td></tr>`;
 
   const { data, error } = await db
     .from("admin_users")
@@ -90,14 +88,28 @@ function renderTable(data){
       ? `<span class="badge badge-active">Aktif</span>`
       : `<span class="badge badge-inactive">Nonaktif</span>`;
 
+    const roleDropdown = `
+      <select class="role-select" data-id="${admin.id}">
+        <option value="admin" ${admin.role==="admin"?"selected":""}>Admin</option>
+        <option value="superadmin" ${admin.role==="superadmin"?"selected":""}>Superadmin</option>
+      </select>
+    `;
+
+    const positionInput = `
+      <input type="text" 
+        class="position-input"
+        data-id="${admin.id}"
+        value="${admin.position ?? ""}">
+    `;
+
     tbody.innerHTML += `
       <tr>
         <td>${index+1}</td>
         <td>${admin.nama ?? "-"}</td>
         <td>${admin.email ?? "-"}</td>
         <td>${admin.phone ?? "-"}</td>
-        <td>${admin.position ?? "-"}</td>
-        <td>${admin.role}</td>
+        <td>${positionInput}</td>
+        <td>${roleDropdown}</td>
         <td>${statusBadge}</td>
         <td>${admin.approved_by ?? "-"}</td>
         <td>
@@ -118,6 +130,37 @@ function renderTable(data){
   });
 
   bindActionButtons();
+  bindEditableFields();
+}
+
+/* ================= EDIT ROLE & POSITION ================= */
+function bindEditableFields(){
+
+  document.querySelectorAll(".role-select")
+    .forEach(select=>{
+      select.addEventListener("change", async (e)=>{
+        const id = e.target.dataset.id;
+        const newRole = e.target.value;
+
+        await db.from("admin_users")
+          .update({ role: newRole })
+          .eq("id", id);
+
+        loadAdmins();
+      });
+    });
+
+  document.querySelectorAll(".position-input")
+    .forEach(input=>{
+      input.addEventListener("blur", async (e)=>{
+        const id = e.target.dataset.id;
+        const newPosition = e.target.value;
+
+        await db.from("admin_users")
+          .update({ position: newPosition })
+          .eq("id", id);
+      });
+    });
 }
 
 /* ================= BUTTON ================= */
@@ -165,15 +208,26 @@ async function executeAction(){
 
   if(!selectedUserId) return;
 
+  const user = allAdmins.find(a=>a.id===selectedUserId);
+
   if(selectedAction === "toggle"){
-    const user = allAdmins.find(a=>a.id===selectedUserId);
 
     await db.from("admin_users")
-      .update({ is_active: !user.is_active })
+      .update({
+        is_active: !user.is_active,
+        approved_by: currentUserId
+      })
       .eq("id", selectedUserId);
   }
 
   if(selectedAction === "delete"){
+
+    if(user.user_id === currentUserId){
+      alert("Superadmin tidak bisa menghapus dirinya sendiri.");
+      closeModal();
+      return;
+    }
+
     await db.from("admin_users")
       .delete()
       .eq("id", selectedUserId);
