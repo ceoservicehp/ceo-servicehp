@@ -35,36 +35,40 @@ registerForm?.addEventListener("submit", async (e)=>{
     return;
   }
 
-  // 1️⃣ Buat akun di Supabase Auth
- const { data: signUpData, error } = await db.auth.signUp({
-  email,
-  password,
-  options: {
-    emailRedirectTo: "https://ceo-servicehp.vercel.app/login.html"
-  }
-});
-  
-if(error){
-  showAlert(error.message);
-  return;
-}
-
-const user = signUpData.user;
-
-const { error: insertError } = await db
-  .from("admin_users")
-  .insert([
-    {
-      user_id: user.id,
-      full_name: name,
-      phone,
-      position,
-      role: "admin",
-      is_active: false
+  // 🔥 Signup dengan redirect Vercel
+  const { data: signUpData, error: signUpError } = await db.auth.signUp({
+    email,
+    password,
+    options: {
+      emailRedirectTo: "https://ceo-servicehp.vercel.app/login.html"
     }
-  ]);
-  
-console.log(data, error);
+  });
+
+  if(signUpError){
+    showAlert(signUpError.message);
+    return;
+  }
+
+  const user = signUpData?.user;
+
+  if(!user){
+    showAlert("Gagal membuat akun.");
+    return;
+  }
+
+  // 🔥 Insert ke admin_users
+  const { error: insertError } = await db
+    .from("admin_users")
+    .insert([
+      {
+        user_id: user.id,
+        full_name: name,
+        phone,
+        position,
+        role: "admin",
+        is_active: false
+      }
+    ]);
 
   if(insertError){
     console.error(insertError);
@@ -72,6 +76,6 @@ console.log(data, error);
     return;
   }
 
-  showAlert("Registrasi berhasil! Menunggu persetujuan superadmin.", "success");
+  showAlert("Registrasi berhasil! Silakan cek email untuk verifikasi.", "success");
   registerForm.reset();
 });
