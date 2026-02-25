@@ -8,7 +8,8 @@ window.supabaseClient = supabase.createClient(
     auth: {
       persistSession: true,
       autoRefreshToken: true,
-      detectSessionInUrl: true   // 🔥 INI YANG PENTING
+      detectSessionInUrl: true,
+      storage: window.localStorage
     }
   }
 );
