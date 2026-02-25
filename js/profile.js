@@ -28,6 +28,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     setupUploadHandlers();
 
     await loadProfile(user);
+    await loadRole(); // 🔥 ambil role dari admin_users
 });
 
 
@@ -57,13 +58,31 @@ async function loadProfile(user){
 
 
 /* ========================================= */
+/* LOAD ROLE DARI admin_users */
+/* ========================================= */
+async function loadRole(){
+
+    const { data } = await db
+        .from("admin_users")
+        .select("role")
+        .eq("user_id", currentUserId)
+        .maybeSingle();
+
+    if(!data) return;
+
+    setText("roleBadge", data.role);
+    setValue("roleInput", data.role);
+    styleRoleBadge(data.role);
+}
+
+
+/* ========================================= */
 /* FILL UI */
 /* ========================================= */
 function fillProfileData(data){
 
     // LEFT PANEL
     setText("fullName", data.full_name);
-    setText("roleBadge", data.role);
     setText("employeeId", data.employee_id);
 
     // PERSONAL
@@ -76,7 +95,6 @@ function fillProfileData(data){
 
     // PROFESIONAL
     setValue("positionInput", data.position);
-    setValue("roleInput", data.role);
 
     // BANK
     setValue("bankNameInput", data.bank_name);
@@ -104,8 +122,6 @@ function fillProfileData(data){
         const select = document.getElementById("themeSelect");
         if(select) select.value = data.theme_prefer;
     }
-
-    styleRoleBadge(data.role);
 }
 
 
@@ -192,27 +208,6 @@ function setupUpload(inputId, bucket, field){
             const img = document.getElementById("profilePhoto");
             if(img) img.src = url;
         }
-    });
-}
-
-
-/* ========================================= */
-/* THEME SWITCHER */
-/* ========================================= */
-function setupThemeSwitcher(){
-    const select = document.getElementById("themeSelect");
-    if(!select) return;
-
-    select.addEventListener("change", async e=>{
-        const theme = e.target.value;
-
-        localStorage.setItem("theme", theme);
-        applyTheme(theme);
-
-        await db
-            .from("profiles")
-            .update({ theme_prefer: theme })
-            .eq("id", currentUserId);
     });
 }
 
