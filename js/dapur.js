@@ -12,47 +12,41 @@ document.addEventListener("DOMContentLoaded", async () => {
     const supabase = getSupabase();
     if(!supabase) return;
 
-    supabase.auth.onAuthStateChange(async (event, session) => {
+    const { data: { session } } = await supabase.auth.getSession();
 
-        if(!session){
-            window.location.href = "login.html";
-            return;
-        }
+    if(!session){
+        window.location.href = "login.html";
+        return;
+    }
 
-        const userId = session.user.id;
+    const userId = session.user.id;
 
-        const { data: roleData, error } = await supabase
-            .from("admin_users")
-            .select("role, is_active")
-            .eq("user_id", userId)
-            .maybeSingle();
+    const { data: roleData, error } = await supabase
+        .from("admin_users")
+        .select("role, is_active")
+        .eq("user_id", userId)
+        .maybeSingle();
 
-        if(error){
-            console.error(error);
-            return;
-        }
+    if(error){
+        console.error(error);
+        return;
+    }
 
-        if(!roleData || !roleData.is_active){
-            alert("Akun belum diaktifkan admin.");
-            await supabase.auth.signOut();
-            window.location.href = "login.html";
-            return;
-        }
+    if(!roleData || !roleData.is_active){
+        alert("Akun belum diaktifkan admin.");
+        await supabase.auth.signOut();
+        window.location.href = "login.html";
+        return;
+    }
 
-        console.log("Login sebagai:", roleData.role);
+    localStorage.setItem("userRole", roleData.role);
 
-        localStorage.setItem("userRole", roleData.role);
+    applyRolePermission(roleData.role);
 
-        applyRolePermission(roleData.role);
-
-        // 🔥 PANGGIL SEMUA LOAD SETELAH SESSION VALID
-        loadOrders();
-        loadStoreStatus();
-        loadSpareparts();
-
-        initUI(); // kita pindahkan init ke fungsi terpisah
-    });
-
+    loadOrders();
+    loadStoreStatus();
+    loadSpareparts();
+    initUI();
 });
 
 /* ================= Permission ================= */
@@ -331,10 +325,10 @@ function initUI(){
     
     document.getElementById("edit-total")
         ?.addEventListener("input", hitungPembayaran);
-}
+
     /* ================= DETAIL MODAL ================= */
 
-    document.addEventListener("click",e=>{
+ document.addEventListener("click", e=>{
         if(!e.target.classList.contains("detail-btn")) return;
 
         const id=parseInt(e.target.dataset.id);
@@ -511,8 +505,6 @@ const { error } = await supabase
     loadOrders();
 };
 
-});
-
 /* ================= Event Dropdown Sparepart ================= */
 document.getElementById("sparepartSelect")
 ?.addEventListener("change", function(){
@@ -544,7 +536,7 @@ document.getElementById("sparepartSelect")
   hitungTotalSparepart();
 
   this.value="";
-});
+};
 
 /* ================= Hitung Total Sparepart ================= */
 function hitungTotalSparepart(){
@@ -836,6 +828,3 @@ async function logout(){
 
 document.getElementById("logoutBtn")
 ?.addEventListener("click", logout);
-
-
-
