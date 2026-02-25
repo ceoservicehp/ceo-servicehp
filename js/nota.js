@@ -183,23 +183,9 @@ async function loadSignature(){
   }
 
   if(data?.signature_url){
-
-    const imgElement = document.getElementById("ttdImg");
-    if(!imgElement) return;
-
-    try{
-      const response = await fetch(data.signature_url);
-      const blob = await response.blob();
-
-      const reader = new FileReader();
-      reader.onloadend = function(){
-        imgElement.src = reader.result; // BASE64
-        imgElement.style.display = "block";
-      };
-      reader.readAsDataURL(blob);
-
-    }catch(err){
-      console.log("Gagal convert signature:", err);
+    const sigBox = document.getElementById("ttdImg");
+    if(sigBox){
+      sigBox.style.backgroundImage = `url(${data.signature_url})`;
     }
   }
 
