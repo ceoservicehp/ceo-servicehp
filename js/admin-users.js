@@ -5,8 +5,8 @@ const db = window.supabaseClient;
 let allAdmins = [];
 let selectedUserId = null;
 let selectedAction = null;
-let currentUserEmail = null;
 
+/* ================= INIT ================= */
 document.addEventListener("DOMContentLoaded", async () => {
   await checkSuperAdmin();
   await loadAdmins();
@@ -26,25 +26,20 @@ async function checkSuperAdmin(){
 
   const userId = data.session.user.id;
 
-  const { data: roleData, error } = await db
-    .from("profiles")
-    .select("role,is_active")
-    .eq("id", userId)
+  const { data: roleData } = await db
+    .from("admin_users")
+    .select("role, is_active")
+    .eq("user_id", userId)
     .maybeSingle();
 
-  if(error || !roleData){
+  if(!roleData || roleData.role !== "superadmin" || !roleData.is_active){
     alert("Akses ditolak.");
     window.location.href = "dapur.html";
     return;
   }
-
-  if(roleData.role !== "superadmin" || roleData.is_active !== true){
-    alert("Akses ditolak.");
-    window.location.href = "dapur.html";
-  }
 }
 
-/* ================= LOAD ================= */
+/* ================= LOAD DATA (JOIN) ================= */
 async function loadAdmins(){
 
   const tbody = document.getElementById("adminTable");
@@ -58,8 +53,21 @@ async function loadAdmins(){
   `;
 
   const { data, error } = await db
-    .from("profiles")
-    .select("*")
+    .from("admin_users")
+    .select(`
+      id,
+      user_id,
+      role,
+      is_active,
+      approved_by,
+      created_at,
+      profiles (
+        full_name,
+        email,
+        phone,
+        position
+      )
+    `)
     .order("created_at", { ascending:false });
 
   if(error){
@@ -85,10 +93,7 @@ function renderTable(data){
 
   data.forEach((admin, index)=>{
 
-    const roleClass =
-      admin.role === "superadmin" ? "role-superadmin" :
-      admin.role === "admin" ? "role-admin" :
-      "role-staff";
+    const profile = admin.profiles || {};
 
     const statusBadge = admin.is_active
       ? `<span class="badge badge-active">Aktif</span>`
@@ -97,80 +102,34 @@ function renderTable(data){
     tbody.innerHTML += `
       <tr>
         <td>${index+1}</td>
-        <td>${admin.full_name ?? "-"}</td>
-        <td>${admin.email}</td>
-        <td>${admin.phone ?? "-"}</td>
-        <td>
-          <select data-id="${admin.id}" class="edit-position">
-            <option ${admin.position==="Owner"?"selected":""}>Owner</option>
-            <option ${admin.position==="Manager"?"selected":""}>Manager</option>
-            <option ${admin.position==="Staff"?"selected":""}>Staff</option>
-            <option ${admin.position==="Teknisi"?"selected":""}>Teknisi</option>
-          </select>
-        </td>
-        <td>
-          <select data-id="${admin.id}" class="edit-role">
-            <option value="superadmin" ${admin.role==="superadmin"?"selected":""}>Superadmin</option>
-            <option value="admin" ${admin.role==="admin"?"selected":""}>Admin</option>
-            <option value="staff" ${admin.role==="staff"?"selected":""}>Staff</option>
-          </select>
-        </td>
+        <td>${profile.full_name ?? "-"}</td>
+        <td>${profile.email ?? "-"}</td>
+        <td>${profile.phone ?? "-"}</td>
+        <td>${profile.position ?? "-"}</td>
+        <td>${admin.role}</td>
         <td>${statusBadge}</td>
         <td>${admin.approved_by ?? "-"}</td>
         <td>
-          ${
-            admin.email !== currentUserEmail
-            ? `
-              <button class="action-btn btn-approve"
-                data-id="${admin.id}"
-                data-action="toggle">
-                ${admin.is_active ? "Nonaktifkan":"Aktifkan"}
-              </button>
+          <button class="action-btn btn-approve"
+            data-id="${admin.id}"
+            data-action="toggle">
+            ${admin.is_active ? "Nonaktifkan":"Aktifkan"}
+          </button>
 
-              <button class="action-btn btn-delete"
-                data-id="${admin.id}"
-                data-action="delete">
-                Hapus
-              </button>
-            `
-            : `<span style="font-size:12px;color:#64748b;">Akun Anda</span>`
-          }
+          <button class="action-btn btn-delete"
+            data-id="${admin.id}"
+            data-action="delete">
+            Hapus
+          </button>
         </td>
       </tr>
     `;
   });
 
   bindActionButtons();
-  bindInlineEditors();
 }
 
-/* ================= INLINE EDIT ================= */
-function bindInlineEditors(){
-
-  document.querySelectorAll(".edit-role").forEach(select=>{
-    select.addEventListener("change", async e=>{
-      const id = e.target.dataset.id;
-      const newRole = e.target.value;
-
-      await db.from("profiles")
-        .update({ role:newRole })
-        .eq("id", id);
-    });
-  });
-
-  document.querySelectorAll(".edit-position").forEach(select=>{
-    select.addEventListener("change", async e=>{
-      const id = e.target.dataset.id;
-      const newPosition = e.target.value;
-
-      await db.from("profiles")
-        .update({ position:newPosition })
-        .eq("id", id);
-    });
-  });
-}
-
-/* ================= BUTTON ================= */
+/* ================= BUTTON ACTION ================= */
 function bindActionButtons(){
 
   document.querySelectorAll(".action-btn")
@@ -185,7 +144,6 @@ function bindActionButtons(){
 
 /* ================= MODAL ================= */
 function initModal(){
-
   document.getElementById("confirmYes")
     .addEventListener("click", executeAction);
 
@@ -222,13 +180,13 @@ async function executeAction(){
 
     const user = allAdmins.find(a=>a.id===selectedUserId);
 
-    await db.from("profiles")
+    await db.from("admin_users")
       .update({ is_active: !user.is_active })
       .eq("id", selectedUserId);
   }
 
   if(selectedAction === "delete"){
-    await db.from("profiles")
+    await db.from("admin_users")
       .delete()
       .eq("id", selectedUserId);
   }
@@ -263,8 +221,8 @@ function applyFilters(){
 
   if(keyword){
     filtered = filtered.filter(a =>
-      a.full_name?.toLowerCase().includes(keyword) ||
-      a.email?.toLowerCase().includes(keyword)
+      a.profiles?.full_name?.toLowerCase().includes(keyword) ||
+      a.profiles?.email?.toLowerCase().includes(keyword)
     );
   }
 
