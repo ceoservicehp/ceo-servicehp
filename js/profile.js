@@ -48,14 +48,28 @@ async function loadProfile(user){
         return;
     }
 
+    // 🔥 Jika belum ada profile → buat otomatis
     if(!data){
-        alert("Profil tidak ditemukan.");
-        return;
+
+        const { error: insertError } = await db
+            .from("profiles")
+            .insert({
+                id: user.id,
+                email: user.email,
+                full_name: user.user_metadata?.full_name || "",
+                created_at: new Date()
+            });
+
+        if(insertError){
+            console.log("AUTO CREATE PROFILE ERROR:", insertError);
+            return;
+        }
+
+        return loadProfile(user); // reload
     }
 
     fillProfileData(data);
 }
-
 
 /* ========================================= */
 /* LOAD ROLE DARI admin_users */
@@ -147,6 +161,12 @@ async function saveProfile(){
         updated_at: new Date()
     };
 
+    // 🔥 VALIDASI DULU
+    if(!updateData.full_name){
+        alert("Nama tidak boleh kosong.");
+        return;
+    }
+
     const { error } = await db
         .from("profiles")
         .update(updateData)
@@ -158,6 +178,7 @@ async function saveProfile(){
         return;
     }
 
+    setText("fullName", updateData.full_name);
     alert("Profil berhasil diperbarui.");
 }
 
