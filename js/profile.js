@@ -1,6 +1,6 @@
 "use strict";
 
-const db = window.supabaseClient;
+let db = window.supabaseClient;
 let currentUserId = null;
 
 /* ========================================= */
