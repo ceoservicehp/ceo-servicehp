@@ -384,5 +384,6 @@ document.getElementById("logoutBtn")
   await db.auth.signOut();
   localStorage.removeItem("userRole");
   window.location.href = "login.html";
+});
 
 })();
