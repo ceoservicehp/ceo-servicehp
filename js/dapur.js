@@ -12,40 +12,46 @@ document.addEventListener("DOMContentLoaded", async () => {
     const supabase = getSupabase();
     if(!supabase) return;
 
-    const { data } = await supabase.auth.getSession();
+    supabase.auth.onAuthStateChange(async (event, session) => {
 
-    // ❌ Belum login
-    if(!data.session){
-        window.location.href = "login.html";
-        return;
-    }
+        if(!session){
+            window.location.href = "login.html";
+            return;
+        }
 
-    const userId = data.session.user.id;
+        const userId = session.user.id;
 
-    const { data: roleData, error } = await supabase
-      .from("admin_users")
-      .select("role, is_active")
-      .eq("user_id", userId)
-      .maybeSingle();
-    
-    if(error){
-      console.error(error);
-    }
-    
-    if(!roleData || !roleData.is_active){
-        await supabase.auth.signOut();
-        alert("Akun belum diaktifkan admin.");
-        window.location.href = "login.html";
-        return;
-    }
-    
-    // ✅ Simpan role
-    localStorage.setItem("userRole", roleData.role);
+        const { data: roleData, error } = await supabase
+            .from("admin_users")
+            .select("role, is_active")
+            .eq("user_id", userId)
+            .maybeSingle();
 
-    console.log("Login sebagai:", roleData.role);
+        if(error){
+            console.error(error);
+            return;
+        }
 
-    // 🔐 Batasi fitur berdasarkan role
-    applyRolePermission(roleData.role);
+        if(!roleData || !roleData.is_active){
+            alert("Akun belum diaktifkan admin.");
+            await supabase.auth.signOut();
+            window.location.href = "login.html";
+            return;
+        }
+
+        console.log("Login sebagai:", roleData.role);
+
+        localStorage.setItem("userRole", roleData.role);
+
+        applyRolePermission(roleData.role);
+
+        // 🔥 PANGGIL SEMUA LOAD SETELAH SESSION VALID
+        loadOrders();
+        loadStoreStatus();
+        loadSpareparts();
+
+        initUI(); // kita pindahkan init ke fungsi terpisah
+    });
 
 });
 
@@ -306,11 +312,7 @@ function renderSelectedParts(){
 }
 
 /* ================= INIT ================= */
-document.addEventListener("DOMContentLoaded",()=>{
-
-    loadOrders();
-    loadStoreStatus();
-    loadSpareparts();
+function initUI(){
 
     document.getElementById("btnOpen").onclick=()=>setStore(true);
     document.getElementById("btnClose").onclick=()=>setStore(false);
@@ -318,19 +320,18 @@ document.addEventListener("DOMContentLoaded",()=>{
     document.getElementById("tanggalOtomatis").textContent=
         new Date().toLocaleString("id-ID");
 
-    /* ===== EVENT SISTEM TOP ===== */
     document.getElementById("edit-amount-paid")
-    ?.addEventListener("input", hitungPembayaran);
+        ?.addEventListener("input", hitungPembayaran);
     
     document.getElementById("edit-use-top")
-    ?.addEventListener("change", hitungPembayaran);
+        ?.addEventListener("change", hitungPembayaran);
     
     document.getElementById("edit-top-days")
-    ?.addEventListener("input", hitungPembayaran);
+        ?.addEventListener("input", hitungPembayaran);
     
     document.getElementById("edit-total")
-    ?.addEventListener("input", hitungPembayaran);
-
+        ?.addEventListener("input", hitungPembayaran);
+}
     /* ================= DETAIL MODAL ================= */
 
     document.addEventListener("click",e=>{
@@ -835,5 +836,6 @@ async function logout(){
 
 document.getElementById("logoutBtn")
 ?.addEventListener("click", logout);
+
 
 
