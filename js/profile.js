@@ -230,42 +230,90 @@ function setupUploadHandlers(){
     setupUpload("uploadSignature", "admin-documents", "signature_url");
 }
 
-function setupUpload(inputId, bucket, field){
+   function setupUpload(inputId, bucket, field){
 
     document.getElementById(inputId)
     ?.addEventListener("change", async e=>{
 
         const file = e.target.files[0];
         if(!file) return;
-
-        // PREVIEW
-        if(field === "photo_url"){
-            document.getElementById("profilePhoto").src =
-                URL.createObjectURL(file);
-        }
-
-        const compressed = await compressImage(file);
-        const path = `${currentUserId}/${field}`;
-
-        const { error: uploadError } = await db.storage
-            .from(bucket)
-            .upload(path, compressed, { upsert: true });
-
-        if(uploadError){
-            console.log("UPLOAD ERROR:", uploadError);
+        // VALIDASI TIPE FILE
+        if(!file.type.startsWith("image/")){
+            alert("Hanya file gambar yang diperbolehkan.");
             return;
         }
+        
+        // BATASI SIZE 5MB
+        const maxSize = 2 * 1024 * 1024;
 
-        const { data } = await db.storage
+        if(file.size > maxSize){
+            const sizeMB = (file.size / 1024 / 1024).toFixed(2);
+            alert(`Ukuran file ${sizeMB}MB melebihi batas 2MB.`);
+            return;
+        }
+        
+        try{
+
+            // PREVIEW FOTO LANGSUNG
+            if(field === "photo_url"){
+                document.getElementById("profilePhoto").src =
+                    URL.createObjectURL(file);
+            }
+
+            // COMPRESS IMAGE
+            const compressed = await compressImage(file);
+
+            const path = `${currentUserId}/${field}.jpg`;
+
+            // UPLOAD KE STORAGE
+            const { error: uploadError } = await db.storage
+                .from(bucket)
+                .upload(path, compressed, {
+                    upsert: true,
+                    contentType: "image/jpeg"
+                });
+
+            if(uploadError){
+                console.log("UPLOAD ERROR:", uploadError);
+                alert("Upload gagal: " + uploadError.message);
+                return;
+            }
+
+            // AMBIL PUBLIC URL
+        const { data: publicData } = db.storage
             .from(bucket)
-            .createSignedUrl(path, 60 * 60 * 24 * 365);
-
-        const url = data?.signedUrl;
-
-        await db
-          .from("profiles")
-          .update({ [field]: url })
-          .eq("id", currentUserId);
+            .getPublicUrl(path);
+        
+        if(!publicData?.publicUrl){
+            alert("Gagal mendapatkan URL file.");
+            return;
+        }
+        
+        const url = publicData.publicUrl;
+        
+        // SIMPAN KE DATABASE
+        const { error: updateError } = await db
+            .from("profiles")
+            .update({ [field]: url })
+            .eq("id", currentUserId);
+        
+        if(updateError){
+            console.log("DB UPDATE ERROR:", updateError);
+            alert("Gagal menyimpan URL.");
+            return;
+        }
+        
+        // UPDATE FOTO SETELAH UPLOAD
+        if(field === "photo_url"){
+            document.getElementById("profilePhoto").src = url;
+        }
+        
+        alert("Upload berhasil.");
+            
+        }catch(err){
+            console.log("UPLOAD CATCH ERROR:", err);
+            alert("Terjadi kesalahan saat upload.");
+        }
     });
 }
 
