@@ -46,13 +46,6 @@ document.addEventListener("DOMContentLoaded", async ()=>{
   const createdEl = document.getElementById("service-created");
   const finishedEl = document.getElementById("service-finished");
   const paymentStatusEl = document.getElementById("payment-status");
-  const paymentEl = document.getElementById("payment-status");
-
-  if(paymentEl.innerText.toLowerCase().includes("lunas")){
-    paymentEl.classList.add("paid");
-  }else{
-    paymentEl.classList.add("unpaid");
-  }
 
   if(serviceStatusEl)
     serviceStatusEl.textContent = data.status || "-";
@@ -67,9 +60,16 @@ document.addEventListener("DOMContentLoaded", async ()=>{
         ? new Date(data.tanggal_selesai).toLocaleString("id-ID")
         : "-";
 
-  if(paymentStatusEl)
+  if(paymentStatusEl){
     paymentStatusEl.textContent =
       data.payment_status || "Belum Lunas";
+
+    if((data.payment_status || "").toLowerCase().includes("lunas")){
+      paymentStatusEl.classList.add("paid");
+    }else{
+      paymentStatusEl.classList.add("unpaid");
+    }
+  }
 
   /* ================= TOP (Tempo) ================= */
 
@@ -95,29 +95,29 @@ document.addEventListener("DOMContentLoaded", async ()=>{
 
   let subtotal = 0;
 
- if(data.sparepart){
-  try{
-    const items = JSON.parse(data.sparepart);
+  if(data.sparepart){
+    try{
+      const items = JSON.parse(data.sparepart);
 
-    items.forEach((item, index)=>{
-      const total = (item.harga || 0) * (item.qty || 0);
-      subtotal += total;
+      items.forEach((item, index)=>{
+        const total = (item.harga || 0) * (item.qty || 0);
+        subtotal += total;
 
-      tbody.innerHTML += `
-        <tr>
-          <td>${index + 1}</td>
-          <td>${item.nama}</td>
-          <td>${item.qty}</td>
-          <td>${rupiah(item.harga)}</td>
-          <td>${rupiah(total)}</td>
-        </tr>
-      `;
-    });
+        tbody.innerHTML += `
+          <tr>
+            <td>${index + 1}</td>
+            <td>${item.nama}</td>
+            <td>${item.qty}</td>
+            <td>${rupiah(item.harga)}</td>
+            <td>${rupiah(total)}</td>
+          </tr>
+        `;
+      });
 
-  }catch(e){
-    console.log("Format sparepart salah");
+    }catch(e){
+      console.log("Format sparepart salah");
+    }
   }
-}
 
   document.getElementById("sub-total").textContent = rupiah(subtotal);
   document.getElementById("trans-total").textContent = rupiah(data.transport || 0);
@@ -159,7 +159,44 @@ document.addEventListener("DOMContentLoaded", async ()=>{
     }
   );
 
+  /* ================= LOAD SIGNATURE ================= */
+  await loadSignature();
+
 });
+
+
+/* ================= LOAD SIGNATURE FROM PROFILE ================= */
+async function loadSignature(){
+
+  const { data: { user } } = await db.auth.getUser();
+  if(!user) return;
+
+  const { data, error } = await db
+    .from("profiles")
+    .select("signature_url, full_name")
+    .eq("id", user.id)
+    .single();
+
+  if(error){
+    console.log("Signature error:", error);
+    return;
+  }
+
+  if(data?.signature_url){
+    const img = document.getElementById("ttdImg");
+    if(img){
+      img.src = data.signature_url;
+      img.style.display = "block";
+    }
+  }
+
+  if(data?.full_name){
+    const nameEl = document.getElementById("ttdName");
+    if(nameEl){
+      nameEl.innerText = data.full_name;
+    }
+  }
+}
 
 
 /* ================= DOWNLOAD PDF ================= */
@@ -190,6 +227,7 @@ function downloadPDF(){
   });
 }
 
+
 /* ================= WHATSAPP ================= */
 function sendWhatsApp(){
 
@@ -197,41 +235,16 @@ function sendWhatsApp(){
 
   const url = window.location.href;
 
+  const total =
+    (currentData.transport || 0) +
+    (currentData.jasa || 0);
+
   let msg =
 `📄 *INVOICE SERVICE HP*%0A
 Nama: ${currentData.nama}%0A
-Total: ${rupiah(currentData.total)}%0A
 Status Service: ${currentData.status}%0A
 Status Pembayaran: ${currentData.payment_status || "Belum Lunas"}%0A
 Lihat Invoice:%0A${url}`;
 
   window.open(`https://wa.me/${currentData.phone}?text=${msg}`);
-}
-
-
-/* ================= SIGNATURE ================= */
-const canvas = document.getElementById("signature-pad");
-
-if(canvas){
-  const ctx = canvas.getContext("2d");
-  let drawing = false;
-
-  canvas.addEventListener("mousedown", ()=> drawing=true);
-  canvas.addEventListener("mouseup", ()=> {
-    drawing=false;
-    ctx.beginPath();
-  });
-
-  canvas.addEventListener("mousemove", draw);
-
-  function draw(e){
-    if(!drawing) return;
-    ctx.lineWidth = 2;
-    ctx.lineCap = "round";
-    ctx.strokeStyle = "#000";
-    ctx.lineTo(e.offsetX, e.offsetY);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(e.offsetX, e.offsetY);
-  }
 }
