@@ -152,7 +152,7 @@ registerForm?.addEventListener("submit", async (e)=>{
     return;
   }
 
-  const { error } = await db.auth.signUp({
+  const { data, error } = await db.auth.signUp({
     email,
     password,
     options:{
@@ -166,7 +166,57 @@ registerForm?.addEventListener("submit", async (e)=>{
     return;
   }
 
-  showAlert("Registrasi berhasil! Cek email untuk verifikasi.", "success");
+  const user = data.user;
+
+  if(!user){
+    showAlert("Registrasi berhasil. Silakan cek email untuk verifikasi.");
+    return;
+  }
+
+  /* ===================== */
+  /* INSERT KE PROFILES */
+  /* ===================== */
+
+  const { error: profileError } = await db
+    .from("profiles")
+    .insert({
+      id: user.id,
+      email: email,
+      full_name: name,
+      phone: phone,
+      position: position,
+      role: "staff",
+      is_active: false,
+      created_at: new Date()
+    });
+
+  if(profileError){
+    console.log(profileError);
+    showAlert("Gagal membuat profil.");
+    return;
+  }
+
+  /* ===================== */
+  /* INSERT KE ADMIN_USERS */
+  /* ===================== */
+
+  const { error: adminError } = await db
+    .from("admin_users")
+    .insert({
+      user_id: user.id,
+      role: "staff",
+      is_active: false,
+      approved_by: null,
+      created_at: new Date()
+    });
+
+  if(adminError){
+    console.log(adminError);
+    showAlert("Gagal membuat akun admin.");
+    return;
+  }
+
+  showAlert("Registrasi berhasil! Menunggu persetujuan superadmin.", "success");
   registerForm.reset();
 });
 
