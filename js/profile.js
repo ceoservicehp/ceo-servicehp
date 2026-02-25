@@ -1,6 +1,8 @@
+(function(){
+
 "use strict";
 
-let db = window.supabaseClient;
+const db = window.supabaseClient;
 let currentUserId = null;
 
 /* ========================================= */
@@ -122,10 +124,14 @@ function fillProfileData(data){
     setValue("bankNumberInput", data.bank_account);
     setValue("bankOwnerInput", data.bank_owner);
 
-    document.getElementById("emailNotif").checked = data.email_notification || false;
-    document.getElementById("waNotif").checked = data.wa_notification || false;
-    document.getElementById("financeNotif").checked = data.finance_notification || false;
-
+    const emailNotif = document.getElementById("emailNotif");
+    const waNotif = document.getElementById("waNotif");
+    const financeNotif = document.getElementById("financeNotif");
+    
+    if(emailNotif) emailNotif.checked = data.email_notification || false;
+    if(waNotif) waNotif.checked = data.wa_notification || false;
+    if(financeNotif) financeNotif.checked = data.finance_notification || false;
+    
     if(data.photo_url){
         document.getElementById("profilePhoto").src = data.photo_url;
     }
@@ -261,7 +267,13 @@ function setupUploadHandlers(){
             }
 
             // COMPRESS IMAGE
-            const compressed = await compressImage(file);
+            let compressed;
+
+            try{
+                compressed = await compressImage(file);
+            }catch{
+                compressed = file;
+            }
 
             const path = `${currentUserId}/${field}.jpg`;
 
