@@ -536,7 +536,7 @@ document.getElementById("sparepartSelect")
   hitungTotalSparepart();
 
   this.value="";
-};
+});
 
 /* ================= Hitung Total Sparepart ================= */
 function hitungTotalSparepart(){
@@ -828,3 +828,4 @@ async function logout(){
 
 document.getElementById("logoutBtn")
 ?.addEventListener("click", logout);
+
