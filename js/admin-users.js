@@ -53,22 +53,20 @@ async function loadAdmins(){
   `;
 
   const { data, error } = await db
-    .from("admin_users")
-    .select(`
-      id,
-      user_id,
-      role,
-      is_active,
-      approved_by,
-      created_at,
-      profiles (
-        full_name,
-        email,
-        phone,
-        position
-      )
-    `)
-    .order("created_at", { ascending:false });
+  .from("admin_users")
+  .select(`
+    id,
+    user_id,
+    nama,
+    email,
+    phone,
+    position,
+    role,
+    is_active,
+    approved_by,
+    created_at
+  `)
+  .order("created_at", { ascending: false });
 
   if(error){
     tbody.innerHTML = `<tr><td colspan="9">Error load data</td></tr>`;
