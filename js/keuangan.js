@@ -14,7 +14,7 @@ let expenseData = [];
 /* ================= INIT ================= */
 document.addEventListener("DOMContentLoaded", async ()=>{
 
-    if(!db){
+    if(!supabase){
         alert("Supabase belum terhubung");
         return;
     }
@@ -46,32 +46,30 @@ document.addEventListener("DOMContentLoaded", async ()=>{
 /* ================= ROLE LOCK ================= */
 async function checkFinanceAccess(){
 
-    const { data: userData } = await db.auth.getUser();
-    const user = userData?.user;
+    const { data: { user } } = await supabase.auth.getUser();
 
     if(!user){
         window.location.href = "login.html";
         return;
     }
 
-    const { data } = await db
+    const { data } = await supabase
         .from("admin_users")
-        .select("role")
-        .eq("email", user.email)
-        .single();
+        .select("role, is_active")
+        .eq("user_id", user.id)
+        .maybeSingle();
 
-    if(!data){
-        alert("Akun tidak terdaftar sebagai admin.");
+    if(!data || !data.is_active){
+        alert("Akun belum aktif.");
         window.location.href = "dapur.html";
         return;
     }
 
     if(data.role !== "admin" && data.role !== "superadmin"){
         alert("Halaman keuangan hanya untuk admin.");
-        window.location.href = "dashboard.html";
+        window.location.href = "dapur.html";
     }
 }
-
 
 /* ================= TAB SYSTEM ================= */
 function setupTabs(){
@@ -144,12 +142,12 @@ function applyQuickFilter(type){
 /* ================= LOAD DATA ================= */
 async function loadFinance(){
 
-    const { data:income } = await db
+    const { data:income } = await supabase
         .from("service_orders")
         .select("*")
         .eq("status","selesai");
 
-    const { data:expense } = await db
+    const { data:expense } = await supabase
         .from("expenses")
         .select("*");
 
@@ -334,9 +332,9 @@ function setupExpenseForm(){
             return;
         }
 
-        const user = await db.auth.getUser();
+        const user = await supabase.auth.getUser();
 
-        const {error}=await db.from("expenses").insert([{
+        const {error}=await supabase.from("expenses").insert([{
             title,
             category,
             amount,
