@@ -1,6 +1,6 @@
 "use strict";
 
-const supabase = window.supabaseClient;
+const client = window.supabaseClient;
 
 /* ================= ELEMENT ================= */
 const alertBox = document.getElementById("alertBox");
@@ -57,7 +57,7 @@ console.log("SIGNUP RESULT:", signUpData, signUpError);
   }
 
   // 🔥 Insert ke admin_users
-  const { error: insertError } = await supabase
+  const { error: insertError } = await client
   .from("admin_users")
   .insert([
     {
