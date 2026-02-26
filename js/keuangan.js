@@ -429,3 +429,41 @@ function renderReport(income, expense){
 function generatePDF(){
     window.print(); // versi ringan & stabil
 }
+
+/* ================= MOBILE NAV PREMIUM ================= */
+document.addEventListener("DOMContentLoaded", function(){
+
+  const toggle = document.getElementById("menuToggle");
+  const nav = document.querySelector(".top-nav");
+  const overlay = document.getElementById("navOverlay");
+
+  if(!toggle || !nav || !overlay) return;
+
+  function openNav(){
+    nav.classList.add("active");
+    overlay.classList.add("active");
+    document.body.classList.add("nav-open");
+  }
+
+  function closeNav(){
+    nav.classList.remove("active");
+    overlay.classList.remove("active");
+    document.body.classList.remove("nav-open");
+  }
+
+  toggle.addEventListener("click", function(e){
+    e.stopPropagation();
+    if(nav.classList.contains("active")){
+      closeNav();
+    } else {
+      openNav();
+    }
+  });
+
+  overlay.addEventListener("click", closeNav);
+
+  document.querySelectorAll(".nav-btn").forEach(function(btn){
+    btn.addEventListener("click", closeNav);
+  });
+
+});
