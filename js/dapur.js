@@ -422,7 +422,7 @@ function initUI(){
 
     const fileInput = document.getElementById("edit-bukti-file");
     const file = fileInput.files[0];
-
+    
     /* ================= UPLOAD FOTO ================= */
     if(file){
 
@@ -499,7 +499,7 @@ const { error } = await client
     document.getElementById("detailModal").style.display="none";
     loadOrders();
 };
-
+}
 /* ================= Event Dropdown Sparepart ================= */
 document.getElementById("sparepartSelect")
 ?.addEventListener("change", function(){
@@ -861,3 +861,4 @@ document.addEventListener("DOMContentLoaded", function(){
   });
 
 });
+
