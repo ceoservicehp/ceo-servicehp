@@ -1,6 +1,6 @@
 "use strict";
 
-window.supabaseClient;
+const client = window.supabaseClient;
 
 let allAdmins = [];
 let selectedUserId = null;
@@ -17,7 +17,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 /* ================= SECURITY ================= */
 async function checkSuperAdmin(){
-  const { data } = await db.auth.getSession();
+  const { data } = await client.auth.getSession();
 
   if(!data?.session){
     window.location.href = "login.html";
@@ -26,7 +26,7 @@ async function checkSuperAdmin(){
 
   currentUserId = data.session.user.id;
 
-  const { data: roleData } = await db
+  const { data: roleData } = await client
     .from("admin_users")
     .select("role, is_active")
     .eq("user_id", currentUserId)
@@ -45,7 +45,7 @@ async function loadAdmins(){
 
   tbody.innerHTML = `<tr><td colspan="9">Memuat...</td></tr>`;
 
-  const { data, error } = await db
+  const { data, error } = await client
     .from("admin_users")
     .select(`
       id,
@@ -143,7 +143,7 @@ function bindEditableFields(){
         const id = e.target.dataset.id;
         const newRole = e.target.value;
 
-        await db.from("admin_users")
+        await client.from("admin_users")
           .update({ role: newRole })
           .eq("id", id);
 
@@ -157,7 +157,7 @@ function bindEditableFields(){
         const id = e.target.dataset.id;
         const newPosition = e.target.value;
 
-        await db.from("admin_users")
+        await client.from("admin_users")
           .update({ position: newPosition })
           .eq("id", id);
       });
@@ -213,7 +213,7 @@ async function executeAction(){
 
   if(selectedAction === "toggle"){
 
-    await db.from("admin_users")
+    await client.from("admin_users")
       .update({
         is_active: !user.is_active,
         approved_by: currentUserId
@@ -229,7 +229,7 @@ async function executeAction(){
       return;
     }
 
-    await db.from("admin_users")
+    await client.from("admin_users")
       .delete()
       .eq("id", selectedUserId);
   }
