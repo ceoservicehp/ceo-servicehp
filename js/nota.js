@@ -41,6 +41,7 @@ document.addEventListener("DOMContentLoaded", async ()=>{
 
   document.getElementById("c-name").textContent = data.nama || "-";
   document.getElementById("c-phone").textContent = data.phone || "-";
+  document.getElementById("c-alamat").textContent = data.alamat || "-";
   document.getElementById("c-metode").textContent = data.metode || "-";
 
   /* ================= SERVICE INFO ================= */
