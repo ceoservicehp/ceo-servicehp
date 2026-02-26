@@ -1,6 +1,6 @@
 "use strict";
 
-const supabase = window.supabaseClient;
+const client = window.supabaseClient;
 
 function rupiah(n){
     return "Rp " + Number(n || 0).toLocaleString("id-ID");
@@ -46,14 +46,14 @@ document.addEventListener("DOMContentLoaded", async ()=>{
 /* ================= ROLE LOCK ================= */
 async function checkFinanceAccess(){
 
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user } } = await client.auth.getUser();
 
     if(!user){
         window.location.href = "login.html";
         return;
     }
 
-    const { data } = await supabase
+    const { data } = await client
         .from("admin_users")
         .select("role, is_active")
         .eq("user_id", user.id)
@@ -142,12 +142,12 @@ function applyQuickFilter(type){
 /* ================= LOAD DATA ================= */
 async function loadFinance(){
 
-    const { data:income } = await supabase
+    const { data:income } = await client
         .from("service_orders")
         .select("*")
         .eq("status","selesai");
 
-    const { data:expense } = await supabase
+    const { data:expense } = await client
         .from("expenses")
         .select("*");
 
@@ -332,9 +332,9 @@ function setupExpenseForm(){
             return;
         }
 
-        const user = await supabase.auth.getUser();
+        const user = await client.auth.getUser();
 
-        const {error}=await supabase.from("expenses").insert([{
+        const {error}=await client.from("expenses").insert([{
             title,
             category,
             amount,
