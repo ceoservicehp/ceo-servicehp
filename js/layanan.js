@@ -1,4 +1,4 @@
-const supabase = window.supabaseClient;
+const client = window.supabaseClient;
 
 let spareparts = {};
 let allProducts = []; // simpan semua produk
@@ -287,7 +287,7 @@ marker._icon.classList.add("bounce");
 /* ================= LOAD PRODUK DARI DATABASE ================= */
 async function loadProducts(){
 
-    const { data, error } = await supabase
+    const { data, error } = await client
         .from("products")
         .select(`
             *,
@@ -337,7 +337,7 @@ function attachProductEvents(){
 /* ================= LOAD KATEGORI FILTER ================= */
 async function loadCategoriesFilter(){
 
-    const { data, error } = await supabase
+    const { data, error } = await client
         .from("categories")
         .select("name")
         .eq("is_active", true)
@@ -552,7 +552,7 @@ document.getElementById("checkout").onclick = async () => {
     if(file){
         const fileName=Date.now()+"_"+file.name;
 
-        const { error:uploadError } = await supabase.storage
+        const { error:uploadError } = await client.storage
             .from("bukti-transfer")
             .upload(fileName,file);
 
@@ -565,7 +565,7 @@ document.getElementById("checkout").onclick = async () => {
             return;
         }
 
-        const { data:publicUrl } = supabase.storage
+        const { data:publicUrl } = client.storage
             .from("bukti-transfer")
             .getPublicUrl(fileName);
 
@@ -581,7 +581,7 @@ const total = spareTotal + transportCost;
 
 try {
 
-    const { error } = await supabase
+    const { error } = await client
         .from("service_orders")
         .insert({
             nama,
