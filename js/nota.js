@@ -162,12 +162,6 @@ function toggleAcc(el){
   body.classList.toggle("open");
 }
 
-/* ================= LOAD SIGNATURE ================= */
-  await loadSignature();
-
-});
-
-
 /* ================= LOAD SIGNATURE (BUCKET: signature_url) ================= */
 async function loadSignature(){
 
