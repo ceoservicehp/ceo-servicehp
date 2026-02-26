@@ -430,6 +430,19 @@ function generatePDF(){
     window.print(); // versi ringan & stabil
 }
 
+/* ================= LOGOUT ================= */
+async function logout(){
+
+  if(!client) return;
+
+  await client.auth.signOut();
+  localStorage.removeItem("userRole");
+  window.location.href = "login.html";
+}
+
+document.getElementById("logoutBtn")
+?.addEventListener("click", logout);
+
 /* ================= MOBILE NAV PREMIUM ================= */
 document.addEventListener("DOMContentLoaded", function(){
 
