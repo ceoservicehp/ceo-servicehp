@@ -1,6 +1,6 @@
 "use strict";
 
-const supabase = window.supabaseClient;
+const db = window.supabaseClient;
 
 let allAdmins = [];
 let selectedUserId = null;
