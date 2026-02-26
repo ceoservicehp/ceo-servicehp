@@ -829,3 +829,32 @@ async function logout(){
 document.getElementById("logoutBtn")
 ?.addEventListener("click", logout);
 }
+
+/* ================= MOBILE NAV TOGGLE ================= */
+document.addEventListener("DOMContentLoaded", function(){
+
+  const toggle = document.getElementById("menuToggle");
+  const nav = document.querySelector(".top-nav");
+
+  if(!toggle || !nav) return;
+
+  toggle.addEventListener("click", function(e){
+    e.stopPropagation();
+    nav.classList.toggle("active");
+  });
+
+  // Tutup saat klik menu
+  document.querySelectorAll(".nav-btn").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      nav.classList.remove("active");
+    });
+  });
+
+  // Tutup saat klik di luar
+  document.addEventListener("click", function(e){
+    if(!nav.contains(e.target) && !toggle.contains(e.target)){
+      nav.classList.remove("active");
+    }
+  });
+
+});
