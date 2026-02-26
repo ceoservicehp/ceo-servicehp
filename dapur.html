@@ -345,8 +345,18 @@ year:"numeric"
 });
 </script>
 
+<script>
+const toggle = document.getElementById("menuToggle");
+const nav = document.querySelector(".top-nav");
+
+toggle.addEventListener("click", ()=>{
+  nav.classList.toggle("active");
+});
+</script>
+  
 </body>
 </html>
+
 
 
 
