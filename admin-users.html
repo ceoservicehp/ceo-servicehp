@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Manajemen Admin — CEO Service HP</title>
+<title>MANAJEMEN USERS - CEO</title>
 
 <link rel="stylesheet" href="css/admin-users.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -13,17 +13,30 @@
 
 <div class="container">
 
-  <!-- HEADER -->
-  <div class="header-actions">
+ <!-- ================= HEADER ================= -->
+<header>
+  <div id="logo-container">
+    <img src="images/logo.png" width="55">
+
     <div>
-      <h1>
-        <i class="fa-solid fa-user-shield"></i>
-        Manajemen Admin
-      </h1>
-      <small class="subtitle">
-        Sistem Kontrol Akses & Keamanan Internal
-      </small>
+      <h1>CEO - PART SERVICE</h1>
+      <div class="tagline">CELLULAR ENGINEER OFFICER</div>
     </div>
+  </div>
+</header>
+
+<!-- ================= NAVBAR ================= -->
+<nav class="top-nav">
+  <a href="layanan.html" class="nav-btn">
+    <i class="fa fa-mobile-alt"></i>
+    Order Service
+  </a>
+
+  <a href="ceo_status.html" class="nav-btn">
+    <i class="fa fa-chart-line"></i>
+    Status
+  </a>
+</nav>
 
     <div class="header-buttons">
       <button class="btn-refresh" id="refreshBtn">
@@ -105,7 +118,12 @@
     </div>
   </div>
 </div>
-
+  
+<!-- ================= FOOTER ================= -->
+<footer>
+  © 2026 CEO Part & Service — All Rights Reserved
+</footer>
+  
 <!-- Supabase -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/supabase.js"></script>
@@ -113,5 +131,6 @@
 <script src="js/role-guard.js"></script>
 <script src="js/admin-users.js"></script>
 
+  
 </body>
 </html>
