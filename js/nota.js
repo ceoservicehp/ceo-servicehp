@@ -167,13 +167,16 @@ async function loadSignature(){
 
   if(!currentData?.approved_by) return;
 
-  const { data } = await client
-    .from("profiles")
-    .select("signature_url, full_name")
-    .eq("id", currentData.approved_by)
-    .maybeSingle();
+  const { data, error } = await client
+  .from("profiles")
+  .select("signature_url, full_name")
+  .eq("id", currentData.approved_by)
+  .maybeSingle();
 
-  if(!data) return;
+if(error){
+  console.log("Profile error:", error);
+  return;
+}
 
   const sigBox = document.getElementById("ttdImg");
   const nameEl = document.getElementById("ttdName");
