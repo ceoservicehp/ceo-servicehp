@@ -23,6 +23,7 @@
       <div class="tagline">CELLULAR ENGINEERING OFFICER</div>
     </div>
   </div>
+  
   <button class="menu-toggle" id="menuToggle">
   <i class="fa-solid fa-bars"></i>
 </button>
@@ -329,14 +330,20 @@ Memuat status layanan...
 <script src="js/dapur.js"></script>
 
 <script>
-const toggle = document.getElementById("menuToggle");
-const nav = document.querySelector(".top-nav");
+document.addEventListener("DOMContentLoaded", function(){
 
-toggle.addEventListener("click", ()=>{
-  nav.classList.toggle("active");
+  const toggle = document.getElementById("menuToggle");
+  const nav = document.querySelector(".top-nav");
+
+  if(toggle){
+    toggle.addEventListener("click", function(){
+      nav.classList.toggle("active");
+    });
+  }
+
 });
 </script>
-
+  
 <!-- TANGGAL OTOMATIS -->
 <script>
 document.addEventListener("DOMContentLoaded",()=>{
@@ -353,13 +360,6 @@ year:"numeric"
 });
 });
 </script>
-
   
 </body>
 </html>
-
-
-
-
-
-
