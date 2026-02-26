@@ -1,6 +1,6 @@
 "use strict";
 
-const supabase = window.supabaseClient;
+const client = window.supabaseClient;
 
 /* ================= ELEMENT ================= */
 const alertBox = document.getElementById("alertBox");
@@ -24,9 +24,9 @@ function clearAlert(){
 /* ================= CHECK SESSION ================= */
 document.addEventListener("DOMContentLoaded", async () => {
 
-  if(!supabase) return;
+  if(!client) return;
 
-  const { data } = await supabase.auth.getSession();
+  const { data } = await client.auth.getSession();
 
   if(data?.session){
     window.location.href = "dapur.html";
@@ -38,7 +38,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 document.getElementById("googleLogin")
 ?.addEventListener("click", async () => {
 
-  await supabase.auth.signInWithOAuth({
+  await client.auth.signInWithOAuth({
     provider: "google",
     options: {
       redirectTo: window.location.origin + "/login.html"
@@ -55,7 +55,7 @@ loginForm?.addEventListener("submit", async (e)=>{
   const email = loginForm.loginEmail.value.trim();
   const password = loginForm.loginPassword.value.trim();
 
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  const { data, error } = await client.auth.signInWithPassword({ email, password });
 
   if(error){
     showAlert("Email atau password salah.");
@@ -64,7 +64,7 @@ loginForm?.addEventListener("submit", async (e)=>{
 
   const user = data.user;
 
-  const { data: adminData, error: roleError } = await supabase
+  const { data: adminData, error: roleError } = await client
     .from("admin_users")
     .select("role, is_active")
     .eq("user_id", user.id)
@@ -76,13 +76,13 @@ loginForm?.addEventListener("submit", async (e)=>{
   }
 
   if(!adminData){
-    await supabase.auth.signOut();
+    await client.auth.signOut();
     showAlert("Akun tidak terdaftar sebagai admin.");
     return;
   }
 
   if(!adminData.is_active){
-    await supabase.auth.signOut();
+    await client.auth.signOut();
     showAlert("Akun belum diaktifkan admin.");
     return;
   }
