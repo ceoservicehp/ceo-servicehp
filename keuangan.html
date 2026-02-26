@@ -20,22 +20,67 @@
 
 <div class="wrapper">
 
-<!-- HEADER -->
+<!-- ================= HEADER ================= -->
 <header>
   <div id="logo-container">
     <img src="images/logo.png" width="55">
 
     <div>
-      <h1>CEO - KEUANGAN</h1>
+      <h1>CEO - PART SERVICE</h1>
       <div class="tagline">CELLULAR ENGINEER OFFICER</div>
     </div>
-
-    <button id="logoutBtn" class="btn btn-logout">
-      <i class="fa-solid fa-right-from-bracket"></i> Logout
-    </button>
   </div>
+
+  <button class="menu-toggle" id="menuToggle">
+  <i class="fa-solid fa-bars"></i>
+</button>
 </header>
 
+<!-- ================= NAVBAR ================= -->
+<nav class="top-nav">
+  <a href="index.html" class="nav-btn">
+    <i class="fa-solid fa-house"></i>
+    Beranda
+  </a>
+
+  <a href="profile.html" class="nav-btn">
+    <i class="fa-solid fa-user"></i>
+    Profil
+  </a>
+ 
+  <a href="dapur.html" class="nav-btn">
+    <i class="fa-solid fa-kitchen-set"></i>
+    Dapur
+  </a>
+
+  <a href="produk.html" class="nav-btn">
+    <i class="fa-solid fa-box-open"></i>
+    Produk
+  </a>
+
+  <a href="keuangan.html" class="nav-btn">
+    <i class="fa-solid fa-wallet"></i>
+    Keuangan
+  </a>
+
+  <a href="layanan.html" class="nav-btn">
+    <i class="fa-solid fa-screwdriver-wrench"></i>
+    Layanan
+  </a>
+
+  <a href="ceo_status.html" class="nav-btn">
+    <i class="fa-solid fa-chart-line"></i>
+    Status
+  </a>
+
+  <!-- 🔴 LOGOUT -->
+  <button id="logoutBtn" class="nav-btn logout-btn">
+    <i class="fa-solid fa-right-from-bracket"></i>
+    Logout
+  </button>
+</nav>
+<div class="nav-overlay" id="navOverlay"></div>
+  
 <div class="container">
 
   <!-- ================= SUMMARY ================= -->
