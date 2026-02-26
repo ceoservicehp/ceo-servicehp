@@ -2,7 +2,7 @@
 
 document.addEventListener("DOMContentLoaded", async () => {
 
-    const db = window.supabaseClient;
+    const supabase = window.supabaseClient;
     if(!db) return;
 
     const { data } = await db.auth.getSession();
