@@ -1,6 +1,6 @@
 "use strict";
 
-const supabase = window.supabaseClient;;
+const supabase = window.supabaseClient;
 
 function rupiah(n){
   return "Rp " + Number(n||0).toLocaleString("id-ID");
@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", async ()=>{
   const id = getId();
   if(!id) return;
 
-  const { data, error } = await db
+  const { data, error } = await supabase
     .from("service_orders")
     .select("*")
     .eq("id", id)
@@ -165,35 +165,31 @@ document.addEventListener("DOMContentLoaded", async ()=>{
 });
 
 
-/* ================= LOAD SIGNATURE FROM PROFILE ================= */
+/* ================= LOAD SIGNATURE (PUBLIC SAFE) ================= */
 async function loadSignature(){
 
-  const { data: { user } } = await db.auth.getUser();
-  if(!user) return;
+  if(!currentData?.approved_by) return;
 
-  const { data, error } = await db
+  const { data, error } = await supabase
     .from("profiles")
     .select("signature_url, full_name")
-    .eq("id", user.id)
-    .single();
+    .eq("id", currentData.approved_by)
+    .maybeSingle();
 
   if(error){
     console.log("Signature error:", error);
     return;
   }
 
-  if(data?.signature_url){
-    const sigBox = document.getElementById("ttdImg");
-    if(sigBox){
-      sigBox.style.backgroundImage = `url(${data.signature_url})`;
-    }
+  const sigBox = document.getElementById("ttdImg");
+  const nameEl = document.getElementById("ttdName");
+
+  if(data?.signature_url && sigBox){
+    sigBox.style.backgroundImage = `url(${data.signature_url})`;
   }
 
-  if(data?.full_name){
-    const nameEl = document.getElementById("ttdName");
-    if(nameEl){
-      nameEl.innerText = data.full_name;
-    }
+  if(data?.full_name && nameEl){
+    nameEl.innerText = data.full_name;
   }
 }
 
@@ -234,6 +230,7 @@ function sendWhatsApp(){
   const url = window.location.href;
 
   const total =
+    (currentData.total_sparepart || 0) +
     (currentData.transport || 0) +
     (currentData.jasa || 0);
 
