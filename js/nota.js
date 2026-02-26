@@ -24,7 +24,17 @@ document.addEventListener("DOMContentLoaded", async ()=>{
     .eq("id", id)
     .single();
 
-  if(error || !data) return;
+  if(error){
+  console.log("ERROR SERVICE ORDER:", error);
+  return;
+}
+
+if(!data){
+  console.log("DATA KOSONG");
+  return;
+}
+
+console.log("DATA BERHASIL:", data);
 
   currentData = data;
 
