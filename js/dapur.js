@@ -1,7 +1,7 @@
 "use strict";
 
-function getclient(){
-    return window.clientClient;
+function getSupabase(){
+    return window.supabaseClient;
 }
 
 console.log("DAPUR JS VERSI BARU");
@@ -9,7 +9,7 @@ console.log("DAPUR JS VERSI BARU");
 /* ================= CEK SESSION + ROLE ================= */
 document.addEventListener("DOMContentLoaded", async () => {
 
-    const client = getclient();
+    const client = getSupabase();
     if(!client) return;
 
     const { data: { session } } = await client.auth.getSession();
@@ -77,7 +77,7 @@ let selectedParts = [];
 
 /* ================= STATUS TOKO ================= */
 async function loadStoreStatus(){
-    const client=getclient();
+    const client=getSupabase();
     if(!client) return;
 
     const {data}=await client
@@ -103,7 +103,7 @@ function updateAdminStatus(open){
 }
 
 async function setStore(open){
-    const client=getclient();
+    const client=getSupabase();
     if(!client) return;
 
     await client
@@ -116,7 +116,7 @@ async function setStore(open){
 
 /* ================= LOAD DATA ================= */
 async function loadOrders(){
-    const client=getclient();
+    const client=getSupabase();
     const tbody=document.getElementById("orderTable");
     if(!tbody || !client) return;
 
@@ -146,7 +146,7 @@ async function loadOrders(){
 
 /* ================= LOAD SPAREPART ================= */
 async function loadSpareparts(){
-  const client = getclient();
+  const client = getSupabase();
   if(!client) return;
 
   const { data, error } = await client
@@ -684,10 +684,10 @@ document.getElementById("checkAll")
 document.getElementById("hapusTerpilih")
 ?.addEventListener("click", async () => {
 
-    const { data: sessionData } = await getclient().auth.getSession();
+    const { data: sessionData } = await getSupabase().auth.getSession();
     const userId = sessionData.session.user.id;
 
-    const { data: roleCheck } = await getclient()
+    const { data: roleCheck } = await getSupabase()
       .from("admin_users")
       .select("role")
       .eq("user_id", userId)
@@ -710,7 +710,7 @@ document.getElementById("hapusTerpilih")
 
     const ids = checked.map(c => parseInt(c.dataset.id));
 
-    const { error } = await getclient()
+    const { error } = await getSupabase()
         .from("service_orders")
         .delete()
         .in("id", ids);
@@ -862,5 +862,6 @@ document.addEventListener("DOMContentLoaded", function(){
   });
 
 });
+
 
 
