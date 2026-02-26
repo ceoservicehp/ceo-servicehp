@@ -59,7 +59,7 @@ async function saveCategory(){
         return;
     }
 
-    const { data:exist } = await db
+    const { data:exist } = await supabase
         .from("categories")
         .select("id")
         .ilike("name", name)
@@ -70,7 +70,7 @@ async function saveCategory(){
         return;
     }
 
-    const { data, error } = await db
+    const { data, error } = await supabase
         .from("categories")
         .insert({ name })
         .select()
@@ -98,7 +98,7 @@ async function loadProducts(){
 
     const tbody = document.getElementById("productTable");
 
-    const { data, error } = await db
+    const { data, error } = await supabase
         .from("products")
         .select(`
             *,
@@ -155,7 +155,7 @@ async function loadProducts(){
 /* ================= LOAD CATEGORIES ================= */
 async function loadCategories(){
 
-    const { data } = await db
+    const { data } = await supabase
         .from("categories")
         .select("*")
         .eq("is_active", true)
@@ -198,7 +198,7 @@ async function saveProduct(){
 
         const fileName = Date.now()+"_"+file.name;
 
-        const { error:uploadError } = await db.storage
+        const { error:uploadError } = await supabase.storage
             .from("produk-images")
             .upload(fileName,file);
 
@@ -207,7 +207,7 @@ async function saveProduct(){
             return;
         }
 
-        const { data } = db.storage
+        const { data } = supabase.storage
             .from("produk-images")
             .getPublicUrl(fileName);
 
@@ -230,9 +230,9 @@ async function saveProduct(){
     }
 
     if(!id){
-        await db.from("products").insert(payload);
+        await supabase.from("products").insert(payload);
     }else{
-        await db.from("products").update(payload).eq("id",id);
+        await supabase.from("products").update(payload).eq("id",id);
     }
 
     resetForm();
@@ -243,7 +243,7 @@ async function saveProduct(){
 /* ================= EDIT ================= */
 async function editProduct(id){
 
-    const { data } = await db
+    const { data } = await supabase
         .from("products")
         .select("*")
         .eq("id",id)
@@ -274,7 +274,7 @@ async function deleteProduct(id){
 
     if(!confirm("Hapus produk ini?")) return;
 
-    await db.from("products").delete().eq("id",id);
+    await supabase.from("products").delete().eq("id",id);
     loadProducts();
 }
 
@@ -355,7 +355,7 @@ async function importProducts(){
 
         if(rowData.category){
 
-            const { data:exist } = await db
+            const { data:exist } = await supabase
                 .from("categories")
                 .select("id")
                 .ilike("name", rowData.category)
@@ -364,7 +364,7 @@ async function importProducts(){
             if(exist){
                 categoryId = exist.id;
             }else{
-                const { data:newCat } = await db
+                const { data:newCat } = await supabase
                     .from("categories")
                     .insert({ name: rowData.category })
                     .select()
@@ -388,7 +388,7 @@ async function importProducts(){
 
     }
 
-    const { error } = await db
+    const { error } = await supabase
         .from("products")
         .insert(productsToInsert);
 
