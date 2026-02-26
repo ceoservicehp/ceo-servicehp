@@ -1,4 +1,4 @@
-const db = window.supabaseClient;
+const supabase = window.supabaseClient;
 
 let spareparts = {};
 let allProducts = []; // simpan semua produk
