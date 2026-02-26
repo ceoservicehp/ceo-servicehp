@@ -1,6 +1,6 @@
 "use strict";
 
-const supabase = window.supabaseClient;
+const client = window.supabaseClient;
 
 function rupiah(n){
   return "Rp " + Number(n||0).toLocaleString("id-ID");
@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", async ()=>{
   const id = getId();
   if(!id) return;
 
-  const { data, error } = await supabase
+  const { data, error } = await client
     .from("service_orders")
     .select("*")
     .eq("id", id)
@@ -170,7 +170,7 @@ async function loadSignature(){
 
   if(!currentData?.approved_by) return;
 
-  const { data, error } = await supabase
+  const { data, error } = await client
     .from("profiles")
     .select("signature_url, full_name")
     .eq("id", currentData.approved_by)
