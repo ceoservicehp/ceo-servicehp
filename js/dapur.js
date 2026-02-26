@@ -486,7 +486,7 @@ const { error } = await client
                   : document.getElementById("edit-due-date").value,
 
         // 🔥 INI YANG BENAR
-        bukti_service: buktiUrl || existingData?.bukti_service || null
+        bukti_service: buktiUrl || existingData?.bukti_service || null,
 
         // 🔥 TAMBAHAN INI
       approved_by: newStatus === "selesai" ? user.id : existingData?.approved_by
@@ -864,5 +864,6 @@ document.addEventListener("DOMContentLoaded", function(){
   });
 
 });
+
 
 
