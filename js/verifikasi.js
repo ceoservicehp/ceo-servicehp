@@ -2,7 +2,7 @@
 
 document.addEventListener("DOMContentLoaded", async ()=>{
 
-const db = window.supabaseClient;
+const supabase = window.supabaseClient;
 const resultEl = document.getElementById("result");
 
 if(!db){
