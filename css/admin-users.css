@@ -3,17 +3,17 @@ body{
   font-family:'Segoe UI',system-ui,sans-serif;
   background:#f1f5f9;
   margin:0;
-  padding:30px;
+  padding:0;
   color:#0f172a;
 }
 
 .container{
   max-width:1200px;
-  margin:auto;
+  margin:30px auto;
   background:#ffffff;
   padding:30px;
-  border-radius:18px;
-  box-shadow:0 20px 45px rgba(0,0,0,.06);
+  border-radius:16px;
+  box-shadow:0 8px 25px rgba(0,0,0,.05);
 }
 
 /* ================= HEADER ================= */
@@ -169,7 +169,6 @@ header{
   background:white;
   border-radius:14px;
   overflow:hidden;
-  box-shadow:0 8px 25px rgba(0,0,0,.05);
 }
 
 /* HEADER */
@@ -368,11 +367,10 @@ header{
 
 /* ===== FOOTER ===== */
 footer{
-  margin-top:30px;
+  margin-top:40px;
   background:linear-gradient(90deg,#0b1c22,#2b4d58);
   color:white;
   text-align:center;
-  padding:15px;
+  padding:18px;
   font-size:13px;
-  border-radius:12px 12px 0 0;
 }
