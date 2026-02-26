@@ -1,15 +1,11 @@
 "use strict";
 
-function getSupabase(){
-    return window.supabaseClient;
-}
-
+const client = window.supabaseClient;
 console.log("DAPUR JS VERSI BARU");
 
 /* ================= CEK SESSION + ROLE ================= */
 document.addEventListener("DOMContentLoaded", async () => {
 
-    const client = getSupabase();
     if(!client) return;
 
     const { data: { session } } = await client.auth.getSession();
@@ -77,7 +73,7 @@ let selectedParts = [];
 
 /* ================= STATUS TOKO ================= */
 async function loadStoreStatus(){
-    const client=getSupabase();
+
     if(!client) return;
 
     const {data}=await client
@@ -103,7 +99,7 @@ function updateAdminStatus(open){
 }
 
 async function setStore(open){
-    const client=getSupabase();
+
     if(!client) return;
 
     await client
@@ -116,7 +112,7 @@ async function setStore(open){
 
 /* ================= LOAD DATA ================= */
 async function loadOrders(){
-    const client=getSupabase();
+
     const tbody=document.getElementById("orderTable");
     if(!tbody || !client) return;
 
@@ -146,7 +142,7 @@ async function loadOrders(){
 
 /* ================= LOAD SPAREPART ================= */
 async function loadSpareparts(){
-  const client = getSupabase();
+
   if(!client) return;
 
   const { data, error } = await client
@@ -415,7 +411,6 @@ function initUI(){
     /* SAVE EDIT */
    document.getElementById("saveEdit").onclick = async () => {
 
-    const client = getSupabase();
     const id = parseInt(document.getElementById("edit-id").value);
 
     const spare = parseInt(document.getElementById("edit-total-sparepart").value) || 0;
@@ -616,10 +611,10 @@ document.addEventListener("click",e=>{
 document.addEventListener("click",async e=>{
     if(!e.target.classList.contains("hapus")) return;
 
-    const { data: sessionData } = await getSupabase().auth.getSession();
+    const { data: sessionData } = await client.auth.getSession();
     const userId = sessionData.session.user.id;
     
-    const { data: roleCheck } = await getSupabase()
+    const { data: roleCheck } = await client
       .from("admin_users")
       .select("role")
       .eq("user_id", userId)
@@ -634,7 +629,7 @@ document.addEventListener("click",async e=>{
     const id=e.target.dataset.id;
     if(!confirm("Hapus data ini?")) return;
 
-    await getSupabase()
+    await client
         .from("service_orders")      
         .delete()
         .eq("id",id);
@@ -649,7 +644,7 @@ document.addEventListener("change",async e=>{
     const id=e.target.dataset.id;
     const val=e.target.value;
 
-    await getSupabase()
+    await client
         .from("service_orders")       
         .update({status:val})
         .eq("id",id);
@@ -684,10 +679,10 @@ document.getElementById("checkAll")
 document.getElementById("hapusTerpilih")
 ?.addEventListener("click", async () => {
 
-    const { data: sessionData } = await getSupabase().auth.getSession();
+    const { data: sessionData } = await client.auth.getSession();
     const userId = sessionData.session.user.id;
 
-    const { data: roleCheck } = await getSupabase()
+    const { data: roleCheck } = await client
       .from("admin_users")
       .select("role")
       .eq("user_id", userId)
@@ -710,7 +705,7 @@ document.getElementById("hapusTerpilih")
 
     const ids = checked.map(c => parseInt(c.dataset.id));
 
-    const { error } = await getSupabase()
+    const { error } = await client
         .from("service_orders")
         .delete()
         .in("id", ids);
@@ -818,7 +813,7 @@ document.getElementById("cetakTanggal")
 
 /* ================= LOGOUT ================= */
 async function logout(){
-  const client = getSupabase();
+
   if(!client) return;
 
   await client.auth.signOut();
@@ -866,3 +861,4 @@ document.addEventListener("DOMContentLoaded", function(){
   });
 
 });
+
