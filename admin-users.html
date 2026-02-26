@@ -37,6 +37,9 @@
 </nav>
 
  <div class="container">
+
+  <div class="admin-content">
+
     <div class="header-buttons">
       <button class="btn-refresh" id="refreshBtn">
         <i class="fa-solid fa-rotate"></i> Refresh
@@ -47,59 +50,61 @@
       </button>
     </div>
 
-  <!-- FILTER & SEARCH -->
-  <div class="filter-section">
+    <!-- FILTER & SEARCH -->
+    <div class="filter-section">
 
-    <div class="search-box">
-      <i class="fa-solid fa-magnifying-glass"></i>
-      <input type="text" id="searchAdmin" placeholder="Cari nama / email...">
+      <div class="search-box">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" id="searchAdmin" placeholder="Cari nama / email...">
+      </div>
+
+      <select id="filterStatus">
+        <option value="all">Semua Status</option>
+        <option value="active">Aktif</option>
+        <option value="inactive">Nonaktif</option>
+      </select>
+
+      <select id="filterRole">
+        <option value="all">Semua Role</option>
+        <option value="superadmin">Superadmin</option>
+        <option value="admin">Admin</option>
+        <option value="staff">Staff</option>
+      </select>
+
     </div>
 
-    <select id="filterStatus">
-      <option value="all">Semua Status</option>
-      <option value="active">Aktif</option>
-      <option value="inactive">Nonaktif</option>
-    </select>
+    <!-- TABLE -->
+    <div class="table-wrapper">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>No</th>
+            <th>Nama Lengkap</th>
+            <th>Email</th>
+            <th>No HP</th>
+            <th>Jabatan</th>
+            <th>Role Sistem</th>
+            <th>Status Akun</th>
+            <th>Disetujui Oleh</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
 
-    <select id="filterRole">
-      <option value="all">Semua Role</option>
-      <option value="superadmin">Superadmin</option>
-      <option value="admin">Admin</option>
-      <option value="staff">Staff</option>
-    </select>
+        <tbody id="adminTable">
+          <tr>
+            <td colspan="9" class="loading">
+              <i class="fa-solid fa-spinner fa-spin"></i>
+              Memuat data...
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
-  </div>
-
-  <!-- TABLE -->
-  <div class="table-wrapper">
-    <table>
-      <thead>
-        <tr>
-          <th>No</th>
-          <th>Nama Lengkap</th>
-          <th>Email</th>
-          <th>No HP</th>
-          <th>Jabatan</th>
-          <th>Role Sistem</th>
-          <th>Status Akun</th>
-          <th>Disetujui Oleh</th>
-          <th>Aksi</th>
-        </tr>
-      </thead>
-
-      <tbody id="adminTable">
-        <tr>
-          <td colspan="9" class="loading">
-            <i class="fa-solid fa-spinner fa-spin"></i>
-            Memuat data...
-          </td>
-        </tr>
-      </tbody>
-    </table>
   </div>
 
 </div>
-
+ 
 <!-- Modal Konfirmasi -->
 <div id="confirmModal" class="modal">
   <div class="modal-box">
