@@ -335,11 +335,27 @@ document.addEventListener("DOMContentLoaded", function(){
   const toggle = document.getElementById("menuToggle");
   const nav = document.querySelector(".top-nav");
 
-  if(toggle){
-    toggle.addEventListener("click", function(){
-      nav.classList.toggle("active");
+  if(!toggle || !nav) return;
+
+  // Toggle buka / tutup
+  toggle.addEventListener("click", function(e){
+    e.stopPropagation();
+    nav.classList.toggle("active");
+  });
+
+  // Tutup saat klik menu
+  document.querySelectorAll(".nav-btn").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      nav.classList.remove("active");
     });
-  }
+  });
+
+  // Tutup saat klik di luar navbar
+  document.addEventListener("click", function(e){
+    if(!nav.contains(e.target) && !toggle.contains(e.target)){
+      nav.classList.remove("active");
+    }
+  });
 
 });
 </script>
@@ -363,3 +379,4 @@ year:"numeric"
   
 </body>
 </html>
+
