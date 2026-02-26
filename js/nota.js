@@ -163,36 +163,53 @@ function toggleAcc(el){
 }
 
 /* ================= LOAD SIGNATURE ================= */
+  await loadSignature();
+
+});
+
+
+/* ================= LOAD SIGNATURE (BUCKET: signature_url) ================= */
 async function loadSignature(){
-
-  if(!currentData?.approved_by) return;
-
-  const { data, error } = await client
-  .from("profiles")
-  .select("signature_url, full_name")
-  .eq("id", currentData.approved_by)
-  .maybeSingle();
-
-if(error){
-  console.log("Profile error:", error);
-  return;
-}
 
   const sigBox = document.getElementById("ttdImg");
   const nameEl = document.getElementById("ttdName");
 
+  if(!currentData?.approved_by){
+    console.log("approved_by kosong");
+    return;
+  }
+
+  const { data, error } = await client
+    .from("profiles")
+    .select("signature_url, full_name")
+    .eq("id", currentData.approved_by)
+    .maybeSingle();
+
+  if(error){
+    console.log("Signature error:", error.message);
+    return;
+  }
+
+  if(!data){
+    console.log("Profile tidak ditemukan");
+    return;
+  }
+
+  /* ================= SET NAMA ================= */
   if(data.full_name && nameEl){
     nameEl.textContent = data.full_name;
   }
 
+  /* ================= SET TTD IMAGE ================= */
   if(data.signature_url && sigBox){
 
     let imageUrl = data.signature_url;
 
+    // Kalau bukan full URL (masih path file saja)
     if(!imageUrl.startsWith("http")){
       const { data: publicUrlData } = client
         .storage
-        .from("signature_url")
+        .from("signature_url") // ← sesuai bucket kamu
         .getPublicUrl(imageUrl);
 
       imageUrl = publicUrlData.publicUrl;
