@@ -149,34 +149,74 @@ header{
 
 /* ================= TABLE ================= */
 .table-wrapper{
-  overflow:auto;
+overflow-x:auto;
 }
 
-table{
-  width:100%;
-  border-collapse:collapse;
-  font-size:14px;
+.admin-table{
+width:100%;
+border-collapse:collapse;
+margin-top:10px;
+min-width:900px;
 }
 
-thead{
-  background:#0f172a;
+.admin-table th,
+.admin-table td{
+padding:12px;
+border:1px solid #eee;
+text-align:center;
+font-size:14px;
 }
 
-th{
-  color:white;
-  padding:14px;
-  text-align:left;
-  font-weight:600;
-  font-size:13px;
+.admin-table th{
+background:#e8f8f8;
+color:#1f6f78;
+font-weight:600;
 }
 
-td{
-  padding:14px;
-  border-bottom:1px solid #e2e8f0;
+.admin-table tr:hover{
+background:#f9ffff;
 }
 
-tbody tr:hover{
-  background:#f8fafc;
+/* STATUS SELECT */
+.status-select{
+padding:6px 10px;
+border-radius:6px;
+border:1px solid #ccc;
+font-weight:bold;
+cursor:pointer;
+transition:.2s;
+}
+
+.status-select:hover{
+border-color:#00c2c7;
+}
+
+/* BULK BUTTONS */
+.bulk-actions{
+display:flex;
+align-items:center;
+gap:18px;
+flex-wrap:wrap;
+margin:10px 0 25px 0;
+}
+
+.filter-date{
+padding:12px 14px;
+border-radius:10px;
+border:1px solid #d1d5db;
+font-size:14px;
+background:#fff;
+min-width:160px;
+}
+
+.btn-print{
+background:#e8f8f8;
+color:#1f6f78;
+}
+
+.btn-print:hover{
+background:linear-gradient(135deg,#1f6f78,#00c2c7);
+color:#fff;
 }
 
 /* ================= STATUS BADGE ================= */
