@@ -24,17 +24,10 @@ document.addEventListener("DOMContentLoaded", async ()=>{
     .eq("id", id)
     .single();
 
-  if(error){
-  console.log("ERROR SERVICE ORDER:", error);
-  return;
-}
-
-if(!data){
-  console.log("DATA KOSONG");
-  return;
-}
-
-console.log("DATA BERHASIL:", data);
+  if(error || !data){
+    console.log("Gagal load invoice:", error);
+    return;
+  }
 
   currentData = data;
 
@@ -52,56 +45,39 @@ console.log("DATA BERHASIL:", data);
 
   /* ================= SERVICE INFO ================= */
 
-  const serviceStatusEl = document.getElementById("service-status");
-  const createdEl = document.getElementById("service-created");
-  const finishedEl = document.getElementById("service-finished");
+  document.getElementById("service-status").textContent = data.status || "-";
+
+  document.getElementById("service-created").textContent =
+    new Date(data.created_at).toLocaleString("id-ID");
+
+  document.getElementById("service-finished").textContent =
+    data.tanggal_selesai
+      ? new Date(data.tanggal_selesai).toLocaleString("id-ID")
+      : "-";
+
   const paymentStatusEl = document.getElementById("payment-status");
+  paymentStatusEl.textContent = data.payment_status || "Belum Lunas";
 
-  if(serviceStatusEl)
-    serviceStatusEl.textContent = data.status || "-";
-
-  if(createdEl)
-    createdEl.textContent =
-      new Date(data.created_at).toLocaleString("id-ID");
-
-  if(finishedEl)
-    finishedEl.textContent =
-      data.tanggal_selesai
-        ? new Date(data.tanggal_selesai).toLocaleString("id-ID")
-        : "-";
-
-  if(paymentStatusEl){
-    paymentStatusEl.textContent =
-      data.payment_status || "Belum Lunas";
-
-    if((data.payment_status || "").toLowerCase().includes("lunas")){
-      paymentStatusEl.classList.add("paid");
-    }else{
-      paymentStatusEl.classList.add("unpaid");
-    }
+  if((data.payment_status || "").toLowerCase().includes("lunas")){
+    paymentStatusEl.classList.add("paid");
+  }else{
+    paymentStatusEl.classList.add("unpaid");
   }
 
-  /* ================= TOP (Tempo) ================= */
+  /* ================= TEMPO ================= */
 
   if(data.use_top && data.due_date){
-    const topSection = document.getElementById("top-section");
-    const topInfo = document.getElementById("top-info");
-
-    if(topSection) topSection.style.display = "block";
-
-    if(topInfo)
-      topInfo.textContent =
-        `${data.top_days || 0} Hari (Jatuh Tempo: ${
-          new Date(data.due_date).toLocaleDateString("id-ID")
-        })`;
+    document.getElementById("top-section").style.display = "flex";
+    document.getElementById("top-info").textContent =
+      `${data.top_days || 0} Hari (Jatuh Tempo: ${
+        new Date(data.due_date).toLocaleDateString("id-ID")
+      })`;
   }
 
-  /* ================= ITEMS ================= */
+  /* ================= ITEMS ACCORDION ================= */
 
-  const tbody = document.getElementById("invoice-items");
-  if(!tbody) return;
-
-  tbody.innerHTML = "";
+  const container = document.getElementById("invoice-items");
+  container.innerHTML = "";
 
   let subtotal = 0;
 
@@ -113,14 +89,18 @@ console.log("DATA BERHASIL:", data);
         const total = (item.harga || 0) * (item.qty || 0);
         subtotal += total;
 
-        tbody.innerHTML += `
-          <tr>
-            <td>${index + 1}</td>
-            <td>${item.nama}</td>
-            <td>${item.qty}</td>
-            <td>${rupiah(item.harga)}</td>
-            <td>${rupiah(total)}</td>
-          </tr>
+        container.innerHTML += `
+          <div class="accordion-item">
+            <div class="acc-header" onclick="toggleAcc(this)">
+              <span>${index+1}. ${item.nama}</span>
+              <i class="fa-solid fa-chevron-down"></i>
+            </div>
+            <div class="acc-body">
+              <div>Qty : ${item.qty}</div>
+              <div>Harga : ${rupiah(item.harga)}</div>
+              <div>Total : ${rupiah(total)}</div>
+            </div>
+          </div>
         `;
       });
 
@@ -140,21 +120,24 @@ console.log("DATA BERHASIL:", data);
 
   document.getElementById("grand-total").textContent = rupiah(grand);
 
-  /* ================= WATERMARK ================= */
+  /* ================= WATERMARK + DIGITAL STAMP ================= */
 
   const wm = document.getElementById("watermark");
+  const stamp = document.getElementById("digital-stamp");
 
-  if(wm){
-    if(data.payment_status === "Lunas"){
-      wm.textContent = "LUNAS";
-      wm.style.color = "rgba(0,150,0,0.15)";
-    }else{
-      wm.textContent = "BELUM LUNAS";
-      wm.style.color = "rgba(200,0,0,0.15)";
-    }
+  if(data.payment_status === "Lunas"){
+    wm.textContent = "LUNAS";
+    wm.style.color = "rgba(0,150,0,0.12)";
+    stamp.textContent = "✔ LUNAS";
+    stamp.classList.add("stamp-paid");
+  }else{
+    wm.textContent = "BELUM LUNAS";
+    wm.style.color = "rgba(200,0,0,0.12)";
+    stamp.textContent = "BELUM LUNAS";
+    stamp.classList.add("stamp-unpaid");
   }
 
-  /* ================= QR VERIFICATION ================= */
+  /* ================= QR ================= */
 
   const verifyUrl =
     window.location.origin + "/verifikasi.html?id=" + data.id;
@@ -169,54 +152,44 @@ console.log("DATA BERHASIL:", data);
     }
   );
 
-  /* ================= LOAD SIGNATURE ================= */
   await loadSignature();
 
 });
 
+/* ================= ACCORDION TOGGLE ================= */
+function toggleAcc(el){
+  const body = el.nextElementSibling;
+  body.classList.toggle("open");
+}
 
-/* ================= LOAD SIGNATURE (BUCKET: signature_url) ================= */
+/* ================= LOAD SIGNATURE ================= */
 async function loadSignature(){
 
-  const sigBox = document.getElementById("ttdImg");
-  const nameEl = document.getElementById("ttdName");
+  if(!currentData?.approved_by) return;
 
-  if(!currentData?.approved_by){
-    console.log("approved_by kosong");
-    return;
-  }
-
-  const { data, error } = await client
+  const { data } = await client
     .from("profiles")
     .select("signature_url, full_name")
     .eq("id", currentData.approved_by)
     .maybeSingle();
 
-  if(error){
-    console.log("Signature error:", error.message);
-    return;
-  }
+  if(!data) return;
 
-  if(!data){
-    console.log("Profile tidak ditemukan");
-    return;
-  }
+  const sigBox = document.getElementById("ttdImg");
+  const nameEl = document.getElementById("ttdName");
 
-  /* ================= SET NAMA ================= */
   if(data.full_name && nameEl){
     nameEl.textContent = data.full_name;
   }
 
-  /* ================= SET TTD IMAGE ================= */
   if(data.signature_url && sigBox){
 
     let imageUrl = data.signature_url;
 
-    // Kalau bukan full URL (masih path file saja)
     if(!imageUrl.startsWith("http")){
       const { data: publicUrlData } = client
         .storage
-        .from("signature_url") // ← sesuai bucket kamu
+        .from("signature_url")
         .getPublicUrl(imageUrl);
 
       imageUrl = publicUrlData.publicUrl;
@@ -228,6 +201,7 @@ async function loadSignature(){
     sigBox.style.backgroundPosition = "center";
   }
 }
+
 /* ================= DOWNLOAD PDF ================= */
 function downloadPDF(){
 
@@ -235,27 +209,16 @@ function downloadPDF(){
 
   const element = document.querySelector(".invoice");
 
-  document.body.classList.add("pdf-body");
-  element.classList.add("pdf-mode");
-
   const opt = {
     margin: 0,
     filename: "Invoice_"+currentData.id+".pdf",
     image: { type: 'jpeg', quality: 1 },
-    html2canvas: { 
-      scale: 3,
-      backgroundColor:"#ffffff",
-      useCORS:true
-    },
+    html2canvas: { scale: 3, backgroundColor:"#ffffff", useCORS:true },
     jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
   };
 
-  html2pdf().set(opt).from(element).save().then(()=>{
-    element.classList.remove("pdf-mode");
-    document.body.classList.remove("pdf-body");
-  });
+  html2pdf().set(opt).from(element).save();
 }
-
 
 /* ================= WHATSAPP ================= */
 function sendWhatsApp(){
@@ -264,17 +227,16 @@ function sendWhatsApp(){
 
   const url = window.location.href;
 
-  const total =
-    (currentData.total_sparepart || 0) +
-    (currentData.transport || 0) +
-    (currentData.jasa || 0);
-
   let msg =
 `📄 *INVOICE SERVICE HP*%0A
 Nama: ${currentData.nama}%0A
 Status Service: ${currentData.status}%0A
 Status Pembayaran: ${currentData.payment_status || "Belum Lunas"}%0A
-Lihat Invoice:%0A${url}`;
+%0A🔧 *Syarat Garansi:*%0A
+- Garansi 7 Hari%0A
+- Tidak berlaku jika segel rusak%0A
+- Tidak berlaku jika terkena air%0A
+%0ALihat Invoice:%0A${url}`;
 
   window.open(`https://wa.me/${currentData.phone}?text=${msg}`);
 }
