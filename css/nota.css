@@ -264,8 +264,8 @@ text-align:right;
 }
 
 .signature-img{
-width:160px;
-height:90px;
+width:170px;
+min-height:80px;
 background-size:contain;
 background-repeat:no-repeat;
 background-position:center;
