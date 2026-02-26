@@ -1,113 +1,51 @@
 /* ================= GLOBAL ================= */
+*{
+  box-sizing:border-box;
+}
+
 body{
-  font-family:'Segoe UI',system-ui,sans-serif;
-  background:#f1f5f9;
   margin:0;
-  padding:0;
-  color:#0f172a;
-}
-
-.container{
-  max-width:1200px;
-  margin:30px auto;
-  background:#ffffff;
-  padding:30px;
-  border-radius:16px;
-  box-shadow:0 8px 25px rgba(0,0,0,.05);
-}
-
-/* ================= HEADER ================= */
-header{
-  background:linear-gradient(90deg,#1f6f78,#00c2c7);
-  padding:16px 5%;
-  color:white;
-  box-shadow:0 3px 12px rgba(0,0,0,0.2);
-  border-radius:0 0 20px 20px;
-}
-
-#logo-container{
-  display:flex;
-  align-items:center;
-  gap:14px;
-}
-
-#logo-container h1{
-  font-size:20px;
-  font-weight:700;
-  letter-spacing:1px;
-  margin:0;
-}
-
-.tagline{
-  font-size:12px;
-  opacity:.9;
-  letter-spacing:1px;
-  margin-top:3px;
-}
-
-/* ================= NAV ================= */
-.top-nav{
-  display:flex;
-  gap:10px;
-  padding:10px;
-  background:white;
-  position:sticky;
-  top:0;
-  z-index:10;
-  box-shadow:0 2px 6px rgba(0,0,0,0.1);
-}
-
-.nav-btn{
-  flex:1;
-  text-align:center;
-  padding:10px;
-  border-radius:8px;
-  background:#eee;
-  text-decoration:none;
+  font-family:Poppins, sans-serif;
+  background:#f4f7fb;
   color:#333;
+}
+
+/* ================= CONTAINER ================= */
+.container{
+  padding:20px;
+  max-width:1300px;
+  margin:auto;
+}
+
+/* ================= CONTENT CARD ================= */
+.admin-content{
+  background:#fff;
+  padding:30px 28px;
+  border-radius:18px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.08);
+}
+
+/* ================= SEARCH ================= */
+.search-box{
+  margin-bottom:25px;
+  position:relative;
+}
+
+.search-box input{
+  width:100%;
+  max-width:420px;
+  padding:14px 16px;
+  border-radius:12px;
+  border:1px solid #d1d5db;
+  outline:none;
   font-size:14px;
-  font-weight:600;
-  transition:.25s;
-}
-
-.nav-btn:hover{
-  background:#1f6f78;
-  color:white;
-  transform:translateY(-2px);
-}
-
-/* ================= HEADER BUTTON ================= */
-.header-buttons{
-  display:flex;
-  gap:10px;
-}
-
-.btn-refresh,
-.btn-back{
-  padding:8px 14px;
-  border:none;
-  border-radius:8px;
-  cursor:pointer;
-  font-size:13px;
   transition:.2s;
+  background:#fff;
 }
 
-.btn-refresh{
-  background:#0f172a;
-  color:white;
-}
-
-.btn-refresh:hover{
-  background:#1e293b;
-}
-
-.btn-back{
-  background:#64748b;
-  color:white;
-}
-
-.btn-back:hover{
-  background:#475569;
+.search-box input:focus{
+  border-color:#00c2c7;
+  box-shadow:0 0 0 2px rgba(0,194,199,0.15);
 }
 
 /* ================= FILTER ================= */
@@ -119,180 +57,109 @@ header{
   align-items:center;
 }
 
-.search-box{
-  position:relative;
-}
-
-.search-box input{
-  padding:8px 12px 8px 32px;
-  border:1px solid #cbd5e1;
-  border-radius:8px;
-  font-size:13px;
-}
-
-.search-box i{
-  position:absolute;
-  left:10px;
-  top:50%;
-  transform:translateY(-50%);
-  color:#94a3b8;
-  font-size:12px;
-}
-
-.filter-section select{
-  padding:8px 12px;
-  border:1px solid #cbd5e1;
-  border-radius:8px;
-  font-size:13px;
-  background:white;
-}
-
-.filter-section{
-  background:white;
-  padding:18px;
-  border-radius:14px;
-  box-shadow:0 5px 18px rgba(0,0,0,.05);
-}
-
-/* ================= TABLE PREMIUM ================= */
+/* ================= TABLE ================= */
 .table-wrapper{
   overflow-x:auto;
-  border-radius:14px;
 }
 
 .admin-table{
   width:100%;
-  border-collapse:separate;
-  border-spacing:0;
-  margin-top:15px;
+  border-collapse:collapse;
+  margin-top:10px;
   min-width:900px;
-  background:white;
-  border-radius:14px;
-  overflow:hidden;
 }
 
-/* HEADER */
-.admin-table thead{
-  background:linear-gradient(90deg,#1f6f78,#00c2c7);
-  color:white;
+.admin-table th,
+.admin-table td{
+  padding:12px;
+  border:1px solid #eee;
+  text-align:center;
+  font-size:14px;
 }
 
 .admin-table th{
-  padding:14px;
-  font-size:13px;
+  background:#e8f8f8;
+  color:#1f6f78;
   font-weight:600;
-  text-transform:uppercase;
-  letter-spacing:.5px;
 }
 
-/* BODY */
-.admin-table td{
-  padding:14px;
-  font-size:14px;
-  text-align:center;
-  border-bottom:1px solid #f1f5f9;
+.admin-table tr:hover{
+  background:#f9ffff;
 }
 
-/* ZEBRA STRIPE */
-.admin-table tbody tr:nth-child(even){
-  background:#f8fafc;
-}
-
-/* HOVER */
-.admin-table tbody tr{
-  transition:.2s;
-}
-
-.admin-table tbody tr:hover{
-  background:#ecfeff;
-  transform:scale(1.002);
-}
-
-/* ================= STATUS BADGE ================= */
-.badge{
-  padding:6px 14px;
-  border-radius:30px;
+/* ================= BADGE ================= */
+.status-badge{
+  padding:5px 12px;
+  border-radius:20px;
   font-size:12px;
   font-weight:600;
   display:inline-block;
-  box-shadow:0 3px 8px rgba(0,0,0,.05);
 }
 
 .badge-active{
-  background:#dcfce7;
-  color:#166534;
+  background:#d4edda;
+  color:#155724;
 }
 
 .badge-inactive{
-  background:#fee2e2;
-  color:#991b1b;
+  background:#f8d7da;
+  color:#721c24;
 }
 
 .badge-pending{
-  background:#fef9c3;
-  color:#854d0e;
+  background:#fff3cd;
+  color:#856404;
 }
 
 /* ================= ROLE BADGE ================= */
 .role-badge{
-  padding:6px 12px;
-  border-radius:6px;
+  padding:5px 10px;
+  border-radius:8px;
   font-size:12px;
   font-weight:600;
-  text-transform:capitalize;
 }
 
 .role-superadmin{
-  background:#ede9fe;
-  color:#5b21b6;
+  background:#e8f8f8;
+  color:#1f6f78;
 }
 
 .role-admin{
-  background:#e0f2fe;
-  color:#075985;
+  background:#dff6f7;
+  color:#1f6f78;
 }
 
 .role-staff{
   background:#f1f5f9;
-  color:#334155;
+  color:#333;
 }
 
+/* ================= ACTION BUTTON ================= */
 .action-btn{
-  padding:7px 14px;
   border:none;
+  padding:6px 14px;
   border-radius:8px;
   cursor:pointer;
-  font-size:12px;
-  font-weight:600;
-  transition:.2s;
-  box-shadow:0 3px 8px rgba(0,0,0,.05);
-}
-
-.action-btn:hover{
-  transform:translateY(-2px);
-  box-shadow:0 6px 14px rgba(0,0,0,.1);
-}
-
-.btn-approve:hover{
-  background:#15803d;
+  font-size:13px;
+  transition:0.2s;
 }
 
 .btn-disable{
-  background:#dc2626;
-  color:white;
+  background:#c0392b;
+  color:#fff;
 }
 
 .btn-disable:hover{
-  background:#b91c1c;
+  background:#a93226;
 }
 
 .btn-delete{
-  background:#334155;
-  color:white;
+  background:#2b4d58;
+  color:#fff;
 }
 
 .btn-delete:hover{
-  background:#1e293b;
+  background:#1f343c;
 }
 
 /* ================= LOADING ================= */
@@ -331,46 +198,20 @@ header{
 }
 
 .btn-danger{
-  background:#dc2626;
+  background:#c0392b;
   color:white;
 }
 
 .btn-secondary{
-  background:#e2e8f0;
+  background:#ccc;
 }
 
-/* ================= RESPONSIVE ================= */
-@media(max-width:900px){
-
-  body{
-    padding:15px;
-  }
-
-  .container{
-    padding:20px;
-  }
-
-  table{
-    font-size:12px;
-  }
-
-  th, td{
-    padding:10px;
-  }
-
-  .header-actions{
-    flex-direction:column;
-    align-items:flex-start;
-    gap:10px;
-  }
-}
-
-/* ===== FOOTER ===== */
+/* ================= FOOTER ================= */
 footer{
-  margin-top:40px;
+  margin-top:30px;
   background:linear-gradient(90deg,#0b1c22,#2b4d58);
-  color:white;
+  color:#fff;
   text-align:center;
-  padding:18px;
-  font-size:13px;
+  padding:14px;
+  font-size:12px;
 }
