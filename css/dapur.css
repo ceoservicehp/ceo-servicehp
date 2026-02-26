@@ -96,8 +96,7 @@ color:white;
   transform:translateY(-2px);
 }
 
-
-/* ===== MOBILE NAV CLEAN ===== */
+/* ===== MOBILE NAV ===== */
 @media (max-width:768px){
 
   header{
@@ -107,12 +106,16 @@ color:white;
     position:relative;
   }
 
-  /* Show toggle hanya di mobile */
   .menu-toggle{
     display:block;
+    background:none;
+    border:none;
+    font-size:22px;
+    color:white;
+    cursor:pointer;
   }
 
-  /* Nav jadi dropdown */
+  /* NAV jadi dropdown simple */
   .top-nav{
     position:absolute;
     top:100%;
@@ -120,28 +123,26 @@ color:white;
     width:100%;
     background:#ffffff;
     display:none;
-    padding:15px;
-    box-shadow:0 10px 30px rgba(0,0,0,0.08);
-    border-radius:0 0 18px 18px;
-    z-index:9999;
+    flex-direction:column;
+    padding:10px;
+    box-shadow:0 8px 25px rgba(0,0,0,0.08);
+    border-radius:0 0 16px 16px;
   }
 
   .top-nav.active{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:12px;
+    display:flex;
   }
 
   .nav-btn{
     flex:none;
     padding:12px;
-    border-radius:12px;
+    border-radius:10px;
     background:#f1f5f9;
-    font-size:13px;
+    font-size:14px;
     display:flex;
     align-items:center;
-    justify-content:center;
-    gap:8px;
+    gap:10px;
+    justify-content:flex-start;
   }
 
   .nav-btn i{
@@ -847,6 +848,7 @@ textarea {
   border-radius:12px;
   border:1px dashed #00c2c7;
 }
+
 
 
 
