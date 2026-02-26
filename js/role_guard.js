@@ -1,6 +1,6 @@
 "use strict";
 
-const supabase = window.supabaseClient;
+window.supabaseClient;
 
 document.addEventListener("DOMContentLoaded", async () => {
 
