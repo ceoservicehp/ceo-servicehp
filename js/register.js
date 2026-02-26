@@ -37,7 +37,7 @@ registerForm?.addEventListener("submit", async (e)=>{
 
   // 🔥 Signup dengan redirect Vercel
   const { data: signUpData, error: signUpError } =
-  await db.auth.signUp({
+  await supabase.auth.signUp({
     email,
     password
   });
@@ -57,7 +57,7 @@ console.log("SIGNUP RESULT:", signUpData, signUpError);
   }
 
   // 🔥 Insert ke admin_users
-  const { error: insertError } = await db
+  const { error: insertError } = await supabase
   .from("admin_users")
   .insert([
     {
