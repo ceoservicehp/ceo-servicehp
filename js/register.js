@@ -1,6 +1,6 @@
 "use strict";
 
-const db = window.supabaseClient;
+const supabase = window.supabaseClient;
 
 /* ================= ELEMENT ================= */
 const alertBox = document.getElementById("alertBox");
