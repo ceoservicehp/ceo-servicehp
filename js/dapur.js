@@ -487,6 +487,9 @@ const { error } = await client
 
         // 🔥 INI YANG BENAR
         bukti_service: buktiUrl || existingData?.bukti_service || null
+
+        // 🔥 TAMBAHAN INI
+      approved_by: newStatus === "selesai" ? user.id : existingData?.approved_by
     })
     .eq("id", id);
 
@@ -861,4 +864,5 @@ document.addEventListener("DOMContentLoaded", function(){
   });
 
 });
+
 
