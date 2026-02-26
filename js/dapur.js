@@ -828,7 +828,6 @@ async function logout(){
 
 document.getElementById("logoutBtn")
 ?.addEventListener("click", logout);
-}
 
 /* ================= MOBILE NAV PREMIUM ================= */
 document.addEventListener("DOMContentLoaded", function(){
@@ -863,3 +862,4 @@ document.addEventListener("DOMContentLoaded", function(){
   });
 
 });
+
