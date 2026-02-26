@@ -1,7 +1,7 @@
 "use strict";
 
-function getSupabase(){
-    return window.supabaseClient;
+function getclient(){
+    return window.clientClient;
 }
 
 console.log("DAPUR JS VERSI BARU");
@@ -9,10 +9,10 @@ console.log("DAPUR JS VERSI BARU");
 /* ================= CEK SESSION + ROLE ================= */
 document.addEventListener("DOMContentLoaded", async () => {
 
-    const supabase = getSupabase();
-    if(!supabase) return;
+    const client = getclient();
+    if(!client) return;
 
-    const { data: { session } } = await supabase.auth.getSession();
+    const { data: { session } } = await client.auth.getSession();
 
     if(!session){
         window.location.href = "login.html";
@@ -21,7 +21,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const userId = session.user.id;
 
-    const { data: roleData, error } = await supabase
+    const { data: roleData, error } = await client
         .from("admin_users")
         .select("role, is_active")
         .eq("user_id", userId)
@@ -34,7 +34,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     if(!roleData || !roleData.is_active){
         alert("Akun belum diaktifkan admin.");
-        await supabase.auth.signOut();
+        await client.auth.signOut();
         window.location.href = "login.html";
         return;
     }
@@ -77,10 +77,10 @@ let selectedParts = [];
 
 /* ================= STATUS TOKO ================= */
 async function loadStoreStatus(){
-    const supabase=getSupabase();
-    if(!supabase) return;
+    const client=getclient();
+    if(!client) return;
 
-    const {data}=await supabase
+    const {data}=await client
         .from("store_status")
         .select("is_open")
         .eq("id",1)
@@ -103,10 +103,10 @@ function updateAdminStatus(open){
 }
 
 async function setStore(open){
-    const supabase=getSupabase();
-    if(!supabase) return;
+    const client=getclient();
+    if(!client) return;
 
-    await supabase
+    await client
         .from("store_status")
         .update({is_open:open})
         .eq("id",1);
@@ -116,13 +116,13 @@ async function setStore(open){
 
 /* ================= LOAD DATA ================= */
 async function loadOrders(){
-    const supabase=getSupabase();
+    const client=getclient();
     const tbody=document.getElementById("orderTable");
-    if(!tbody || !supabase) return;
+    if(!tbody || !client) return;
 
     tbody.innerHTML=`<tr><td colspan="9">Loading...</td></tr>`;
 
-    const {data,error}=await supabase
+    const {data,error}=await client
         .from("service_orders")
         .select("*")
         .order("created_at",{ascending:false});
@@ -146,10 +146,10 @@ async function loadOrders(){
 
 /* ================= LOAD SPAREPART ================= */
 async function loadSpareparts(){
-  const supabase = getSupabase();
-  if(!supabase) return;
+  const client = getclient();
+  if(!client) return;
 
-  const { data, error } = await supabase
+  const { data, error } = await client
     .from("products")
     .select("*")
     .order("name", { ascending:true });
@@ -415,7 +415,7 @@ function initUI(){
     /* SAVE EDIT */
    document.getElementById("saveEdit").onclick = async () => {
 
-    const supabase = getSupabase();
+    const client = getclient();
     const id = parseInt(document.getElementById("edit-id").value);
 
     const spare = parseInt(document.getElementById("edit-total-sparepart").value) || 0;
@@ -433,7 +433,7 @@ function initUI(){
 
         const fileName = `service-${id}-${Date.now()}.${file.name.split('.').pop()}`;
 
-        const { error:uploadError } = await supabase.storage
+        const { error:uploadError } = await client.storage
             .from("bukti-service")
             .upload(fileName, file);
 
@@ -443,7 +443,7 @@ function initUI(){
             return;
         }
 
-        const { data } = supabase.storage
+        const { data } = client.storage
             .from("bukti-service")
             .getPublicUrl(fileName);
 
@@ -462,7 +462,7 @@ if(
   tanggalSelesai = new Date().toISOString();
 }
 
-const { error } = await supabase
+const { error } = await client
     .from("service_orders")
     .update({
         nama:document.getElementById("edit-nama").value,
@@ -616,10 +616,10 @@ document.addEventListener("click",e=>{
 document.addEventListener("click",async e=>{
     if(!e.target.classList.contains("hapus")) return;
 
-    const { data: sessionData } = await getSupabase().auth.getSession();
+    const { data: sessionData } = await getclient().auth.getSession();
     const userId = sessionData.session.user.id;
     
-    const { data: roleCheck } = await getSupabase()
+    const { data: roleCheck } = await getclient()
       .from("admin_users")
       .select("role")
       .eq("user_id", userId)
@@ -634,7 +634,7 @@ document.addEventListener("click",async e=>{
     const id=e.target.dataset.id;
     if(!confirm("Hapus data ini?")) return;
 
-    await getSupabase()
+    await getclient()
         .from("service_orders")      
         .delete()
         .eq("id",id);
@@ -649,7 +649,7 @@ document.addEventListener("change",async e=>{
     const id=e.target.dataset.id;
     const val=e.target.value;
 
-    await getSupabase()
+    await getclient()
         .from("service_orders")       
         .update({status:val})
         .eq("id",id);
@@ -684,10 +684,10 @@ document.getElementById("checkAll")
 document.getElementById("hapusTerpilih")
 ?.addEventListener("click", async () => {
 
-    const { data: sessionData } = await getSupabase().auth.getSession();
+    const { data: sessionData } = await getclient().auth.getSession();
     const userId = sessionData.session.user.id;
 
-    const { data: roleCheck } = await getSupabase()
+    const { data: roleCheck } = await getclient()
       .from("admin_users")
       .select("role")
       .eq("user_id", userId)
@@ -710,7 +710,7 @@ document.getElementById("hapusTerpilih")
 
     const ids = checked.map(c => parseInt(c.dataset.id));
 
-    const { error } = await getSupabase()
+    const { error } = await getclient()
         .from("service_orders")
         .delete()
         .in("id", ids);
@@ -818,10 +818,10 @@ document.getElementById("cetakTanggal")
 
 /* ================= LOGOUT ================= */
 async function logout(){
-  const supabase = getSupabase();
-  if(!supabase) return;
+  const client = getclient();
+  if(!client) return;
 
-  await supabase.auth.signOut();
+  await client.auth.signOut();
   localStorage.removeItem("userRole");
   window.location.href = "login.html";
 }
@@ -862,4 +862,5 @@ document.addEventListener("DOMContentLoaded", function(){
   });
 
 });
+
 
