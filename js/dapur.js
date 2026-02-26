@@ -448,51 +448,52 @@ function initUI(){
 /* ================= UPDATE DATABASE ================= */
 const existingData = allOrders.find(o => o.id === id);
 
+// 🔥 TAMBAHKAN INI
+const newStatus = document.getElementById("edit-status").value;
+const { data: { user } } = await client.auth.getUser();
+
 let tanggalSelesai = existingData?.tanggal_selesai || null;
 
-if(
-  document.getElementById("edit-status").value === "selesai" &&
-  !tanggalSelesai
-){
+if(newStatus === "selesai" && !tanggalSelesai){
   tanggalSelesai = new Date().toISOString();
 }
 
 const { error } = await client
-    .from("service_orders")
-    .update({
-        nama:document.getElementById("edit-nama").value,
-        phone:document.getElementById("edit-phone").value,
-        alamat:document.getElementById("edit-alamat").value,
-        brand:document.getElementById("edit-brand").value,
-        problem:document.getElementById("edit-problem").value,
-        metode:document.getElementById("edit-metode").value,
-        sparepart:document.getElementById("edit-sparepart").value,
-        total_sparepart: spare,
-        transport: transport,
-        jasa: jasa,
-        total: total,
-        status: document.getElementById("edit-status").value,
-        tanggal_selesai: tanggalSelesai,
-        coord:document.getElementById("edit-coord").value,
+  .from("service_orders")
+  .update({
+      nama: document.getElementById("edit-nama").value,
+      phone: document.getElementById("edit-phone").value,
+      alamat: document.getElementById("edit-alamat").value,
+      brand: document.getElementById("edit-brand").value,
+      problem: document.getElementById("edit-problem").value,
+      metode: document.getElementById("edit-metode").value,
+      sparepart: document.getElementById("edit-sparepart").value,
+      total_sparepart: spare,
+      transport: transport,
+      jasa: jasa,
+      total: total,
+      status: newStatus,
+      tanggal_selesai: tanggalSelesai,
+      coord: document.getElementById("edit-coord").value,
 
-        /* ===== SIMPAN DATA TOP ===== */
-        use_top: document.getElementById("edit-use-top").checked,
-        top_days: parseInt(document.getElementById("edit-top-days").value) || 0,
-        amount_paid: parseInt(document.getElementById("edit-amount-paid").value) || 0,
-        remaining_amount: parseInt(document.getElementById("edit-remaining").value) || 0,
-        payment_status: document.getElementById("edit-payment-status").value,
-        due_date: document.getElementById("edit-due-date").value === "-" 
-                  ? null 
-                  : document.getElementById("edit-due-date").value,
+      use_top: document.getElementById("edit-use-top").checked,
+      top_days: parseInt(document.getElementById("edit-top-days").value) || 0,
+      amount_paid: parseInt(document.getElementById("edit-amount-paid").value) || 0,
+      remaining_amount: parseInt(document.getElementById("edit-remaining").value) || 0,
+      payment_status: document.getElementById("edit-payment-status").value,
+      due_date: document.getElementById("edit-due-date").value === "-" 
+                ? null 
+                : document.getElementById("edit-due-date").value,
 
-        // 🔥 INI YANG BENAR
-        bukti_service: buktiUrl || existingData?.bukti_service || null,
+      bukti_service: buktiUrl || existingData?.bukti_service || null,
 
-        // 🔥 TAMBAHAN INI
-      approved_by: newStatus === "selesai" ? user.id : existingData?.approved_by
-    })
-    .eq("id", id);
-
+      // 🔥 FIXED
+      approved_by: newStatus === "selesai"
+        ? user.id
+        : existingData?.approved_by || null
+  })
+  .eq("id", id);
+       
     if(error){
         alert("Gagal update");
         console.log(error);
@@ -864,6 +865,7 @@ document.addEventListener("DOMContentLoaded", function(){
   });
 
 });
+
 
 
 
