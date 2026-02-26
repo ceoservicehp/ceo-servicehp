@@ -1,6 +1,6 @@
 "use strict";
 
-const db = window.supabaseClient;
+const supabase = window.supabaseClient;
 
 function rupiah(n){
     return "Rp " + Number(n || 0).toLocaleString("id-ID");
