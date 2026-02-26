@@ -33,7 +33,7 @@ const TOKO_LNG = 106.80295190492956;
 
 document.addEventListener("DOMContentLoaded",()=>{
 
-    if(!db){
+    if(!supabase){
         alert("Supabase belum terhubung");
         return;
     }
@@ -287,7 +287,7 @@ marker._icon.classList.add("bounce");
 /* ================= LOAD PRODUK DARI DATABASE ================= */
 async function loadProducts(){
 
-    const { data, error } = await db
+    const { data, error } = await supabase
         .from("products")
         .select(`
             *,
@@ -337,7 +337,7 @@ function attachProductEvents(){
 /* ================= LOAD KATEGORI FILTER ================= */
 async function loadCategoriesFilter(){
 
-    const { data, error } = await db
+    const { data, error } = await supabase
         .from("categories")
         .select("name")
         .eq("is_active", true)
@@ -552,7 +552,7 @@ document.getElementById("checkout").onclick = async () => {
     if(file){
         const fileName=Date.now()+"_"+file.name;
 
-        const { error:uploadError } = await db.storage
+        const { error:uploadError } = await supabase.storage
             .from("bukti-transfer")
             .upload(fileName,file);
 
@@ -565,7 +565,7 @@ document.getElementById("checkout").onclick = async () => {
             return;
         }
 
-        const { data:publicUrl } = db.storage
+        const { data:publicUrl } = supabase.storage
             .from("bukti-transfer")
             .getPublicUrl(fileName);
 
@@ -581,7 +581,7 @@ const total = spareTotal + transportCost;
 
 try {
 
-    const { error } = await db
+    const { error } = await supabase
         .from("service_orders")
         .insert({
             nama,
