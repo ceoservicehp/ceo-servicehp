@@ -165,10 +165,16 @@ document.addEventListener("DOMContentLoaded", async ()=>{
 });
 
 
-/* ================= LOAD SIGNATURE (PUBLIC SAFE) ================= */
+/* ================= LOAD SIGNATURE (BUCKET: signature_url) ================= */
 async function loadSignature(){
 
-  if(!currentData?.approved_by) return;
+  const sigBox = document.getElementById("ttdImg");
+  const nameEl = document.getElementById("ttdName");
+
+  if(!currentData?.approved_by){
+    console.log("approved_by kosong");
+    return;
+  }
 
   const { data, error } = await client
     .from("profiles")
@@ -177,22 +183,41 @@ async function loadSignature(){
     .maybeSingle();
 
   if(error){
-    console.log("Signature error:", error);
+    console.log("Signature error:", error.message);
     return;
   }
 
-  const sigBox = document.getElementById("ttdImg");
-  const nameEl = document.getElementById("ttdName");
-
-  if(data?.signature_url && sigBox){
-    sigBox.style.backgroundImage = `url(${data.signature_url})`;
+  if(!data){
+    console.log("Profile tidak ditemukan");
+    return;
   }
 
-  if(data?.full_name && nameEl){
-    nameEl.innerText = data.full_name;
+  /* ================= SET NAMA ================= */
+  if(data.full_name && nameEl){
+    nameEl.textContent = data.full_name;
+  }
+
+  /* ================= SET TTD IMAGE ================= */
+  if(data.signature_url && sigBox){
+
+    let imageUrl = data.signature_url;
+
+    // Kalau bukan full URL (masih path file saja)
+    if(!imageUrl.startsWith("http")){
+      const { data: publicUrlData } = client
+        .storage
+        .from("signature_url") // ← sesuai bucket kamu
+        .getPublicUrl(imageUrl);
+
+      imageUrl = publicUrlData.publicUrl;
+    }
+
+    sigBox.style.backgroundImage = `url("${imageUrl}")`;
+    sigBox.style.backgroundSize = "contain";
+    sigBox.style.backgroundRepeat = "no-repeat";
+    sigBox.style.backgroundPosition = "center";
   }
 }
-
 /* ================= DOWNLOAD PDF ================= */
 function downloadPDF(){
 
