@@ -1,18 +1,8 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Invoice - CEO Service HP</title>
-
-<link rel="stylesheet" href="css/nota.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-</head>
-<body>
-
 <div class="invoice">
+
+  <!-- WATERMARK -->
+  <div id="watermark" class="watermark"></div>
+  <div id="digital-stamp" class="digital-stamp"></div>
 
   <!-- HEADER -->
   <div class="invoice-header">
@@ -21,40 +11,47 @@
         <img src="images/logo.png" class="logo">
         <div>
           <h1>CEO PART & SERVICE</h1>
-          <p>CELLULAR ENGINEERING OFFICER</p>
+          <p>Cellular Engineering Officer</p>
           <small>Jl. Contoh No 123</small>
         </div>
       </div>
     </div>
-    
+
     <div class="invoice-meta">
-      <div><span>Invoice</span><b id="inv-number"></b></div>
-      <div><span>Tanggal</span><b id="inv-date"></b></div>
+      <div>
+        <span>Invoice</span>
+        <b id="inv-number"></b>
+      </div>
+      <div>
+        <span>Tanggal</span>
+        <b id="inv-date"></b>
+      </div>
     </div>
   </div>
 
-  <!-- CUSTOMER + SERVICE INFO -->
+  <!-- CUSTOMER & SERVICE -->
   <div class="info-wrapper">
 
-    <div class="customer-box box">
-      <h3>Data Pelanggan</h3>
-      <div><span>Nama</span><b id="c-name"></b></div>
-      <div><span>No HP</span><b id="c-phone"></b></div>
-      <div><span>Metode</span><b id="c-metode"></b></div>
+    <div class="box">
+      <h3><i class="fa-solid fa-user"></i> Data Pelanggan</h3>
+      <div class="info-row"><span>Nama</span><b id="c-name"></b></div>
+      <div class="info-row"><span>No HP</span><b id="c-phone"></b></div>
+      <div class="info-row"><span>Alamat</span><b id="c-alamat"></b></div>
+      <div class="info-row"><span>Metode</span><b id="c-metode"></b></div>
     </div>
 
-    <div class="service-info box">
-      <h3>Informasi Service</h3>
-      <div><span>Status</span><b id="service-status"></b></div>
-      <div><span>Tgl Masuk</span><b id="service-created"></b></div>
-      <div><span>Tgl Selesai</span><b id="service-finished"></b></div>
+    <div class="box">
+      <h3><i class="fa-solid fa-screwdriver-wrench"></i> Informasi Service</h3>
+      <div class="info-row"><span>Status</span><b id="service-status"></b></div>
+      <div class="info-row"><span>Tgl Masuk</span><b id="service-created"></b></div>
+      <div class="info-row"><span>Tgl Selesai</span><b id="service-finished"></b></div>
 
-      <div id="top-section" style="display:none;">
+      <div id="top-section" class="info-row" style="display:none;">
         <span>Tempo</span>
         <b id="top-info"></b>
       </div>
 
-      <div>
+      <div class="info-row">
         <span>Status Bayar</span>
         <b id="payment-status" class="status-badge"></b>
       </div>
@@ -62,27 +59,17 @@
 
   </div>
 
-  <!-- TABEL ITEM -->
-  <div class="table-wrapper">
-    <table class="invoice-table">
-      <thead>
-        <tr>
-          <th style="width:50px;">No</th>
-          <th>Deskripsi</th>
-          <th style="width:80px;">Qty</th>
-          <th style="width:120px;">Harga</th>
-          <th style="width:120px;">Total</th>
-        </tr>
-      </thead>
-      <tbody id="invoice-items"></tbody>
-    </table>
+  <!-- ITEMS (ACCORDION STYLE) -->
+  <div class="box">
+    <h3><i class="fa-solid fa-box-open"></i> Detail Sparepart</h3>
+    <div id="invoice-items" class="accordion-list"></div>
   </div>
 
   <!-- SUMMARY -->
-  <div class="summary">
-    <div><span>Subtotal</span><b id="sub-total"></b></div>
-    <div><span>Transport</span><b id="trans-total"></b></div>
-    <div><span>Jasa</span><b id="jasa-total"></b></div>
+  <div class="summary box">
+    <div class="info-row"><span>Subtotal</span><b id="sub-total"></b></div>
+    <div class="info-row"><span>Transport</span><b id="trans-total"></b></div>
+    <div class="info-row"><span>Jasa</span><b id="jasa-total"></b></div>
 
     <div class="grand-total">
       <span>Total</span>
@@ -90,13 +77,18 @@
     </div>
   </div>
 
-  <!-- FOOTER -->
-  <div class="invoice-footer">
-    
-  <!-- WATERMARK -->
-  <div id="watermark" class="watermark"></div>
+  <!-- GARANSI -->
+  <div class="box warranty-box">
+    <h3><i class="fa-solid fa-shield-halved"></i> Syarat & Ketentuan Garansi</h3>
+    <ul>
+      <li>Garansi 7 hari setelah pengambilan</li>
+      <li>Tidak berlaku jika segel rusak</li>
+      <li>Tidak berlaku jika terkena air</li>
+      <li>Kerusakan fisik tidak termasuk garansi</li>
+    </ul>
+  </div>
 
-  <!-- BOTTOM SECTION -->
+  <!-- FOOTER SECTION -->
   <div class="bottom-section">
 
     <div class="qr-section">
@@ -105,17 +97,24 @@
     </div>
 
     <div class="signature">
-    <p>Hormat Kami,</p>
-    <div id="ttdImg" class="signature-img"></div>
-    <small>
-      <b id="ttdName">CEO - PART & SERVICE</b><br>
-      Cellular Engineering Officer
-    </small>
-  </div>
+      <p>Hormat Kami,</p>
+      <div id="ttdImg" class="signature-img"></div>
+      <small>
+        <b id="ttdName">CEO - PART & SERVICE</b><br>
+        Cellular Engineering Officer
+      </small>
+    </div>
 
   </div>
 
-  <!-- ACTION BUTTONS (DI PALING BAWAH) -->
+  <!-- SOCIAL MEDIA -->
+  <div class="social-links">
+    <a href="#" target="_blank"><i class="fa-brands fa-instagram"></i></a>
+    <a href="#" target="_blank"><i class="fa-brands fa-facebook"></i></a>
+    <a href="#" target="_blank"><i class="fa-brands fa-tiktok"></i></a>
+  </div>
+
+  <!-- ACTION BUTTON -->
   <div class="actions">
     <button onclick="downloadPDF()" class="btn-print">
       <i class="fa-solid fa-file-pdf"></i> Download PDF
@@ -125,10 +124,5 @@
       <i class="fa-brands fa-whatsapp"></i> Kirim WhatsApp
     </button>
   </div>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/supabase.js"></script>
-<script src="js/nota.js"></script>
-</body>
-</html>
+</div>
