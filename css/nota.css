@@ -6,7 +6,6 @@
 --bg-soft:#f9fbfc;
 }
 
-
 body{
 font-family:'Poppins',sans-serif;
 background:#f4f7fb;
@@ -23,7 +22,12 @@ padding:40px;
 border-radius:20px;
 box-shadow:0 15px 40px rgba(0,0,0,.08);
 position:relative;
-z-index:1;
+animation:fadeUp .6s ease;
+}
+
+@keyframes fadeUp{
+from{opacity:0; transform:translateY(20px);}
+to{opacity:1; transform:translateY(0);}
 }
 
 /* ================= HEADER ================= */
@@ -34,7 +38,10 @@ align-items:flex-start;
 border-bottom:2px solid #f0f0f0;
 padding-bottom:25px;
 margin-bottom:30px;
+flex-wrap:wrap;
+gap:15px;
 }
+
 .brand-top{
 display:flex;
 align-items:center;
@@ -48,7 +55,7 @@ object-fit:contain;
 }
 
 .brand h1{
-color:#1f6f78;
+color:var(--primary);
 margin:0;
 font-size:26px;
 }
@@ -59,27 +66,15 @@ color:#666;
 font-size:14px;
 }
 
-.brand small{
-color:#888;
-}
-
 .invoice-meta{
 text-align:right;
 font-size:14px;
-}
-
-.invoice-meta div{
-margin-bottom:8px;
 }
 
 .invoice-meta span{
 display:block;
 color:#888;
 font-size:12px;
-}
-
-.invoice-meta b{
-color:#333;
 }
 
 /* ================= INFO SECTION ================= */
@@ -90,281 +85,108 @@ gap:20px;
 margin-bottom:30px;
 }
 
-/* ================= INFO BOX IMPROVED ================= */
-
 .box{
-background:#f9fbfc;
-padding:25px;
+background:var(--bg-soft);
+padding:20px;
 border-radius:14px;
 border:1px solid #e6eef2;
 font-size:14px;
-min-height:190px; /* supaya tinggi seimbang */
 }
 
 .box h3{
 color:var(--primary);
-font-size:18px;
-font-weight:600;
-margin-bottom:18px;
-}
-
-/* Layout label & value lebih rapat dan rapi */
-.box div{
-display:grid;
-grid-template-columns:140px 1fr;
-gap:12px;
+font-size:17px;
+margin-bottom:15px;
+display:flex;
 align-items:center;
+gap:8px;
+}
+
+/* INFO ROW */
+.info-row{
+display:flex;
+justify-content:space-between;
 margin:10px 0;
-}
-
-/* Label */
-.box span{
-color:#666;
-}
-
-/* Value */
-.box b{
-color:#222;
-font-weight:600;
-}
-
-/* Divider halus antar baris */
-.box div:not(:last-child){
 border-bottom:1px dashed #e5e5e5;
 padding-bottom:6px;
 }
 
-/* ================= TABLE ================= */
-.table-wrapper{
-overflow-x:auto;
+.info-row span{
+color:#666;
 }
 
-.invoice-table{
-width:100%;
-border-collapse:collapse;
+.info-row b{
+color:#222;
+font-weight:600;
 }
 
-.invoice-table th{
-background:#1f6f78;
-color:white;
-padding:12px;
-font-size:13px;
-text-transform:uppercase;
-letter-spacing:.5px;
+/* ================= ACCORDION ================= */
+.accordion-list{
+margin-top:10px;
 }
 
-.invoice-table td{
-padding:12px;
-border-bottom:1px solid #eee;
+.accordion-item{
+border-bottom:1px solid #eaeaea;
+padding:10px 0;
+}
+
+.acc-header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+cursor:pointer;
+font-weight:600;
+color:#333;
+}
+
+.acc-header i{
+transition:.3s;
+}
+
+.acc-body{
+max-height:0;
+overflow:hidden;
+transition:.35s ease;
+color:#555;
+display:flex;
+flex-direction:column;
+gap:6px;
 font-size:14px;
-color:#444;
 }
 
-.invoice-table td:first-child,
-.invoice-table th:first-child{
-text-align:center;
-width:50px;
-}
-
-.invoice-table tr:hover{
-background:#f6fbfc;
+.acc-body.open{
+max-height:200px;
+margin-top:8px;
 }
 
 /* ================= SUMMARY ================= */
 .summary{
 margin-top:20px;
-width:280px;
-margin-left:auto;
 font-size:14px;
-border-top:2px solid #eee;
-padding-top:10px;
-}
-
-.summary div{
-display:flex;
-justify-content:space-between;
-margin:8px 0;
-}
-
-.summary span{
-color:#666;
-}
-
-.summary b{
-color:#333;
 }
 
 .grand-total{
 font-size:20px;
 font-weight:700;
-color:#1f6f78;
+color:var(--primary);
 border-top:2px solid #ddd;
 padding-top:10px;
 margin-top:10px;
 }
 
-/* ================= FOOTER ================= */
-.actions{
-display:flex;
-gap:10px;
+/* ================= WARRANTY ================= */
+.warranty-box ul{
+padding-left:18px;
+margin:0;
 }
 
-.btn-print,
-.btn-wa{
-padding:12px 18px;
-border:none;
-border-radius:10px;
-cursor:pointer;
-font-size:14px;
-font-weight:500;
-transition:.3s;
-}
-
-.btn-print{
-background:#1f6f78;
-color:white;
-}
-
-.btn-print:hover{
-background:#00c2c7;
-}
-
-.btn-wa{
-background:#25D366;
-color:white;
-}
-
-.btn-wa:hover{
-background:#1ebe5d;
-}
-
-/* ================= WATERMARK ================= */
-.watermark{
-position:absolute;
-top:50%;
-left:50%;
-transform:translate(-50%,-50%) rotate(-25deg);
-font-size:90px;
-font-weight:800;
-opacity:.08; /* sedikit dinaikkan agar normal di web */
-pointer-events:none;
-z-index:0;
-white-space:nowrap;
-color:#000;
-}
-
-/* ================= SIGNATURE ================= */
-.signature{
-margin-top:40px;
-display:flex;
-flex-direction:column;
-align-items:flex-end;
-justify-content:flex-end;
-margin-right:20px; /* supaya tidak terlalu mepet kanan */
-}
-
-.signature-img{
-width:170px;
-height:auto;
-margin:8px 0;
-}
-
-/* ================= PRINT MODE ================= */
-@media print{
-body{
-background:white;
-padding:0;
-}
-
-.invoice{
-box-shadow:none;
-border-radius:0;
-}
-
-.actions{
-display:none;
-}
-}
-
-/* ================= MOBILE – FONT SLIGHTLY SMALLER ================= */
-@media(max-width:768px){
-
-body{
-padding:15px;
-}
-
-.invoice{
-padding:20px;
+.warranty-box li{
+margin-bottom:6px;
+color:#555;
 font-size:14px;
 }
 
-/* INFO jadi menurun */
-.info-wrapper{
-grid-template-columns:1fr;
-gap:15px;
-}
-
-/* Header */
-.brand h1{
-font-size:20px;
-}
-
-.brand p{
-font-size:13px;
-}
-
-.invoice-meta{
-font-size:13px;
-}
-
-/* Box */
-.box div{
-grid-template-columns:110px 1fr;
-gap:8px;
-}
-  
-.box{
-font-size:13px;
-}
-
-/* Table */
-.invoice-table th{
-font-size:12px;
-padding:8px;
-}
-
-.invoice-table td{
-font-size:12px;
-padding:8px;
-}
-
-/* Summary */
-.summary{
-width:100%;
-margin-left:0;
-font-size:13px;
-}
-
-/* QR sedikit lebih kecil */
-#qr canvas{
-width:110px !important;
-height:110px !important;
-}
-
-/* Signature sedikit lebih kecil */
-.signature-img{
-width:140px;
-}
-
-/* Tombol sedikit lebih kecil */
-.btn-print,
-.btn-wa{
-font-size:13px;
-padding:10px 12px;
-}
-}
-
-/* ================= Status Badge ================= */
+/* ================= STATUS BADGE ================= */
 .status-badge{
 padding:6px 14px;
 border-radius:50px;
@@ -376,91 +198,51 @@ display:inline-block;
 
 .status-badge.paid{
 background:var(--success);
-box-shadow:0 5px 15px rgba(40,167,69,.3);
 }
 
 .status-badge.unpaid{
 background:var(--danger);
-box-shadow:0 5px 15px rgba(220,53,69,.3);
 }
 
-/* ================= Animasi Halus ================= */
-.invoice{
-animation:fadeUp .6s ease;
+/* ================= WATERMARK ================= */
+.watermark{
+position:absolute;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%) rotate(-25deg);
+font-size:90px;
+font-weight:800;
+opacity:.06;
+pointer-events:none;
+white-space:nowrap;
 }
 
-@keyframes fadeUp{
-from{
-opacity:0;
-transform:translateY(20px);
-}
-to{
-opacity:1;
-transform:translateY(0);
-}
-}
-
-.invoice-table tr{
-transition:.2s;
+/* ================= DIGITAL STAMP ================= */
+.digital-stamp{
+position:absolute;
+top:45%;
+left:50%;
+transform:translate(-50%,-50%) rotate(-15deg);
+font-size:70px;
+font-weight:800;
+opacity:.08;
+pointer-events:none;
+white-space:nowrap;
 }
 
-/* ================= PDF MODE – MIRROR WEB EXACT ================= */
-
-body.pdf-body{
-  background:#ffffff !important;
-  padding:0 !important;
-}
-
-/* Hanya hilangkan efek web */
-.invoice.pdf-mode{
-  background:#ffffff !important;
-  box-shadow:none !important;
-  border-radius:0 !important;
-  margin:0 !important;
-  min-height:277mm !important; /* supaya mulai dari atas */
-  animation:none !important;
-}
-
-/* Hilangkan tombol */
-.invoice.pdf-mode .actions{
-  display:none !important;
-}
-
-/* Hilangkan watermark agar warna tidak wash */
-.invoice.pdf-mode .watermark{
-  display:none !important;
-}
-
-/* Hilangkan hover */
-.invoice.pdf-mode .invoice-table tr:hover{
-  background:none !important;
-}
-
-/* Jangan ubah warna brand */
-/* Jangan paksa hitam */
-/* Jangan override warna primary */
-
-/* Pastikan tidak ada opacity aneh */
-.invoice.pdf-mode *{
-  opacity:1 !important;
-  text-shadow:none !important;
-}
+.stamp-paid{color:var(--success);}
+.stamp-unpaid{color:var(--danger);}
 
 /* ================= BOTTOM SECTION ================= */
-
 .bottom-section{
 display:flex;
 justify-content:space-between;
 align-items:flex-end;
-margin-top:60px;
+margin-top:50px;
 padding-top:30px;
 border-top:1px solid #eee;
-}
-
-.qr-section{
-display:flex;
-flex-direction:column;
-align-items:flex-start;
+flex-wrap:wrap;
+gap:20px;
 }
 
 .qr-label{
@@ -479,29 +261,136 @@ display:flex;
 flex-direction:column;
 align-items:flex-end;
 text-align:right;
-margin-right:10px;
 }
 
 .signature-img{
 width:160px;
-height:auto;
-margin:8px 0;
+height:90px;
+background-size:contain;
+background-repeat:no-repeat;
+background-position:center;
+}
+
+/* ================= SOCIAL ================= */
+.social-links{
+margin-top:30px;
+display:flex;
+justify-content:center;
+gap:18px;
+}
+
+.social-links a{
+font-size:22px;
+color:#666;
+transition:.3s;
+}
+
+.social-links a:hover{
+color:var(--primary);
+transform:translateY(-3px);
 }
 
 /* ================= ACTION BUTTONS ================= */
-
 .actions{
 margin-top:40px;
 display:flex;
 justify-content:center;
 gap:15px;
+flex-wrap:wrap;
 }
 
-/* ================= SIGNATURE ================= */
+.btn-print,
+.btn-wa{
+padding:12px 18px;
+border:none;
+border-radius:10px;
+cursor:pointer;
+font-size:14px;
+font-weight:500;
+transition:.3s;
+color:white;
+}
+
+.btn-print{
+background:var(--primary);
+}
+
+.btn-print:hover{
+background:var(--primary-light);
+}
+
+.btn-wa{
+background:#25D366;
+}
+
+.btn-wa:hover{
+background:#1ebe5d;
+}
+
+/* ================= MOBILE ================= */
+@media(max-width:768px){
+
+body{
+padding:15px;
+}
+
+.invoice{
+padding:20px;
+}
+
+.info-wrapper{
+grid-template-columns:1fr;
+}
+
+.brand h1{
+font-size:20px;
+}
+
+.digital-stamp{
+font-size:45px;
+}
+
+.acc-header{
+font-size:14px;
+}
+
+.acc-body{
+font-size:13px;
+}
+
+#qr canvas{
+width:110px !important;
+height:110px !important;
+}
+
 .signature-img{
-  width:160px;
-  height:90px;
-  background-size:contain;
-  background-repeat:no-repeat;
-  background-position:center;
+width:130px;
+}
+
+}
+
+/* ================= PDF MODE ================= */
+body.pdf-body{
+background:white !important;
+padding:0 !important;
+}
+
+.invoice.pdf-mode{
+box-shadow:none !important;
+border-radius:0 !important;
+margin:0 !important;
+animation:none !important;
+}
+
+.invoice.pdf-mode .actions,
+.invoice.pdf-mode .social-links{
+display:none !important;
+}
+
+.invoice.pdf-mode .watermark{
+display:none !important;
+}
+
+.invoice.pdf-mode .digital-stamp{
+opacity:.15 !important;
 }
