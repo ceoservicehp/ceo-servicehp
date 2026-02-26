@@ -243,15 +243,15 @@ background:linear-gradient(135deg,#1f6f78,#00c2c7);
 color:#fff;
 }
 
-/* FOOTER */
+/* ===== FOOTER ===== */
 footer{
-margin-top:30px;
-background:linear-gradient(90deg,#0b1c22,#2b4d58);
-color:#fff;
-text-align:center;
-padding:14px;
-font-size:12px;
-letter-spacing:.5px;
+  margin-top:30px;
+  background:linear-gradient(90deg,#0b1c22,#2b4d58);
+  color:white;
+  text-align:center;
+  padding:15px;
+  font-size:13px;
+  border-radius:12px 12px 0 0;
 }
 
 /* TAB FILTER */
@@ -784,3 +784,4 @@ textarea {
   border-radius:12px;
   border:1px dashed #00c2c7;
 }
+
