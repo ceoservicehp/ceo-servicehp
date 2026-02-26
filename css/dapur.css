@@ -11,31 +11,31 @@ color:#333;
 
 /* ================= HEADER ================= */
 header{
-background:linear-gradient(90deg,#1f6f78,#00c2c7);
-padding:16px 5%;
-color:white;
-box-shadow:0 3px 12px rgba(0,0,0,0.2);
-border-radius:0 0 20px 20px;
+  background:linear-gradient(90deg,#1f6f78,#00c2c7);
+  padding:16px 5%;
+  color:white;
+  box-shadow:0 3px 12px rgba(0,0,0,0.2);
+  border-radius:0 0 20px 20px;
 }
 
 #logo-container{
-display:flex;
-align-items:center;
-gap:14px;
+  display:flex;
+  align-items:center;
+  gap:14px;
 }
 
 #logo-container h1{
-font-size:20px;
-font-weight:700;
-letter-spacing:1px;
-margin:0;
+  font-size:20px;
+  font-weight:700;
+  letter-spacing:1px;
+  margin:0;
 }
 
 .tagline{
-font-size:12px;
-opacity:.9;
-letter-spacing:1px;
-margin-top:3px;
+  font-size:12px;
+  opacity:.9;
+  letter-spacing:1px;
+  margin-top:3px;
 }
 
 /* BUTTON */
@@ -784,4 +784,5 @@ textarea {
   border-radius:12px;
   border:1px dashed #00c2c7;
 }
+
 
