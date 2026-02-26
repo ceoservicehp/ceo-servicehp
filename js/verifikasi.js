@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", async ()=>{
 const supabase = window.supabaseClient;
 const resultEl = document.getElementById("result");
 
-if(!db){
+if(!supabase){
   resultEl.innerHTML = "<p class='error'>Koneksi database gagal.</p>";
   return;
 }
@@ -17,7 +17,7 @@ if(!id){
   return;
 }
 
-const { data, error } = await db
+const { data, error } = await supabase
   .from("service_orders")
   .select("*")
   .eq("id", id)
