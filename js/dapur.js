@@ -830,31 +830,36 @@ document.getElementById("logoutBtn")
 ?.addEventListener("click", logout);
 }
 
-/* ================= MOBILE NAV TOGGLE ================= */
+/* ================= MOBILE NAV PREMIUM ================= */
 document.addEventListener("DOMContentLoaded", function(){
 
   const toggle = document.getElementById("menuToggle");
   const nav = document.querySelector(".top-nav");
+  const overlay = document.getElementById("navOverlay");
 
-  if(!toggle || !nav) return;
+  if(!toggle || !nav || !overlay) return;
+
+  function openNav(){
+    nav.classList.add("active");
+    overlay.classList.add("active");
+    document.body.classList.add("nav-open");
+  }
+
+  function closeNav(){
+    nav.classList.remove("active");
+    overlay.classList.remove("active");
+    document.body.classList.remove("nav-open");
+  }
 
   toggle.addEventListener("click", function(e){
     e.stopPropagation();
-    nav.classList.toggle("active");
+    nav.classList.contains("active") ? closeNav() : openNav();
   });
 
-  // Tutup saat klik menu
+  overlay.addEventListener("click", closeNav);
+
   document.querySelectorAll(".nav-btn").forEach(btn=>{
-    btn.addEventListener("click", ()=>{
-      nav.classList.remove("active");
-    });
-  });
-
-  // Tutup saat klik di luar
-  document.addEventListener("click", function(e){
-    if(!nav.contains(e.target) && !toggle.contains(e.target)){
-      nav.classList.remove("active");
-    }
+    btn.addEventListener("click", closeNav);
   });
 
 });
