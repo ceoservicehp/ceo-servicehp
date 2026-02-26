@@ -852,12 +852,16 @@ document.addEventListener("DOMContentLoaded", function(){
 
   toggle.addEventListener("click", function(e){
     e.stopPropagation();
-    nav.classList.contains("active") ? closeNav() : openNav();
+    if(nav.classList.contains("active")){
+      closeNav();
+    } else {
+      openNav();
+    }
   });
 
   overlay.addEventListener("click", closeNav);
 
-  document.querySelectorAll(".nav-btn").forEach(btn=>{
+  document.querySelectorAll(".nav-btn").forEach(function(btn){
     btn.addEventListener("click", closeNav);
   });
 
