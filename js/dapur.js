@@ -415,7 +415,7 @@ function initUI(){
     /* SAVE EDIT */
    document.getElementById("saveEdit").onclick = async () => {
 
-    const client = getclient();
+    const client = getSupabase();
     const id = parseInt(document.getElementById("edit-id").value);
 
     const spare = parseInt(document.getElementById("edit-total-sparepart").value) || 0;
@@ -616,10 +616,10 @@ document.addEventListener("click",e=>{
 document.addEventListener("click",async e=>{
     if(!e.target.classList.contains("hapus")) return;
 
-    const { data: sessionData } = await getclient().auth.getSession();
+    const { data: sessionData } = await getSupabase().auth.getSession();
     const userId = sessionData.session.user.id;
     
-    const { data: roleCheck } = await getclient()
+    const { data: roleCheck } = await getSupabase()
       .from("admin_users")
       .select("role")
       .eq("user_id", userId)
@@ -634,7 +634,7 @@ document.addEventListener("click",async e=>{
     const id=e.target.dataset.id;
     if(!confirm("Hapus data ini?")) return;
 
-    await getclient()
+    await getSupabase()
         .from("service_orders")      
         .delete()
         .eq("id",id);
@@ -649,7 +649,7 @@ document.addEventListener("change",async e=>{
     const id=e.target.dataset.id;
     const val=e.target.value;
 
-    await getclient()
+    await getSupabase()
         .from("service_orders")       
         .update({status:val})
         .eq("id",id);
@@ -818,7 +818,7 @@ document.getElementById("cetakTanggal")
 
 /* ================= LOGOUT ================= */
 async function logout(){
-  const client = getclient();
+  const client = getSupabase();
   if(!client) return;
 
   await client.auth.signOut();
@@ -862,6 +862,3 @@ document.addEventListener("DOMContentLoaded", function(){
   });
 
 });
-
-
-
