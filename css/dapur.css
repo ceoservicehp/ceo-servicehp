@@ -115,22 +115,24 @@ color:white;
     cursor:pointer;
   }
 
-  /* NAV jadi dropdown simple */
+  /* ⛔ HIDE NAV DI MOBILE */
   .top-nav{
+    display:none !important;
     position:absolute;
     top:100%;
     left:0;
     width:100%;
-    background:#ffffff;
-    display:none;
     flex-direction:column;
-    padding:10px;
-    box-shadow:0 8px 25px rgba(0,0,0,0.08);
+    background:#ffffff;
+    padding:12px;
+    box-shadow:0 10px 25px rgba(0,0,0,0.1);
     border-radius:0 0 16px 16px;
+    z-index:999;
   }
 
+  /* ✅ TAMPILKAN SAAT ACTIVE */
   .top-nav.active{
-    display:flex;
+    display:flex !important;
   }
 
   .nav-btn{
@@ -138,15 +140,9 @@ color:white;
     padding:12px;
     border-radius:10px;
     background:#f1f5f9;
-    font-size:14px;
     display:flex;
     align-items:center;
     gap:10px;
-    justify-content:flex-start;
-  }
-
-  .nav-btn i{
-    font-size:14px;
   }
 }
 
@@ -848,6 +844,7 @@ textarea {
   border-radius:12px;
   border:1px dashed #00c2c7;
 }
+
 
 
 
