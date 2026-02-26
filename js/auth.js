@@ -2,10 +2,10 @@
 
 document.addEventListener("DOMContentLoaded", async () => {
 
-    const supabase = window.supabaseClient;
-    if(!db) return;
+    const client = window.supabaseClient;
+    if(!client) return;
 
-    const { data } = await db.auth.getSession();
+    const { data } = await client.auth.getSession();
 
     if(!data.session){
         window.location.replace("login.html");
@@ -14,15 +14,14 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const userId = data.session.user.id;
 
-    // 🔥 GANTI email → user_id
-    const { data: roleData, error } = await db
+    const { data: roleData, error } = await client
         .from("admin_users")
         .select("role, is_active")
         .eq("user_id", userId)
         .maybeSingle();
 
     if(error || !roleData || roleData.is_active !== true){
-        await db.auth.signOut();
+        await client.auth.signOut();
         window.location.replace("login.html");
         return;
     }
