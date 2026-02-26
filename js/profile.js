@@ -10,12 +10,12 @@ let currentUserId = null;
 /* ========================================= */
 document.addEventListener("DOMContentLoaded", async () => {
 
-    if(!db){
+    if(!supabase){
         alert("Supabase belum terhubung");
         return;
     }
 
-    const { data: sessionData } = await db.auth.getSession();
+    const { data: sessionData } = await supabase.auth.getSession();
 
     if(!sessionData.session){
         window.location.href = "login.html";
@@ -38,7 +38,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 /* ========================================= */
 async function loadProfile(user){
 
-    const { data, error } = await db
+    const { data, error } = await supabase
         .from("profiles")
         .select("*")
         .eq("id", user.id)
@@ -52,7 +52,7 @@ async function loadProfile(user){
     // AUTO CREATE PROFILE
     if(!data){
 
-        const { error: insertError } = await db
+        const { error: insertError } = await supabase
             .from("profiles")
             .insert({
                 id: user.id,
@@ -74,7 +74,7 @@ async function loadProfile(user){
         const random = Math.floor(Math.random() * 9000) + 1000;
         const employeeId = "CEO-" + random;
 
-        await db
+        await supabase
           .from("profiles")
           .update({ employee_id: employeeId })
           .eq("id", user.id);
@@ -91,7 +91,7 @@ async function loadProfile(user){
 /* ========================================= */
 async function loadRole(){
 
-    const { data } = await db
+    const { data } = await supabase
         .from("admin_users")
         .select("role")
         .eq("user_id", currentUserId)
@@ -171,7 +171,7 @@ async function saveProfile(){
     }
 
     // UPDATE PROFILE
-    const { error } = await db
+    const { error } = await supabase
         .from("profiles")
         .update(updateData)
         .eq("id", currentUserId);
@@ -183,7 +183,7 @@ async function saveProfile(){
     }
 
     // SYNC KE admin_users
-    await db
+    await supabase
         .from("admin_users")
         .update({
             nama: updateData.full_name,
@@ -278,7 +278,7 @@ function setupUploadHandlers(){
             const path = `${currentUserId}/${field}.jpg`;
 
             // UPLOAD KE STORAGE
-            const { error: uploadError } = await db.storage
+            const { error: uploadError } = await supabase.storage
                 .from(bucket)
                 .upload(path, compressed, {
                     upsert: true,
@@ -292,7 +292,7 @@ function setupUploadHandlers(){
             }
 
             // AMBIL PUBLIC URL
-        const { data: publicData } = db.storage
+        const { data: publicData } = supabase.storage
             .from(bucket)
             .getPublicUrl(path);
         
@@ -304,13 +304,13 @@ function setupUploadHandlers(){
         const url = publicData.publicUrl;
         
         // SIMPAN KE DATABASE
-        const { error: updateError } = await db
+        const { error: updateError } = await supabase
             .from("profiles")
             .update({ [field]: url })
             .eq("id", currentUserId);
         
         if(updateError){
-            console.log("DB UPDATE ERROR:", updateError);
+            console.log("supabase UPDATE ERROR:", updateError);
             alert("Gagal menyimpan URL.");
             return;
         }
@@ -381,7 +381,7 @@ function getValue(id){
 /* ========================================= */
 document.getElementById("logoutBtn")
 ?.addEventListener("click", async () => {
-  await db.auth.signOut();
+  await supabase.auth.signOut();
   localStorage.removeItem("userRole");
   window.location.href = "login.html";
 });
