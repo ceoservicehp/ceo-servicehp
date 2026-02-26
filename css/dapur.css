@@ -55,35 +55,47 @@ color:white;
 }
 
 /* ================= NAV ================= */
+
+/* Hide toggle di desktop */
+.menu-toggle{
+  display:none;
+  background:none;
+  border:none;
+  font-size:22px;
+  color:white;
+  cursor:pointer;
+}
+
 .top-nav{
-display:flex;
-gap:10px;
-padding:10px;
-background:white;
-position:sticky;
-top:0;
-z-index:10;
-box-shadow:0 2px 6px rgba(0,0,0,0.1);
+  display:flex;
+  gap:10px;
+  padding:10px;
+  background:white;
+  position:sticky;
+  top:0;
+  z-index:10;
+  box-shadow:0 2px 6px rgba(0,0,0,0.1);
 }
 
 .nav-btn{
-flex:1;
-text-align:center;
-padding:10px;
-border-radius:8px;
-background:#eee;
-text-decoration:none;
-color:#333;
-font-size:14px;
-font-weight:600;
-transition:.25s;
+  flex:1;
+  text-align:center;
+  padding:10px;
+  border-radius:8px;
+  background:#eee;
+  text-decoration:none;
+  color:#333;
+  font-size:14px;
+  font-weight:600;
+  transition:.25s;
 }
 
 .nav-btn:hover{
-background:#1f6f78;
-color:white;
-transform:translateY(-2px);
+  background:#1f6f78;
+  color:white;
+  transform:translateY(-2px);
 }
+
 
 /* ===== MOBILE NAV CLEAN ===== */
 @media (max-width:768px){
@@ -92,18 +104,15 @@ transform:translateY(-2px);
     display:flex;
     justify-content:space-between;
     align-items:center;
-    position:relative; /* penting */
+    position:relative;
   }
 
+  /* Show toggle hanya di mobile */
   .menu-toggle{
     display:block;
-    background:none;
-    border:none;
-    font-size:22px;
-    color:white;
-    cursor:pointer;
   }
 
+  /* Nav jadi dropdown */
   .top-nav{
     position:absolute;
     top:100%;
@@ -114,7 +123,7 @@ transform:translateY(-2px);
     padding:15px;
     box-shadow:0 10px 30px rgba(0,0,0,0.08);
     border-radius:0 0 18px 18px;
-    z-index:999;
+    z-index:9999;
   }
 
   .top-nav.active{
@@ -124,14 +133,15 @@ transform:translateY(-2px);
   }
 
   .nav-btn{
+    flex:none;
     padding:12px;
     border-radius:12px;
     background:#f1f5f9;
     font-size:13px;
     display:flex;
     align-items:center;
-    gap:8px;
     justify-content:center;
+    gap:8px;
   }
 
   .nav-btn i{
@@ -837,6 +847,7 @@ textarea {
   border-radius:12px;
   border:1px dashed #00c2c7;
 }
+
 
 
 
