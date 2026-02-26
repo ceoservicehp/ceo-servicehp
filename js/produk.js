@@ -1,6 +1,6 @@
 "use strict";
 
-const supabase = window.supabaseClient;
+const client = window.supabaseClient;
 
 function rupiah(n){
     return "Rp " + Number(n || 0).toLocaleString("id-ID");
@@ -59,7 +59,7 @@ async function saveCategory(){
         return;
     }
 
-    const { data:exist } = await supabase
+    const { data:exist } = await client
         .from("categories")
         .select("id")
         .ilike("name", name)
@@ -70,7 +70,7 @@ async function saveCategory(){
         return;
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await client
         .from("categories")
         .insert({ name })
         .select()
@@ -98,7 +98,7 @@ async function loadProducts(){
 
     const tbody = document.getElementById("productTable");
 
-    const { data, error } = await supabase
+    const { data, error } = await client
         .from("products")
         .select(`
             *,
@@ -155,7 +155,7 @@ async function loadProducts(){
 /* ================= LOAD CATEGORIES ================= */
 async function loadCategories(){
 
-    const { data } = await supabase
+    const { data } = await client
         .from("categories")
         .select("*")
         .eq("is_active", true)
@@ -198,7 +198,7 @@ async function saveProduct(){
 
         const fileName = Date.now()+"_"+file.name;
 
-        const { error:uploadError } = await supabase.storage
+        const { error:uploadError } = await client.storage
             .from("produk-images")
             .upload(fileName,file);
 
@@ -243,7 +243,7 @@ async function saveProduct(){
 /* ================= EDIT ================= */
 async function editProduct(id){
 
-    const { data } = await supabase
+    const { data } = await client
         .from("products")
         .select("*")
         .eq("id",id)
@@ -355,7 +355,7 @@ async function importProducts(){
 
         if(rowData.category){
 
-            const { data:exist } = await supabase
+            const { data:exist } = await client
                 .from("categories")
                 .select("id")
                 .ilike("name", rowData.category)
@@ -364,7 +364,7 @@ async function importProducts(){
             if(exist){
                 categoryId = exist.id;
             }else{
-                const { data:newCat } = await supabase
+                const { data:newCat } = await client
                     .from("categories")
                     .insert({ name: rowData.category })
                     .select()
@@ -388,7 +388,7 @@ async function importProducts(){
 
     }
 
-    const { error } = await supabase
+    const { error } = await client
         .from("products")
         .insert(productsToInsert);
 
