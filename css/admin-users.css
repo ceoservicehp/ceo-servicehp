@@ -17,25 +17,63 @@ body{
 }
 
 /* ================= HEADER ================= */
-.header-actions{
+header{
+  background:linear-gradient(90deg,#1f6f78,#00c2c7);
+  padding:16px 5%;
+  color:white;
+  box-shadow:0 3px 12px rgba(0,0,0,0.2);
+  border-radius:0 0 20px 20px;
+}
+
+#logo-container{
   display:flex;
-  justify-content:space-between;
   align-items:center;
-  margin-bottom:25px;
+  gap:14px;
 }
 
-.subtitle{
-  color:#64748b;
-  font-size:13px;
-}
-
-h1{
-  margin:0;
-  font-size:22px;
+#logo-container h1{
+  font-size:20px;
   font-weight:700;
+  letter-spacing:1px;
+  margin:0;
+}
+
+.tagline{
+  font-size:12px;
+  opacity:.9;
+  letter-spacing:1px;
+  margin-top:3px;
+}
+
+/* ================= NAV ================= */
+.top-nav{
   display:flex;
-  align-items:center;
   gap:10px;
+  padding:10px;
+  background:white;
+  position:sticky;
+  top:0;
+  z-index:10;
+  box-shadow:0 2px 6px rgba(0,0,0,0.1);
+}
+
+.nav-btn{
+  flex:1;
+  text-align:center;
+  padding:10px;
+  border-radius:8px;
+  background:#eee;
+  text-decoration:none;
+  color:#333;
+  font-size:14px;
+  font-weight:600;
+  transition:.25s;
+}
+
+.nav-btn:hover{
+  background:#1f6f78;
+  color:white;
+  transform:translateY(-2px);
 }
 
 /* ================= HEADER BUTTON ================= */
@@ -295,4 +333,15 @@ tbody tr:hover{
     align-items:flex-start;
     gap:10px;
   }
+}
+
+/* ===== FOOTER ===== */
+footer{
+  margin-top:30px;
+  background:linear-gradient(90deg,#0b1c22,#2b4d58);
+  color:white;
+  text-align:center;
+  padding:15px;
+  font-size:13px;
+  border-radius:12px 12px 0 0;
 }
