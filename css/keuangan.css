@@ -1,3 +1,4 @@
+/* ================= BASE ================= */
 *{
   box-sizing:border-box;
 }
@@ -409,12 +410,6 @@ footer{
 }
 
 /* ================= RESPONSIVE ================= */
-@media(max-width:1024px){
-  .summary-grid{
-    grid-template-columns:repeat(2,1fr);
-  }
-}
-
 @media(max-width:768px){
   .summary-grid{
     grid-template-columns:1fr;
@@ -427,6 +422,8 @@ footer{
   .modal-content{
     width:90%;
   }
+}  /* ← WAJIB TUTUP DI SINI */
+
 
 /* ================= PREMIUM BUTTON SYSTEM ================= */
 
