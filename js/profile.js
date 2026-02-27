@@ -397,14 +397,18 @@ async function loadHonor(){
     const now = new Date();
     const firstDayMonth = new Date(now.getFullYear(), now.getMonth(), 1);
     const firstDayYear = new Date(now.getFullYear(), 0, 1);
+    
+  const { data, error } = await client
+    .from("expenses")
+    .select("title, amount, created_at")
+    .eq("category", "Honor")
+    .eq("honor_user_id", userId)
+    .order("created_at", { ascending:false });
 
-    const { data, error } = await supabase
-        .from("expenses")
-        .select("*")
-        .eq("created_by", currentUserId)
-        .order("created_at", { ascending:false });
-
-    if(error || !data) return;
+  if(error){
+    console.error(error);
+    return;
+  }
 
     let totalMonth = 0;
     let totalYear = 0;
