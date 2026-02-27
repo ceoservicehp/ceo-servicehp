@@ -12,16 +12,13 @@ color:#333;
 scroll-behavior:smooth;
 }
 
-/* ================= HEADER (MENYATU DENGAN HERO) ================= */
+/* ================= HEADER ================= */
 header{
-position:absolute;
-top:0;
-left:0;
-width:100%;
-padding:20px 5%;
-background:transparent;
+background:linear-gradient(90deg,#1f6f78,#00c2c7);
+padding:16px 5%;
 color:white;
-z-index:20;
+box-shadow:0 3px 12px rgba(0,0,0,0.2);
+border-radius:0 0 20px 20px;
 }
 
 #logo-container{
@@ -34,41 +31,43 @@ gap:14px;
 font-size:20px;
 font-weight:700;
 letter-spacing:1px;
+margin:0;
 }
 
 .tagline{
 font-size:12px;
 opacity:.9;
+letter-spacing:1px;
+margin-top:3px;
 }
 
-/* ================= NAV STICKY GLASS ================= */
+/* ================= NAV ================= */
 .top-nav{
 display:flex;
 gap:10px;
-padding:12px 5%;
+padding:10px;
+background:white;
 position:sticky;
 top:0;
-z-index:30;
-
-background:rgba(255,255,255,0.15);
-backdrop-filter:blur(10px);
--webkit-backdrop-filter:blur(10px);
+z-index:10;
+box-shadow:0 2px 6px rgba(0,0,0,0.1);
 }
 
 .nav-btn{
 flex:1;
 text-align:center;
 padding:10px;
-border-radius:30px;
-background:rgba(255,255,255,0.3);
+border-radius:8px;
+background:#eee;
 text-decoration:none;
-color:#1f6f78;
+color:#333;
+font-size:14px;
 font-weight:600;
-transition:.3s;
+transition:.25s;
 }
 
 .nav-btn:hover{
-background:linear-gradient(90deg,#1f6f78,#00c2c7);
+background:#1f6f78;
 color:white;
 transform:translateY(-2px);
 }
@@ -242,3 +241,4 @@ font-size:14px;
 }
 
 }
+
