@@ -12,7 +12,7 @@ color:#333;
 scroll-behavior:smooth;
 }
 
-/* ================= HEADER TRANSPARAN ================= */
+/* ================= HEADER (MENYATU DENGAN HERO) ================= */
 header{
 position:absolute;
 top:0;
@@ -21,9 +21,7 @@ width:100%;
 padding:20px 5%;
 background:transparent;
 color:white;
-box-shadow:none;
-border-radius:0;
-z-index:10;
+z-index:20;
 }
 
 #logo-container{
@@ -36,40 +34,37 @@ gap:14px;
 font-size:20px;
 font-weight:700;
 letter-spacing:1px;
-margin:0;
 }
 
 .tagline{
 font-size:12px;
 opacity:.9;
-letter-spacing:1px;
-margin-top:3px;
 }
 
+/* ================= NAV STICKY GLASS ================= */
 .top-nav{
 display:flex;
 gap:10px;
 padding:12px 5%;
 position:sticky;
 top:0;
-z-index:20;
+z-index:30;
 
-background:rgba(255,255,255,0.1);
-backdrop-filter:blur(12px);
--webkit-backdrop-filter:blur(12px);
+background:rgba(255,255,255,0.15);
+backdrop-filter:blur(10px);
+-webkit-backdrop-filter:blur(10px);
 }
 
 .nav-btn{
 flex:1;
 text-align:center;
 padding:10px;
-border-radius:8px;
-background:#eee;
+border-radius:30px;
+background:rgba(255,255,255,0.3);
 text-decoration:none;
-color:#333;
-font-size:14px;
+color:#1f6f78;
 font-weight:600;
-transition:.25s;
+transition:.3s;
 }
 
 .nav-btn:hover{
@@ -89,17 +84,11 @@ text-align:center;
 padding:0 5%;
 color:white;
 
-/* background utama */
 background:
 linear-gradient(rgba(31,111,120,0.85), rgba(0,194,199,0.65)),
 url('../images/bg-service.jpg') center/cover no-repeat;
 }
 
-.hero{
-position:relative;
-}
-
-/* overlay blur effect */
 .hero::after{
 content:"";
 position:absolute;
@@ -117,22 +106,23 @@ max-width:700px;
 .hero h2{
 font-size:42px;
 margin-bottom:15px;
-color:white;
 }
 
 .hero p{
 font-size:18px;
 margin-bottom:25px;
-opacity:0.95;
+opacity:.95;
 }
 
-/* tombol tetap pakai warna branding */
+/* ===== BUTTON ===== */
 .btn-primary{
+display:inline-block;
 padding:14px 30px;
 border-radius:30px;
 background:white;
 color:#1f6f78;
 font-weight:700;
+text-decoration:none;
 transition:.3s;
 }
 
@@ -141,33 +131,6 @@ background:#00c2c7;
 color:white;
 transform:translateY(-3px);
 box-shadow:0 8px 25px rgba(0,194,199,0.5);
-}
-
-.hero h2{
-font-size:28px;
-margin-bottom:10px;
-color:#1f6f78;
-}
-
-.hero p{
-margin-bottom:20px;
-font-size:15px;
-}
-
-.btn-primary{
-display:inline-block;
-padding:12px 25px;
-border-radius:10px;
-background:linear-gradient(90deg,#1f6f78,#00c2c7);
-color:white;
-text-decoration:none;
-font-weight:bold;
-transition:.3s;
-}
-
-.btn-primary:hover{
-transform:scale(1.05);
-box-shadow:0 0 14px rgba(0,194,199,0.6);
 }
 
 /* ===== SECTION ===== */
@@ -232,7 +195,7 @@ text-align:center;
 display:inline-block;
 margin-top:15px;
 padding:12px 20px;
-border-radius:10px;
+border-radius:30px;
 background:linear-gradient(90deg,#1f6f78,#00c2c7);
 color:white;
 text-decoration:none;
@@ -252,32 +215,13 @@ color:white;
 text-align:center;
 padding:15px;
 font-size:13px;
-border-radius:12px 12px 0 0;
 }
 
-/* ================= MOBILE ================= */
-@media(max-width:600px){
-
-.form-section{
-margin:15px;
-padding:18px;
-}
-
-.product-card img{
-height:110px;
-}
-
-.nav-btn{
-font-size:14px;
-padding:10px;
-}
-
-}
-
+/* ================= RESPONSIVE ================= */
 @media(max-width:768px){
 
 .hero{
-height:80vh;
+height:85vh;
 }
 
 .hero h2{
@@ -288,24 +232,13 @@ font-size:26px;
 font-size:14px;
 }
 
-}
-
-@media(max-width:768px){
-
 .top-nav{
 flex-direction:column;
-border-radius:20px;
-padding:10px;
 gap:8px;
 }
 
 .nav-btn{
 font-size:14px;
-padding:8px 12px;
 }
 
 }
-
-
-
-
