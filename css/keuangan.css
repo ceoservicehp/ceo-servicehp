@@ -181,6 +181,15 @@ color:white;
   padding:40px 20px;
 }
 
+.summary-grid,
+.filter-box,
+.tabs,
+.action-bar,
+.chart-box,
+.table-wrapper{
+  margin-bottom:30px;
+}
+
 /* ================= SUMMARY ================= */
 .summary-grid{
   display:grid;
@@ -233,87 +242,69 @@ color:white;
 .margin p{ color:#7c3aed; }
 
 /* ================= FILTER ================= */
-.filter-box{
-  background:white;
-  padding:20px;
-  border-radius:18px;
-  box-shadow:0 10px 30px rgba(0,0,0,.05);
-  display:flex;
-  flex-wrap:wrap;
-  gap:14px;
-  align-items:flex-end;
-  margin-bottom:30px;
-}
+@media(max-width:768px){
 
-.quick-filter button{
-  padding:8px 16px;
-  border-radius:10px;
-  border:none;
-  background:#f1f5f9;
-  font-size:12px;
-  font-weight:600;
-  cursor:pointer;
-  transition:.3s;
-}
+  .filter-box{
+    flex-direction:column;
+    align-items:stretch;
+    gap:16px;
+  }
 
-.quick-filter button:hover{
-  background:#1f6f78;
-  color:white;
-  box-shadow:0 5px 15px rgba(0,0,0,.15);
-}
+  .quick-filter{
+    display:flex;
+    justify-content:space-between;
+    gap:8px;
+  }
 
-.filter-box input{
-  padding:8px 12px;
-  border-radius:10px;
-  border:1px solid #e5e7eb;
-  font-size:12px;
-  transition:.2s;
-}
+  .quick-filter button{
+    flex:1;
+    font-size:11px;
+    padding:8px;
+  }
 
-.filter-box input:focus{
-  border-color:#1f6f78;
-  outline:none;
-  box-shadow:0 0 0 3px rgba(31,111,120,.15);
+  .date-group{
+    width:100%;
+  }
+
+  #applyFilter,
+  #resetFilter{
+    width:100%;
+  }
 }
 
 /* ================= TABS ================= */
 .tabs{
   display:flex;
-  gap:12px;
-  margin-bottom:25px;
+  gap:10px;
+  margin-bottom:20px;
+  overflow-x:auto;
 }
 
 .tab{
-  padding:10px 18px;
-  border:none;
+  white-space:nowrap;
+  padding:10px 16px;
+  border-radius:30px;
   background:#e5e7eb;
-  border-radius:12px;
   font-size:12px;
   font-weight:600;
-  cursor:pointer;
-  transition:.3s;
 }
 
 .tab.active{
   background:linear-gradient(135deg,#1f6f78,#00c2c7);
   color:white;
-  box-shadow:0 8px 20px rgba(0,0,0,.15);
 }
 
 /* ================= CHART ================= */
-.chart-box{
-  background:white;
-  padding:30px;
-  border-radius:18px;
-  box-shadow:0 10px 30px rgba(0,0,0,.05);
-  margin-bottom:35px;
-  max-width:550px;
-  height:320px;
-  margin-left:auto;
-  margin-right:auto;
-  display:flex;
-  align-items:center;
-  justify-content:center;
+@media(max-width:768px){
+
+  .chart-box{
+    padding:20px;
+    height:240px;
+  }
+
+  canvas{
+    max-width:100% !important;
+  }
 }
 
 /* ================= TABLE ================= */
@@ -500,3 +491,23 @@ button{
   background:#fef3c7;
   color:#d97706;
 }
+
+/* ================= ACTIION BAR ================= */
+.action-bar{
+  display:flex;
+  gap:12px;
+  margin-bottom:25px;
+  flex-wrap:wrap;
+}
+
+@media(max-width:768px){
+
+  .action-bar{
+    flex-direction:column;
+  }
+
+  .action-bar button{
+    width:100%;
+  }
+}
+
