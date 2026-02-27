@@ -282,10 +282,12 @@ function renderByTab(income = incomeData, expense = expenseData){
             <tr>
                 <td>${i+1}</td>
                 <td>${row.title}</td>
-                <td>
-                  ${row.category}
+                <<td>
+                  <span class="category-badge ${row.category.toLowerCase()}">
+                    ${row.category}
+                  </span>
                   ${row.category === "Honor" && row.profiles?.full_name
-                      ? `<br><small style="color:#555">(${row.profiles.full_name})</small>`
+                      ? `<br><small>(${row.profiles.full_name})</small>`
                       : ""}
                 </td>
                 <td>${row.notes || "-"}</td>
@@ -379,14 +381,18 @@ function setupExpenseForm(){
 
     /* ===== DETECT HONOR ===== */
     document.getElementById("expCategory")
-    ?.addEventListener("change", e=>{
-
+    ?.addEventListener("change", function(){
+    
         const wrapper = document.getElementById("honorUserWrapper");
-
-        if(e.target.value === "Honor"){
+        if(!wrapper) return;
+    
+        const selected = this.value?.toLowerCase();
+    
+        if(selected === "honor"){
             wrapper.style.display = "block";
         }else{
             wrapper.style.display = "none";
+            document.getElementById("honorUserSelect").value = "";
         }
     });
 
