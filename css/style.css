@@ -12,13 +12,18 @@ color:#333;
 scroll-behavior:smooth;
 }
 
-/* ================= HEADER ================= */
+/* ================= HEADER TRANSPARAN ================= */
 header{
-background:linear-gradient(90deg,#1f6f78,#00c2c7);
-padding:16px 5%;
+position:absolute;
+top:0;
+left:0;
+width:100%;
+padding:20px 5%;
+background:transparent;
 color:white;
-box-shadow:0 3px 12px rgba(0,0,0,0.2);
-border-radius:0 0 20px 20px;
+box-shadow:none;
+border-radius:0;
+z-index:10;
 }
 
 #logo-container{
@@ -41,24 +46,17 @@ letter-spacing:1px;
 margin-top:3px;
 }
 
-/* ================= GLASS STICKY NAV ================= */
 .top-nav{
 display:flex;
 gap:10px;
-padding:10px;
-background:white;
+padding:12px 5%;
 position:sticky;
 top:0;
-z-index:10;
-box-shadow:0 2px 6px rgba(0,0,0,0.1);
+z-index:20;
 
-/* glass effect */
-background:rgba(255,255,255,0.15);
+background:rgba(255,255,255,0.1);
 backdrop-filter:blur(12px);
 -webkit-backdrop-filter:blur(12px);
-
-border-bottom:1px solid rgba(255,255,255,0.2);
-box-shadow:0 4px 12px rgba(0,0,0,0.08);
 }
 
 .nav-btn{
@@ -80,19 +78,18 @@ color:white;
 transform:translateY(-2px);
 }
 
-/* ===== HERO FULL BACKGROUND ===== */
+/* ================= HERO FULL ================= */
 .hero{
 position:relative;
-height:90vh;
+height:100vh;
 display:flex;
 align-items:center;
 justify-content:center;
 text-align:center;
 padding:0 5%;
 color:white;
-border-radius:0;
-margin:0;
-box-shadow:none;
+
+/* background utama */
 background:
 linear-gradient(rgba(31,111,120,0.85), rgba(0,194,199,0.65)),
 url('../images/bg-service.jpg') center/cover no-repeat;
@@ -308,6 +305,7 @@ padding:8px 12px;
 }
 
 }
+
 
 
 
