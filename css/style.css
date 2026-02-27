@@ -14,13 +14,13 @@ scroll-behavior:smooth;
 
 /* ================= HEADER (MENYATU DENGAN HERO) ================= */
 header{
-position:relative;
+position:absolut;
 top:0;
 left:0;
 width:100%;
 padding:20px 5%;
 header{
-background:linear-gradient(90deg,#1f6f78,#00c2c7);
+background:transparant;
 color:white;
 z-index:20;
 }
@@ -241,4 +241,5 @@ font-size:14px;
 }
 
 }
+
 
