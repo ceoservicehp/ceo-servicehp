@@ -398,17 +398,22 @@ async function loadHonor(){
     const firstDayMonth = new Date(now.getFullYear(), now.getMonth(), 1);
     const firstDayYear = new Date(now.getFullYear(), 0, 1);
     
-    const { data, error } = await client
+    cconst { data, error } = await client
         .from("expenses")
-        .select("title, amount, created_at")
+        .select(`
+            title,
+            amount,
+            created_at,
+            profiles:honor_user_id(full_name),
+            giver:created_by(full_name)
+        `)
         .eq("category", "Honor")
         .eq("honor_user_id", currentUserId)
         .order("created_at", { ascending:false });
-
-    if(error){
-        console.error("LOAD HONOR ERROR:", error);
-        return;
-    }
+        if(error){
+            console.error("LOAD HONOR ERROR:", error);
+            return;
+        }
 
     let totalMonth = 0;
     let totalYear = 0;
@@ -435,13 +440,25 @@ async function loadHonor(){
     list.innerHTML = "";
 
     data.slice(0,5).forEach(item=>{
-        list.innerHTML += `
-            <div class="honor-item">
-                <span>${item.title}</span>
+
+    const date = new Date(item.created_at);
+    const tanggal = date.toLocaleDateString("id-ID");
+    const jam = date.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
+
+    list.innerHTML += `
+        <div class="honor-item">
+            <div style="display:flex;justify-content:space-between;">
+                <span><strong>${item.title}</strong></span>
                 <b>Rp ${Number(item.amount).toLocaleString("id-ID")}</b>
             </div>
-        `;
-    });
+
+            <small style="color:#7f8c8d;">
+                ${tanggal} • ${jam}
+                ${item.giver?.full_name ? `• Oleh: ${item.giver.full_name}` : ""}
+            </small>
+        </div>
+    `;
+});
 }
     
 /* ================= MOBILE NAV PREMIUM ================= */
