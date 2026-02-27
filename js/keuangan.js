@@ -439,6 +439,55 @@ function setupExpenseForm(){
     });
 }
 
+/* ================= TAMBAH KATEGORI ================= */
+document.getElementById("addCategoryBtn")
+?.addEventListener("click", async ()=>{
+
+  const name = prompt("Nama kategori baru:");
+  if(!name) return;
+
+  const { error } = await client
+    .from("expense_categories")
+    .insert([{ name, is_active:true }]);
+
+  if(error){
+    alert("Gagal tambah kategori");
+    return;
+  }
+
+  alert("Kategori berhasil ditambahkan");
+  loadExpenseCategories();
+});
+
+
+/* ================= HAPUS KATEGORI ================= */
+document.getElementById("deleteCategoryBtn")
+?.addEventListener("click", async ()=>{
+
+  const select = document.getElementById("expCategory");
+  const selected = select.value;
+
+  if(!selected){
+    alert("Pilih kategori dulu.");
+    return;
+  }
+
+  if(!confirm("Yakin hapus kategori ini?")) return;
+
+  const { error } = await client
+    .from("expense_categories")
+    .update({ is_active:false })
+    .eq("name", selected);
+
+  if(error){
+    alert("Gagal hapus kategori");
+    return;
+  }
+
+  alert("Kategori berhasil dinonaktifkan");
+  loadExpenseCategories();
+});
+
 /* ================= EXPORT ================= */
 function setupExportButtons(){
 
