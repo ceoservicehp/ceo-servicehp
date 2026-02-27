@@ -398,7 +398,7 @@ async function loadHonor(){
     const firstDayMonth = new Date(now.getFullYear(), now.getMonth(), 1);
     const firstDayYear = new Date(now.getFullYear(), 0, 1);
     
-    cconst { data, error } = await client
+    const { data, error } = await client
         .from("expenses")
         .select(`
             title,
@@ -410,7 +410,8 @@ async function loadHonor(){
         .eq("category", "Honor")
         .eq("honor_user_id", currentUserId)
         .order("created_at", { ascending:false });
-        if(error){
+    
+    if(error){
             console.error("LOAD HONOR ERROR:", error);
             return;
         }
