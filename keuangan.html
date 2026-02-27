@@ -233,13 +233,17 @@
 
     <input type="text" id="expTitle" placeholder="Judul Pengeluaran">
 
-    <select id="expCategory">
-      <option value="Gaji">Gaji</option>
-      <option value="Listrik">Listrik</option>
-      <option value="Beli Sparepart">Beli Sparepart</option>
-      <option value="Operasional">Operasional</option>
-      <option value="Lainnya">Lainnya</option>
-    </select>
+    <select id="expCategory"></select>
+
+    <div id="honorUserWrapper" style="display:none;">
+      <label>Pilih Penerima Honor</label>
+      <select id="honorUserSelect"></select>
+    </div>
+    
+    <div class="category-manage">
+      <button id="addCategoryBtn" class="btn-small">+ Kategori</button>
+      <button id="deleteCategoryBtn" class="btn-small danger">Hapus Kategori</button>
+    </div>
 
     <input type="number" id="expAmount" placeholder="Jumlah">
 
