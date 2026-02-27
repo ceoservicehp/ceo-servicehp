@@ -1,6 +1,7 @@
 "use strict";
 
 const client = window.supabaseClient;
+let currentData = null;
 
 function rupiah(n){
   return "Rp " + Number(n||0).toLocaleString("id-ID");
@@ -10,22 +11,20 @@ function getId(){
   return new URLSearchParams(window.location.search).get("id");
 }
 
-let currentData = null;
-
-/* ================= LOAD DATA ================= */
+/* ================= MAIN LOAD ================= */
 document.addEventListener("DOMContentLoaded", async ()=>{
-  onst toggleBtn = document.getElementById("problemToggle");
+
+  /* ================= ACCORDION PROBLEM ================= */
+  const toggleBtn = document.getElementById("problemToggle");
   const content = document.getElementById("problemContent");
   const icon = toggleBtn?.querySelector("i");
 
   toggleBtn?.addEventListener("click", () => {
     content.classList.toggle("active");
-
-    // putar icon
     icon?.classList.toggle("rotate");
   });
-});
 
+  /* ================= LOAD DATA ================= */
   const id = getId();
   if(!id) return;
 
@@ -43,7 +42,6 @@ document.addEventListener("DOMContentLoaded", async ()=>{
   currentData = data;
 
   /* ================= HEADER ================= */
-
   document.getElementById("inv-number").textContent =
     "INV-"+String(data.id).padStart(5,"0");
 
@@ -55,6 +53,18 @@ document.addEventListener("DOMContentLoaded", async ()=>{
   document.getElementById("c-alamat").textContent = data.alamat || "-";
   document.getElementById("c-metode").textContent = data.metode || "-";
   document.getElementById("c-problem").textContent = data.problem || "-";
+
+  /* Auto open kalau ada problem */
+  if(data.problem){
+    content?.classList.add("active");
+    icon?.classList.add("rotate");
+  }
+
+  /* ================= LANJUTAN KODE KAMU TETAP ================= */
+  // service status, items, watermark, QR, dll tetap seperti sebelumnya
+
+  await loadSignature();
+});
 
   /* ================= SERVICE INFO ================= */
 
