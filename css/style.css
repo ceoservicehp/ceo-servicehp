@@ -41,37 +41,38 @@ letter-spacing:1px;
 margin-top:3px;
 }
 
-/* ================= NAV ================= */
+/* ================= GLASS NAVBAR ================= */
 .top-nav{
+position:absolute;
+top:20px;
+left:50%;
+transform:translateX(-50%);
 display:flex;
-gap:10px;
-padding:10px;
-background:white;
-position:sticky;
-top:0;
-z-index:10;
-box-shadow:0 2px 6px rgba(0,0,0,0.1);
+gap:15px;
+padding:10px 20px;
+background:rgba(255,255,255,0.12);
+backdrop-filter:blur(12px);
+-webkit-backdrop-filter:blur(12px);
+border-radius:50px;
+box-shadow:0 8px 25px rgba(0,0,0,0.15);
+z-index:5;
 }
 
+/* tombol di dalam navbar */
 .nav-btn{
-flex:1;
-text-align:center;
-padding:10px;
-border-radius:8px;
-background:#eee;
-text-decoration:none;
-color:#333;
-font-size:14px;
+padding:8px 18px;
+border-radius:30px;
+background:rgba(255,255,255,0.2);
+color:white;
 font-weight:600;
-transition:.25s;
+transition:.3s;
 }
 
 .nav-btn:hover{
-background:#1f6f78;
+background:#00c2c7;
 color:white;
 transform:translateY(-2px);
 }
-
 
 /* ===== HERO FULL BACKGROUND ===== */
 .hero{
@@ -89,6 +90,10 @@ box-shadow:none;
 background:
 linear-gradient(rgba(31,111,120,0.85), rgba(0,194,199,0.65)),
 url('../images/bg-service.jpg') center/cover no-repeat;
+}
+
+.hero{
+position:relative;
 }
 
 /* overlay blur effect */
@@ -282,3 +287,18 @@ font-size:14px;
 
 }
 
+@media(max-width:768px){
+
+.top-nav{
+flex-direction:column;
+border-radius:20px;
+padding:10px;
+gap:8px;
+}
+
+.nav-btn{
+font-size:14px;
+padding:8px 12px;
+}
+
+}
