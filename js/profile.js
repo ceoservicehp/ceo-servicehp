@@ -397,18 +397,18 @@ async function loadHonor(){
     const now = new Date();
     const firstDayMonth = new Date(now.getFullYear(), now.getMonth(), 1);
     const firstDayYear = new Date(now.getFullYear(), 0, 1);
-    
-  const { data, error } = await client
-    .from("expenses")
-    .select("title, amount, created_at")
-    .eq("category", "Honor")
-    .eq("honor_user_id", userId)
-    .order("created_at", { ascending:false });
 
-  if(error){
-    console.error(error);
-    return;
-  }
+    const { data, error } = await client
+        .from("expenses")
+        .select("title, amount, created_at")
+        .eq("category", "Honor")
+        .eq("honor_user_id", currentUserId) // ✅ FIX DI SINI
+        .order("created_at", { ascending:false });
+
+    if(error){
+        console.error("Error load honor:", error);
+        return;
+    }
 
     let totalMonth = 0;
     let totalYear = 0;
@@ -434,6 +434,11 @@ async function loadHonor(){
     const list = document.getElementById("honorList");
     list.innerHTML = "";
 
+    if(data.length === 0){
+        list.innerHTML = "<p style='opacity:.6'>Belum ada honor</p>";
+        return;
+    }
+
     data.slice(0,5).forEach(item=>{
         list.innerHTML += `
             <div class="honor-item">
@@ -443,8 +448,6 @@ async function loadHonor(){
         `;
     });
 }
-    
-})();
 
 /* ================= MOBILE NAV PREMIUM ================= */
 document.addEventListener("DOMContentLoaded", function(){
