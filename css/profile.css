@@ -430,3 +430,64 @@ footer{
   font-size:13px;
   border-radius:12px 12px 0 0;
 }
+
+/* ================= HONOR SECTION ================= */
+
+.honor-section{
+margin-top:30px;
+background:#f8fbff;
+padding:20px;
+border-radius:15px;
+border:1px solid #e3edf5;
+}
+
+.honor-summary{
+display:flex;
+gap:15px;
+margin-bottom:20px;
+}
+
+.honor-box{
+flex:1;
+background:linear-gradient(135deg,#1f6f78,#00c2c7);
+color:white;
+padding:15px;
+border-radius:12px;
+text-align:center;
+box-shadow:0 10px 25px rgba(0,0,0,.08);
+}
+
+.honor-box span{
+font-size:12px;
+opacity:.9;
+}
+
+.honor-box b{
+display:block;
+font-size:18px;
+margin-top:5px;
+}
+
+.honor-history{
+background:white;
+padding:15px;
+border-radius:12px;
+}
+
+.honor-history h4{
+margin-bottom:10px;
+font-size:14px;
+color:#2c5364;
+}
+
+.honor-item{
+display:flex;
+justify-content:space-between;
+padding:8px 0;
+border-bottom:1px dashed #ddd;
+font-size:13px;
+}
+
+.honor-item:last-child{
+border-bottom:none;
+}
