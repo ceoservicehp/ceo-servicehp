@@ -30,6 +30,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     await loadProfile(user);
     await loadRole();
+    await loadHonor();
 });
 
 
@@ -386,6 +387,59 @@ document.getElementById("logoutBtn")
   window.location.href = "login.html";
 });
 
+/* ========================================= */
+/* LOAD HONOR */
+/* ========================================= */
+async function loadHonor(){
+
+    if(!currentUserId) return;
+
+    const now = new Date();
+    const firstDayMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const firstDayYear = new Date(now.getFullYear(), 0, 1);
+
+    const { data, error } = await supabase
+        .from("expenses")
+        .select("*")
+        .eq("created_by", currentUserId)
+        .order("created_at", { ascending:false });
+
+    if(error || !data) return;
+
+    let totalMonth = 0;
+    let totalYear = 0;
+
+    data.forEach(item=>{
+        const created = new Date(item.created_at);
+
+        if(created >= firstDayMonth){
+            totalMonth += Number(item.amount);
+        }
+
+        if(created >= firstDayYear){
+            totalYear += Number(item.amount);
+        }
+    });
+
+    document.getElementById("honorMonth").textContent =
+        "Rp " + totalMonth.toLocaleString("id-ID");
+
+    document.getElementById("honorYear").textContent =
+        "Rp " + totalYear.toLocaleString("id-ID");
+
+    const list = document.getElementById("honorList");
+    list.innerHTML = "";
+
+    data.slice(0,5).forEach(item=>{
+        list.innerHTML += `
+            <div class="honor-item">
+                <span>${item.title}</span>
+                <b>Rp ${Number(item.amount).toLocaleString("id-ID")}</b>
+            </div>
+        `;
+    });
+}
+    
 })();
 
 /* ================= MOBILE NAV PREMIUM ================= */
