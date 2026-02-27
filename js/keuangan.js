@@ -418,6 +418,8 @@ function setupExpenseForm(){
 
         const { data: { user } } = await client.auth.getUser();
 
+        const isHonor = category?.toLowerCase() === "honor";
+        
         const { error } = await client
             .from("expenses")
             .insert([{
@@ -426,7 +428,7 @@ function setupExpenseForm(){
                 amount,
                 notes,
                 created_by: user.id,
-                honor_user_id: category?.toUpperCase() === "honor" ? honorUserId : null
+                honor_user_id: isHonor ? honorUserId : null
             }]);
 
         if(error){
@@ -437,6 +439,29 @@ function setupExpenseForm(){
         modal.style.display="none";
         loadFinance();
     });
+
+   // ================= CLOSE MODAL =================
+function closeExpenseModal(){
+    if(modal){
+        modal.style.display = "none";
+    }
+
+    document.getElementById("expTitle").value = "";
+    document.getElementById("expAmount").value = "";
+    document.getElementById("expNotes").value = "";
+    document.getElementById("honorUserSelect").value = "";
+    document.getElementById("honorUserWrapper").style.display = "none";
+}
+
+document.getElementById("closeModal")
+?.addEventListener("click", closeExpenseModal);
+
+document.getElementById("expenseModal")
+?.addEventListener("click", (e)=>{
+    if(e.target.id === "expenseModal"){
+        closeExpenseModal();
+    }
+});
 }
 
 /* ================= TAMBAH KATEGORI ================= */
@@ -446,19 +471,43 @@ document.getElementById("addCategoryBtn")
   const name = prompt("Nama kategori baru:");
   if(!name) return;
 
-  const { error } = await client
+  // cek apakah sudah ada
+  const { data: existing } = await client
     .from("expense_categories")
-    .insert([{ name, is_active:true }]);
+    .select("*")
+    .ilike("name", name)
+    .maybeSingle();
 
-  if(error){
-    alert("Gagal tambah kategori");
-    return;
+  if(existing){
+    // kalau ada → aktifkan lagi
+    const { error } = await client
+      .from("expense_categories")
+      .update({ is_active: true })
+      .eq("id", existing.id);
+
+    if(error){
+      alert("Gagal mengaktifkan kategori.");
+      return;
+    }
+
+    alert("Kategori diaktifkan kembali.");
+  } 
+  else {
+    // kalau belum ada → insert baru
+    const { error } = await client
+      .from("expense_categories")
+      .insert([{ name, is_active:true }]);
+
+    if(error){
+      alert("Gagal tambah kategori");
+      return;
+    }
+
+    alert("Kategori berhasil ditambahkan");
   }
 
-  alert("Kategori berhasil ditambahkan");
   loadExpenseCategories();
 });
-
 
 /* ================= HAPUS KATEGORI ================= */
 document.getElementById("deleteCategoryBtn")
