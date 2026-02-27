@@ -33,7 +33,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const rules = {
     "admin-users.html": ["superadmin"],
     "keuangan.html": ["superadmin"],
-    "produk.html": ["admin","superadmin"],
+    "produk.html": ["staff","admin","superadmin"],
     "dapur.html": ["staff","admin","superadmin"],
     "profile.html": ["staff","admin","superadmin"]
   };
