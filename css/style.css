@@ -41,41 +41,41 @@ letter-spacing:1px;
 margin-top:3px;
 }
 
-/* ================= GLASS NAVBAR ================= */
+/* ================= GLASS STICKY NAV ================= */
 .top-nav{
-position:absolute;
-top:20px;
-left:50%;
-transform:translateX(-50%);
 display:flex;
-gap:15px;
-padding:10px 20px;
-background:rgba(255,255,255,0.12);
+gap:10px;
+padding:12px 5%;
 position:sticky;
+top:0;
+z-index:100;
+
+/* glass effect */
+background:rgba(255,255,255,0.15);
 backdrop-filter:blur(12px);
 -webkit-backdrop-filter:blur(12px);
-border-radius:50px;
-box-shadow:0 8px 25px rgba(0,0,0,0.15);
-z-index:5;
+
+border-bottom:1px solid rgba(255,255,255,0.2);
+box-shadow:0 4px 12px rgba(0,0,0,0.08);
 }
 
 .nav-btn{
 flex:1;
 text-align:center;
 padding:10px;
-border-radius:8px;
-background:#eee;
+border-radius:30px;
+background:rgba(255,255,255,0.25);
 text-decoration:none;
-color:#333;
-font-size:14px;
+color:#1f6f78;
 font-weight:600;
-transition:.25s;
+transition:.3s;
 }
 
 .nav-btn:hover{
-background:#1f6f78;
+background:linear-gradient(90deg,#1f6f78,#00c2c7);
 color:white;
 transform:translateY(-2px);
+}
 
 /* ===== HERO FULL BACKGROUND ===== */
 .hero{
@@ -305,4 +305,5 @@ padding:8px 12px;
 }
 
 }
+
 
