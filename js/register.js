@@ -37,7 +37,7 @@ registerForm?.addEventListener("submit", async (e)=>{
 
   // 🔥 Signup dengan redirect Vercel
   const { data: signUpData, error: signUpError } =
-  await supabase.auth.signUp({
+  await client.auth.signUp({
     email,
     password
   });
