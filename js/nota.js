@@ -43,6 +43,12 @@ document.addEventListener("DOMContentLoaded", async ()=>{
   document.getElementById("c-phone").textContent = data.phone || "-";
   document.getElementById("c-alamat").textContent = data.alamat || "-";
   document.getElementById("c-metode").textContent = data.metode || "-";
+  const toggleBtn = document.getElementById("problemToggle");
+  const content = document.getElementById("problemContent");
+  
+  toggleBtn?.addEventListener("click", ()=>{
+    content.classList.toggle("active");
+  });
   document.getElementById("c-problem").textContent = data.problem || "-";
 
   /* ================= SERVICE INFO ================= */
