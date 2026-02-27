@@ -479,3 +479,27 @@ button{
 .btn-reset:hover{
   background:#e2e8f0;
 }
+
+/* ================= KATEGORI ================= */
+.category-badge{
+  padding:5px 10px;
+  border-radius:20px;
+  font-size:11px;
+  font-weight:600;
+  display:inline-block;
+}
+
+.category-badge.honor{
+  background:#dcfce7;
+  color:#16a34a;
+}
+
+.category-badge.operasional{
+  background:#dbeafe;
+  color:#2563eb;
+}
+
+.category-badge.listrik{
+  background:#fef3c7;
+  color:#d97706;
+}
