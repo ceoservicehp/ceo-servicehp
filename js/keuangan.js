@@ -282,7 +282,7 @@ function renderByTab(income = incomeData, expense = expenseData){
             <tr>
                 <td>${i+1}</td>
                 <td>${row.title}</td>
-                <<td>
+                <td>
                   <span class="category-badge ${row.category.toLowerCase()}">
                     ${row.category}
                   </span>
@@ -366,18 +366,18 @@ function setupExpenseForm(){
 
     const modal = document.getElementById("expenseModal");
 
-    document.getElementById("addExpenseBtn")
+   document.getElementById("addExpenseBtn")
     ?.addEventListener("click", async ()=>{
-
+    
         modal.style.display="flex";
-
+    
         await loadExpenseCategories();
         await loadHonorUsers();
+    
+        // reset honor wrapper
+        document.getElementById("honorUserWrapper").style.display = "none";
+        document.getElementById("honorUserSelect").value = "";
     });
-
-    document.getElementById("closeModal")
-    ?.addEventListener("click",()=> modal.style.display="none");
-
 
     /* ===== DETECT HONOR ===== */
     document.getElementById("expCategory")
@@ -411,7 +411,7 @@ function setupExpenseForm(){
             return;
         }
 
-        if(category === "Honor" && !honorUserId){
+        if(category?.toUpperCase() === "HONOR" && !honorUserId){
             alert("Pilih penerima honor.");
             return;
         }
@@ -426,7 +426,7 @@ function setupExpenseForm(){
                 amount,
                 notes,
                 created_by: user.id,
-                honor_user_id: category === "Honor" ? honorUserId : null
+                honor_user_id: category?.toUpperCase() === "honor" ? honorUserId : null
             }]);
 
         if(error){
