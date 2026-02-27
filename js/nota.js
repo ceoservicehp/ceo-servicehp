@@ -54,20 +54,12 @@ document.addEventListener("DOMContentLoaded", async ()=>{
   document.getElementById("c-metode").textContent = data.metode || "-";
   document.getElementById("c-problem").textContent = data.problem || "-";
 
-  /* Auto open kalau ada problem */
   if(data.problem){
     content?.classList.add("active");
     icon?.classList.add("rotate");
   }
 
-  /* ================= LANJUTAN KODE KAMU TETAP ================= */
-  // service status, items, watermark, QR, dll tetap seperti sebelumnya
-
-  await loadSignature();
-});
-
   /* ================= SERVICE INFO ================= */
-
   document.getElementById("service-status").textContent = data.status || "-";
 
   document.getElementById("service-created").textContent =
@@ -88,7 +80,6 @@ document.addEventListener("DOMContentLoaded", async ()=>{
   }
 
   /* ================= TEMPO ================= */
-
   if(data.use_top && data.due_date){
     document.getElementById("top-section").style.display = "flex";
     document.getElementById("top-info").textContent =
@@ -98,7 +89,6 @@ document.addEventListener("DOMContentLoaded", async ()=>{
   }
 
   /* ================= ITEMS ACCORDION ================= */
-
   const container = document.getElementById("invoice-items");
   container.innerHTML = "";
 
@@ -144,7 +134,6 @@ document.addEventListener("DOMContentLoaded", async ()=>{
   document.getElementById("grand-total").textContent = rupiah(grand);
 
   /* ================= WATERMARK + DIGITAL STAMP ================= */
-
   const wm = document.getElementById("watermark");
   const stamp = document.getElementById("digital-stamp");
 
@@ -161,7 +150,6 @@ document.addEventListener("DOMContentLoaded", async ()=>{
   }
 
   /* ================= QR ================= */
-
   const verifyUrl =
     window.location.origin + "/verifikasi.html?id=" + data.id;
 
@@ -177,7 +165,8 @@ document.addEventListener("DOMContentLoaded", async ()=>{
 
   await loadSignature();
 
-});
+}); // ← hanya SATU penutup di sini
+
 
 /* ================= ACCORDION TOGGLE ================= */
 function toggleAcc(el){
@@ -185,7 +174,7 @@ function toggleAcc(el){
   body.classList.toggle("open");
 }
 
-/* ================= LOAD SIGNATURE (BUCKET: signature_url) ================= */
+/* ================= LOAD SIGNATURE ================= */
 async function loadSignature(){
 
   const sigBox = document.getElementById("ttdImg");
@@ -212,21 +201,18 @@ async function loadSignature(){
     return;
   }
 
-  /* ================= SET NAMA ================= */
   if(data.full_name && nameEl){
     nameEl.textContent = data.full_name;
   }
 
-  /* ================= SET TTD IMAGE ================= */
   if(data.signature_url && sigBox){
 
     let imageUrl = data.signature_url;
 
-    // Kalau bukan full URL (masih path file saja)
     if(!imageUrl.startsWith("http")){
       const { data: publicUrlData } = client
         .storage
-        .from("signature_url") // ← sesuai bucket kamu
+        .from("signature_url")
         .getPublicUrl(imageUrl);
 
       imageUrl = publicUrlData.publicUrl;
@@ -241,7 +227,6 @@ async function loadSignature(){
 
 /* ================= DOWNLOAD PDF ================= */
 function downloadPDF(){
-
   if(!currentData) return;
 
   const element = document.querySelector(".invoice");
@@ -259,7 +244,6 @@ function downloadPDF(){
 
 /* ================= WHATSAPP ================= */
 function sendWhatsApp(){
-
   if(!currentData) return;
 
   const url = window.location.href;
