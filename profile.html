@@ -18,47 +18,113 @@
 <body>
 <div class="wrapper">
 
-<!-- HEADER -->
-<header class="main-header">
-  <div class="header-inner">
-    <div class="brand">
-      <img src="images/logo.png" width="50">
-      <div>
-        <h1>CEO ORDER SERVICE</h1>
-        <small>Cellular Engineer Officer</small>
-      </div>
+<!-- ================= HEADER ================= -->
+<header>
+  <div id="logo-container">
+    <img src="images/logo.png" width="55">
+
+    <div>
+      <h1>CEO - PROFIL AKUN</h1>
+      <div class="tagline">CELLULAR ENGINEERING OFFICER</div>
     </div>
-    <button id="logoutBtn" class="btn-logout">
-      <i class="fa-solid fa-right-from-bracket"></i> Logout
-    </button>
   </div>
+  
+  <button class="menu-toggle" id="menuToggle">
+  <i class="fa-solid fa-bars"></i>
+</button>
 </header>
 
-<!-- MAIN -->
+<!-- ================= NAVBAR ================= -->
+<nav class="top-nav">
+  <a href="index.html" class="nav-btn">
+    <i class="fa-solid fa-house"></i>
+    Beranda
+  </a>
+
+  <a href="profile.html" class="nav-btn">
+    <i class="fa-solid fa-user"></i>
+    Profil
+  </a>
+ 
+  <a href="dapur.html" class="nav-btn">
+    <i class="fa-solid fa-kitchen-set"></i>
+    Dapur
+  </a>
+
+  <a href="produk.html" class="nav-btn">
+    <i class="fa-solid fa-box-open"></i>
+    Produk
+  </a>
+
+  <a href="keuangan.html" class="nav-btn">
+    <i class="fa-solid fa-wallet"></i>
+    Keuangan
+  </a>
+
+  <a href="layanan.html" class="nav-btn">
+    <i class="fa-solid fa-screwdriver-wrench"></i>
+    Layanan
+  </a>
+
+  <a href="ceo_status.html" class="nav-btn">
+    <i class="fa-solid fa-chart-line"></i>
+    Status
+  </a>
+
+  <!-- 🔴 LOGOUT -->
+  <button id="logoutBtn" class="nav-btn logout-btn">
+    <i class="fa-solid fa-right-from-bracket"></i>
+    Logout
+  </button>
+</nav>
+<div class="nav-overlay" id="navOverlay"></div>
+
+
 <main class="container">
 
-<div class="profile-card">
+<div class="profile-card premium">
 
-  <!-- LEFT SIDE -->
+  <!-- LEFT SIDE (PROFILE SIDEBAR) -->
   <div class="profile-left">
-    <img id="profilePhoto" src="images/default-user.png" class="profile-photo">
+
+    <div class="photo-wrapper">
+      <img id="profilePhoto" src="images/default-user.png" class="profile-photo">
+      <div class="photo-overlay">
+        <button onclick="document.getElementById('uploadPhoto').click()">
+          <i class="fa-solid fa-camera"></i>
+        </button>
+      </div>
+    </div>
 
     <input type="file" id="uploadPhoto" hidden>
-    <button class="btn-upload" onclick="document.getElementById('uploadPhoto').click()">
-      Ubah Foto
-    </button>
 
     <h2 id="fullName">Nama Admin</h2>
     <span id="roleBadge" class="role-badge">Role</span>
     <p class="employee-id" id="employeeId">CEO-0000</p>
+
+    <div class="profile-stats">
+      <div>
+        <strong id="profileServiceCount">0</strong>
+        <span>Service</span>
+      </div>
+      <div>
+        <strong id="profileJoinDate">2026</strong>
+        <span>Bergabung</span>
+      </div>
+    </div>
+
   </div>
 
   <!-- RIGHT SIDE -->
   <div class="profile-right">
 
-    <!-- INFORMASI PRIBADI -->
-    <section>
-      <h3>Informasi Pribadi</h3>
+    <!-- ================= PERSONAL ================= -->
+    <section class="card-section">
+      <div class="section-header">
+        <i class="fa-solid fa-user"></i>
+        <h3>Informasi Pribadi</h3>
+      </div>
+
       <div class="grid-2">
         <input type="text" id="nameInput" placeholder="Nama Lengkap">
         <input type="email" id="emailInput" placeholder="Email" disabled>
@@ -73,18 +139,26 @@
       </div>
     </section>
 
-    <!-- INFORMASI PROFESIONAL -->
-    <section>
-      <h3>Informasi Profesional</h3>
+    <!-- ================= PROFESIONAL ================= -->
+    <section class="card-section">
+      <div class="section-header">
+        <i class="fa-solid fa-briefcase"></i>
+        <h3>Informasi Profesional</h3>
+      </div>
+
       <div class="grid-2">
         <input type="text" id="positionInput" placeholder="Jabatan">
         <input type="text" id="roleInput" disabled>
       </div>
     </section>
 
-    <!-- INFORMASI BANK -->
-    <section>
-      <h3>Informasi Rekening</h3>
+    <!-- ================= BANK ================= -->
+    <section class="card-section">
+      <div class="section-header">
+        <i class="fa-solid fa-building-columns"></i>
+        <h3>Informasi Rekening</h3>
+      </div>
+
       <div class="grid-2">
         <input type="text" id="bankNameInput" placeholder="Nama Bank">
         <input type="text" id="bankNumberInput" placeholder="Nomor Rekening">
@@ -92,22 +166,42 @@
       </div>
     </section>
 
-    <!-- DOKUMEN -->
-    <section>
-      <h3>Dokumen & Tanda Tangan</h3>
+    <!-- ================= DOKUMEN ================= -->
+    <section class="card-section">
+      <div class="section-header">
+        <i class="fa-solid fa-file-signature"></i>
+        <h3>Dokumen & Tanda Tangan</h3>
+      </div>
+
       <div class="grid-2">
         <input type="file" id="uploadKTP">
         <input type="file" id="uploadSignature">
       </div>
     </section>
 
-    <!-- PREFERENSI -->
-    <section>
-      <h3>Preferensi Sistem</h3>
+    <!-- ================= PREFERENSI ================= -->
+    <section class="card-section">
+      <div class="section-header">
+        <i class="fa-solid fa-gear"></i>
+        <h3>Preferensi Sistem</h3>
+      </div>
+
       <div class="grid-2">
-        <label><input type="checkbox" id="emailNotif"> Email Notification</label>
-        <label><input type="checkbox" id="waNotif"> WhatsApp Notification</label>
-        <label><input type="checkbox" id="financeNotif"> Finance Alert</label>
+        <label class="switch">
+          <input type="checkbox" id="emailNotif">
+          <span>Email Notification</span>
+        </label>
+
+        <label class="switch">
+          <input type="checkbox" id="waNotif">
+          <span>WhatsApp Notification</span>
+        </label>
+
+        <label class="switch">
+          <input type="checkbox" id="financeNotif">
+          <span>Finance Alert</span>
+        </label>
+
         <select id="themeSelect">
           <option value="light">Light Theme</option>
           <option value="dark">Dark Theme</option>
@@ -115,17 +209,21 @@
       </div>
     </section>
 
-    <button id="saveProfile" class="btn-save">
-      Simpan Perubahan
-    </button>
+    <div class="save-wrapper">
+      <button id="saveProfile" class="btn-save premium-btn">
+        <i class="fa-solid fa-floppy-disk"></i>
+        Simpan Perubahan
+      </button>
+    </div>
 
   </div>
 </div>
 
 </main>
 
+<!-- FOOTER -->
 <footer class="main-footer">
-© 2026 CEO Service HP — Profile System
+© 2026 CEO Service HP — Admin Panel
 </footer>
 
 </div>
