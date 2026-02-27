@@ -45,10 +45,12 @@ margin-top:3px;
 .top-nav{
 display:flex;
 gap:10px;
-padding:12px 5%;
+padding:10px;
+background:white;
 position:sticky;
 top:0;
-z-index:100;
+z-index:10;
+box-shadow:0 2px 6px rgba(0,0,0,0.1);
 
 /* glass effect */
 background:rgba(255,255,255,0.15);
@@ -63,12 +65,13 @@ box-shadow:0 4px 12px rgba(0,0,0,0.08);
 flex:1;
 text-align:center;
 padding:10px;
-border-radius:30px;
-background:rgba(255,255,255,0.25);
+border-radius:8px;
+background:#eee;
 text-decoration:none;
-color:#1f6f78;
+color:#333;
+font-size:14px;
 font-weight:600;
-transition:.3s;
+transition:.25s;
 }
 
 .nav-btn:hover{
@@ -305,5 +308,6 @@ padding:8px 12px;
 }
 
 }
+
 
 
