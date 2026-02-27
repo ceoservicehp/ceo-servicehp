@@ -14,7 +14,7 @@ let expenseData = [];
 /* ================= INIT ================= */
 document.addEventListener("DOMContentLoaded", async ()=>{
 
-    if(!supabase){
+    if(!client){
         alert("Supabase belum terhubung");
         return;
     }
@@ -147,9 +147,12 @@ async function loadFinance(){
         .select("*")
         .eq("status","selesai");
 
-    const { data:expense } = await client
-        .from("expenses")
-        .select("*");
+   const { data:expense } = await client
+    .from("expenses")
+    .select(`
+        *,
+        profiles:honor_user_id(full_name)
+    `);
 
     incomeData = income || [];
     expenseData = expense || [];
@@ -279,7 +282,12 @@ function renderByTab(income = incomeData, expense = expenseData){
             <tr>
                 <td>${i+1}</td>
                 <td>${row.title}</td>
-                <td>${row.category}</td>
+                <td>
+                  ${row.category}
+                  ${row.category === "Honor" && row.profiles?.full_name
+                      ? `<br><small style="color:#555">(${row.profiles.full_name})</small>`
+                      : ""}
+                </td>
                 <td>${row.notes || "-"}</td>
                 <td>${new Date(row.created_at).toLocaleDateString("id-ID")}</td>
                 <td style="color:#e74c3c;font-weight:600;">
@@ -308,39 +316,112 @@ function renderByTab(income = incomeData, expense = expenseData){
 
 }
 
+async function loadExpenseCategories(){
+
+    const { data } = await client
+        .from("expense_categories")
+        .select("*")
+        .eq("is_active", true)
+        .order("name");
+
+    const select = document.getElementById("expCategory");
+    if(!select) return;
+
+    select.innerHTML = "";
+
+    data?.forEach(cat=>{
+        select.innerHTML += `
+            <option value="${cat.name}">
+                ${cat.name}
+            </option>
+        `;
+    });
+}
+
+async function loadHonorUsers(){
+
+    const { data } = await client
+        .from("profiles")
+        .select("id, full_name, position")
+        .order("full_name");
+
+    const select = document.getElementById("honorUserSelect");
+    if(!select) return;
+
+    select.innerHTML = `<option value="">Pilih Penerima</option>`;
+
+    data?.forEach(user=>{
+        select.innerHTML += `
+            <option value="${user.id}">
+                ${user.full_name} (${user.position || "-"})
+            </option>
+        `;
+    });
+}
+
 /* ================= EXPENSE MODAL ================= */
 function setupExpenseForm(){
 
-    const modal=document.getElementById("expenseModal");
+    const modal = document.getElementById("expenseModal");
 
     document.getElementById("addExpenseBtn")
-    ?.addEventListener("click",()=> modal.style.display="flex");
+    ?.addEventListener("click", async ()=>{
+
+        modal.style.display="flex";
+
+        await loadExpenseCategories();
+        await loadHonorUsers();
+    });
 
     document.getElementById("closeModal")
     ?.addEventListener("click",()=> modal.style.display="none");
 
-    document.getElementById("saveExpense")
-    ?.addEventListener("click",async()=>{
 
-        const title=document.getElementById("expTitle").value;
-        const category=document.getElementById("expCategory").value;
-        const amount=document.getElementById("expAmount").value;
-        const notes=document.getElementById("expNotes").value;
+    /* ===== DETECT HONOR ===== */
+    document.getElementById("expCategory")
+    ?.addEventListener("change", e=>{
+
+        const wrapper = document.getElementById("honorUserWrapper");
+
+        if(e.target.value === "Honor"){
+            wrapper.style.display = "block";
+        }else{
+            wrapper.style.display = "none";
+        }
+    });
+
+
+    document.getElementById("saveExpense")
+    ?.addEventListener("click", async ()=>{
+
+        const title = document.getElementById("expTitle").value;
+        const category = document.getElementById("expCategory").value;
+        const amount = document.getElementById("expAmount").value;
+        const notes = document.getElementById("expNotes").value;
+        const honorUserId = document.getElementById("honorUserSelect")?.value || null;
 
         if(!title || !amount){
             alert("Isi semua data.");
             return;
         }
 
-        const user = await client.auth.getUser();
+        if(category === "Honor" && !honorUserId){
+            alert("Pilih penerima honor.");
+            return;
+        }
 
-        const {error}=await client.from("expenses").insert([{
-            title,
-            category,
-            amount,
-            notes,
-            created_by: user.data.user.id
-        }]);
+        const { data: { user } } = await client.auth.getUser();
+
+        const { error } = await client
+            .from("expenses")
+            .insert([{
+                title,
+                category,
+                amount,
+                notes,
+                created_by: user.id,
+                honor_user_id: category === "Honor" ? honorUserId : null
+            }]);
 
         if(error){
             alert("Gagal simpan pengeluaran.");
@@ -351,7 +432,6 @@ function setupExpenseForm(){
         loadFinance();
     });
 }
-
 
 /* ================= EXPORT ================= */
 function setupExportButtons(){
