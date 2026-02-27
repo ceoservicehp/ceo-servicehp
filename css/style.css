@@ -51,6 +51,7 @@ display:flex;
 gap:15px;
 padding:10px 20px;
 background:rgba(255,255,255,0.12);
+position:sticky;
 backdrop-filter:blur(12px);
 -webkit-backdrop-filter:blur(12px);
 border-radius:50px;
@@ -58,21 +59,23 @@ box-shadow:0 8px 25px rgba(0,0,0,0.15);
 z-index:5;
 }
 
-/* tombol di dalam navbar */
 .nav-btn{
-padding:8px 18px;
-border-radius:30px;
-background:rgba(255,255,255,0.2);
-color:white;
+flex:1;
+text-align:center;
+padding:10px;
+border-radius:8px;
+background:#eee;
+text-decoration:none;
+color:#333;
+font-size:14px;
 font-weight:600;
-transition:.3s;
+transition:.25s;
 }
 
 .nav-btn:hover{
-background:#00c2c7;
+background:#1f6f78;
 color:white;
 transform:translateY(-2px);
-}
 
 /* ===== HERO FULL BACKGROUND ===== */
 .hero{
@@ -302,3 +305,4 @@ padding:8px 12px;
 }
 
 }
+
