@@ -308,40 +308,61 @@ color:white;
 }
 
 /* ================= TABLE ================= */
-.admin-table{
-  width:100%;
-  border-collapse:collapse;
-  background:white;
-  border-radius:18px;
-  overflow:hidden;
-  box-shadow:0 10px 30px rgba(0,0,0,.05);
+.table-wrapper{
+overflow-x:auto;
 }
 
-.admin-table thead{
-  background:linear-gradient(90deg,#f1f5f9,#eef2f7);
+.admin-table{
+width:100%;
+border-collapse:collapse;
+margin-top:10px;
+min-width:900px;
+}
+
+.admin-table th,
+.admin-table td{
+padding:12px;
+border:1px solid #eee;
+text-align:center;
+font-size:14px;
 }
 
 .admin-table th{
-  padding:16px;
-  text-align:left;
-  font-size:12px;
-  font-weight:600;
-  color:#334155;
+background:#e8f8f8;
+color:#1f6f78;
+font-weight:600;
+}
+
+.admin-table tr:hover{
+background:#f9ffff;
+}
+
+/* ================= TABLE POLISH ================= */
+
+.admin-table{
+  background:#ffffff;
+  border-radius:12px;
+  overflow:hidden;
+}
+
+.admin-table th{
+  background:#f1fafa;
+  border-bottom:1px solid #e0f2f2;
 }
 
 .admin-table td{
-  padding:16px;
-  border-bottom:1px solid #f1f5f9;
-  font-size:13px;
+  background:#ffffff;
 }
 
-.admin-table tbody tr{
-  transition:.2s;
+.admin-table tr:nth-child(even){
+  background:#f9fcfc;
 }
 
-.admin-table tbody tr:hover{
-  background:#f9fbfc;
+.admin-table tr:hover{
+  background:#eaffff;
+  transition:0.2s;
 }
+
 
 /* ================= MODAL ================= */
 .modal{
@@ -509,5 +530,43 @@ button{
   .action-bar button{
     width:100%;
   }
+}
+
+/* MOBILE */
+@media(max-width:600px){
+
+.admin-header{
+flex-direction:column;
+align-items:flex-start;
+gap:10px;
+}
+
+.admin-header h1{
+font-size:16px;
+}
+
+.status-bar{
+flex-direction:column;
+align-items:stretch;
+}
+
+.buttons{
+flex-direction:column;
+}
+
+.btn-open,
+.btn-close{
+width:100%;
+}
+
+th,td{
+font-size:12px;
+padding:8px;
+}
+
+.admin-table{
+min-width:700px;
+}
+
 }
 
