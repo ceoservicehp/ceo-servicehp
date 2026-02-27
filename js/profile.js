@@ -2,7 +2,7 @@
 
 "use strict";
 
-const supabase = window.supabaseClient;
+const client = window.supabaseClient;
 let currentUserId = null;
 
 /* ========================================= */
@@ -10,12 +10,12 @@ let currentUserId = null;
 /* ========================================= */
 document.addEventListener("DOMContentLoaded", async () => {
 
-    if(!supabase){
+    if(!client){
         alert("Supabase belum terhubung");
         return;
     }
 
-    const { data: sessionData } = await supabase.auth.getSession();
+    const { data: sessionData } = await client.auth.getSession();
 
     if(!sessionData.session){
         window.location.href = "login.html";
@@ -39,7 +39,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 /* ========================================= */
 async function loadProfile(user){
 
-    const { data, error } = await supabase
+    const { data, error } = await client
         .from("profiles")
         .select("*")
         .eq("id", user.id)
@@ -53,7 +53,7 @@ async function loadProfile(user){
     // AUTO CREATE PROFILE
     if(!data){
 
-        const { error: insertError } = await supabase
+        const { error: insertError } = await client
             .from("profiles")
             .insert({
                 id: user.id,
@@ -75,7 +75,7 @@ async function loadProfile(user){
         const random = Math.floor(Math.random() * 9000) + 1000;
         const employeeId = "CEO-" + random;
 
-        await supabase
+        await client
           .from("profiles")
           .update({ employee_id: employeeId })
           .eq("id", user.id);
@@ -92,7 +92,7 @@ async function loadProfile(user){
 /* ========================================= */
 async function loadRole(){
 
-    const { data } = await supabase
+    const { data } = await client
         .from("admin_users")
         .select("role")
         .eq("user_id", currentUserId)
@@ -172,7 +172,7 @@ async function saveProfile(){
     }
 
     // UPDATE PROFILE
-    const { error } = await supabase
+    const { error } = await client
         .from("profiles")
         .update(updateData)
         .eq("id", currentUserId);
@@ -184,7 +184,7 @@ async function saveProfile(){
     }
 
     // SYNC KE admin_users
-    await supabase
+    await client
         .from("admin_users")
         .update({
             nama: updateData.full_name,
@@ -279,7 +279,7 @@ function setupUploadHandlers(){
             const path = `${currentUserId}/${field}.jpg`;
 
             // UPLOAD KE STORAGE
-            const { error: uploadError } = await supabase.storage
+            const { error: uploadError } = await client.storage
                 .from(bucket)
                 .upload(path, compressed, {
                     upsert: true,
@@ -293,7 +293,7 @@ function setupUploadHandlers(){
             }
 
             // AMBIL PUBLIC URL
-        const { data: publicData } = supabase.storage
+        const { data: publicData } = client.storage
             .from(bucket)
             .getPublicUrl(path);
         
@@ -305,7 +305,7 @@ function setupUploadHandlers(){
         const url = publicData.publicUrl;
         
         // SIMPAN KE DATABASE
-        const { error: updateError } = await supabase
+        const { error: updateError } = await client
             .from("profiles")
             .update({ [field]: url })
             .eq("id", currentUserId);
@@ -382,7 +382,7 @@ function getValue(id){
 /* ========================================= */
 document.getElementById("logoutBtn")
 ?.addEventListener("click", async () => {
-  await supabase.auth.signOut();
+  await client.auth.signOut();
   localStorage.removeItem("userRole");
   window.location.href = "login.html";
 });
@@ -398,7 +398,7 @@ async function loadHonor(){
     const firstDayMonth = new Date(now.getFullYear(), now.getMonth(), 1);
     const firstDayYear = new Date(now.getFullYear(), 0, 1);
     
-    const { data, error } = await supabase
+    const { data, error } = await client
         .from("expenses")
         .select("title, amount, created_at")
         .eq("category", "Honor")
