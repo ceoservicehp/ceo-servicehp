@@ -207,6 +207,78 @@ transition:.3s;
 box-shadow:0 0 14px rgba(0,194,199,0.6);
 }
 
+/* ================= ACCORDION ================= */
+#store-info{
+margin:30px 5%;
+}
+
+.accordion{
+width:100%;
+background:linear-gradient(90deg,#1f6f78,#00c2c7);
+color:white;
+cursor:pointer;
+padding:16px 20px;
+border:none;
+border-radius:14px;
+text-align:left;
+font-size:16px;
+font-weight:600;
+margin-bottom:10px;
+transition:0.3s;
+display:flex;
+align-items:center;
+}
+
+.accordion:hover{
+opacity:0.9;
+}
+
+.accordion.active{
+border-radius:14px 14px 0 0;
+}
+
+/* PANEL */
+.panel{
+max-height:0;
+overflow:hidden;
+background:white;
+border-radius:0 0 14px 14px;
+box-shadow:0 4px 12px rgba(0,0,0,0.08);
+transition:max-height 0.4s ease, padding 0.3s ease;
+padding:0 20px;
+}
+
+.panel.open{
+padding:20px;
+}
+
+/* isi dalam */
+.desc-text{
+display:flex;
+gap:25px;
+align-items:flex-start;
+flex-wrap:wrap;
+}
+
+.desc-text ul{
+list-style:none;
+line-height:1.6;
+flex:1;
+}
+
+.desc-image img{
+max-width:250px;
+border-radius:12px;
+box-shadow:0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* MAP */
+.map-container iframe{
+width:100%;
+height:300px;
+border-radius:12px;
+}
+
 /* ===== FOOTER ===== */
 footer{
 margin-top:30px;
@@ -235,4 +307,5 @@ padding:10px;
 }
 
 }
+
 
