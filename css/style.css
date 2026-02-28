@@ -44,46 +44,32 @@ margin-top:3px;
 /* ================= NAV ================= */
 .top-nav{
 display:flex;
-gap:12px;
-padding:12px 5%;
+gap:10px;
+padding:10px;
 background:white;
 position:sticky;
 top:0;
-z-index:50;
-box-shadow:0 4px 12px rgba(0,0,0,0.08);
+z-index:10;
+box-shadow:0 2px 6px rgba(0,0,0,0.1);
 }
 
-/* tombol */
 .nav-btn{
-flex:1;               /* bagi rata */
+flex:1;
 text-align:center;
-padding:12px 0;
-border-radius:16px;
-background:#eaeaea;
+padding:10px;
+border-radius:8px;
+background:#eee;
 text-decoration:none;
-color:#1f6f78;
+color:#333;
 font-size:14px;
 font-weight:600;
-transition:.3s;
+transition:.25s;
 }
 
 .nav-btn:hover{
-background:linear-gradient(90deg,#1f6f78,#00c2c7);
+background:#1f6f78;
 color:white;
-}
-
-@media(max-width:768px){
-
-.top-nav{
-gap:10px;
-padding:10px 4%;
-}
-
-.nav-btn{
-font-size:13px;
-padding:10px 0;
-}
-
+transform:translateY(-2px);
 }
 
 /* ================= HERO FULL ================= */
@@ -231,33 +217,22 @@ padding:15px;
 font-size:13px;
 }
 
-/* ================= RESPONSIVE ================= */
-@media(max-width:768px){
+/* ================= MOBILE ================= */
+@media(max-width:600px){
 
-.hero{
-height:85vh;
+.form-section{
+margin:15px;
+padding:18px;
 }
 
-.hero h2{
-font-size:26px;
-}
-
-.hero p{
-font-size:14px;
-}
-
-.top-nav{
-flex-direction:column;
-gap:8px;
+.product-card img{
+height:110px;
 }
 
 .nav-btn{
 font-size:14px;
+padding:10px;
 }
 
 }
-
-
-
-
 
