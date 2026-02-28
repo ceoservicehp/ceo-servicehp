@@ -208,75 +208,69 @@ box-shadow:0 0 14px rgba(0,194,199,0.6);
 }
 
 /* ================= ACCORDION ================= */
-#store-info{
-margin:30px 5%;
+.accordion {
+  background: linear-gradient(90deg,#00bfff,#1e90ff);
+  color: white;
+  cursor: pointer;
+  padding: 12px;
+  width: 100%;
+  text-align: left;
+  border: none;
+  outline: none;
+  font-size: 15px;
+  font-weight: bold;
+  border-radius: 8px;
+  transition: 0.3s;
+  margin-bottom: 10px; /* ✅ jarak antar accordion */
 }
 
-.accordion{
-width:100%;
-background:linear-gradient(90deg,#1f6f78,#00c2c7);
-color:white;
-cursor:pointer;
-padding:16px 20px;
-border:none;
-border-radius:14px;
-text-align:left;
-font-size:16px;
-font-weight:600;
-margin-bottom:10px;
-transition:0.3s;
-display:flex;
-align-items:center;
+.accordion:hover {
+  background: linear-gradient(90deg,#1e90ff,#00bfff);
 }
 
-.accordion:hover{
-opacity:0.9;
+.panel {
+  max-height: 0;
+  overflow: hidden;
+  background: #fff;
+  border-radius: 0 0 10px 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  transition: max-height 0.4s ease;
+  padding: 0 12px;
+  box-sizing: border-box; /* ✅ biar padding masuk hitungan */
 }
 
-.accordion.active{
-border-radius:14px 14px 0 0;
+.panel.open {
+  padding: 12px;
+  max-height: 100%; /* 🔥 biar tinggi otomatis sesuai isi */
+  margin-bottom: 8px;
 }
 
-/* PANEL */
-.panel{
-max-height:0;
-overflow:hidden;
-background:white;
-border-radius:0 0 14px 14px;
-box-shadow:0 4px 12px rgba(0,0,0,0.08);
-transition:max-height 0.4s ease, padding 0.3s ease;
-padding:0 20px;
+.panel textarea {
+  width: 50%;       /* ✅ penuh */
+  min-height: 80px;  /* ✅ cukup tinggi untuk nulis */
+  resize: vertical;  /* ✅ biar user bisa tarik kalau mau */
+  padding: 8px;
+  margin-top: 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-sizing: border-box;
+  font-size: 12px;
 }
 
-.panel.open{
-padding:20px;
+.panel ul {
+  padding-left: 20px;
+  margin: 0; /* 🔧 betulkan margin agar rapih */
 }
 
-/* isi dalam */
-.desc-text{
-display:flex;
-gap:25px;
-align-items:flex-start;
-flex-wrap:wrap;
+.panel .desc-image {
+  margin-top: 12px;
+  display: flex;
+  justify-content: center;
 }
 
-.desc-text ul{
-list-style:none;
-line-height:1.6;
-flex:1;
-}
-
-.desc-image img{
-max-width:250px;
-border-radius:12px;
-box-shadow:0 4px 12px rgba(0,0,0,0.1);
-}
-
-/* MAP */
-.map-container iframe{
-width:100%;
-height:300px;
-border-radius:12px;
+.panel .desc-image img {
+  max-width: 100%;
+  border-radius: 8px;
 }
 
 /* ===== FOOTER ===== */
@@ -307,5 +301,6 @@ padding:10px;
 }
 
 }
+
 
 
