@@ -208,69 +208,61 @@ box-shadow:0 0 14px rgba(0,194,199,0.6);
 }
 
 /* ================= ACCORDION ================= */
-.accordion {
-  background: linear-gradient(90deg,#00bfff,#1e90ff);
-  color: white;
-  cursor: pointer;
-  padding: 12px;
-  width: 100%;
-  text-align: left;
-  border: none;
-  outline: none;
-  font-size: 15px;
-  font-weight: bold;
-  border-radius: 8px;
-  transition: 0.3s;
-  margin-bottom: 10px; /* ✅ jarak antar accordion */
+#store-info{
+  margin:30px 5%;
 }
 
-.accordion:hover {
-  background: linear-gradient(90deg,#1e90ff,#00bfff);
+.accordion{
+  background:#f4f7fb;
+  color:#1f6f78;
+  cursor:pointer;
+  padding:14px 20px;
+  width:100%;
+  border:none;
+  text-align:left;
+  font-size:16px;
+  font-weight:700;
+  border-radius:10px;
+  margin-bottom:10px;
+  transition:.3s;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.accordion:hover{
+  background:#e1ebf0;
+}
+
+.accordion.active {
+  background:#1f6f78;
+  color:white;
 }
 
 .panel {
-  max-height: 0;
-  overflow: hidden;
-  background: #fff;
-  border-radius: 0 0 10px 10px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-  transition: max-height 0.4s ease;
-  padding: 0 12px;
-  box-sizing: border-box; /* ✅ biar padding masuk hitungan */
+  max-height:0;
+  overflow:hidden;
+  transition:max-height .3s ease-out;
+  background:white;
+  padding:0 20px;
+  border-radius:0 0 10px 10px;
+  box-shadow:0 2px 6px rgba(0,0,0,0.08);
 }
 
-.panel.open {
-  padding: 12px;
-  max-height: 100%; /* 🔥 biar tinggi otomatis sesuai isi */
-  margin-bottom: 8px;
+.panel p{
+  margin:15px 0;
+  line-height:1.6;
+  color:#444;
 }
 
-.panel textarea {
-  width: 50%;       /* ✅ penuh */
-  min-height: 80px;  /* ✅ cukup tinggi untuk nulis */
-  resize: vertical;  /* ✅ biar user bisa tarik kalau mau */
-  padding: 8px;
-  margin-top: 8px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  box-sizing: border-box;
-  font-size: 12px;
+.panel img{
+  width:100%;
+  border-radius:10px;
+  margin-top:15px;
 }
 
-.panel ul {
-  padding-left: 20px;
-  margin: 0; /* 🔧 betulkan margin agar rapih */
-}
-
-.panel .desc-image {
-  margin-top: 12px;
-  display: flex;
-  justify-content: center;
-}
-
-.panel .desc-image img {
-  max-width: 100%;
-  border-radius: 8px;
+.map-container{
+  margin-top:15px;
 }
 
 /* ===== FOOTER ===== */
@@ -301,6 +293,7 @@ padding:10px;
 }
 
 }
+
 
 
 
