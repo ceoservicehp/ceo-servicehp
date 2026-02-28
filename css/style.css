@@ -193,7 +193,6 @@ box-shadow:0 3px 12px rgba(0,0,0,0.06);
 text-align:center;
 }
 
-/* ================= ACCORDION ================= */
 /* ================= ACCORDION CLEAN ================= */
 
 #store-info{
@@ -212,7 +211,7 @@ font-size:15px;
 font-weight:600;
 text-align:left;
 display:flex;
-align-items:center;
+align-items:left;
 gap:10px;
 cursor:pointer;
 box-shadow:0 2px 8px rgba(0,0,0,0.05);
@@ -347,4 +346,5 @@ padding:10px;
 }
 
 }
+
 
