@@ -370,3 +370,22 @@ padding:10px;
   color:#009688;
   font-weight:600;
 }
+
+/* ================= MOBILE ================= */
+@media(max-width:600px){
+
+.form-section{
+margin:15px;
+padding:18px;
+}
+
+.product-card img{
+height:110px;
+}
+
+.nav-btn{
+font-size:14px;
+padding:10px;
+}
+
+}
