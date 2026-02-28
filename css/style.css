@@ -347,4 +347,19 @@ padding:10px;
 
 }
 
+/* ===== PAKSA TEXT ACCORDION RATA KIRI ===== */
+.panel,
+.panel *{
+text-align:left !important;
+}
+
+.info-wrapper,
+.info-item{
+text-align:left;
+align-items:flex-start;
+}
+
+.info-item div{
+text-align:left;
+}
 
