@@ -318,9 +318,9 @@ font-weight:600;
 /* ===== MAP ===== */
 .map-container{
 width:100%;
-border-radius:16px;
+border-radius:12px;
 overflow:hidden;
-box-shadow:0 6px 20px rgba(0,0,0,0.08);
+box-shadow:0 3px 15px rgba(0,0,0,0.08);
 }
 
 .map-container iframe{
@@ -371,6 +371,7 @@ padding:10px;
 }
 
 }
+
 
 
 
