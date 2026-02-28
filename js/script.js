@@ -48,3 +48,32 @@ if(heroBtn){
 }
 
 });
+
+/* ================= Accordion ================= */
+document.addEventListener("DOMContentLoaded", function(){
+
+  const accordions = document.querySelectorAll(".accordion");
+
+  accordions.forEach(acc => {
+    acc.addEventListener("click", function(){
+
+      const panel = this.nextElementSibling;
+      const isOpen = this.classList.contains("active");
+
+      // Tutup semua dulu
+      accordions.forEach(a => {
+        a.classList.remove("active");
+        const p = a.nextElementSibling;
+        p.style.maxHeight = null;
+      });
+
+      // Jika belum terbuka, buka
+      if(!isOpen){
+        this.classList.add("active");
+        panel.style.maxHeight = panel.scrollHeight + "px";
+      }
+
+    });
+  });
+
+});
