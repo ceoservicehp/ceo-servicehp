@@ -44,6 +44,8 @@ margin-top:3px;
 /* ================= NAV ================= */
 .top-nav{
 display:flex;
+justify-content:center;   /* tengah */
+align-items:center;
 gap:10px;
 padding:12px 5%;
 background:white;
@@ -51,23 +53,23 @@ position:sticky;
 top:0;
 z-index:50;
 box-shadow:0 4px 12px rgba(0,0,0,0.08);
+flex-wrap:nowrap;   /* PENTING: jangan boleh turun */
 }
 
 /* tombol */
 .nav-btn{
-flex:1;
-text-align:center;
-padding:10px;
+flex:0 1 auto;     /* jangan paksa lebar */
+padding:10px 20px;
 border-radius:30px;
 background:#f1f1f1;
 text-decoration:none;
 color:#1f6f78;
 font-size:14px;
 font-weight:600;
-transition:.3s ease;
+white-space:nowrap;  /* teks jangan pecah */
+transition:.3s;
 }
 
-/* hover */
 .nav-btn:hover{
 background:linear-gradient(90deg,#1f6f78,#00c2c7);
 color:white;
@@ -78,12 +80,12 @@ transform:translateY(-2px);
 
 .top-nav{
 gap:8px;
-padding:10px 4%;
+padding:10px;
 }
 
 .nav-btn{
 font-size:13px;
-padding:8px;
+padding:8px 14px;
 }
 
 }
@@ -258,6 +260,7 @@ font-size:14px;
 }
 
 }
+
 
 
 
