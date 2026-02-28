@@ -45,31 +45,47 @@ margin-top:3px;
 .top-nav{
 display:flex;
 gap:10px;
-padding:10px;
+padding:12px 5%;
 background:white;
 position:sticky;
 top:0;
-z-index:10;
-box-shadow:0 2px 6px rgba(0,0,0,0.1);
+z-index:50;
+box-shadow:0 4px 12px rgba(0,0,0,0.08);
 }
 
+/* tombol */
 .nav-btn{
 flex:1;
 text-align:center;
 padding:10px;
-border-radius:8px;
-background:#eee;
+border-radius:30px;
+background:#f1f1f1;
 text-decoration:none;
-color:#333;
+color:#1f6f78;
 font-size:14px;
 font-weight:600;
-transition:.25s;
+transition:.3s ease;
 }
 
+/* hover */
 .nav-btn:hover{
-background:#1f6f78;
+background:linear-gradient(90deg,#1f6f78,#00c2c7);
 color:white;
 transform:translateY(-2px);
+}
+
+@media(max-width:768px){
+
+.top-nav{
+gap:8px;
+padding:10px 4%;
+}
+
+.nav-btn{
+font-size:13px;
+padding:8px;
+}
+
 }
 
 /* ================= HERO FULL ================= */
@@ -84,15 +100,16 @@ padding:0 5%;
 color:white;
 
 background:
-linear-gradient(rgba(31,111,120,0.85), rgba(0,194,199,0.65)),
+linear-gradient(rgba(31,111,120,0.55), rgba(0,194,199,0.45)),
 url('../images/bg-service.jpg') center/cover no-repeat;
 }
 
+/* Kurangi gelap overlay */
 .hero::after{
 content:"";
 position:absolute;
 inset:0;
-background:linear-gradient(90deg,rgba(0,0,0,0.4),rgba(0,0,0,0.2));
+background:linear-gradient(90deg,rgba(0,0,0,0.2),rgba(0,0,0,0.1));
 z-index:0;
 }
 
@@ -241,5 +258,6 @@ font-size:14px;
 }
 
 }
+
 
 
