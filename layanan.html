@@ -69,9 +69,38 @@
 
 <!-- ALAMAT TOKO -->
 <div id="alamat-toko" style="display:none;margin-top:10px">
-<b>Alamat Toko:</b><br>
-Jl. Contoh No 123<br>
-Kota Kamu
+  <b>Alamat Toko:</b>
+
+  <div id="alamat-text" style="margin:8px 0;">
+    Jl. Contoh No 123, Kota Kamu
+  </div>
+
+  <button type="button" id="copy-alamat" 
+          style="padding:6px 12px;
+                 border:none;
+                 background:#1f6f78;
+                 color:#fff;
+                 border-radius:6px;
+                 cursor:pointer;">
+    📋 Copy Alamat
+  </button>
+</div>
+
+<div id="resi-section" style="display:none;margin-top:10px">
+
+  <label>Ekspedisi</label>
+  <select id="customer-ekspedisi">
+    <option value="">Pilih Ekspedisi</option>
+    <option value="JNE">JNE</option>
+    <option value="J&T">J&T</option>
+    <option value="SiCepat">SiCepat</option>
+    <option value="AnterAja">AnterAja</option>
+    <option value="POS Indonesia">POS Indonesia</option>
+  </select>
+
+  <label style="margin-top:8px;">Nomor Resi Pengiriman</label>
+  <input type="text" id="customer-resi" placeholder="Masukkan nomor resi">
+
 </div>
 
 <!-- NOMOR RESI (KHUSUS KIRIM PAKET) -->
