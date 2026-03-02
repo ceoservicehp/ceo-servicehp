@@ -254,25 +254,37 @@ function smoothMoveMarker(lat, lng){
     const startTime = performance.now();
 
     function animate(time){
-        const progress = Math.min((time - startTime) / duration, 1);
+        const progressRaw = Math.min((time - startTime) / duration, 1);
+        const progress = 1 - Math.pow(1 - progressRaw, 3); // easing
 
         const currentLat = start.lat + (end.lat - start.lat) * progress;
         const currentLng = start.lng + (end.lng - start.lng) * progress;
 
         marker.setLatLng([currentLat, currentLng]);
 
-        if(progress < 1){
+        if(progressRaw < 1){
             requestAnimationFrame(animate);
         } else {
 
-            // 🔥 Bounce setelah sampai
+            // 🔥 Hitung ongkir setelah sampai
+            coordInput.value = lat + "," + lng;
+
+            const jarak = hitungJarak(lat, lng);
+            const res = hitungOngkir(jarak);
+
+            transportCost = res.biaya;
+            ongkir.value = rupiah(res.biaya);
+            distanceInfo.textContent = "Jarak " + res.km + " KM";
+
+            updateTotal();
+
+            // Bounce
             if(marker._icon){
                 marker._icon.classList.add("bounce");
                 setTimeout(()=>{
                     marker._icon.classList.remove("bounce");
                 },600);
             }
-
         }
     }
 
@@ -282,47 +294,30 @@ function smoothMoveMarker(lat, lng){
         duration: 0.8
     });
 }
-
 /* ================= MAP ================= */
 function initMap(){
-if(mapInstance) return;
+    if(mapInstance) return;
 
-mapInstance=L.map("map").setView([TOKO_LAT,TOKO_LNG],13);
+    mapInstance = L.map("map").setView([TOKO_LAT, TOKO_LNG], 13);
 
-L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{
-maxZoom:19
-}).addTo(mapInstance);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 19
+    }).addTo(mapInstance);
 
-/* ICON MARKER HIJAU */
-const customIcon=L.divIcon({
-className:"custom-marker",
-html:`<i class="fa-solid fa-location-dot"></i>`,
-iconSize:[30,30],
-iconAnchor:[15,30]
-});
+    const customIcon = L.divIcon({
+        className: "custom-marker",
+        html: `<i class="fa-solid fa-location-dot"></i>`,
+        iconSize: [30,30],
+        iconAnchor: [15,30]
+    });
 
-marker=L.marker([TOKO_LAT,TOKO_LNG],{icon:customIcon}).addTo(mapInstance);
+    marker = L.marker([TOKO_LAT, TOKO_LNG], { icon: customIcon }).addTo(mapInstance);
 
-/* KLIK MAP */
-mapInstance.on("click",e=>{
-
-const lat=e.latlng.lat;
-const lng=e.latlng.lng;
-
-setLocation(lat,lng);
-
-/* ANIMASI PINDAH */
-marker.setLatLng([lat,lng]);
-
-setTimeout(()=>{
-if(marker._icon){
-marker._icon.classList.remove("bounce");
-void marker._icon.offsetWidth;
-marker._icon.classList.add("bounce");
-}
-},10);
-
-});
+    mapInstance.on("click", e => {
+        const lat = e.latlng.lat;
+        const lng = e.latlng.lng;
+        smoothMoveMarker(lat, lng);
+    });
 }
 
 /* ================= LOAD PRODUK DARI DATABASE ================= */
@@ -546,7 +541,6 @@ const lat = pos.coords.latitude;
 const lng = pos.coords.longitude;
 
 smoothMoveMarker(lat, lng);
-setLocation(lat, lng);
 });
 };
 
