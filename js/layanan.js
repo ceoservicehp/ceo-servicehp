@@ -13,6 +13,7 @@ let metode,
     alamatToko,
     resiSection,
     resiInput,
+    ekspedisiInput,
     sparepartPriceEl,
     transportPriceEl,
     totalPriceEl,
@@ -61,6 +62,7 @@ document.getElementById("filterCategory")
     alamatToko = document.getElementById("alamat-toko");
     resiSection = document.getElementById("resi-section");
     resiInput = document.getElementById("customer-resi");
+    ekspedisiInput = document.getElementById("customer-ekspedisi");
 
     sparepartPriceEl = document.getElementById("sparepart-price");
     transportPriceEl = document.getElementById("transport-price");
@@ -112,7 +114,6 @@ document.getElementById("filterCategory")
                     resiSection.style.display="block";
                 }
             }
-
             updateTotal();
         });
     }
@@ -173,6 +174,25 @@ if(paymentMethod){
         }
     });
 }
+
+/* ================= ALAMAT ================= */
+  const copyAlamatBtn = document.getElementById("copy-alamat");
+    const alamatText = document.getElementById("alamat-text");
+    
+    if(copyAlamatBtn && alamatText){
+        copyAlamatBtn.addEventListener("click", ()=>{
+            navigator.clipboard.writeText(alamatText.textContent.trim())
+            .then(()=>{
+                copyAlamatBtn.textContent = "✅ Berhasil Disalin";
+                setTimeout(()=>{
+                    copyAlamatBtn.textContent = "📋 Copy Alamat";
+                },1500);
+            })
+            .catch(()=>{
+                alert("Gagal menyalin alamat");
+            });
+        });
+    }
     
     loadProducts();
     loadCategoriesFilter();
@@ -223,33 +243,44 @@ return {biaya,km};
 }
 
 /* ================= SET LOCATION ================= */
-function setLocation(lat,lng){
+function smoothMoveMarker(lat, lng){
 
-coordInput.value=lat+","+lng;
+    if(!mapInstance || !marker) return;
 
-if(marker){
-marker.setLatLng([lat,lng]);
-mapInstance.panTo([lat,lng],{animate:true,duration:0.5});
+    const start = marker.getLatLng();
+    const end = L.latLng(lat, lng);
 
-setTimeout(()=>{
-if(marker._icon){
-marker._icon.classList.remove("bounce");
-void marker._icon.offsetWidth;
-marker._icon.classList.add("bounce");
-}
-},10);
-}
+    const duration = 600;
+    const startTime = performance.now();
 
-if(metode.value==="Datang ke Toko") return;
+    function animate(time){
+        const progress = Math.min((time - startTime) / duration, 1);
 
-const jarak=hitungJarak(lat,lng);
-const res=hitungOngkir(jarak);
+        const currentLat = start.lat + (end.lat - start.lat) * progress;
+        const currentLng = start.lng + (end.lng - start.lng) * progress;
 
-transportCost=res.biaya;
-ongkir.value=rupiah(res.biaya);
-distanceInfo.textContent="Jarak "+res.km+" KM";
+        marker.setLatLng([currentLat, currentLng]);
 
-updateTotal();
+        if(progress < 1){
+            requestAnimationFrame(animate);
+        } else {
+
+            // 🔥 Bounce setelah sampai
+            if(marker._icon){
+                marker._icon.classList.add("bounce");
+                setTimeout(()=>{
+                    marker._icon.classList.remove("bounce");
+                },600);
+            }
+
+        }
+    }
+
+    requestAnimationFrame(animate);
+
+    mapInstance.flyTo([lat, lng], 15, {
+        duration: 0.8
+    });
 }
 
 /* ================= MAP ================= */
@@ -511,7 +542,11 @@ function renderProducts(){
 /* ================= GPS ================= */
 document.getElementById("getLocation").onclick=()=>{
 navigator.geolocation.getCurrentPosition(pos=>{
-setLocation(pos.coords.latitude,pos.coords.longitude);
+const lat = pos.coords.latitude;
+const lng = pos.coords.longitude;
+
+smoothMoveMarker(lat, lng);
+setLocation(lat, lng);
 });
 };
 
@@ -547,11 +582,20 @@ document.getElementById("checkout").onclick = async () => {
         return alert("Lokasi wajib diisi untuk Home Service");
     }
 
-    if(method==="Kirim Paket" && (!resiInput || !resiInput.value.trim())){
-    window.sending=false;
-    btn.disabled=false;
-    btn.textContent="Kirim Permintaan Service";
-    return alert("Nomor resi wajib diisi untuk Kirim Paket");
+    if(method==="Kirim Paket"){
+        if(!ekspedisiInput.value){
+            window.sending=false;
+            btn.disabled=false;
+            btn.textContent="Kirim Permintaan Service";
+            return alert("Pilih ekspedisi terlebih dahulu");
+        }
+    
+        if(!resiInput.value.trim()){
+            window.sending=false;
+            btn.disabled=false;
+            btn.textContent="Kirim Permintaan Service";
+            return alert("Nomor resi wajib diisi");
+        }
     }
 
     let spareList="Tidak ada";
@@ -607,6 +651,7 @@ try {
         brand,
         problem,
         metode: method,
+        ekspedisi: method==="Kirim Paket" ? ekspedisiInput.value : null,
         resi: method==="Kirim Paket" ? resiInput.value.trim() : null,
         sparepart: spareList,
         total_sparepart: spareTotal,
@@ -653,7 +698,8 @@ try {
         msg += `Transport: ${rupiah(transportCost)}\n`;
     }
     
-    if (method === "Kirim Paket") {
+    if (method === "Kirim Paket" && ekspedisiInput && resiInput) {
+    msg += `Ekspedisi: ${ekspedisiInput.value}\n`;
     msg += `Nomor Resi: ${resiInput.value.trim()}\n`;
     msg += `Pengiriman ke alamat toko\n`;
     }
