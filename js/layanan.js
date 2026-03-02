@@ -11,6 +11,8 @@ let metode,
     transportSection,
     proof,
     alamatToko,
+    resiSection,
+    resiInput,
     sparepartPriceEl,
     transportPriceEl,
     totalPriceEl,
@@ -57,6 +59,8 @@ document.getElementById("filterCategory")
     transportSection = document.getElementById("transport-section");
     proof = document.getElementById("payment-proof-section");
     alamatToko = document.getElementById("alamat-toko");
+    resiSection = document.getElementById("resi-section");
+    resiInput = document.getElementById("customer-resi");
 
     sparepartPriceEl = document.getElementById("sparepart-price");
     transportPriceEl = document.getElementById("transport-price");
@@ -84,6 +88,9 @@ document.getElementById("filterCategory")
             if(paymentSection){
                 paymentSection.style.display="none";
             }
+            if(resiSection){
+                resiSection.style.display="none";
+            }
 
                if(metode.value==="Home Service"){
                     mapSection.style.display="block";
@@ -101,6 +108,9 @@ document.getElementById("filterCategory")
 
             if(metode.value==="Kirim Paket"){
                 alamatToko.style.display="block";
+                if(resiSection){
+                    resiSection.style.display="block";
+                }
             }
 
             updateTotal();
@@ -537,6 +547,13 @@ document.getElementById("checkout").onclick = async () => {
         return alert("Lokasi wajib diisi untuk Home Service");
     }
 
+    if(method==="Kirim Paket" && (!resiInput || !resiInput.value.trim())){
+    window.sending=false;
+    btn.disabled=false;
+    btn.textContent="Kirim Permintaan Service";
+    return alert("Nomor resi wajib diisi untuk Kirim Paket");
+    }
+
     let spareList="Tidak ada";
     const keys=Object.keys(spareparts);
     if(keys.length){
@@ -584,21 +601,22 @@ try {
     const { error } = await client
         .from("service_orders")
         .insert({
-            nama,
-            alamat,
-            phone,
-            brand,
-            problem,
-            metode: method,
-            sparepart: spareList,
-            total_sparepart: spareTotal,
-            transport: transportCost,
-            jasa: 0,
-            total: total,
-            coord: coordInput.value || null,
-            status: "pending",
-            bukti: buktiUrl
-        });
+        nama,
+        alamat,
+        phone,
+        brand,
+        problem,
+        metode: method,
+        resi: method==="Kirim Paket" ? resiInput.value.trim() : null,
+        sparepart: spareList,
+        total_sparepart: spareTotal,
+        transport: transportCost,
+        jasa: 0,
+        total: total,
+        coord: coordInput.value || null,
+        status: "pending",
+        bukti: buktiUrl
+    });
 
     if(error) throw error;
 
@@ -614,21 +632,42 @@ try {
 }
   
     /* ================= MESSAGE WA ================= */
-    let msg=`📱 *SERVICE HP*%0A`;
-    msg+=`Nama: ${nama}%0A`;
-    msg+=`No HP: ${phone}%0A`;
-    msg+=`Merk Hp: ${brand}%0A`;
-    msg+=`Keluhan: ${problem}%0A`;
-    msg+=`Metode Service: ${method}%0A`;
-    msg+=`Sparepart: ${spareList}%0A`;
 
-    if(method==="Home Service") msg+=`Transport: ${rupiah(transportCost)}%0A`;
-    if(method==="Kirim Paket") msg+=`Pengiriman ke alamat toko%0A`;
-    msg+=`Total Estimasi: ${rupiah(total)}%0A`;
-    msg+=`%0A(Jasa diinformasikan setelah pengecekan teknisi)`;
-
-    window.open(`https://wa.me/6288803060094?text=${msg}`);
-
+    let lokasiMap = "-";
+    
+    if (method === "Home Service" && coordInput.value) {
+        const [lat, lng] = coordInput.value.split(",");
+        lokasiMap = `https://www.google.com/maps?q=${lat},${lng}`;
+    }
+    
+    let msg = `📱 *SERVICE HP*\n`;
+    msg += `=====================\n`;
+    msg += `Nama: ${nama}\n`;
+    msg += `No HP: ${phone}\n`;
+    msg += `Merk Hp: ${brand}\n`;
+    msg += `Keluhan: ${problem}\n`;
+    msg += `Metode Service: ${method}\n`;
+    
+    if (method === "Home Service") {
+        msg += `📍 Lokasi: ${lokasiMap}\n`;
+        msg += `Transport: ${rupiah(transportCost)}\n`;
+    }
+    
+    if (method === "Kirim Paket") {
+    msg += `Nomor Resi: ${resiInput.value.trim()}\n`;
+    msg += `Pengiriman ke alamat toko\n`;
+    }
+    
+    msg += `Sparepart: ${spareList}\n`;
+    msg += `---------------------\n`;
+    msg += `Total Estimasi: ${rupiah(total)}\n`;
+    msg += `\n(Jasa diinformasikan setelah pengecekan teknisi)`;
+    
+    window.open(
+        `https://wa.me/6288803060094?text=${encodeURIComponent(msg)}`,
+        "_blank"
+    );
+    
     window.sending=false;
     btn.disabled=false;
     btn.textContent="Kirim Permintaan Service";
