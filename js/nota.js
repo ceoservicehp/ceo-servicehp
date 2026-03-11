@@ -265,18 +265,16 @@ function downloadPDF(){
 
   const element = document.getElementById("invoice-area");
 
-  /* aktifkan mode PDF */
   document.body.classList.add("pdf-body");
   element.classList.add("pdf-mode");
 
   const opt = {
-    margin: 10,
+    margin: 0,
     filename: "Invoice_"+currentData.id+".pdf",
     image: { type: 'jpeg', quality: 1 },
     html2canvas: {
       scale: 2,
-      useCORS: true,
-      scrollY: 0
+      useCORS: true
     },
     jsPDF: {
       unit: 'mm',
@@ -285,14 +283,10 @@ function downloadPDF(){
     }
   };
 
-  html2pdf()
-    .set(opt)
-    .from(element)
-    .save()
-    .then(()=>{
-      document.body.classList.remove("pdf-body");
-      element.classList.remove("pdf-mode");
-    });
+  html2pdf().set(opt).from(element).save().then(()=>{
+    document.body.classList.remove("pdf-body");
+    element.classList.remove("pdf-mode");
+  });
 
 }
 
