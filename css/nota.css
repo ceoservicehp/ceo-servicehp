@@ -486,26 +486,27 @@ font-size:13px;
 color:#444;
 }
 
-/* ================= PDF FINAL FIX ================= */
+/* ================= PDF MODE ================= */
 
 body.pdf-body{
 background:white !important;
 padding:0 !important;
+margin:0 !important;
 }
 
-/* container PDF */
+/* container utama */
 body.pdf-body .invoice{
 
 width:210mm !important;
-max-width:210mm !important;
+min-height:297mm !important;
 
 margin:0 auto !important;
 padding:20mm !important;
 
+box-sizing:border-box;
+
 box-shadow:none !important;
 border-radius:0 !important;
-
-box-sizing:border-box;
 
 }
 
@@ -516,30 +517,18 @@ grid-template-columns:1fr 1fr !important;
 
 /* stabilkan bagian bawah */
 body.pdf-body .bottom-section{
-
 display:flex !important;
 justify-content:space-between !important;
 align-items:flex-end !important;
-
 }
 
-/* cegah pecah halaman */
-.invoice,
-.box,
-.sparepart-table,
-.summary,
-.bottom-section{
-page-break-inside:avoid !important;
-break-inside:avoid !important;
-}
-
-/* QR stabil */
+/* QR */
 body.pdf-body #qr canvas{
 width:120px !important;
 height:120px !important;
 }
 
-/* tanda tangan stabil */
+/* tanda tangan */
 body.pdf-body .signature-img{
 width:160px !important;
 min-height:70px !important;
@@ -553,9 +542,9 @@ display:none !important;
 
 /* watermark */
 body.pdf-body .watermark{
-opacity:.06 !important;
+opacity:.12 !important;
 }
 
 body.pdf-body .digital-stamp{
-opacity:.12 !important;
+opacity:.25 !important;
 }
