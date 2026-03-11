@@ -512,63 +512,22 @@ font-size:13px;
 color:#444;
 }
 
-/* ================= PRINT / PDF FIX ================= */
+/* ================= PDF LAYOUT FIX ================= */
 
-@media print{
-
-body{
+body.pdf-body{
 background:white;
 padding:0;
 }
 
-.invoice{
-max-width:100%;
-margin:0;
-box-shadow:none;
-border-radius:0;
-}
-
-.actions,
-.social-links{
-display:none;
-}
-
-}
-
-/* ================= FORCE DESKTOP FOR PDF ================= */
-
-body.pdf-body .invoice{
-width:210mm !important;
-max-width:210mm !important;
-margin:0 auto !important;
-padding:25mm !important;
-box-sizing:border-box;
-}
-
-body.pdf-body .info-wrapper{
-grid-template-columns:1fr 1fr !important;
-}
-
-body.pdf-body .bottom-section{
-flex-direction:row !important;
-justify-content:space-between !important;
-align-items:flex-end !important;
-}
-
-/* ================= PDF A4 FIX ================= */
-
 body.pdf-body .invoice{
 
-width:190mm !important;
-min-height:277mm !important;
+max-width:900px !important;
+width:100% !important;
 
 margin:0 auto !important;
-padding:15mm !important;
+padding:40px !important;
 
-box-sizing:border-box;
-
-display:flex;
-flex-direction:column;
-justify-content:space-between;
+box-shadow:none !important;
+border-radius:0 !important;
 
 }
