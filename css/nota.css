@@ -496,11 +496,11 @@ padding:0 !important;
 /* container PDF */
 body.pdf-body .invoice{
 
-width:190mm !important;
-max-width:190mm !important;
+width:210mm !important;
+max-width:210mm !important;
 
 margin:0 auto !important;
-padding:15mm !important;
+padding:20mm !important;
 
 box-shadow:none !important;
 border-radius:0 !important;
