@@ -382,11 +382,12 @@ function renderTable(){
 /* ================= KIRIM NOTA KE WA ================= */
 document.addEventListener("click", e => {
 
-  if(!e.target.classList.contains("wa-invoice-btn")) return;
+  const btn = e.target.closest(".wa-invoice-btn");
+  if(!btn) return;
 
-  const phone = e.target.dataset.phone;
-  const id = e.target.dataset.id;
-  const nama = e.target.dataset.nama;
+  const phone = btn.dataset.phone;
+  const id = btn.dataset.id;
+  const nama = btn.dataset.nama;
 
   if(!phone){
     alert("Nomor HP tidak tersedia");
@@ -395,26 +396,29 @@ document.addEventListener("click", e => {
 
   const url = window.location.origin + "/nota.html?id=" + id;
 
- let msg =
+  let msg =
 `Berikut adalah invoice service HP Anda di
 CEO Part & Service.
 
-📄 *INVOICE SERVICE HP*%0A
-Nama: ${nama}%0A
-Status Service: Service HP%0A
-Status Pembayaran: Silakan cek invoice%0A
-%0A🔧 *Syarat Garansi:*%0A
-- Garansi 7 Hari%0A
-- Tidak berlaku jika segel rusak%0A
-- Tidak berlaku jika terkena air%0A
-%0ALihat Invoice:%0A${url}`;
-    
+📄 *INVOICE SERVICE HP*
+Nama: ${nama}
+Status Service: Service HP
+Status Pembayaran: Silakan cek invoice
+
+🔧 *Syarat & Ketentuan Garansi:*
+- Garansi 7 hari setelah pengambilan
+- Tidak berlaku jika segel rusak
+- Tidak berlaku jika terkena air
+- Kerusakan fisik tidak termasuk garansi
+
+Lihat Invoice:
+${url}`;
+
   const phoneFix = phone.replace(/^0/,"62");
 
   window.open(`https://wa.me/${phoneFix}?text=${encodeURIComponent(msg)}`);
 
 });
-
 /* ================= Format WA ================= */
 function formatWa(number){
     if(!number) return "";
@@ -1005,5 +1009,6 @@ document.addEventListener("DOMContentLoaded", function(){
   });
 
 });
+
 
 
