@@ -265,7 +265,6 @@ function downloadPDF(){
 
   const element = document.getElementById("invoice-area");
 
-  // aktifkan mode PDF
   document.body.classList.add("pdf-body");
 
   const opt = {
