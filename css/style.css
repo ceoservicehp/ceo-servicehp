@@ -65,6 +65,48 @@ transform:scale(1.2);
 color:#e8fefe;
 }
 
+/* ================= HEADER MOBILE FIX ================= */
+
+@media (max-width:768px){
+
+header{
+display:flex;
+align-items:center;
+justify-content:space-between;
+padding:18px 20px;
+}
+
+#logo-container{
+display:flex;
+align-items:center;
+gap:10px;
+max-width:70%;
+}
+
+#logo-container img{
+width:45px;
+}
+
+#logo-container h1{
+font-size:20px;
+line-height:1.2;
+margin:0;
+}
+
+.tagline{
+font-size:11px;
+letter-spacing:1px;
+white-space:nowrap;
+}
+
+.social-header{
+display:flex;
+gap:12px;
+font-size:20px;
+}
+
+}
+
 /* ================= NAV ================= */
 .top-nav{
 display:flex;
@@ -386,5 +428,6 @@ align-items:flex-start;
 .info-item div{
 text-align:left;
 }
+
 
 
