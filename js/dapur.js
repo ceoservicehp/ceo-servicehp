@@ -365,11 +365,55 @@ function renderTable(){
               <a href="../nota.html?id=${row.id}" target="_blank" class="nota-btn">
                 Nota
               </a>
+            
+              <button class="wa-invoice-btn"
+                data-phone="${row.phone}"
+                data-id="${row.id}"
+                data-nama="${row.nama}">
+                WA
+              </button>
+            
             </td>
         </tr>
         `;
     });
 }
+
+/* ================= KIRIM NOTA KE WA ================= */
+document.addEventListener("click", e => {
+
+  if(!e.target.classList.contains("wa-invoice-btn")) return;
+
+  const phone = e.target.dataset.phone;
+  const id = e.target.dataset.id;
+  const nama = e.target.dataset.nama;
+
+  if(!phone){
+    alert("Nomor HP tidak tersedia");
+    return;
+  }
+
+  const url = window.location.origin + "/nota.html?id=" + id;
+
+ let msg =
+`Berikut adalah invoice service HP Anda di
+CEO Part & Service.
+
+📄 *INVOICE SERVICE HP*%0A
+Nama: ${nama}%0A
+Status Service: Service HP%0A
+Status Pembayaran: Silakan cek invoice%0A
+%0A🔧 *Syarat Garansi:*%0A
+- Garansi 7 Hari%0A
+- Tidak berlaku jika segel rusak%0A
+- Tidak berlaku jika terkena air%0A
+%0ALihat Invoice:%0A${url}`;
+    
+  const phoneFix = phone.replace(/^0/,"62");
+
+  window.open(`https://wa.me/${phoneFix}?text=${encodeURIComponent(msg)}`);
+
+});
 
 /* ================= Format WA ================= */
 function formatWa(number){
@@ -961,4 +1005,5 @@ document.addEventListener("DOMContentLoaded", function(){
   });
 
 });
+
 
