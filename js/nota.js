@@ -260,27 +260,43 @@ async function loadSignature(){
 
 /* ================= DOWNLOAD PDF ================= */
 function downloadPDF(){
+
   if(!currentData) return;
 
   const element = document.getElementById("invoice-area");
 
- const opt = {
-  margin: 5,
-  filename: "Invoice_"+currentData.id+".pdf",
-  image: { type: 'jpeg', quality: 0.98 },
-  html2canvas: {
-    scale: 2,
-    useCORS: true,
-    scrollY: 0
-  },
-  jsPDF: {
-    unit: 'mm',
-    format: 'a4',
-    orientation: 'portrait'
-  }
-};
+  /* paksa mode PDF (desktop layout) */
+  document.body.classList.add("pdf-body");
+  element.classList.add("pdf-mode");
 
-  html2pdf().set(opt).from(element).save();
+  const opt = {
+    margin: 5,
+    filename: "Invoice_"+currentData.id+".pdf",
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: {
+      scale: 2,
+      useCORS: true,
+      scrollY: 0,
+      windowWidth: 1200   // 🔥 ini yang memaksa layout desktop
+    },
+    jsPDF: {
+      unit: 'mm',
+      format: 'a4',
+      orientation: 'portrait'
+    }
+  };
+
+  html2pdf()
+    .set(opt)
+    .from(element)
+    .save()
+    .then(()=>{
+
+      /* kembalikan ke mode normal */
+      document.body.classList.remove("pdf-body");
+      element.classList.remove("pdf-mode");
+
+    });
 }
 
 /* ================= WHATSAPP ================= */
