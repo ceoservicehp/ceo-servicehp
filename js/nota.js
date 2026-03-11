@@ -132,6 +132,30 @@ if(data.sparepart){
   (data.transport || 0) +
   (data.jasa || 0);
 
+  /* ================= HIDE ZERO VALUE ================= */
+
+if(subtotal === 0){
+  document.getElementById("row-subtotal").style.display = "none";
+}
+
+if((data.transport || 0) === 0){
+  document.getElementById("row-transport").style.display = "none";
+}
+
+if((data.jasa || 0) === 0){
+  document.getElementById("row-jasa").style.display = "none";
+}
+
+if((data.amount_paid || 0) === 0){
+  document.getElementById("row-paid").style.display = "none";
+}
+
+const remaining = grand - (data.amount_paid || 0);
+
+if(remaining <= 0){
+  document.getElementById("row-remaining").style.display = "none";
+}
+
 document.getElementById("grand-total").textContent = rupiah(grand);
 
 /* ================= PEMBAYARAN ================= */
