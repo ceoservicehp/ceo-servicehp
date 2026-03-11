@@ -481,7 +481,7 @@ display:none !important;
 }
 
 .invoice.pdf-mode .watermark{
-display:none !important;
+opacity:.08 !important;
 }
 
 .invoice.pdf-mode .digital-stamp{
@@ -533,4 +533,22 @@ border-radius:0;
 display:none;
 }
 
+}
+
+/* ================= FORCE DESKTOP FOR PDF ================= */
+
+body.pdf-body .invoice{
+max-width:900px !important;
+width:900px !important;
+margin:auto !important;
+}
+
+body.pdf-body .info-wrapper{
+grid-template-columns:1fr 1fr !important;
+}
+
+body.pdf-body .bottom-section{
+flex-direction:row !important;
+justify-content:space-between !important;
+align-items:flex-end !important;
 }
