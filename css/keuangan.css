@@ -215,6 +215,15 @@ color:white;
   font-weight:700;
 }
 
+.card{
+background:#fff;
+padding:26px;
+border-radius:20px;
+box-shadow:0 12px 35px rgba(0,0,0,.07);
+transition:.3s;
+border:1px solid rgba(0,0,0,.04);
+}
+
 .highlight p{ color:#16a34a; }
 .expense p{ color:#dc2626; }
 .profit p{ color:#0891b2; }
@@ -474,21 +483,45 @@ canvas{
   to{opacity:1; transform:translateY(0);}
 }
 
-/* ================= DESKTOP LAYOUT ================= */
-@media(min-width:1100px){
+/* ================= PREMIUM DASHBOARD LAYOUT ================= */
 
-  .container{
-    display:grid;
-    grid-template-columns: 1.4fr 1fr;
-    gap:50px;
-  }
+.container{
+max-width:1200px;
+margin:auto;
+display:flex;
+flex-direction:column;
+gap:35px;
+}
 
-  .chart-box{
-    position:sticky;
-    top:120px;
-    height:420px;
-  }
+/* chart full width */
+.chart-box{
+width:100%;
+padding:40px;
+display:flex;
+justify-content:center;
+align-items:center;
+}
 
+canvas{
+max-width:520px !important;
+}
+
+/* table full width */
+.table-wrapper{
+width:100%;
+}
+
+/* spacing lebih premium */
+.summary-grid{
+margin-bottom:30px;
+}
+
+.filter-box{
+margin-bottom:25px;
+}
+
+.action-bar{
+margin-bottom:25px;
 }
 
 /* ================= MOBILE ================= */
