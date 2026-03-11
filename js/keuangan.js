@@ -209,8 +209,6 @@ function calculateSummary(income, expense){
 
 
 /* ================= CHART ================= */
-let trendChart;
-
 function generateChart(income,expense){
 
     const ctx=document.getElementById("financeChart");
