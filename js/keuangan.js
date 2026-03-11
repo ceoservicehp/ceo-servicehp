@@ -7,6 +7,7 @@ function rupiah(n){
 }
 
 let financeChart;
+let trendChart;
 let currentTab = "summary";
 let incomeData = [];
 let expenseData = [];
@@ -208,6 +209,8 @@ function calculateSummary(income, expense){
 
 
 /* ================= CHART ================= */
+let trendChart;
+
 function generateChart(income,expense){
 
     const ctx=document.getElementById("financeChart");
@@ -226,6 +229,39 @@ function generateChart(income,expense){
         },
         options:{ responsive:true }
     });
+
+    /* ===== TREND CHART ===== */
+
+    const trendCtx = document.getElementById("trendChart");
+
+    if(!trendCtx) return;
+
+    if(trendChart){
+        trendChart.destroy();
+    }
+
+    trendChart = new Chart(trendCtx,{
+        type:'line',
+        data:{
+            labels:['Jan','Feb','Mar','Apr','May','Jun','Jul'],
+            datasets:[{
+                label:'Pemasukan',
+                data:[20,40,35,50,60,80,75],
+                borderColor:'#0ea5a4',
+                backgroundColor:'rgba(14,165,164,0.15)',
+                fill:true,
+                tension:0.4
+            }]
+        },
+        options:{
+            plugins:{legend:{display:false}},
+            scales:{
+                y:{display:false},
+                x:{grid:{display:false}}
+            }
+        }
+    });
+
 }
 
 /* ================= RENDER TABLE ================= */
