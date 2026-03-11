@@ -12,7 +12,7 @@
 </head>
 <body>
 
-<div class="invoice">
+<div class="invoice" id="invoice-area">
 
   <!-- WATERMARK -->
   <div id="watermark" class="watermark"></div>
@@ -53,15 +53,15 @@
       <div class="info-row"><span>Alamat</span><b id="c-alamat"></b></div>
       <div class="info-row"><span>Metode</span><b id="c-metode"></b></div>
       <div class="problem-section">
-        <button class="accordion-btn" id="problemToggle">
-          Detail Problem
-          <i class="fa-solid fa-chevron-down"></i>
-        </button>
-      
-        <div class="accordion-content" id="problemContent">
-          <p id="c-problem">-</p>
-        </div>
+      <div class="problem-title">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        Detail Kerusakan
       </div>
+    
+      <div class="problem-content">
+        <p id="c-problem">-</p>
+      </div>
+    </div>
     </div>
 
     <div class="box">
@@ -85,21 +85,36 @@
 
   <!-- ITEMS (ACCORDION STYLE) -->
   <div class="box">
-    <h3><i class="fa-solid fa-box-open"></i> Detail Sparepart</h3>
-    <div id="invoice-items" class="accordion-list"></div>
-  </div>
+  <h3><i class="fa-solid fa-box-open"></i> Detail Sparepart</h3>
+
+  <table class="sparepart-table">
+    <thead>
+      <tr>
+        <th>Sparepart</th>
+        <th>Qty</th>
+        <th>Harga</th>
+        <th>Total</th>
+      </tr>
+    </thead>
+
+    <tbody id="invoice-items"></tbody>
+
+  </table>
+
+</div>
 
   <!-- SUMMARY -->
   <div class="summary box">
     <div class="info-row"><span>Subtotal</span><b id="sub-total"></b></div>
     <div class="info-row"><span>Transport</span><b id="trans-total"></b></div>
     <div class="info-row"><span>Jasa</span><b id="jasa-total"></b></div>
+    <div class="info-row"><span>Dibayar</span><b id="paid-total"></b></div>
+    <div class="info-row"><span>Sisa</span><b id="remaining-total"></b></div>
 
     <div class="grand-total">
-      <span>Total</span>
-      <b id="grand-total"></b>
+    <span>Total</span>
+    <b id="grand-total"></b>
     </div>
-  </div>
 
   <!-- GARANSI -->
   <div class="box warranty-box">
