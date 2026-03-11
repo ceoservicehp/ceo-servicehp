@@ -269,13 +269,17 @@ function downloadPDF(){
   element.classList.add("pdf-mode");
 
   const opt = {
-    margin: 0,
+    margin: [10,10,10,10],
     filename: "Invoice_"+currentData.id+".pdf",
-    image: { type: 'jpeg', quality: 1 },
+    image: { type: 'jpeg', quality: 0.98 },
+
     html2canvas: {
       scale: 2,
-      useCORS: true
+      useCORS: true,
+      scrollY: 0,
+      windowWidth: element.scrollWidth   // 🔥 penting supaya layout tidak berubah
     },
+
     jsPDF: {
       unit: 'mm',
       format: 'a4',
@@ -283,10 +287,19 @@ function downloadPDF(){
     }
   };
 
-  html2pdf().set(opt).from(element).save().then(()=>{
-    document.body.classList.remove("pdf-body");
-    element.classList.remove("pdf-mode");
-  });
+  html2pdf()
+    .set(opt)
+    .from(element)
+    .toPdf()
+    .get('pdf')
+    .then(function (pdf) {
+
+      document.body.classList.remove("pdf-body");
+      element.classList.remove("pdf-mode");
+
+      pdf.save("Invoice_"+currentData.id+".pdf");
+
+    });
 
 }
 
