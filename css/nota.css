@@ -531,3 +531,7 @@ box-shadow:none !important;
 border-radius:0 !important;
 
 }
+
+.invoice{
+page-break-inside: avoid;
+}
