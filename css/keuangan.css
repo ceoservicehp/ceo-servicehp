@@ -176,9 +176,9 @@ color:white;
 
 /* ================= CONTAINER ================= */
 .container{
-  max-width:1300px;
+  max-width:1200px;
   margin:auto;
-  padding:40px 20px 60px;
+  padding:25px 20px 40px;
 }
 
 /* ================= SUMMARY ================= */
@@ -368,19 +368,23 @@ button{
 }
 
 /* ================= CHART ================= */
-.chart-box{
+..chart-box{
   background:#fff;
-  padding:30px;
-  border-radius:22px;
-  box-shadow:0 15px 40px rgba(0,0,0,.08);
-  margin-bottom:40px;
+  padding:25px;
+  border-radius:20px;
+  box-shadow:0 10px 30px rgba(0,0,0,.08);
+  margin-bottom:25px;
+
   display:flex;
   justify-content:center;
   align-items:center;
+
+  max-height:340px;
 }
 
 canvas{
-  max-width:380px !important;
+  max-width:260px !important;
+  max-height:260px !important;
 }
 
 /* ================= TABLE ================= */
@@ -513,15 +517,15 @@ width:100%;
 
 /* spacing lebih premium */
 .summary-grid{
-margin-bottom:30px;
+margin-bottom:10px;
 }
 
 .filter-box{
-margin-bottom:25px;
+margin-bottom:10px;
 }
 
 .action-bar{
-margin-bottom:25px;
+margin-bottom:10px;
 }
 
 /* ================= MOBILE ================= */
