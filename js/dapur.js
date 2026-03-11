@@ -370,7 +370,7 @@ function renderTable(){
                 data-phone="${row.phone}"
                 data-id="${row.id}"
                 data-nama="${row.nama}">
-                WA
+                <i class="fa-brands fa-whatsapp"></i> Kirim
               </button>
             
             </td>
@@ -1009,6 +1009,7 @@ document.addEventListener("DOMContentLoaded", function(){
   });
 
 });
+
 
 
 
