@@ -538,9 +538,11 @@ display:none;
 /* ================= FORCE DESKTOP FOR PDF ================= */
 
 body.pdf-body .invoice{
-max-width:900px !important;
-width:900px !important;
-margin:auto !important;
+width:210mm !important;
+max-width:210mm !important;
+margin:0 auto !important;
+padding:25mm !important;
+box-sizing:border-box;
 }
 
 body.pdf-body .info-wrapper{
