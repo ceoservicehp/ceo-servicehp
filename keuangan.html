@@ -148,26 +148,33 @@
   </div>
 
   <!-- ================= CHART ================= -->
-  <div class="chart-section">
+ <div class="chart-dashboard">
 
-  <div class="chart-box">
+  <!-- DONUT -->
+  <div class="chart-donut">
     <canvas id="financeChart"></canvas>
   </div>
 
-  <div class="chart-insight">
+  <!-- TREND CHART -->
+  <div class="chart-trend">
+    <canvas id="trendChart"></canvas>
+  </div>
 
-    <div class="insight-card">
-      <span>Total Transaksi</span>
+  <!-- INFO PANEL -->
+  <div class="chart-info">
+
+    <div class="info-block">
+      <span>Total transaksi</span>
       <h3 id="totalTransactions">0</h3>
     </div>
 
-    <div class="insight-card">
-      <span>Laba Hari Ini</span>
+    <div class="info-block">
+      <span>Laba hari ini</span>
       <h3 id="todayProfit">Rp 0</h3>
     </div>
 
-    <div class="insight-card">
-      <span>Margin Rata-rata</span>
+    <div class="info-block">
+      <span>Margin rata-rata</span>
       <h3 id="avgMargin">0%</h3>
     </div>
 
