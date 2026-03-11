@@ -288,17 +288,18 @@ function sendWhatsApp(){
   if(!currentData) return;
 
   const url = window.location.href;
+  const adminPhone = "62895379221306";
 
-  let msg =
-`📄 *INVOICE SERVICE HP*%0A
-Nama: ${currentData.nama}%0A
-Status Service: ${currentData.status}%0A
-Status Pembayaran: ${currentData.payment_status || "Belum Lunas"}%0A
-%0A🔧 *Syarat Garansi:*%0A
-- Garansi 7 Hari%0A
-- Tidak berlaku jika segel rusak%0A
-- Tidak berlaku jika terkena air%0A
-%0ALihat Invoice:%0A${url}`;
+  let msg = `
+📄 INVOICE SERVICE HP
 
-  window.open(`https://wa.me/${currentData.phone}?text=${msg}`);
+Nama: ${currentData.nama}
+Status Service: ${currentData.status}
+Status Pembayaran: ${currentData.payment_status || "Belum Lunas"}
+
+Link Invoice:
+${url}
+`;
+
+  window.open(`https://wa.me/${adminPhone}?text=${encodeURIComponent(msg)}`);
 }
