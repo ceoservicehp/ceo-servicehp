@@ -71,6 +71,91 @@ let allOrders=[];
 let currentFilter="all";
 let selectedParts = [];
 
+/* ================= SPAREPART MANUAL ================= */
+function initSparepartManual(){
+
+  const container = document.getElementById("sparepartContainer");
+  const addBtn = document.getElementById("addSparepartBtn");
+
+  if(!container || !addBtn) return;
+
+  addBtn.onclick = () => {
+
+    const row = document.createElement("div");
+    row.className = "sparepart-row";
+
+    row.innerHTML = `
+      <input type="text" class="sparepart-name" placeholder="Nama Sparepart">
+
+      <input type="text" class="sparepart-price rupiah-input" placeholder="Harga">
+
+      <button type="button" class="btn-remove-sparepart">
+        ✕
+      </button>
+    `;
+
+    container.appendChild(row);
+
+    initRupiahInputs();
+    hitungTotalManualSparepart();
+  };
+
+  container.addEventListener("click", e=>{
+    if(e.target.classList.contains("btn-remove-sparepart")){
+      e.target.parentElement.remove();
+      hitungTotalManualSparepart();
+    }
+  });
+
+  container.addEventListener("input", e=>{
+    if(e.target.classList.contains("sparepart-price")){
+      hitungTotalManualSparepart();
+    }
+  });
+
+}
+
+function hitungTotalManualSparepart(){
+
+  let total = 0;
+
+  document.querySelectorAll(".sparepart-price").forEach(input=>{
+    total += parseRupiah(input.value);
+  });
+
+  const totalField = document.getElementById("edit-total-sparepart");
+
+  if(totalField){
+    totalField.value = formatRupiahInput(total.toString());
+  }
+
+}
+
+function kumpulkanSparepartManual(){
+
+  const rows = document.querySelectorAll(".sparepart-row");
+
+  let data = [];
+
+  rows.forEach(row=>{
+
+    const nama = row.querySelector(".sparepart-name")?.value || "";
+    const harga = parseRupiah(row.querySelector(".sparepart-price")?.value || "0");
+
+    if(nama){
+      data.push({
+        nama:nama,
+        harga:harga,
+        qty:1
+      });
+    }
+
+  });
+
+  document.getElementById("edit-sparepart").value = JSON.stringify(data);
+
+}
+
 /* ================= STATUS TOKO ================= */
 async function loadStoreStatus(){
 
@@ -108,6 +193,34 @@ async function setStore(open){
         .eq("id",1);
 
     updateAdminStatus(open);
+}
+
+/* ================= FORMAT RUPIAH ================= */
+function formatRupiahInput(value){
+  return value
+    .replace(/[^\d]/g,"")
+    .replace(/\B(?=(\d{3})+(?!\d))/g,".");
+}
+
+function parseRupiah(value){
+  return parseInt(value.replace(/\./g,"")) || 0;
+}
+
+function initRupiahInputs(){
+
+  document.querySelectorAll(".rupiah-input").forEach(input=>{
+
+    input.addEventListener("input", function(){
+
+      const cursor = this.selectionStart;
+      const raw = this.value.replace(/[^\d]/g,"");
+
+      this.value = formatRupiahInput(raw);
+
+    });
+
+  });
+
 }
 
 /* ================= LOAD DATA ================= */
@@ -322,6 +435,9 @@ function initUI(){
     document.getElementById("edit-total")
         ?.addEventListener("input", hitungPembayaran);
 
+    initRupiahInputs();
+    initSparepartManual();
+
     /* ================= DETAIL MODAL ================= */
 
  document.addEventListener("click", e=>{
@@ -352,16 +468,25 @@ function initUI(){
             // render ulang sparepart lama
             renderSelectedParts();
             hitungTotalSparepart();
-
-        document.getElementById("edit-total-sparepart").value=data.total_sparepart ?? 0;
-        document.getElementById("edit-transport").value=data.transport ?? 0;
-        document.getElementById("edit-jasa").value=data.jasa ?? 0;
-        document.getElementById("edit-total").value=data.total ?? 0;
+        
+        document.getElementById("edit-total-sparepart").value =
+        formatRupiahInput((data.total_sparepart ?? 0).toString());
+        
+        document.getElementById("edit-transport").value =
+        formatRupiahInput((data.transport ?? 0).toString());
+        
+        document.getElementById("edit-jasa").value =
+        formatRupiahInput((data.jasa ?? 0).toString());
+        
+        document.getElementById("edit-total").value =
+        formatRupiahInput((data.total ?? 0).toString());;
         /* ===== LOAD DATA TOP ===== */
         document.getElementById("edit-use-top").checked = data.use_top || false;
         document.getElementById("edit-top-days").value = data.top_days || 0;
-        document.getElementById("edit-amount-paid").value = data.amount_paid || 0;
-        document.getElementById("edit-remaining").value = data.remaining_amount || 0;
+        document.getElementById("edit-amount-paid").value =
+        formatRupiahInput((data.amount_paid || 0).toString());
+        document.getElementById("edit-remaining").value =
+        formatRupiahInput((data.remaining_amount || 0).toString());
         document.getElementById("edit-payment-status").value = data.payment_status || "Belum Lunas";
         document.getElementById("edit-due-date").value = data.due_date || "-";
         document.getElementById("edit-status").value=data.status ?? "pending";
@@ -410,12 +535,14 @@ function initUI(){
 
     /* SAVE EDIT */
    document.getElementById("saveEdit").onclick = async () => {
+      
+       kumpulkanSparepartManual();
 
     const id = parseInt(document.getElementById("edit-id").value);
 
-    const spare = parseInt(document.getElementById("edit-total-sparepart").value) || 0;
-    const transport = parseInt(document.getElementById("edit-transport").value) || 0;
-    const jasa = parseInt(document.getElementById("edit-jasa").value) || 0;
+    const spare = parseRupiah(document.getElementById("edit-total-sparepart").value);
+    const transport = parseRupiah(document.getElementById("edit-transport").value);
+    const jasa = parseRupiah(document.getElementById("edit-jasa").value);
     const total = spare + transport + jasa;
 
     let buktiUrl = null;
@@ -504,38 +631,6 @@ const { error } = await client
     loadOrders();
 };
 }
-/* ================= Event Dropdown Sparepart ================= */
-document.getElementById("sparepartSelect")
-?.addEventListener("change", function(){
-
-  const option = this.options[this.selectedIndex];
-  if(!option.value) return;
-
-  const id = option.value;
-  const nama = option.dataset.nama;
-  const harga = parseInt(option.dataset.harga);
-  const stok = parseInt(option.dataset.stok);
-
-  const existing = selectedParts.find(p => p.id === id);
-
-  if(existing){
-    if(existing.qty < stok){
-      existing.qty += 1;
-    }
-  } else {
-    selectedParts.push({
-      id,
-      nama,
-      harga,
-      qty:1
-    });
-  }
-
-  renderSelectedParts();
-  hitungTotalSparepart();
-
-  this.value="";
-});
 
 /* ================= Hitung Total Sparepart ================= */
 function hitungTotalSparepart(){
@@ -573,8 +668,8 @@ function removePart(index){
 /* ================= HITUNG PEMBAYARAN (TOP) ================= */
 function hitungPembayaran(){
 
-  const total = parseInt(document.getElementById("edit-total").value) || 0;
-  const paid = parseInt(document.getElementById("edit-amount-paid").value) || 0;
+const total = parseRupiah(document.getElementById("edit-total").value);
+const paid = parseRupiah(document.getElementById("edit-amount-paid").value);
   const useTop = document.getElementById("edit-use-top")?.checked || false;
   const topDays = parseInt(document.getElementById("edit-top-days")?.value) || 0;
 
@@ -865,7 +960,3 @@ document.addEventListener("DOMContentLoaded", function(){
   });
 
 });
-
-
-
-
