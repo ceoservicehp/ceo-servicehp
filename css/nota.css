@@ -462,32 +462,6 @@ font-size:14px;
 
 }
 
-/* ================= PDF MODE ================= */
-body.pdf-body{
-background:white !important;
-padding:0 !important;
-}
-
-.invoice.pdf-mode{
-box-shadow:none !important;
-border-radius:0 !important;
-margin:0 !important;
-animation:none !important;
-}
-
-.invoice.pdf-mode .actions,
-.invoice.pdf-mode .social-links{
-display:none !important;
-}
-
-.invoice.pdf-mode .watermark{
-opacity:.08 !important;
-}
-
-.invoice.pdf-mode .digital-stamp{
-opacity:.15 !important;
-}
-
 /* ================= PROBLEM BOX ================= */
 
 .problem-section{
@@ -512,80 +486,51 @@ font-size:13px;
 color:#444;
 }
 
-/* ================= PDF LAYOUT FIX ================= */
-
-body.pdf-body{
-background:white;
-padding:0;
-}
-
-body.pdf-body .invoice{
-
-max-width:900px !important;
-width:100% !important;
-
-margin:0 auto !important;
-padding:40px !important;
-
-box-shadow:none !important;
-border-radius:0 !important;
-
-}
-
-.invoice{
-page-break-inside: avoid;
-}
-
-/* ================= PDF PERFECT A4 FIX ================= */
+/* ================= PDF FINAL FIX ================= */
 
 body.pdf-body{
 background:white !important;
 padding:0 !important;
 }
 
-/* paksa ukuran A4 */
+/* container PDF */
 body.pdf-body .invoice{
 
-width:210mm !important;
-max-width:210mm !important;
-
-min-height:297mm !important;
+width:190mm !important;
+max-width:190mm !important;
 
 margin:0 auto !important;
-
-padding:20mm !important;
+padding:15mm !important;
 
 box-shadow:none !important;
 border-radius:0 !important;
 
 box-sizing:border-box;
 
-display:flex;
-flex-direction:column;
-justify-content:space-between;
-
 }
 
-/* layout tetap desktop */
+/* paksa layout desktop */
 body.pdf-body .info-wrapper{
 grid-template-columns:1fr 1fr !important;
 }
 
-/* bagian bawah tidak turun */
+/* stabilkan bagian bawah */
 body.pdf-body .bottom-section{
-flex-direction:row !important;
+
+display:flex !important;
 justify-content:space-between !important;
 align-items:flex-end !important;
+
 }
 
-/* jangan pecah halaman */
+/* cegah pecah halaman */
 .invoice,
 .box,
 .sparepart-table,
 .summary,
 .bottom-section{
-page-break-inside: avoid !important;
-break-inside: avoid !important;
+page-break-inside:avoid !important;
+break-inside:avoid !important;
 }
 
 /* QR stabil */
@@ -600,17 +545,17 @@ width:160px !important;
 min-height:70px !important;
 }
 
-/* watermark lebih soft di PDF */
-body.pdf-body .watermark{
-opacity:.07 !important;
-}
-
-body.pdf-body .digital-stamp{
-opacity:.14 !important;
-}
-
-/* hilangkan tombol di PDF */
+/* hilangkan tombol */
 body.pdf-body .actions,
 body.pdf-body .social-links{
 display:none !important;
+}
+
+/* watermark */
+body.pdf-body .watermark{
+opacity:.06 !important;
+}
+
+body.pdf-body .digital-stamp{
+opacity:.12 !important;
 }
