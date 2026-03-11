@@ -554,3 +554,21 @@ flex-direction:row !important;
 justify-content:space-between !important;
 align-items:flex-end !important;
 }
+
+/* ================= PDF A4 FIX ================= */
+
+body.pdf-body .invoice{
+
+width:190mm !important;
+min-height:277mm !important;
+
+margin:0 auto !important;
+padding:15mm !important;
+
+box-sizing:border-box;
+
+display:flex;
+flex-direction:column;
+justify-content:space-between;
+
+}
