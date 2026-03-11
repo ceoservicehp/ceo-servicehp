@@ -15,7 +15,7 @@ margin:0;
 
 /* ================= CONTAINER ================= */
 .invoice{
-max-width:900px;
+max-width:820px;
 margin:auto;
 background:white;
 padding:40px;
@@ -120,69 +120,49 @@ color:#222;
 font-weight:600;
 }
 
-/* ================= PREMIUM ACCORDION ================= */
+/* ================= SPAREPART TABLE ================= */
 
-.accordion-list{
-  margin-top:12px;
+.sparepart-table{
+width:100%;
+border-collapse:collapse;
+margin-top:10px;
+font-size:14px;
+background:white;
+border-radius:10px;
+overflow:hidden;
 }
 
-.accordion-item{
-  background:white;
-  border-radius:14px;
-  margin-bottom:12px;
-  padding:0;
-  overflow:hidden;
-  border:1px solid #e6eef2;
-  box-shadow:0 6px 18px rgba(0,0,0,0.04);
-  transition:.3s ease;
+.sparepart-table thead{
+background:#eef6f9;
 }
 
-.accordion-item:hover{
-  transform:translateY(-2px);
-  box-shadow:0 10px 25px rgba(0,0,0,0.08);
+.sparepart-table th{
+text-align:left;
+padding:12px;
+color:#2c3e50;
+font-weight:600;
+border-bottom:1px solid #e6eef2;
 }
 
-/* Header */
-.acc-header{
-  padding:14px 16px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  cursor:pointer;
-  font-weight:600;
-  color:#2c3e50;
-  background:linear-gradient(135deg,#f9fbfc,#eef6f9);
-  border-radius:14px;
+.sparepart-table td{
+padding:10px 12px;
+border-bottom:1px dashed #e5e5e5;
 }
 
-.acc-header i{
-  transition:transform .3s ease;
+.sparepart-table tr:last-child td{
+border-bottom:none;
 }
 
-/* Rotate icon saat open */
-.acc-body.open + .acc-header i,
-.acc-header i.rotate{
-  transform:rotate(180deg);
+.sparepart-table td:nth-child(2){
+text-align:center;
 }
 
-/* Body */
-.acc-body{
-  max-height:0;
-  overflow:hidden;
-  transition:max-height .4s ease, padding .3s ease;
-  padding:0 16px;
-  color:#555;
-  display:flex;
-  flex-direction:column;
-  gap:8px;
-  font-size:14px;
-  background:white;
+.sparepart-table td:nth-child(3),
+.sparepart-table td:nth-child(4){
+text-align:right;
+font-weight:500;
 }
 
-.acc-body.open{
-  max-height:300px;
-  padding:12px 16px 16px 16px;
-}
 /* ================= SUMMARY ================= */
 .summary{
 margin-top:20px;
@@ -190,12 +170,15 @@ font-size:14px;
 }
 
 .grand-total{
-font-size:20px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+font-size:22px;
 font-weight:700;
 color:var(--primary);
 border-top:2px solid #ddd;
-padding-top:10px;
-margin-top:10px;
+padding-top:12px;
+margin-top:12px;
 }
 
 /* ================= WARRANTY ================= */
@@ -417,4 +400,51 @@ display:none !important;
 
 .invoice.pdf-mode .digital-stamp{
 opacity:.15 !important;
+}
+
+/* ================= PROBLEM BOX ================= */
+
+.problem-section{
+margin-top:12px;
+}
+
+.problem-title{
+font-weight:600;
+color:#2c3e50;
+margin-bottom:6px;
+display:flex;
+align-items:center;
+gap:6px;
+}
+
+.problem-content{
+background:white;
+border:1px dashed #dce5ea;
+padding:10px 12px;
+border-radius:8px;
+font-size:13px;
+color:#444;
+}
+
+/* ================= PRINT / PDF FIX ================= */
+
+@media print{
+
+body{
+background:white;
+padding:0;
+}
+
+.invoice{
+max-width:100%;
+margin:0;
+box-shadow:none;
+border-radius:0;
+}
+
+.actions,
+.social-links{
+display:none;
+}
+
 }
