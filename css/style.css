@@ -29,7 +29,14 @@ border-radius:0 0 20px 20px;
 #logo-container{
 display:flex;
 align-items:center;
-gap:14px;
+gap:12px;
+flex-shrink:0;
+}
+
+#logo-container div{
+display:flex;
+flex-direction:column;
+justify-content:center;
 }
 
 #logo-container h1{
@@ -74,7 +81,7 @@ padding:18px 20px;
 #logo-container{
 gap:10px;
 max-width:75%;
-flex-wrap:wrap;
+flex-wrap:center;
 }
 
 #logo-container img{
@@ -139,8 +146,11 @@ display:flex;
 align-items:center;
 justify-content:center;
 text-align:center;
-padding:0 5%;
+padding:0 20px;
 color:white;
+width:100%;
+overflow:hidden;
+}
 
 background:
 linear-gradient(rgba(31,111,120,0.55), rgba(0,194,199,0.45)),
@@ -419,5 +429,6 @@ align-items:flex-start;
 .info-item div{
 text-align:left;
 }
+
 
 
