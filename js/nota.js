@@ -88,50 +88,62 @@ document.addEventListener("DOMContentLoaded", async ()=>{
       })`;
   }
 
-  /* ================= ITEMS ACCORDION ================= */
-  const container = document.getElementById("invoice-items");
-  container.innerHTML = "";
+ /* ================= ITEMS TABLE ================= */
+const container = document.getElementById("invoice-items");
+container.innerHTML = "";
 
-  let subtotal = 0;
+let subtotal = 0;
 
-  if(data.sparepart){
-    try{
-      const items = JSON.parse(data.sparepart);
+if(data.sparepart){
+  try{
 
-      items.forEach((item, index)=>{
-        const total = (item.harga || 0) * (item.qty || 0);
-        subtotal += total;
+    const items = JSON.parse(data.sparepart);
 
-        container.innerHTML += `
-          <div class="accordion-item">
-            <div class="acc-header" onclick="toggleAcc(this)">
-              <span>${index+1}. ${item.nama}</span>
-              <i class="fa-solid fa-chevron-down"></i>
-            </div>
-            <div class="acc-body">
-              <div>Qty : ${item.qty}</div>
-              <div>Harga : ${rupiah(item.harga)}</div>
-              <div>Total : ${rupiah(total)}</div>
-            </div>
-          </div>
-        `;
-      });
+    items.forEach((item)=>{
 
-    }catch(e){
-      console.log("Format sparepart salah");
-    }
+      const harga = item.harga || 0;
+      const qty = item.qty || 0;
+      const total = harga * qty;
+
+      subtotal += total;
+
+      container.innerHTML += `
+        <tr>
+          <td>${item.nama}</td>
+          <td>${qty}</td>
+          <td>${rupiah(harga)}</td>
+          <td>${rupiah(total)}</td>
+        </tr>
+      `;
+
+    });
+
+  }catch(e){
+    console.log("Format sparepart salah");
   }
-
+}
+  
   document.getElementById("sub-total").textContent = rupiah(subtotal);
   document.getElementById("trans-total").textContent = rupiah(data.transport || 0);
   document.getElementById("jasa-total").textContent = rupiah(data.jasa || 0);
 
   const grand =
-    subtotal +
-    (data.transport || 0) +
-    (data.jasa || 0);
+  subtotal +
+  (data.transport || 0) +
+  (data.jasa || 0);
 
-  document.getElementById("grand-total").textContent = rupiah(grand);
+document.getElementById("grand-total").textContent = rupiah(grand);
+
+/* ================= PEMBAYARAN ================= */
+
+const paid = data.amount_paid || 0;
+const remaining = grand - paid;
+
+const paidEl = document.getElementById("paid-total");
+const remainingEl = document.getElementById("remaining-total");
+
+if(paidEl) paidEl.textContent = rupiah(paid);
+if(remainingEl) remainingEl.textContent = rupiah(remaining < 0 ? 0 : remaining);
 
   /* ================= WATERMARK + DIGITAL STAMP ================= */
   const wm = document.getElementById("watermark");
@@ -166,13 +178,6 @@ document.addEventListener("DOMContentLoaded", async ()=>{
   await loadSignature();
 
 }); // ← hanya SATU penutup di sini
-
-
-/* ================= ACCORDION TOGGLE ================= */
-function toggleAcc(el){
-  const body = el.nextElementSibling;
-  body.classList.toggle("open");
-}
 
 /* ================= LOAD SIGNATURE ================= */
 async function loadSignature(){
@@ -229,15 +234,23 @@ async function loadSignature(){
 function downloadPDF(){
   if(!currentData) return;
 
-  const element = document.querySelector(".invoice");
+  const element = document.getElementById("invoice-area");
 
-  const opt = {
-    margin: 0,
-    filename: "Invoice_"+currentData.id+".pdf",
-    image: { type: 'jpeg', quality: 1 },
-    html2canvas: { scale: 3, backgroundColor:"#ffffff", useCORS:true },
-    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-  };
+ const opt = {
+  margin: 5,
+  filename: "Invoice_"+currentData.id+".pdf",
+  image: { type: 'jpeg', quality: 0.98 },
+  html2canvas: {
+    scale: 2,
+    useCORS: true,
+    scrollY: 0
+  },
+  jsPDF: {
+    unit: 'mm',
+    format: 'a4',
+    orientation: 'portrait'
+  }
+};
 
   html2pdf().set(opt).from(element).save();
 }
