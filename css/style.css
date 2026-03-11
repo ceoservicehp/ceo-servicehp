@@ -5,6 +5,11 @@ padding:0;
 box-sizing:border-box;
 }
 
+html,body{
+overflow-x:hidden;
+width:100%;
+}
+
 body{
 font-family:'Segoe UI',sans-serif;
 background:#f4f7fb;
@@ -14,6 +19,10 @@ scroll-behavior:smooth;
 
 /* ================= HEADER ================= */
 header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+
 background:linear-gradient(90deg,#1f6f78,#00c2c7);
 padding:16px 5%;
 color:white;
@@ -41,13 +50,6 @@ letter-spacing:1px;
 margin-top:3px;
 }
 
-/* HEADER FLEX */
-header{
-display:flex;
-justify-content:space-between;
-align-items:center;
-}
-
 /* SOCIAL HEADER */
 .social-header{
 display:flex;
@@ -70,15 +72,10 @@ color:#e8fefe;
 @media (max-width:768px){
 
 header{
-display:flex;
-align-items:center;
-justify-content:space-between;
 padding:18px 20px;
 }
 
 #logo-container{
-display:flex;
-align-items:center;
 gap:10px;
 max-width:70%;
 }
@@ -90,7 +87,6 @@ width:45px;
 #logo-container h1{
 font-size:20px;
 line-height:1.2;
-margin:0;
 }
 
 .tagline{
@@ -100,7 +96,6 @@ white-space:nowrap;
 }
 
 .social-header{
-display:flex;
 gap:12px;
 font-size:20px;
 }
@@ -172,6 +167,7 @@ max-width:700px;
 .hero h2{
 font-size:42px;
 margin-bottom:15px;
+line-height:1.2;
 }
 
 .hero p{
@@ -277,7 +273,7 @@ font-size:15px;
 font-weight:600;
 text-align:left;
 display:flex;
-align-items:left;
+align-items:flex-start;
 gap:10px;
 cursor:pointer;
 box-shadow:0 2px 8px rgba(0,0,0,0.05);
@@ -356,18 +352,15 @@ border:0;
 display:block;
 }
 
-/* ===== FOOTER ===== */
-footer{
-margin-top:20px;
-padding:12px;
-font-size:12px;
-}
-
 /* ===== RESPONSIVE ===== */
 @media(max-width:768px){
 
 .section{
 padding:15px;
+}
+
+.hero{
+padding:0 20px;
 }
 
 .hero h2{
@@ -382,16 +375,6 @@ font-size:14px;
 height:220px;
 }
 
-}
-
-/* ===== FOOTER ===== */
-footer{
-margin-top:30px;
-background:linear-gradient(90deg,#0b1c22,#2b4d58);
-color:white;
-text-align:center;
-padding:15px;
-font-size:13px;
 }
 
 /* ================= MOBILE ================= */
@@ -413,6 +396,16 @@ padding:10px;
 
 }
 
+/* ===== FOOTER ===== */
+footer{
+margin-top:30px;
+background:linear-gradient(90deg,#0b1c22,#2b4d58);
+color:white;
+text-align:center;
+padding:15px;
+font-size:13px;
+}
+
 /* ===== PAKSA TEXT ACCORDION RATA KIRI ===== */
 .panel,
 .panel *{
@@ -428,6 +421,3 @@ align-items:flex-start;
 .info-item div{
 text-align:left;
 }
-
-
-
