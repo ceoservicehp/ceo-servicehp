@@ -132,30 +132,6 @@ if(data.sparepart){
   (data.transport || 0) +
   (data.jasa || 0);
 
-  /* ================= HIDE ZERO VALUE ================= */
-
-if(subtotal === 0){
-  document.getElementById("row-subtotal").style.display = "none";
-}
-
-if((data.transport || 0) === 0){
-  document.getElementById("row-transport").style.display = "none";
-}
-
-if((data.jasa || 0) === 0){
-  document.getElementById("row-jasa").style.display = "none";
-}
-
-if((data.amount_paid || 0) === 0){
-  document.getElementById("row-paid").style.display = "none";
-}
-
-const remaining = grand - (data.amount_paid || 0);
-
-if(remaining <= 0){
-  document.getElementById("row-remaining").style.display = "none";
-}
-
 document.getElementById("grand-total").textContent = rupiah(grand);
 
 /* ================= PEMBAYARAN ================= */
@@ -169,6 +145,34 @@ const remainingEl = document.getElementById("remaining-total");
 if(paidEl) paidEl.textContent = rupiah(paid);
 if(remainingEl) remainingEl.textContent = rupiah(remaining < 0 ? 0 : remaining);
 
+  /* ================= HIDE ZERO VALUE ================= */
+
+const rowSubtotal = document.getElementById("row-subtotal");
+const rowTransport = document.getElementById("row-transport");
+const rowJasa = document.getElementById("row-jasa");
+const rowPaid = document.getElementById("row-paid");
+const rowRemaining = document.getElementById("row-remaining");
+
+if(subtotal === 0 && rowSubtotal){
+  rowSubtotal.style.display = "none";
+}
+
+if((data.transport || 0) === 0 && rowTransport){
+  rowTransport.style.display = "none";
+}
+
+if((data.jasa || 0) === 0 && rowJasa){
+  rowJasa.style.display = "none";
+}
+
+if(paid === 0 && rowPaid){
+  rowPaid.style.display = "none";
+}
+
+if(remaining <= 0 && rowRemaining){
+  rowRemaining.style.display = "none";
+}
+  
   /* ================= WATERMARK + DIGITAL STAMP ================= */
   const wm = document.getElementById("watermark");
   const stamp = document.getElementById("digital-stamp");
