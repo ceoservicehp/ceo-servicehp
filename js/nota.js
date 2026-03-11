@@ -269,15 +269,18 @@ function downloadPDF(){
   element.classList.add("pdf-mode");
 
   const opt = {
-    margin: [10,10,10,10],
+    margin: 0,
     filename: "Invoice_"+currentData.id+".pdf",
-    image: { type: 'jpeg', quality: 0.98 },
+
+    image: { type: 'jpeg', quality: 1 },
 
     html2canvas: {
-      scale: 2,
+      scale: 3,
       useCORS: true,
       scrollY: 0,
-      windowWidth: element.scrollWidth   // 🔥 penting supaya layout tidak berubah
+
+      // 🔥 INI YANG PALING PENTING
+      windowWidth: 1200
     },
 
     jsPDF: {
@@ -290,14 +293,11 @@ function downloadPDF(){
   html2pdf()
     .set(opt)
     .from(element)
-    .toPdf()
-    .get('pdf')
-    .then(function (pdf) {
+    .save()
+    .then(()=>{
 
       document.body.classList.remove("pdf-body");
       element.classList.remove("pdf-mode");
-
-      pdf.save("Invoice_"+currentData.id+".pdf");
 
     });
 
