@@ -265,19 +265,18 @@ function downloadPDF(){
 
   const element = document.getElementById("invoice-area");
 
-  /* paksa mode PDF (desktop layout) */
+  /* aktifkan mode PDF */
   document.body.classList.add("pdf-body");
   element.classList.add("pdf-mode");
 
   const opt = {
-    margin: 5,
+    margin: 10,
     filename: "Invoice_"+currentData.id+".pdf",
-    image: { type: 'jpeg', quality: 0.98 },
+    image: { type: 'jpeg', quality: 1 },
     html2canvas: {
       scale: 2,
       useCORS: true,
-      scrollY: 0,
-      windowWidth: 1200   // 🔥 ini yang memaksa layout desktop
+      scrollY: 0
     },
     jsPDF: {
       unit: 'mm',
@@ -291,12 +290,10 @@ function downloadPDF(){
     .from(element)
     .save()
     .then(()=>{
-
-      /* kembalikan ke mode normal */
       document.body.classList.remove("pdf-body");
       element.classList.remove("pdf-mode");
-
     });
+
 }
 
 /* ================= WHATSAPP ================= */
