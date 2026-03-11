@@ -871,11 +871,18 @@ textarea {
   border:1px dashed #00c2c7;
 }
 
+/* ============== WA INVOICE =============== */
+.wa-invoice-btn{
+background:#25D366;
+color:white;
+border:none;
+padding:6px 10px;
+border-radius:6px;
+cursor:pointer;
+margin-left:5px;
+font-size:13px;
+}
 
-
-
-
-
-
-
-
+.wa-invoice-btn:hover{
+background:#1ebe5d;
+}
