@@ -385,8 +385,10 @@ function formatWa(number){
 
 /* ================= Render Sparepart ================= */
 function renderSelectedParts(){
-  const container = document.getElementById("selectedSpareparts");
-  container.innerHTML = "";
+    const container = document.getElementById("selectedSpareparts");
+    if(!container) return;
+    
+    container.innerHTML = "";
 
   selectedParts.forEach((item,index)=>{
     container.innerHTML += `
@@ -466,8 +468,6 @@ function initUI(){
             }
             
             // render ulang sparepart lama
-            renderSelectedParts();
-            hitungTotalSparepart();
         
         document.getElementById("edit-total-sparepart").value =
         formatRupiahInput((data.total_sparepart ?? 0).toString());
@@ -605,8 +605,8 @@ const { error } = await client
 
       use_top: document.getElementById("edit-use-top").checked,
       top_days: parseInt(document.getElementById("edit-top-days").value) || 0,
-      amount_paid: parseInt(document.getElementById("edit-amount-paid").value) || 0,
-      remaining_amount: parseInt(document.getElementById("edit-remaining").value) || 0,
+        amount_paid: parseRupiah(document.getElementById("edit-amount-paid").value),
+        remaining_amount: parseRupiah(document.getElementById("edit-remaining").value),
       payment_status: document.getElementById("edit-payment-status").value,
       due_date: document.getElementById("edit-due-date").value === "-" 
                 ? null 
@@ -688,7 +688,8 @@ const paid = parseRupiah(document.getElementById("edit-amount-paid").value);
     dueDate = today.toISOString().split("T")[0];
   }
 
-  document.getElementById("edit-remaining").value = sisa;
+    document.getElementById("edit-remaining").value =
+        formatRupiahInput(sisa.toString());
   document.getElementById("edit-payment-status").value = status;
   document.getElementById("edit-due-date").value = dueDate || "-";
 }
@@ -960,3 +961,4 @@ document.addEventListener("DOMContentLoaded", function(){
   });
 
 });
+
