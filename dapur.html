@@ -203,35 +203,49 @@ Memuat status layanan...
       </div>
 
       <div>
-        <label>Tambah Sparepart</label>
-        <select id="sparepartSelect">
-          <option value="">Pilih Sparepart</option>
-        </select>
-      
-        <div id="selectedSpareparts"></div>
-      
-        <!-- hidden untuk simpan ke db -->
-        <input type="hidden" id="edit-sparepart">
+      <label>Tambah Sparepart</label>
+    
+      <div id="sparepartContainer">
+    
+        <div class="sparepart-row">
+          <input type="text" class="sparepart-name" placeholder="Nama Sparepart">
+    
+          <input type="text" class="sparepart-price rupiah-input" placeholder="Harga">
+    
+          <button type="button" class="btn-remove-sparepart">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+    
       </div>
+
+      <button type="button" id="addSparepartBtn" class="btn btn-secondary">
+        + Tambah Sparepart
+      </button>
+    
+      <!-- hidden untuk simpan ke database -->
+      <input type="hidden" id="edit-sparepart">
+    
+    </div>
       
       <div>
         <label>Total Sparepart</label>
-        <input type="number" id="edit-total-sparepart" readonly>
+        <input type="text" id="edit-total-sparepart" class="rupiah-input" readonly>
       </div>
 
       <div>
         <label>Biaya Transport</label>
-        <input type="text" id="edit-transport">
+        <input type="text" id="edit-transport" class="rupiah-input">
       </div>
 
       <div>
         <label>Biaya Jasa</label>
-        <input type="number" id="edit-jasa">
+        <input type="text" id="edit-jasa" class="rupiah-input">
       </div>
 
       <div>
         <label>Total</label>
-        <input type="text" id="edit-total">
+        <input type="text" id="edit-total" class="rupiah-input">
       </div>
 
       <div>
@@ -289,12 +303,12 @@ Memuat status layanan...
 
   <div>
     <label>Jumlah Dibayar</label>
-    <input type="number" id="edit-amount-paid" min="0" placeholder="0">
+    <input type="text" id="edit-amount-paid" class="rupiah-input" placeholder="0">
   </div>
 
   <div>
     <label>Sisa Tagihan</label>
-    <input type="number" id="edit-remaining" readonly>
+    <input type="text" id="edit-remaining" class="rupiah-input" readonly>
   </div>
 
   <div>
@@ -354,9 +368,4 @@ year:"numeric"
   
 </body>
 </html>
-
-
-
-
-
 
