@@ -438,7 +438,6 @@ padding:30px 0;
 background:#E6F1F1;
 }
 
-/* area scroll */
 .marquee-wrapper{
 overflow-x:auto;
 scroll-behavior:smooth;
@@ -448,7 +447,6 @@ scroll-behavior:smooth;
 display:none;
 }
 
-/* track flex */
 .marquee-track{
 display:flex;
 gap:20px;
