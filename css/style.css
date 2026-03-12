@@ -441,71 +441,9 @@ background:#E6F1F1;
 display:flex;
 gap:20px;
 width:max-content;
-animation:marqueeMove 35s linear infinite;
+cursor:grab;
 }
 
-.service-marquee:hover .marquee-track{
-animation-play-state:paused;
-}
-
-.service-card{
-width:280px;
-background:white;
-border-radius:12px;
-padding:15px;
-display:flex;
-gap:12px;
-align-items:center;
-box-shadow:0 4px 15px rgba(0,0,0,0.08);
-transition:transform .3s;
-}
-
-.service-card:hover{
-transform:translateY(-5px);
-}
-
-.service-card img{
-width:60px;
-height:60px;
-object-fit:contain;
-}
-
-.service-card h4{
-margin:0;
-font-size:16px;
-}
-
-.service-card p{
-margin:0;
-font-size:13px;
-color:#777;
-}
-
-/* gradient kiri kanan */
-.marquee-overlay{
-position:absolute;
-top:0;
-width:120px;
-height:100%;
-z-index:2;
-pointer-events:none;
-}
-
-.marquee-overlay.left{
-left:0;
-background:linear-gradient(to right,#E6F1F1,transparent);
-}
-
-.marquee-overlay.right{
-right:0;
-background:linear-gradient(to left,#E6F1F1,transparent);
-}
-
-@keyframes marqueeMove{
-0%{
-transform:translateX(0);
-}
-100%{
-transform:translateX(-50%);
-}
+.marquee-track:active{
+cursor:grabbing;
 }
