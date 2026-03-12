@@ -79,19 +79,30 @@ document.addEventListener("DOMContentLoaded", function(){
 });
 
 /* ================= Slider ================= */
+
 const track = document.querySelector(".marquee-track");
 
-let scrollSpeed = 0.5;
+if(track){
+
+let speed = 0.5;
 let isDown = false;
 let startX;
 let scrollLeft;
+let isDragging = false;
+
+
+/* ===== AUTO SCROLL ===== */
 
 function autoScroll(){
 
-track.scrollLeft += scrollSpeed;
+if(!isDragging){
+
+track.scrollLeft += speed;
 
 if(track.scrollLeft >= track.scrollWidth / 2){
-track.scrollLeft = 0;
+track.scrollLeft -= track.scrollWidth / 2;
+}
+
 }
 
 requestAnimationFrame(autoScroll);
@@ -100,44 +111,78 @@ requestAnimationFrame(autoScroll);
 autoScroll();
 
 
-/* ===== DRAG SCROLL ===== */
+/* ===== DRAG DESKTOP ===== */
 
 track.addEventListener("mousedown", e=>{
+
 isDown = true;
-track.classList.add("active");
+isDragging = true;
+
 startX = e.pageX - track.offsetLeft;
 scrollLeft = track.scrollLeft;
-});
 
-track.addEventListener("mouseleave", ()=>{
-isDown = false;
 });
 
 track.addEventListener("mouseup", ()=>{
+
 isDown = false;
+
+setTimeout(()=>{
+isDragging = false;
+},200);
+
+});
+
+track.addEventListener("mouseleave", ()=>{
+
+isDown = false;
+
+setTimeout(()=>{
+isDragging = false;
+},200);
+
 });
 
 track.addEventListener("mousemove", e=>{
+
 if(!isDown) return;
+
 e.preventDefault();
 
 const x = e.pageX - track.offsetLeft;
 const walk = (x - startX) * 2;
 
 track.scrollLeft = scrollLeft - walk;
+
 });
 
 
 /* ===== TOUCH MOBILE ===== */
 
 track.addEventListener("touchstart", e=>{
+
+isDragging = true;
+
 startX = e.touches[0].pageX;
 scrollLeft = track.scrollLeft;
+
 });
 
 track.addEventListener("touchmove", e=>{
+
 const x = e.touches[0].pageX;
 const walk = (x - startX) * 2;
 
 track.scrollLeft = scrollLeft - walk;
+
 });
+
+track.addEventListener("touchend", ()=>{
+
+setTimeout(()=>{
+isDragging = false;
+},200);
+
+});
+
+}
