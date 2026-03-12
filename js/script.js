@@ -82,114 +82,64 @@ document.addEventListener("DOMContentLoaded", function(){
 
 document.addEventListener("DOMContentLoaded",()=>{
 
-const track = document.querySelector(".marquee-wrapper");
-const content = document.querySelector(".marquee-track");
-
-if(!track || !content) return;
+const track = document.querySelector(".marquee-track");
 
 let speed = 0.5;
-let isDown = false;
-let startX;
-let scrollLeft;
+let scroll = 0;
 let isDragging = false;
-let isHover = false;
+let startX;
+let scrollStart;
 
+function animate(){
 
-/* ===== AUTO SCROLL ===== */
+if(!isDragging){
 
-function autoScroll(){
+scroll += speed;
+track.style.transform = `translateX(-${scroll}px)`;
 
-if(!isDragging && !isHover){
+const firstCard = track.children[0];
+const cardWidth = firstCard.offsetWidth + 20;
 
-track.scrollLeft += speed;
+if(scroll >= cardWidth){
 
-if(track.scrollLeft >= content.scrollWidth / 2){
-track.scrollLeft -= content.scrollWidth / 2;
+track.appendChild(firstCard);
+scroll -= cardWidth;
+
 }
 
 }
 
-requestAnimationFrame(autoScroll);
+requestAnimationFrame(animate);
 }
 
-autoScroll();
+animate();
 
 
-/* ===== PAUSE HOVER ===== */
-
-track.addEventListener("mouseenter",()=> isHover = true);
-track.addEventListener("mouseleave",()=> isHover = false);
-
-
-/* ===== DRAG DESKTOP ===== */
+/* DRAG */
 
 track.addEventListener("mousedown",(e)=>{
 
-isDown = true;
 isDragging = true;
-
-startX = e.pageX - track.offsetLeft;
-scrollLeft = track.scrollLeft;
-
-track.style.cursor = "grabbing";
+startX = e.pageX;
+scrollStart = scroll;
 
 });
 
-track.addEventListener("mouseup",()=>{
+window.addEventListener("mouseup",()=>{
 
-isDown = false;
-track.style.cursor = "grab";
-
-setTimeout(()=> isDragging=false,200);
+isDragging = false;
 
 });
 
-track.addEventListener("mouseleave",()=>{
+window.addEventListener("mousemove",(e)=>{
 
-isDown = false;
-track.style.cursor = "grab";
+if(!isDragging) return;
 
-setTimeout(()=> isDragging=false,200);
+const move = (e.pageX - startX);
 
-});
+scroll = scrollStart - move;
 
-track.addEventListener("mousemove",(e)=>{
-
-if(!isDown) return;
-
-e.preventDefault();
-
-const x = e.pageX - track.offsetLeft;
-const walk = (x - startX) * 2;
-
-track.scrollLeft = scrollLeft - walk;
-
-});
-
-
-/* ===== TOUCH MOBILE ===== */
-
-track.addEventListener("touchstart",(e)=>{
-
-isDragging = true;
-
-startX = e.touches[0].pageX;
-scrollLeft = track.scrollLeft;
-
-});
-
-track.addEventListener("touchmove",(e)=>{
-
-const x = e.touches[0].pageX;
-const walk = (x - startX) * 2;
-
-track.scrollLeft = scrollLeft - walk;
-
-},{ passive:true });
-
-track.addEventListener("touchend",()=>{
-
-setTimeout(()=> isDragging=false,200);
+track.style.transform = `translateX(-${scroll}px)`;
 
 });
 
