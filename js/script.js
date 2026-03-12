@@ -77,3 +77,67 @@ document.addEventListener("DOMContentLoaded", function(){
   });
 
 });
+
+/* ================= Slider ================= */
+const track = document.querySelector(".marquee-track");
+
+let scrollSpeed = 0.5;
+let isDown = false;
+let startX;
+let scrollLeft;
+
+function autoScroll(){
+
+track.scrollLeft += scrollSpeed;
+
+if(track.scrollLeft >= track.scrollWidth / 2){
+track.scrollLeft = 0;
+}
+
+requestAnimationFrame(autoScroll);
+}
+
+autoScroll();
+
+
+/* ===== DRAG SCROLL ===== */
+
+track.addEventListener("mousedown", e=>{
+isDown = true;
+track.classList.add("active");
+startX = e.pageX - track.offsetLeft;
+scrollLeft = track.scrollLeft;
+});
+
+track.addEventListener("mouseleave", ()=>{
+isDown = false;
+});
+
+track.addEventListener("mouseup", ()=>{
+isDown = false;
+});
+
+track.addEventListener("mousemove", e=>{
+if(!isDown) return;
+e.preventDefault();
+
+const x = e.pageX - track.offsetLeft;
+const walk = (x - startX) * 2;
+
+track.scrollLeft = scrollLeft - walk;
+});
+
+
+/* ===== TOUCH MOBILE ===== */
+
+track.addEventListener("touchstart", e=>{
+startX = e.touches[0].pageX;
+scrollLeft = track.scrollLeft;
+});
+
+track.addEventListener("touchmove", e=>{
+const x = e.touches[0].pageX;
+const walk = (x - startX) * 2;
+
+track.scrollLeft = scrollLeft - walk;
+});
