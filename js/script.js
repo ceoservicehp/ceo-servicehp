@@ -82,50 +82,56 @@ document.addEventListener("DOMContentLoaded", function(){
 
 const track = document.querySelector(".marquee-track");
 
-if(track){
+if (track) {
 
 let speed = 0.5;
 let isDown = false;
 let startX;
 let scrollLeft;
 let isDragging = false;
+let isHover = false;
 
 
 /* ===== AUTO SCROLL ===== */
-
-function autoScroll(){
-
-if(!isDragging){
-
-track.scrollLeft += speed;
-
-if(track.scrollLeft >= track.scrollWidth / 2){
-track.scrollLeft -= track.scrollWidth / 2;
-}
-
-}
+  function autoScroll(){
+    if(!isDragging && !isHover){
+      track.scrollLeft += speed;
+      
+    if(track.scrollLeft >= track.scrollWidth / 2){
+      track.scrollLeft -= track.scrollWidth / 2;
+    }
+    }
 
 requestAnimationFrame(autoScroll);
 }
-
 autoScroll();
 
 
+/* ===== PAUSE SAAT HOVER ===== */
+  track.addEventListener("mouseenter", ()=>{
+    isHover = true;
+  });
+  
+  track.addEventListener("mouseleave", ()=>{
+    isHover = false;
+  });
+
+
 /* ===== DRAG DESKTOP ===== */
-
-track.addEventListener("mousedown", e=>{
-
-isDown = true;
-isDragging = true;
-
-startX = e.pageX - track.offsetLeft;
-scrollLeft = track.scrollLeft;
-
-});
+  track.addEventListener("mousedown", e=>{
+    isDown = true;
+    isDragging = true;
+    
+    startX = e.pageX - track.offsetLeft;
+    scrollLeft = track.scrollLeft;
+    
+    track.style.cursor = "grabbing";
+  });
 
 track.addEventListener("mouseup", ()=>{
 
 isDown = false;
+track.style.cursor = "grab";
 
 setTimeout(()=>{
 isDragging = false;
@@ -136,6 +142,7 @@ isDragging = false;
 track.addEventListener("mouseleave", ()=>{
 
 isDown = false;
+track.style.cursor = "grab";
 
 setTimeout(()=>{
 isDragging = false;
@@ -170,12 +177,14 @@ scrollLeft = track.scrollLeft;
 
 track.addEventListener("touchmove", e=>{
 
+e.preventDefault();
+
 const x = e.touches[0].pageX;
 const walk = (x - startX) * 2;
 
 track.scrollLeft = scrollLeft - walk;
 
-});
+},{ passive:false });
 
 track.addEventListener("touchend", ()=>{
 
