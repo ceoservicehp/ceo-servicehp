@@ -430,7 +430,6 @@ text-align:left;
 }
 
 /* ===== Slider ===== */
-
 .service-marquee{
 position:relative;
 overflow:hidden;
@@ -439,23 +438,12 @@ background:#E6F1F1;
 }
 
 .marquee-wrapper{
-overflow-x:auto;
-scroll-behavior:smooth;
-}
-
-.marquee-wrapper::-webkit-scrollbar{
-display:none;
+overflow:hidden;
 }
 
 .marquee-track{
 display:flex;
 gap:20px;
-width:max-content;
-cursor:grab;
-}
-
-.marquee-track:active{
-cursor:grabbing;
 }
 
 .service-card{
@@ -467,8 +455,8 @@ display:flex;
 gap:12px;
 align-items:center;
 box-shadow:0 4px 15px rgba(0,0,0,0.08);
-transition:transform .3s;
 flex-shrink:0;
+transition:.3s;
 }
 
 .service-card:hover{
@@ -480,19 +468,6 @@ width:60px;
 height:60px;
 object-fit:contain;
 }
-
-.service-card h4{
-margin:0;
-font-size:16px;
-}
-
-.service-card p{
-margin:0;
-font-size:13px;
-color:#777;
-}
-
-/* ===== gradient kiri kanan ===== */
 
 .marquee-overlay{
 position:absolute;
