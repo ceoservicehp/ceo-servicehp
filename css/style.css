@@ -441,11 +441,18 @@ background:#E6F1F1;
 display:flex;
 gap:20px;
 width:max-content;
-animation:marqueeMove 35s linear infinite;
+cursor:grab;
+overflow-x:auto;
+scroll-behavior:smooth;
 }
 
-.service-marquee:hover .marquee-track{
-animation-play-state:paused;
+/* sembunyikan scrollbar */
+.marquee-track::-webkit-scrollbar{
+display:none;
+}
+
+.marquee-track:active{
+cursor:grabbing;
 }
 
 .service-card{
@@ -458,6 +465,7 @@ gap:12px;
 align-items:center;
 box-shadow:0 4px 15px rgba(0,0,0,0.08);
 transition:transform .3s;
+flex-shrink:0;
 }
 
 .service-card:hover{
@@ -481,7 +489,8 @@ font-size:13px;
 color:#777;
 }
 
-/* gradient kiri kanan */
+/* ===== gradient kiri kanan ===== */
+
 .marquee-overlay{
 position:absolute;
 top:0;
@@ -499,31 +508,4 @@ background:linear-gradient(to right,#E6F1F1,transparent);
 .marquee-overlay.right{
 right:0;
 background:linear-gradient(to left,#E6F1F1,transparent);
-}
-
-@keyframes marqueeMove{
-0%{
-transform:translateX(0);
-}
-100%{
-transform:translateX(-50%);
-}
-}
-
-.service-marquee{
-position:relative;
-overflow:hidden;
-padding:30px 0;
-background:#E6F1F1;
-}
-
-.marquee-track{
-display:flex;
-gap:20px;
-width:max-content;
-cursor:grab;
-}
-
-.marquee-track:active{
-cursor:grabbing;
 }
