@@ -252,6 +252,12 @@ transform:translateY(-4px);
 box-shadow:0 6px 15px rgba(0,194,199,0.2);
 }
 
+.service-link{
+text-decoration:none;
+color:inherit;
+display:block;
+}
+
 /* ===== CONTACT ===== */
 .contact{
 margin:20px 5%;
@@ -503,3 +509,4 @@ background:linear-gradient(to right,#E6F1F1,transparent);
 right:0;
 background:linear-gradient(to left,#E6F1F1,transparent);
 }
+
