@@ -79,31 +79,35 @@ document.addEventListener("DOMContentLoaded", function(){
 });
 
 /* ================= Slider ================= */
-
 document.addEventListener("DOMContentLoaded",()=>{
 
 const track = document.querySelector(".marquee-track");
 
-let speed = 0.5;
-let scroll = 0;
+let speed = 0.6;
+let position = 0;
+let isHover = false;
 let isDragging = false;
+
 let startX;
-let scrollStart;
+let startPos;
+
+
+/* ===== AUTO SCROLL ===== */
 
 function animate(){
 
-if(!isDragging){
+if(!isHover && !isDragging){
 
-scroll += speed;
-track.style.transform = `translateX(-${scroll}px)`;
+position += speed;
+track.style.transform = `translate3d(-${position}px,0,0)`;
 
 const firstCard = track.children[0];
 const cardWidth = firstCard.offsetWidth + 20;
 
-if(scroll >= cardWidth){
+if(position >= cardWidth){
 
 track.appendChild(firstCard);
-scroll -= cardWidth;
+position -= cardWidth;
 
 }
 
@@ -115,19 +119,28 @@ requestAnimationFrame(animate);
 animate();
 
 
-/* DRAG */
+/* ===== HOVER PAUSE ===== */
+
+track.addEventListener("mouseenter",()=> isHover = true);
+track.addEventListener("mouseleave",()=> isHover = false);
+
+
+/* ===== DRAG DESKTOP ===== */
 
 track.addEventListener("mousedown",(e)=>{
 
 isDragging = true;
 startX = e.pageX;
-scrollStart = scroll;
+startPos = position;
+
+track.style.cursor="grabbing";
 
 });
 
 window.addEventListener("mouseup",()=>{
 
-isDragging = false;
+isDragging=false;
+track.style.cursor="grab";
 
 });
 
@@ -135,11 +148,36 @@ window.addEventListener("mousemove",(e)=>{
 
 if(!isDragging) return;
 
-const move = (e.pageX - startX);
+const move = e.pageX - startX;
+position = startPos - move;
 
-scroll = scrollStart - move;
+track.style.transform = `translate3d(-${position}px,0,0)`;
 
-track.style.transform = `translateX(-${scroll}px)`;
+});
+
+
+/* ===== TOUCH MOBILE ===== */
+
+track.addEventListener("touchstart",(e)=>{
+
+isDragging = true;
+startX = e.touches[0].pageX;
+startPos = position;
+
+});
+
+track.addEventListener("touchmove",(e)=>{
+
+const move = e.touches[0].pageX - startX;
+position = startPos - move;
+
+track.style.transform = `translate3d(-${position}px,0,0)`;
+
+});
+
+track.addEventListener("touchend",()=>{
+
+isDragging=false;
 
 });
 
