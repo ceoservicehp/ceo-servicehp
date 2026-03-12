@@ -430,6 +430,7 @@ text-align:left;
 }
 
 /* ===== Slider ===== */
+
 .service-marquee{
 position:relative;
 overflow:hidden;
@@ -437,18 +438,22 @@ padding:30px 0;
 background:#E6F1F1;
 }
 
+/* area scroll */
+.marquee-wrapper{
+overflow-x:auto;
+scroll-behavior:smooth;
+}
+
+.marquee-wrapper::-webkit-scrollbar{
+display:none;
+}
+
+/* track flex */
 .marquee-track{
 display:flex;
 gap:20px;
 width:max-content;
 cursor:grab;
-overflow-x:auto;
-scroll-behavior:smooth;
-}
-
-/* sembunyikan scrollbar */
-.marquee-track::-webkit-scrollbar{
-display:none;
 }
 
 .marquee-track:active{
