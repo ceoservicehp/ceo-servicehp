@@ -430,6 +430,7 @@ text-align:left;
 }
 
 /* ===== Slider ===== */
+
 .service-marquee{
 position:relative;
 overflow:hidden;
@@ -444,6 +445,7 @@ overflow:hidden;
 .marquee-track{
 display:flex;
 gap:20px;
+will-change:transform;
 }
 
 .service-card{
@@ -460,7 +462,8 @@ transition:.3s;
 }
 
 .service-card:hover{
-transform:translateY(-5px);
+transform:translateY(-6px) scale(1.03);
+box-shadow:0 12px 30px rgba(0,0,0,0.15);
 }
 
 .service-card img{
@@ -468,6 +471,19 @@ width:60px;
 height:60px;
 object-fit:contain;
 }
+
+.service-card h4{
+margin:0;
+font-size:16px;
+}
+
+.service-card p{
+margin:0;
+font-size:13px;
+color:#777;
+}
+
+/* gradient kiri kanan */
 
 .marquee-overlay{
 position:absolute;
