@@ -80,9 +80,12 @@ document.addEventListener("DOMContentLoaded", function(){
 
 /* ================= Slider ================= */
 
-const track = document.querySelector(".marquee-track");
+document.addEventListener("DOMContentLoaded",()=>{
 
-if (track) {
+const track = document.querySelector(".marquee-wrapper");
+const content = document.querySelector(".marquee-track");
+
+if(!track || !content) return;
 
 let speed = 0.5;
 let isDown = false;
@@ -93,64 +96,64 @@ let isHover = false;
 
 
 /* ===== AUTO SCROLL ===== */
-  function autoScroll(){
-    if(!isDragging && !isHover){
-      track.scrollLeft += speed;
-      
-    if(track.scrollLeft >= track.scrollWidth / 2){
-      track.scrollLeft -= track.scrollWidth / 2;
-    }
-    }
+
+function autoScroll(){
+
+if(!isDragging && !isHover){
+
+track.scrollLeft += speed;
+
+if(track.scrollLeft >= content.scrollWidth / 2){
+track.scrollLeft -= content.scrollWidth / 2;
+}
+
+}
 
 requestAnimationFrame(autoScroll);
 }
+
 autoScroll();
 
 
-/* ===== PAUSE SAAT HOVER ===== */
-  track.addEventListener("mouseenter", ()=>{
-    isHover = true;
-  });
-  
-  track.addEventListener("mouseleave", ()=>{
-    isHover = false;
-  });
+/* ===== PAUSE HOVER ===== */
+
+track.addEventListener("mouseenter",()=> isHover = true);
+track.addEventListener("mouseleave",()=> isHover = false);
 
 
 /* ===== DRAG DESKTOP ===== */
-  track.addEventListener("mousedown", e=>{
-    isDown = true;
-    isDragging = true;
-    
-    startX = e.pageX - track.offsetLeft;
-    scrollLeft = track.scrollLeft;
-    
-    track.style.cursor = "grabbing";
-  });
 
-track.addEventListener("mouseup", ()=>{
+track.addEventListener("mousedown",(e)=>{
+
+isDown = true;
+isDragging = true;
+
+startX = e.pageX - track.offsetLeft;
+scrollLeft = track.scrollLeft;
+
+track.style.cursor = "grabbing";
+
+});
+
+track.addEventListener("mouseup",()=>{
 
 isDown = false;
 track.style.cursor = "grab";
 
-setTimeout(()=>{
-isDragging = false;
-},200);
+setTimeout(()=> isDragging=false,200);
 
 });
 
-track.addEventListener("mouseleave", ()=>{
+track.addEventListener("mouseleave",()=>{
 
 isDown = false;
 track.style.cursor = "grab";
 
-setTimeout(()=>{
-isDragging = false;
-},200);
+setTimeout(()=> isDragging=false,200);
 
 });
 
-track.addEventListener("mousemove", e=>{
+track.addEventListener("mousemove",(e)=>{
 
 if(!isDown) return;
 
@@ -166,7 +169,7 @@ track.scrollLeft = scrollLeft - walk;
 
 /* ===== TOUCH MOBILE ===== */
 
-track.addEventListener("touchstart", e=>{
+track.addEventListener("touchstart",(e)=>{
 
 isDragging = true;
 
@@ -175,23 +178,19 @@ scrollLeft = track.scrollLeft;
 
 });
 
-track.addEventListener("touchmove", e=>{
-
-e.preventDefault();
+track.addEventListener("touchmove",(e)=>{
 
 const x = e.touches[0].pageX;
 const walk = (x - startX) * 2;
 
 track.scrollLeft = scrollLeft - walk;
 
-},{ passive:false });
+},{ passive:true });
 
-track.addEventListener("touchend", ()=>{
+track.addEventListener("touchend",()=>{
 
-setTimeout(()=>{
-isDragging = false;
-},200);
+setTimeout(()=> isDragging=false,200);
 
 });
 
-}
+});
