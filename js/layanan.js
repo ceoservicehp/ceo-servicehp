@@ -94,7 +94,7 @@ document.getElementById("filterCategory")
                 resiSection.style.display="none";
             }
 
-               if(metode.value==="Home Service"){
+               if(metode.value==="Home Service/Antar & jemput"){
                     mapSection.style.display="block";
                     transportSection.style.display="block";
                     proof.style.display="block";
