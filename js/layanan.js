@@ -569,7 +569,7 @@ document.getElementById("checkout").onclick = async () => {
         return alert("Lengkapi data");
     }
 
-    if(method==="Home Service" && !coordInput.value){
+    if(method==="Home Service/Antar & Jemput" && !coordInput.value){
         window.sending=false;
         btn.disabled=false;
         btn.textContent="Kirim Permintaan Service";
@@ -674,7 +674,7 @@ try {
 
     let lokasiMap = "-";
     
-    if (method === "Home Service" && coordInput.value) {
+    if (method === "Home Service/Antar & Jemput" && coordInput.value) {
         const [lat, lng] = coordInput.value.split(",");
         lokasiMap = `https://www.google.com/maps?q=${lat},${lng}`;
     }
@@ -687,7 +687,7 @@ try {
     msg += `Keluhan: ${problem}\n`;
     msg += `Metode Service: ${method}\n`;
     
-    if (method === "Home Service") {
+    if (method === "Home Service/Antar & Jemput") {
         msg += `📍 Lokasi: ${lokasiMap}\n`;
         msg += `Transport: ${rupiah(transportCost)}\n`;
     }
