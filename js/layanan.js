@@ -31,8 +31,8 @@ let paymentSection,
 
 /* ================= KOORDINAT TOKO ================= */
 /* GANTI dengan lokasi toko kamu */
-const TOKO_LAT = -6.16639026634003;   // contoh: Jakarta
-const TOKO_LNG = 106.80295190492956;
+const TOKO_LAT = -6.166946854281742;   // contoh: Jakarta
+const TOKO_LNG = 106.80309915767154;
 
 document.addEventListener("DOMContentLoaded",()=>{
 
