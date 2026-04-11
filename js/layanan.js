@@ -704,7 +704,7 @@ try {
     msg += `\n(Jasa diinformasikan setelah pengecekan teknisi)`;
     
     window.open(
-        `https://wa.me/6288803060094?text=${encodeURIComponent(msg)}`,
+        `https://wa.me/628138892098?text=${encodeURIComponent(msg)}`,
         "_blank"
     );
     
