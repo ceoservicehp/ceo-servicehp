@@ -40,8 +40,13 @@ align-items:flex-start;
 border-bottom:2px solid #f0f0f0;
 padding-bottom:25px;
 margin-bottom:30px;
-flex-wrap:wrap;
+flex-wrap:nowrap; /* 🔥 DIUBAH */
 gap:15px;
+}
+
+.brand{
+flex:1;
+min-width:0;
 }
 
 .brand-top{
@@ -68,9 +73,16 @@ color:#666;
 font-size:14px;
 }
 
+.brand small{
+display:block;
+line-height:1.4;
+}
+
 .invoice-meta{
 text-align:right;
 font-size:14px;
+flex-shrink:0;
+min-width:150px;
 }
 
 .invoice-meta span{
