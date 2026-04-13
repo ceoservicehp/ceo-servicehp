@@ -210,12 +210,19 @@ function initRupiahInputs(){
 
   document.querySelectorAll(".rupiah-input").forEach(input=>{
 
+    if(input.dataset.init) return; // cegah double event
+    input.dataset.init = true;
+
     input.addEventListener("input", function(){
 
-      const cursor = this.selectionStart;
-      const raw = this.value.replace(/[^\d]/g,"");
+      let cursor = this.selectionStart;
+      let before = this.value.length;
 
+      const raw = this.value.replace(/[^\d]/g,"");
       this.value = formatRupiahInput(raw);
+
+      let after = this.value.length;
+      this.selectionEnd = cursor + (after - before);
 
     });
 
@@ -393,8 +400,12 @@ document.addEventListener("click", e => {
     alert("Nomor HP tidak tersedia");
     return;
   }
-
-  const url = window.location.origin + "/nota.html?id=" + id;
+    
+    const url = window.location.origin + "/nota.html?id=" + id;
+    const garansi = allOrders.find(o => o.id == id)?.garansi;
+   const garansiText = garansi
+  ? `📅 Masa Garansi: ${new Date(garansi).toLocaleDateString("id-ID")} (${getStatusGaransi(garansi)})`
+  : "📅 Masa Garansi: Menyesuaikan jenis perbaikan";
 
   let msg =
 `Berikut adalah invoice service HP Anda di
@@ -405,11 +416,20 @@ Nama: ${nama}
 Status Service: Service HP
 Status Pembayaran: Silakan cek invoice
 
-🔧 *Syarat & Ketentuan Garansi:*
-- Garansi 7 hari setelah pengambilan
-- Tidak berlaku jika segel rusak
-- Tidak berlaku jika terkena air
-- Kerusakan fisik tidak termasuk garansi
+${garansiText}
+*Syarat & Ketentuan Garansi:*
+    
+Kami berkomitmen memberikan kualitas terbaik pada setiap layanan perbaikan. 
+Garansi diberikan sesuai dengan jenis kerusakan dan tindakan service yang dilakukan.
+-Garansi hanya berlaku untuk kerusakan yang sama dengan perbaikan sebelumnya
+-Segel atau label garansi wajib dalam kondisi utuh
+-Tidak berlaku jika perangkat terkena air atau cairan
+-Kerusakan fisik (jatuh, retak, tekanan, dll) tidak termasuk garansi
+-Tidak berlaku jika unit telah dibongkar atau diperbaiki pihak lain
+
+Detail masa garansi akan diinformasikan langsung oleh teknisi setelah pengecekan perangkat :
+      ✔ Transparansi kondisi & biaya sebelum pengerjaan
+      ✔ Pengecekan menyeluruh sebelum unit diserahkan
 
 Lihat Invoice:
 ${url}`;
@@ -429,6 +449,20 @@ function formatWa(number){
     }
 
     return number;
+}
+
+/* ================= STATUS GARANSI ================= */
+function getStatusGaransi(date){
+  if(!date) return "Tidak Ada";
+
+  const today = new Date();
+  const garansi = new Date(date);
+
+  // reset jam biar compare tanggal saja
+  today.setHours(0,0,0,0);
+  garansi.setHours(0,0,0,0);
+
+  return garansi >= today ? "🟢 Aktif" : "🔴 Habis";
 }
 
 /* ================= Render Sparepart ================= */
@@ -538,6 +572,8 @@ function initUI(){
         document.getElementById("edit-payment-status").value = data.payment_status || "Belum Lunas";
         document.getElementById("edit-due-date").value = data.due_date || "-";
         document.getElementById("edit-status").value=data.status ?? "pending";
+        document.getElementById("edit-garansi").value = 
+            data.garansi ? data.garansi.split("T")[0] : "";
         document.getElementById("edit-tanggal-selesai").value =
         data.tanggal_selesai
             ? new Date(data.tanggal_selesai).toLocaleString("id-ID")
@@ -648,6 +684,7 @@ const { error } = await client
       jasa: jasa,
       total: total,
       status: newStatus,
+      garansi: document.getElementById("edit-garansi").value || null,
       tanggal_selesai: tanggalSelesai,
       coord: document.getElementById("edit-coord").value,
 
