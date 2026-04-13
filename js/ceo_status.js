@@ -119,7 +119,7 @@ document.getElementById("d-alamat").textContent=dataRow.alamat;
 document.getElementById("d-brand").textContent=dataRow.brand;
 document.getElementById("d-problem").textContent=dataRow.problem;
 document.getElementById("d-metode").textContent=dataRow.metode;
-document.getElementById("d-sparepart").innerHTML =
+document.getElementById("sparepartContainer").innerHTML =
   formatSparepart(dataRow.sparepart);
 document.getElementById("d-totalspare").textContent=rupiah(dataRow.total_sparepart);
 document.getElementById("d-transport").textContent=rupiah(dataRow.transport);
