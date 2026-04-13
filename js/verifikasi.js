@@ -28,6 +28,8 @@ if(error || !data){
   return;
 }
 
+/* ================= DATA UTAMA ================= */
+
 const invoiceNumber = "INV-"+String(data.id).padStart(5,"0");
 
 const statusClass =
@@ -72,5 +74,56 @@ resultEl.innerHTML = `
 
   <p class="success">Invoice Valid ✓</p>
 `;
+
+/* ================= GARANSI ================= */
+
+const garansiBox = document.getElementById("garansiBox");
+const garansiText = document.getElementById("garansiText");
+
+// ✅ pastikan element ada
+if(!garansiBox || !garansiText) return;
+
+// tampilkan box
+garansiBox.style.display = "block";
+
+if(data.garansi){
+
+  const garansiDate = new Date(data.garansi);
+
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  garansiDate.setHours(0,0,0,0);
+
+  const isActive = garansiDate >= today;
+
+  const diffTime = garansiDate - today;
+  const diffDays = Math.ceil(Math.abs(diffTime) / (1000 * 60 * 60 * 24));
+
+  let sisaHari = "";
+
+  if(isActive){
+    sisaHari = diffDays > 0
+      ? `(${diffDays} hari lagi)`
+      : "(Hari ini terakhir)";
+  }else{
+    sisaHari = `(${diffDays} hari yang lalu)`;
+  }
+
+  const status = isActive
+    ? "<span style='color:green;font-weight:600;'>🟢 Aktif</span>"
+    : "<span style='color:red;font-weight:600;'>🔴 Habis</span>";
+
+  garansiText.innerHTML = `
+    Berlaku sampai: <b>${garansiDate.toLocaleDateString("id-ID")}</b><br>
+    Status: ${status} ${sisaHari}
+  `;
+
+}else{
+
+  garansiText.innerHTML = `
+    Masa garansi: <b>Menyesuaikan jenis perbaikan</b>
+  `;
+
+}
 
 });
