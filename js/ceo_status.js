@@ -121,10 +121,20 @@ document.getElementById("d-problem").textContent=dataRow.problem;
 document.getElementById("d-metode").textContent=dataRow.metode;
 document.getElementById("sparepartContainer").innerHTML =
   formatSparepart(dataRow.sparepart);
-document.getElementById("d-totalspare").textContent=rupiah(dataRow.total_sparepart);
-document.getElementById("d-transport").textContent=rupiah(dataRow.transport);
-document.getElementById("d-jasa").textContent=rupiah(dataRow.jasa);
-document.getElementById("d-total").textContent=rupiah(dataRow.total);
+document.getElementById("d-totalspare").textContent=
+  rupiah(dataRow.total_sparepart || 0);
+document.getElementById("d-transport").textContent=
+  rupiah(dataRow.transport || 0);
+const selesaiEl = document.getElementById("d-selesai");
+if(selesaiEl){
+  if(dataRow.tanggal_selesai){
+    selesaiEl.innerHTML = `<span style="color:green;">✅ ${new Date(dataRow.tanggal_selesai).toLocaleString("id-ID")}</span>`;
+  }else{
+    selesaiEl.innerHTML = `<span style="color:orange;">⏳ Belum selesai</span>`;
+  }
+}
+document.getElementById("d-total").textContent=
+  rupiah(dataRow.total || 0);
 document.getElementById("d-status").textContent=dataRow.status;
 document.getElementById("d-tanggal").textContent=
 new Date(dataRow.created_at).toLocaleString("id-ID");
