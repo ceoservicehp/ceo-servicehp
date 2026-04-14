@@ -230,3 +230,19 @@ if(closeModalBtn && detailModal){
     }
   });
 }
+
+/* ================= CLOSE POPUP ================= */
+const closeBtn = document.getElementById("closeStatusPopup");
+const popup = document.getElementById("statusPopup");
+
+if(closeBtn && popup){
+  closeBtn.onclick = ()=>{
+    popup.style.display = "none";
+  };
+
+  popup.addEventListener("click",(e)=>{
+    if(e.target === popup){
+      popup.style.display = "none";
+    }
+  });
+}
