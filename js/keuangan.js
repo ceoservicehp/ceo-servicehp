@@ -182,6 +182,7 @@ function filterByDate(){
     }
 
     renderByTab(filteredIncome, filteredExpense);
+    updateFinanceCards(filteredIncome, filteredExpense);
 }
 
 /* ================= UPDATE FINANCE CARDS ================= */
