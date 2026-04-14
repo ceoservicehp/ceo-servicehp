@@ -129,7 +129,8 @@ document.getElementById("d-status").textContent=dataRow.status;
 document.getElementById("d-tanggal").textContent=
 new Date(dataRow.created_at).toLocaleString("id-ID");
 
-document.getElementById("statusModal")?.style?.display="flex";
+const modal = document.getElementById("statusModal");
+if (modal) modal.style.display = "flex";
 }
 
 /* ================= STATUS CLICK ================= */
