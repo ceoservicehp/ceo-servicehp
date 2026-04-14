@@ -221,61 +221,63 @@ function renderByTab(income = incomeData, expense = expenseData){
     if(expenseWrapper) expenseWrapper.style.display = "none";
 
     /* ================= INCOME ================= */
-    if(currentTab === "income"){
+   if(currentTab === "income"){
 
-        incomeWrapper.style.display = "block";
+    if(incomeWrapper) incomeWrapper.style.display = "block";
+    if(expenseWrapper) expenseWrapper.style.display = "none";
 
-        const tbody = document.getElementById("incomeTable");
-        tbody.innerHTML = "";
+    const tbody = document.getElementById("incomeTable");
+    tbody.innerHTML = "";
 
-        income.forEach((row,i)=>{
-            tbody.innerHTML += `
-            <tr>
-                <td>${i+1}</td>
-                <td>${row.nama}</td>
-                <td>${row.metode || "-"}</td>
-                <td>${row.status}</td>
-                <td>${new Date(row.created_at).toLocaleDateString("id-ID")}</td>
-                <td>${row.tanggal_selesai ? new Date(row.tanggal_selesai).toLocaleDateString("id-ID") : "-"}</td>
-                <td style="color:#27ae60;font-weight:600;">
-                    ${rupiah(row.total)}
-                </td>
-            </tr>`;
-        });
+    income.forEach((row,i)=>{
+        tbody.innerHTML += `
+        <tr>
+            <td>${i+1}</td>
+            <td>${row.nama}</td>
+            <td>${row.metode || "-"}</td>
+            <td>${row.status}</td>
+            <td>${new Date(row.created_at).toLocaleDateString("id-ID")}</td>
+            <td>${row.tanggal_selesai ? new Date(row.tanggal_selesai).toLocaleDateString("id-ID") : "-"}</td>
+            <td style="color:#27ae60;font-weight:600;">
+                ${rupiah(row.total)}
+            </td>
+        </tr>`;
+    });
 
-    }
+}
 
     /* ================= EXPENSE ================= */
     else if(currentTab === "expense"){
 
-        expenseWrapper.style.display = "block";
+    if(expenseWrapper) expenseWrapper.style.display = "block";
+    if(incomeWrapper) incomeWrapper.style.display = "none";
 
-        const tbody = document.getElementById("expenseTable");
-        tbody.innerHTML = "";
+    const tbody = document.getElementById("expenseTable");
+    tbody.innerHTML = "";
 
-       expense.forEach((row,i)=>{
+    expense.forEach((row,i)=>{
 
-            const penerima = row.profiles?.full_name || "-";
-            const price = row.price || 0;
-            const qty = row.qty || 1;
-            const total = row.amount || 0;
-        
-            tbody.innerHTML += `
-            <tr>
-                <td>${i+1}</td>
-                <td>${row.title}</td>
-                <td>${row.category}</td>
-                <td>${penerima}</td>
-                <td>${rupiah(price)}</td>
-                <td>${qty}</td>
-                <td style="color:#e74c3c;font-weight:600;">
-                    ${rupiah(total)}
-                </td>
-                <td>${row.notes || "-"}</td>
-                <td>${new Date(row.created_at).toLocaleDateString("id-ID")}</td>
-            </tr>`;
-        });
-    }
+        const penerima = row.profiles?.full_name || "-";
+        const price = row.price || 0;
+        const qty = row.qty || 1;
+        const total = row.amount || 0;
+
+        tbody.innerHTML += `
+        <tr>
+            <td>${i+1}</td>
+            <td>${row.title}</td>
+            <td>${row.category}</td>
+            <td>${penerima}</td>
+            <td>${rupiah(price)}</td>
+            <td>${qty}</td>
+            <td style="color:#e74c3c;font-weight:600;">
+                ${rupiah(total)}
+            </td>
+            <td>${row.notes || "-"}</td>
+            <td>${new Date(row.created_at).toLocaleDateString("id-ID")}</td>
+        </tr>`;
+    });
+
 }
 
 async function loadExpenseCategories(){
