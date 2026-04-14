@@ -78,9 +78,13 @@ tbody.innerHTML+=`
 <td>${row.nama}</td>
 <td>${row.alamat}</td>
 <td>${tanggal}</td>
-<td><span class="status-badge ${statusClass}">
-${row.status}
-</span></td>
+<td>
+  <span class="status-badge ${statusClass} status-clickable"
+        data-status="${row.status}"
+        data-id="${row.id}">
+    ${row.status}
+  </span>
+</td>
 <td>
 <button class="detail-btn" data-id="${row.id}">
 Detail
@@ -152,3 +156,50 @@ document.getElementById("detailModal").style.display="none";
 };
 
 });
+
+/* ================= STATUS CLICK POPUP ================= */
+document.addEventListener("click", (e)=>{
+
+  const el = e.target.closest(".status-clickable");
+  if(!el) return;
+
+  const status = el.dataset.status;
+
+  const popup = document.getElementById("statusPopup");
+  const text = document.getElementById("popupText");
+
+  let message = "";
+
+  switch(status.toLowerCase()){
+    case "pending":
+      message = "⏳ Menunggu konfirmasi teknisi";
+      break;
+    case "proses":
+      message = "🔧 Perangkat sedang diperbaiki";
+      break;
+    case "selesai":
+      message = "✅ Perbaikan sudah selesai";
+      break;
+    case "batal":
+      message = "❌ Service dibatalkan";
+      break;
+  }
+
+  text.innerHTML = `
+    <h3>${status.toUpperCase()}</h3>
+    <p>${message}</p>
+  `;
+
+  popup.style.display = "flex";
+});
+
+/* close popup */
+document.getElementById("closeStatusPopup").onclick = ()=>{
+  document.getElementById("statusPopup").style.display = "none";
+};
+
+document.getElementById("statusPopup").onclick = (e)=>{
+  if(e.target.id === "statusPopup"){
+    e.target.style.display = "none";
+  }
+};
