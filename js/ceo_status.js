@@ -189,12 +189,21 @@ popup.classList.add("show");
 });
 
 /* ================= CLOSE POPUP ================= */
-document.getElementById("closeStatusPopup").onclick = ()=>{
-document.getElementById("statusPopup").style.display="none";
-};
+document.addEventListener("DOMContentLoaded", ()=>{
 
-document.getElementById("statusPopup").onclick = (e)=>{
-if(e.target.id === "statusPopup"){
-e.target.style.display="none";
+const closeBtn = document.getElementById("closeStatusPopup");
+const popup = document.getElementById("statusPopup");
+
+if(closeBtn && popup){
+  closeBtn.addEventListener("click", ()=>{
+    popup.style.display = "none";
+  });
+
+  popup.addEventListener("click", (e)=>{
+    if(e.target === popup){
+      popup.style.display = "none";
+    }
+  });
 }
-};
+
+});
