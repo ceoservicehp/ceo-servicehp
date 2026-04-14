@@ -65,9 +65,9 @@ tbody.innerHTML="";
 data.forEach((row,i)=>{
 
 let statusClass="status-pending";
-if(row.status==="proses") statusClass="status-proses";
-if(row.status==="selesai") statusClass="status-selesai";
-if(row.status==="batal") statusClass="status-batal";
+if(row.status==="PROSES") statusClass="status-proses";
+if(row.status==="SELESAI") statusClass="status-selesai";
+if(row.status==="BATAL") statusClass="status-batal";
 
 const tanggal=new Date(row.created_at)
 .toLocaleDateString("id-ID",{day:"2-digit",month:"short",year:"numeric"});
@@ -171,16 +171,16 @@ document.addEventListener("click", (e)=>{
   let message = "";
 
   switch(status.toLowerCase()){
-    case "pending":
+    case "PENDING":
       message = "⏳ Menunggu konfirmasi teknisi";
       break;
-    case "proses":
+    case "PROSES":
       message = "🔧 Perangkat sedang diperbaiki";
       break;
-    case "selesai":
+    case "SELESAI":
       message = "✅ Perbaikan sudah selesai";
       break;
-    case "batal":
+    case "BATAL":
       message = "❌ Service dibatalkan";
       break;
   }
