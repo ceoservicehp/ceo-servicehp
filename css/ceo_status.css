@@ -314,10 +314,10 @@ td:nth-child(1)::before{content:"No";}
 td:nth-child(2)::before{content:"Nama";}
 td:nth-child(3)::before{content:"Alamat";}
 /* td:nth-child(4)::before{content:"No HP";} */
-td:nth-child(5)::before{content:"Tanggal";}
-td:nth-child(6)::before{content:"Status";}
+td:nth-child(4)::before{content:"Tanggal";}
+td:nth-child(5)::before{content:"Status";}
 /* td:nth-child(7)::before{content:"Total";} */
-td:nth-child(8)::before{content:"Aksi";}
+td:nth-child(6)::before{content:"Aksi";}
 
 .detail-grid{
 grid-template-columns:1fr;
