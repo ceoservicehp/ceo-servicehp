@@ -184,6 +184,31 @@ function filterByDate(){
     renderByTab(filteredIncome, filteredExpense);
 }
 
+/* ================= UPDATE FINANCE CARDS ================= */
+function updateFinanceCards(income, expense){
+
+    const totalIncome = income.reduce((sum,row)=>
+        sum + (Number(row.total) || 0),0);
+
+    const totalExpense = expense.reduce((sum,row)=>
+        sum + (Number(row.amount) || 0),0);
+
+    const profit = totalIncome - totalExpense;
+
+    const margin = totalIncome > 0
+        ? ((profit / totalIncome) * 100).toFixed(1)
+        : 0;
+
+    const incomeEl = document.getElementById("totalIncome");
+    const expenseEl = document.getElementById("totalExpense");
+    const profitEl = document.getElementById("totalProfit");
+    const marginEl = document.getElementById("totalMargin");
+
+    if(incomeEl) incomeEl.textContent = rupiah(totalIncome);
+    if(expenseEl) expenseEl.textContent = rupiah(totalExpense);
+    if(profitEl) profitEl.textContent = rupiah(profit);
+    if(marginEl) marginEl.textContent = margin + "%";
+}
 
 /* ================= RENDER TABLE ================= */
 function renderByTab(income = incomeData, expense = expenseData){
