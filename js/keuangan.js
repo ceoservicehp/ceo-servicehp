@@ -318,17 +318,35 @@ function setupExpenseForm(){
 
     const modal = document.getElementById("expenseModal");
 
+    /* ================= HITUNG TOTAL OTOMATIS ================= */
+    const priceInput = document.getElementById("expPrice");
+    const qtyInput = document.getElementById("expQty");
+    const totalInput = document.getElementById("expAmount");
+
+    function updateTotal(){
+        const price = Number(priceInput?.value) || 0;
+        const qty = Number(qtyInput?.value) || 0;
+        if(totalInput){
+            totalInput.value = price * qty;
+        }
+    }
+
+    priceInput?.addEventListener("input", updateTotal);
+    qtyInput?.addEventListener("input", updateTotal);
+
    document.getElementById("addExpenseBtn")
     ?.addEventListener("click", async ()=>{
     
-        modal.style.display="flex";
+        modal.style.display = "flex";
     
-        await loadExpenseCategories();
-        await loadHonorUsers();
+        document.getElementById("expQty").value = 1;
     
         // reset honor wrapper
         document.getElementById("honorUserWrapper").style.display = "none";
         document.getElementById("honorUserSelect").value = "";
+    
+        await loadExpenseCategories();
+        await loadHonorUsers();
     });
 
     /* ===== DETECT HONOR ===== */
