@@ -499,6 +499,11 @@ function exportToCSV(){
     document.body.removeChild(link);
 }
 
+/* ================= EXPORT PDF ================= */
+function generatePDF(){
+    window.print();
+}
+
 /* ================= LOGOUT ================= */
 async function logout(){
 
