@@ -8,7 +8,7 @@ function rupiah(n){
     return "Rp " + Number(n||0).toLocaleString("id-ID");
 }
 
-let globalData = []; // ✅ FIX: simpan data global
+let globalData = [];
 
 function formatSparepart(sparepartJSON){
   if(!sparepartJSON) return "Tidak ada";
@@ -40,41 +40,42 @@ function formatSparepart(sparepartJSON){
 
 document.addEventListener("DOMContentLoaded", async ()=>{
 
-const supabase=getSupabase();
+const supabase = getSupabase();
 if(!supabase) return;
 
-const tbody=document.getElementById("statusTable");
+const tbody = document.getElementById("statusTable");
 
-const {data,error}=await supabase
+const {data,error} = await supabase
 .from("service_orders")
 .select("*")
 .order("created_at",{ascending:false});
 
 if(error){
-tbody.innerHTML=`<tr><td colspan="8">Gagal load data</td></tr>`;
-return;
+  tbody.innerHTML = `<tr><td colspan="8">Gagal load data</td></tr>`;
+  return;
 }
 
 if(!data.length){
-tbody.innerHTML=`<tr><td colspan="8">Belum ada data</td></tr>`;
-return;
+  tbody.innerHTML = `<tr><td colspan="8">Belum ada data</td></tr>`;
+  return;
 }
 
-globalData = data; // ✅ SIMPAN GLOBAL
+globalData = data;
 
-tbody.innerHTML="";
+tbody.innerHTML = "";
 
 data.forEach((row,i)=>{
 
-let statusClass="status-pending";
-if(row.status==="proses") statusClass="status-proses";
-if(row.status==="selesai") statusClass="status-selesai";
-if(row.status==="batal") statusClass="status-batal";
+let statusClass = "status-pending";
 
-const tanggal=new Date(row.created_at)
+if(row.status === "proses") statusClass = "status-proses";
+if(row.status === "selesai") statusClass = "status-selesai";
+if(row.status === "batal") statusClass = "status-batal";
+
+const tanggal = new Date(row.created_at)
 .toLocaleDateString("id-ID",{day:"2-digit",month:"short",year:"numeric"});
 
-tbody.innerHTML+=`
+tbody.innerHTML += `
 <tr>
 <td>${i+1}</td>
 <td>${row.nama}</td>
@@ -99,81 +100,94 @@ Detail
 
 });
 
-/* ================= SEARCH ================= */
+/* ================= SEARCH (TETAP AMAN) ================= */
 document.getElementById("searchNama")
 .addEventListener("input",e=>{
-const keyword=e.target.value.toLowerCase();
+const keyword = e.target.value.toLowerCase();
+
 document.querySelectorAll("#statusTable tr")
 .forEach(tr=>{
-const text=tr.innerText.toLowerCase();
-tr.style.display=text.includes(keyword)?"":"none";
+const text = tr.innerText.toLowerCase();
+tr.style.display = text.includes(keyword) ? "" : "none";
 });
 });
 
-/* ================= DETAIL MODAL ================= */
-document.addEventListener("click",e=>{
+/* ================= CLICK HANDLER (FIXED ANTI BENTROK) ================= */
+document.addEventListener("click",(e)=>{
 
+/* ================= DETAIL ================= */
 if(e.target.classList.contains("detail-btn")){
 
-const id=parseInt(e.target.dataset.id);
-const dataRow=globalData.find(o=>o.id===id);
-if(!dataRow) return;
-
-document.getElementById("d-nama").textContent=dataRow.nama;
-document.getElementById("d-alamat").textContent=dataRow.alamat;
-document.getElementById("d-brand").textContent=dataRow.brand;
-document.getElementById("d-problem").textContent=dataRow.problem;
-document.getElementById("d-metode").textContent=dataRow.metode;
-
-document.getElementById("d-status").textContent=dataRow.status;
-document.getElementById("d-tanggal").textContent=
-new Date(dataRow.created_at).toLocaleString("id-ID");
-
-const modal = document.getElementById("statusModal");
-if (modal) modal.style.display = "flex";
-}
-
-/* ================= STATUS CLICK ================= */
-if(e.target.closest(".status-clickable")){
-
-const el = e.target.closest(".status-clickable");
-const id = parseInt(el.dataset.id);
-
+const id = parseInt(e.target.dataset.id);
 const dataRow = globalData.find(o=>o.id===id);
 if(!dataRow) return;
 
-const status = dataRow.status.toLowerCase();
+document.getElementById("d-nama").textContent = dataRow.nama;
+document.getElementById("d-alamat").textContent = dataRow.alamat;
+document.getElementById("d-brand").textContent = dataRow.brand;
+document.getElementById("d-problem").textContent = dataRow.problem;
+document.getElementById("d-metode").textContent = dataRow.metode;
+
+document.getElementById("d-status").textContent = dataRow.status;
+document.getElementById("d-tanggal").textContent =
+new Date(dataRow.created_at).toLocaleString("id-ID");
+
+document.getElementById("detailModal").style.display = "flex";
+return;
+}
+
+/* ================= STATUS CLICK ================= */
+const el = e.target.closest(".status-clickable");
+if(!el) return;
+
+const id = parseInt(el.dataset.id);
+const dataRow = globalData.find(o=>o.id===id);
+if(!dataRow) return;
+
+const status = (dataRow.status || "").toLowerCase();
 
 const popup = document.getElementById("statusPopup");
 const text = document.getElementById("popupText");
 
-// reset animasi biar bisa replay
+if(!popup || !text) return;
+
+/* reset animasi */
 popup.classList.remove("show");
 void popup.offsetWidth;
 
 let message = "";
+let icon = "";
 
-if(status==="pending"){
-  message="⏳ Menunggu antrian teknisi";
+if(status === "pending"){
+  icon = "fa-solid fa-hourglass";
+  message = "Menunggu antrian teknisi";
 }
-else if(status==="proses"){
-  message="🔧 Teknisi sedang mengerjakan perangkat";
+else if(status === "proses"){
+  icon = "fa-solid fa-screwdriver-wrench";
+  message = "Teknisi sedang bekerja";
 }
-else if(status==="selesai"){
-  message="✅ Service selesai, siap diambil";
+else if(status === "selesai"){
+  icon = "fa-solid fa-circle-check";
+  message = "Service selesai, siap diambil";
 }
-else if(status==="batal"){
-  message="❌ Service dibatalkan";
+else if(status === "batal"){
+  icon = "fa-solid fa-circle-xmark";
+  message = "Service dibatalkan";
 }
 
 text.innerHTML = `
+  <div style="font-size:40px;margin-bottom:10px">
+    <i class="${icon}"></i>
+  </div>
   <h3>${status.toUpperCase()}</h3>
   <p>${message}</p>
 `;
 
 popup.style.display = "flex";
 popup.classList.add("show");
-}
+
+});
+
 });
 
 /* ================= CLOSE POPUP ================= */
