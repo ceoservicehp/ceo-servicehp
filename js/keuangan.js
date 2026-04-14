@@ -277,7 +277,7 @@ function renderByTab(income = incomeData, expense = expenseData){
             <td>${new Date(row.created_at).toLocaleDateString("id-ID")}</td>
         </tr>`;
     });
-
+    }
 }
 
 async function loadExpenseCategories(){
