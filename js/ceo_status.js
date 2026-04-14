@@ -171,16 +171,16 @@ document.addEventListener("click", (e)=>{
   let message = "";
 
   switch(status.toLowerCase()){
-    case "PENDING":
+    case "pending":
       message = "⏳ Menunggu konfirmasi teknisi";
       break;
-    case "PROSES":
+    case "proses":
       message = "🔧 Perangkat sedang diperbaiki";
       break;
-    case "SELESAI":
+    case "selesai":
       message = "✅ Perbaikan sudah selesai";
       break;
-    case "BATAL":
+    case "batal":
       message = "❌ Service dibatalkan";
       break;
   }
