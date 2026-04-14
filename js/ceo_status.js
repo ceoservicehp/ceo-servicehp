@@ -119,7 +119,7 @@ document.getElementById("d-alamat").textContent=dataRow.alamat;
 document.getElementById("d-brand").textContent=dataRow.brand;
 document.getElementById("d-problem").textContent=dataRow.problem;
 document.getElementById("d-metode").textContent=dataRow.metode;
-document.getElementById("sparepartContainer").innerHTML =
+/* document.getElementById("sparepartContainer").innerHTML =
   formatSparepart(dataRow.sparepart);
 document.getElementById("d-totalspare").textContent=
   rupiah(dataRow.total_sparepart || 0);
@@ -137,7 +137,7 @@ document.getElementById("d-total").textContent=
   rupiah(dataRow.total || 0);
 document.getElementById("d-status").textContent=dataRow.status;
 document.getElementById("d-tanggal").textContent=
-new Date(dataRow.created_at).toLocaleString("id-ID");
+new Date(dataRow.created_at).toLocaleString("id-ID"); */
 
 // Bukti Transfer (dari user)
 document.getElementById("d-bukti").innerHTML = dataRow.bukti
