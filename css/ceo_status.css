@@ -498,7 +498,6 @@ padding:10px;
   justify-content: center;
   align-items: center;
 
-  /* animasi background */
   animation: popupFade 0.25s ease;
 }
 
@@ -509,15 +508,31 @@ padding:10px;
   width: 300px;
   text-align: center;
 
-  /* animasi muncul */
   animation: popupZoom 0.35s ease;
 }
 
-/* animasi icon */
+/* icon bergerak terus */
 .popup-content i{
   font-size:42px;
   margin-bottom:10px;
-  animation: iconBounce 0.6s ease;
+
+  animation: iconFloat 1.4s ease-in-out infinite;
+}
+
+/* judul bergerak halus */
+.popup-content h3{
+  margin-top:8px;
+  font-weight:700;
+
+  animation: titlePulse 2s ease-in-out infinite;
+}
+
+/* teks berkedip lembut */
+.popup-content p{
+  margin-top:4px;
+  opacity:.85;
+
+  animation: textFade 2.5s ease-in-out infinite;
 }
 
 /* ================= ANIMATIONS ================= */
@@ -541,16 +556,23 @@ padding:10px;
   }
 }
 
-@keyframes iconBounce{
-  0%{
-    transform: translateY(-15px);
-    opacity:0;
-  }
-  60%{
-    transform: translateY(6px);
-  }
-  100%{
-    transform: translateY(0);
-    opacity:1;
-  }
+/* icon naik turun terus */
+@keyframes iconFloat{
+  0%{ transform: translateY(0); }
+  50%{ transform: translateY(-8px); }
+  100%{ transform: translateY(0); }
+}
+
+/* judul pulse */
+@keyframes titlePulse{
+  0%{ transform: scale(1); }
+  50%{ transform: scale(1.06); }
+  100%{ transform: scale(1); }
+}
+
+/* teks fade */
+@keyframes textFade{
+  0%{ opacity:.6; }
+  50%{ opacity:1; }
+  100%{ opacity:.6; }
 }
