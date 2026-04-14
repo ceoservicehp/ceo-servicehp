@@ -6,9 +6,7 @@ function rupiah(n){
     return "Rp " + Number(n || 0).toLocaleString("id-ID");
 }
 
-let financeChart;
-let trendChart;
-let currentTab = "summary";
+let currentTab = "income";
 let incomeData = [];
 let expenseData = [];
 
@@ -183,105 +181,25 @@ function filterByDate(){
         });
     }
 
-    calculateSummary(filteredIncome, filteredExpense);
     renderByTab(filteredIncome, filteredExpense);
 }
 
-
-/* ================= SUMMARY ================= */
-function calculateSummary(income, expense){
-
-    const totalIncome = income.reduce((a,b)=>a+(Number(b.total)||0),0);
-    const totalExpense = expense.reduce((a,b)=>a+(Number(b.amount)||0),0);
-
-    const net = totalIncome - totalExpense;
-    const margin = totalIncome>0
-        ? ((net/totalIncome)*100).toFixed(1)
-        : 0;
-
-    document.getElementById("totalIncome").textContent = rupiah(totalIncome);
-    document.getElementById("totalExpense").textContent = rupiah(totalExpense);
-    document.getElementById("netProfit").textContent = rupiah(net);
-    document.getElementById("profitMargin").textContent = margin+"%";
-
-    generateChart(totalIncome,totalExpense);
-}
-
-
-/* ================= CHART ================= */
-function generateChart(income,expense){
-
-    const ctx=document.getElementById("financeChart");
-
-    if(financeChart){
-        financeChart.destroy();
-    }
-
-    financeChart = new Chart(ctx,{
-        type:'doughnut',
-        data:{
-            labels:["Pemasukan","Pengeluaran"],
-            datasets:[{
-                data:[income,expense]
-            }]
-        },
-        options:{ responsive:true }
-    });
-
-    /* ===== TREND CHART ===== */
-
-    const trendCtx = document.getElementById("trendChart");
-
-    if(!trendCtx) return;
-
-    if(trendChart){
-        trendChart.destroy();
-    }
-
-    trendChart = new Chart(trendCtx,{
-        type:'line',
-        data:{
-            labels:['Jan','Feb','Mar','Apr','May','Jun','Jul'],
-            datasets:[{
-                label:'Pemasukan',
-                data:[20,40,35,50,60,80,75],
-                borderColor:'#0ea5a4',
-                backgroundColor:'rgba(14,165,164,0.15)',
-                fill:true,
-                tension:0.4
-            }]
-        },
-        options:{
-            plugins:{legend:{display:false}},
-            scales:{
-                y:{display:false},
-                x:{grid:{display:false}}
-            }
-        }
-    });
-
-}
 
 /* ================= RENDER TABLE ================= */
 function renderByTab(income = incomeData, expense = expenseData){
 
     const incomeWrapper = document.getElementById("incomeTableWrapper");
     const expenseWrapper = document.getElementById("expenseTableWrapper");
-    const reportSection = document.getElementById("reportSection");
 
-    // reset display
     if(incomeWrapper) incomeWrapper.style.display = "none";
     if(expenseWrapper) expenseWrapper.style.display = "none";
-    if(reportSection) reportSection.style.display = "none";
 
     /* ================= INCOME ================= */
     if(currentTab === "income"){
 
-        if(incomeWrapper) incomeWrapper.style.display = "block";
+        incomeWrapper.style.display = "block";
 
         const tbody = document.getElementById("incomeTable");
-        if(!tbody) return;
-
         tbody.innerHTML = "";
 
         income.forEach((row,i)=>{
@@ -304,11 +222,9 @@ function renderByTab(income = incomeData, expense = expenseData){
     /* ================= EXPENSE ================= */
     else if(currentTab === "expense"){
 
-        if(expenseWrapper) expenseWrapper.style.display = "block";
+        expenseWrapper.style.display = "block";
 
         const tbody = document.getElementById("expenseTable");
-        if(!tbody) return;
-
         tbody.innerHTML = "";
 
         expense.forEach((row,i)=>{
@@ -316,14 +232,7 @@ function renderByTab(income = incomeData, expense = expenseData){
             <tr>
                 <td>${i+1}</td>
                 <td>${row.title}</td>
-                <td>
-                  <span class="category-badge ${row.category.toLowerCase()}">
-                    ${row.category}
-                  </span>
-                  ${row.category === "Honor" && row.profiles?.full_name
-                      ? `<br><small>(${row.profiles.full_name})</small>`
-                      : ""}
-                </td>
+                <td>${row.category}</td>
                 <td>${row.notes || "-"}</td>
                 <td>${new Date(row.created_at).toLocaleDateString("id-ID")}</td>
                 <td style="color:#e74c3c;font-weight:600;">
@@ -333,23 +242,6 @@ function renderByTab(income = incomeData, expense = expenseData){
         });
 
     }
-
-    /* ================= REPORT ================= */
-    else if(currentTab === "report"){
-
-        if(reportSection) reportSection.style.display = "block";
-        renderReport(income, expense);
-
-    }
-
-    /* ================= SUMMARY ================= */
-    else if(currentTab === "summary"){
-
-        // boleh kosong atau tampilkan pesan default
-        console.log("Mode summary aktif");
-
-    }
-
 }
 
 async function loadExpenseCategories(){
@@ -605,47 +497,6 @@ function exportToCSV(){
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-}
-
-/* ================= LAPORAN ================= */
-function renderReport(income, expense){
-
-    const totalIncome = income.reduce((a,b)=>a+(Number(b.total)||0),0);
-    const totalExpense = expense.reduce((a,b)=>a+(Number(b.amount)||0),0);
-    const net = totalIncome-totalExpense;
-    const margin = totalIncome>0
-        ? ((net/totalIncome)*100).toFixed(1)
-        : 0;
-
-    document.getElementById("reportIncome").textContent = rupiah(totalIncome);
-    document.getElementById("reportExpense").textContent = rupiah(totalExpense);
-    document.getElementById("reportProfit").textContent = rupiah(net);
-    document.getElementById("reportMargin").textContent = margin+"%";
-
-    const breakdown = {};
-    expense.forEach(e=>{
-        breakdown[e.category] = (breakdown[e.category]||0) + Number(e.amount);
-    });
-
-    const ul = document.getElementById("expenseBreakdown");
-    ul.innerHTML = "";
-
-    Object.keys(breakdown).forEach(cat=>{
-        ul.innerHTML += `
-            <li>
-              ${cat} : <strong>${rupiah(breakdown[cat])}</strong>
-            </li>
-        `;
-    });
-
-    const start = document.getElementById("startDate").value || "-";
-    const end = document.getElementById("endDate").value || "-";
-
-    document.getElementById("reportPeriod").textContent =
-        "Periode: " + start + " s/d " + end;
-}
-function generatePDF(){
-    window.print(); // versi ringan & stabil
 }
 
 /* ================= LOGOUT ================= */
