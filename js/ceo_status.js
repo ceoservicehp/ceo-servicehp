@@ -100,7 +100,7 @@ Detail
 
 });
 
-/* ================= SEARCH (TETAP AMAN) ================= */
+/* ================= SEARCH ================= */
 document.getElementById("searchNama")
 .addEventListener("input",e=>{
 const keyword = e.target.value.toLowerCase();
@@ -112,13 +112,15 @@ tr.style.display = text.includes(keyword) ? "" : "none";
 });
 });
 
-/* ================= CLICK HANDLER (FIXED ANTI BENTROK) ================= */
+/* ================= GLOBAL CLICK HANDLER ================= */
 document.addEventListener("click",(e)=>{
 
-/* ================= DETAIL ================= */
-if(e.target.classList.contains("detail-btn")){
+/* ========= DETAIL ========= */
+if(e.target.closest(".detail-btn")){
 
-const id = parseInt(e.target.dataset.id);
+const btn = e.target.closest(".detail-btn");
+
+const id = parseInt(btn.dataset.id);
 const dataRow = globalData.find(o=>o.id===id);
 if(!dataRow) return;
 
@@ -133,10 +135,11 @@ document.getElementById("d-tanggal").textContent =
 new Date(dataRow.created_at).toLocaleString("id-ID");
 
 document.getElementById("detailModal").style.display = "flex";
+
 return;
 }
 
-/* ================= STATUS CLICK ================= */
+/* ========= STATUS CLICK ========= */
 const el = e.target.closest(".status-clickable");
 if(!el) return;
 
