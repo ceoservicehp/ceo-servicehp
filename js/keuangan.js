@@ -6,6 +6,29 @@ function rupiah(n){
     return "Rp " + Number(n || 0).toLocaleString("id-ID");
 }
 
+/* ================= FORMAT SPAREPART ================= */
+function formatSparepart(sparepartJSON){
+
+    if(!sparepartJSON) return "-";
+
+    try{
+
+        const parts = JSON.parse(sparepartJSON);
+
+        if(!Array.isArray(parts) || parts.length === 0){
+            return "-";
+        }
+
+        return parts.map(p => {
+            const qty = Number(p.qty || 0);
+            return `${p.nama} x${qty}`;
+        }).join("<br>");
+
+    }catch(e){
+        return "-";
+    }
+}
+
 let currentTab = "income";
 let incomeData = [];
 let expenseData = [];
@@ -249,9 +272,9 @@ function renderByTab(income = incomeData, expense = expenseData){
            ? new Date(row.tanggal_selesai).toLocaleDateString("id-ID")
            : "-"}
            </td>
-           <td style="color:#2980b9;font-weight:600;">
-           ${rupiah(spare)}
-           </td>
+           <td style="font-size:13px;">
+            ${sparepartList}
+            </td>
            <td style="color:#27ae60;font-weight:700;">
            ${rupiah(row.total || 0)}
            </td>
