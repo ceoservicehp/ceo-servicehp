@@ -38,6 +38,7 @@ function formatSparepart(sparepartJSON){
   }
 }
 
+/* ================= LOAD DATA ================= */
 document.addEventListener("DOMContentLoaded", async ()=>{
 
 const supabase = getSupabase();
@@ -67,7 +68,6 @@ tbody.innerHTML = "";
 data.forEach((row,i)=>{
 
 let statusClass = "status-pending";
-
 if(row.status === "proses") statusClass = "status-proses";
 if(row.status === "selesai") statusClass = "status-selesai";
 if(row.status === "batal") statusClass = "status-batal";
@@ -101,26 +101,24 @@ Detail
 });
 
 /* ================= SEARCH ================= */
-document.getElementById("searchNama")
-.addEventListener("input",e=>{
+document.getElementById("searchNama").addEventListener("input",(e)=>{
 const keyword = e.target.value.toLowerCase();
 
-document.querySelectorAll("#statusTable tr")
-.forEach(tr=>{
+document.querySelectorAll("#statusTable tr").forEach(tr=>{
 const text = tr.innerText.toLowerCase();
 tr.style.display = text.includes(keyword) ? "" : "none";
 });
 });
 
-/* ================= GLOBAL CLICK HANDLER ================= */
+/* ================= CLICK HANDLER ================= */
 document.addEventListener("click",(e)=>{
 
-/* ========= DETAIL ========= */
+/* ===== DETAIL ===== */
 if(e.target.closest(".detail-btn")){
 
 const btn = e.target.closest(".detail-btn");
-
 const id = parseInt(btn.dataset.id);
+
 const dataRow = globalData.find(o=>o.id===id);
 if(!dataRow) return;
 
@@ -135,11 +133,10 @@ document.getElementById("d-tanggal").textContent =
 new Date(dataRow.created_at).toLocaleString("id-ID");
 
 document.getElementById("detailModal").style.display = "flex";
-
 return;
 }
 
-/* ========= STATUS CLICK ========= */
+/* ===== STATUS CLICK ===== */
 const el = e.target.closest(".status-clickable");
 if(!el) return;
 
@@ -158,8 +155,8 @@ if(!popup || !text) return;
 popup.classList.remove("show");
 void popup.offsetWidth;
 
-let message = "";
 let icon = "";
+let message = "";
 
 if(status === "pending"){
   icon = "fa-solid fa-hourglass";
@@ -188,8 +185,6 @@ text.innerHTML = `
 
 popup.style.display = "flex";
 popup.classList.add("show");
-
-});
 
 });
 
