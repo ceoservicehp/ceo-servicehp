@@ -132,6 +132,33 @@ document.getElementById("d-status").textContent = dataRow.status;
 document.getElementById("d-tanggal").textContent =
 new Date(dataRow.created_at).toLocaleString("id-ID");
 
+/* ===== TANGGAL SELESAI ===== */
+const selesaiEl = document.getElementById("d-selesai");
+if(selesaiEl){
+  if(dataRow.tanggal_selesai){
+    selesaiEl.innerHTML =
+      `<span style="color:green;">✅ ${new Date(dataRow.tanggal_selesai).toLocaleString("id-ID")}</span>`;
+  }else{
+    selesaiEl.innerHTML =
+      `<span style="color:orange;">⏳ Belum selesai</span>`;
+  }
+}
+
+/* ===== BUKTI TRANSFER ===== */
+document.getElementById("d-bukti").innerHTML = dataRow.bukti
+  ? `<a href="${dataRow.bukti}" target="_blank">
+        <i class="fa-solid fa-receipt"></i> Lihat Bukti Transfer
+     </a>`
+  : "-";
+
+/* ===== BUKTI SERVICE SELESAI ===== */
+document.getElementById("d-bukti-service").innerHTML =
+  dataRow.bukti_service
+    ? `<a href="${dataRow.bukti_service}" target="_blank">
+        <i class="fa-solid fa-image"></i> Lihat Bukti Service
+       </a>`
+    : "Service belum selesai";
+
 document.getElementById("detailModal").style.display = "flex";
 return;
 }
@@ -188,22 +215,18 @@ popup.classList.add("show");
 
 });
 
-/* ================= CLOSE POPUP ================= */
-document.addEventListener("DOMContentLoaded", ()=>{
+/* ================= CLOSE DETAIL MODAL ================= */
+const closeModalBtn = document.getElementById("closeModal");
+const detailModal = document.getElementById("detailModal");
 
-const closeBtn = document.getElementById("closeStatusPopup");
-const popup = document.getElementById("statusPopup");
+if(closeModalBtn && detailModal){
+  closeModalBtn.onclick = ()=>{
+    detailModal.style.display = "none";
+  };
 
-if(closeBtn && popup){
-  closeBtn.addEventListener("click", ()=>{
-    popup.style.display = "none";
-  });
-
-  popup.addEventListener("click", (e)=>{
-    if(e.target === popup){
-      popup.style.display = "none";
+  detailModal.addEventListener("click",(e)=>{
+    if(e.target === detailModal){
+      detailModal.style.display = "none";
     }
   });
 }
-
-});
