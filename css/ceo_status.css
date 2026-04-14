@@ -497,12 +497,60 @@ padding:10px;
   display: none;
   justify-content: center;
   align-items: center;
+
+  /* animasi background */
+  animation: popupFade 0.25s ease;
 }
 
 .popup-content {
   background: white;
-  padding: 20px;
-  border-radius: 10px;
+  padding: 25px;
+  border-radius: 12px;
   width: 300px;
   text-align: center;
+
+  /* animasi muncul */
+  animation: popupZoom 0.35s ease;
+}
+
+/* animasi icon */
+.popup-content i{
+  font-size:42px;
+  margin-bottom:10px;
+  animation: iconBounce 0.6s ease;
+}
+
+/* ================= ANIMATIONS ================= */
+
+@keyframes popupFade{
+  from{opacity:0;}
+  to{opacity:1;}
+}
+
+@keyframes popupZoom{
+  0%{
+    transform: scale(0.7);
+    opacity:0;
+  }
+  70%{
+    transform: scale(1.05);
+  }
+  100%{
+    transform: scale(1);
+    opacity:1;
+  }
+}
+
+@keyframes iconBounce{
+  0%{
+    transform: translateY(-15px);
+    opacity:0;
+  }
+  60%{
+    transform: translateY(6px);
+  }
+  100%{
+    transform: translateY(0);
+    opacity:1;
+  }
 }
