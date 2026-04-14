@@ -8,13 +8,13 @@ function rupiah(n){
     return "Rp " + Number(n||0).toLocaleString("id-ID");
 }
 
-function formatSparepart(sparepartJSON){
+let globalData = []; // ✅ FIX: simpan data global
 
+function formatSparepart(sparepartJSON){
   if(!sparepartJSON) return "Tidak ada";
 
   try{
     const parts = JSON.parse(sparepartJSON);
-
     if(!Array.isArray(parts) || parts.length === 0){
       return "Tidak ada";
     }
@@ -60,14 +60,16 @@ tbody.innerHTML=`<tr><td colspan="8">Belum ada data</td></tr>`;
 return;
 }
 
+globalData = data; // ✅ SIMPAN GLOBAL
+
 tbody.innerHTML="";
 
 data.forEach((row,i)=>{
 
 let statusClass="status-pending";
-if(row.status==="PROSES") statusClass="status-proses";
-if(row.status==="SELESAI") statusClass="status-selesai";
-if(row.status==="BATAL") statusClass="status-batal";
+if(row.status==="proses") statusClass="status-proses";
+if(row.status==="selesai") statusClass="status-selesai";
+if(row.status==="batal") statusClass="status-batal";
 
 const tanggal=new Date(row.created_at)
 .toLocaleDateString("id-ID",{day:"2-digit",month:"short",year:"numeric"});
@@ -78,13 +80,14 @@ tbody.innerHTML+=`
 <td>${row.nama}</td>
 <td>${row.alamat}</td>
 <td>${tanggal}</td>
+
 <td>
   <span class="status-badge ${statusClass} status-clickable"
-        data-status="${row.status}"
         data-id="${row.id}">
     ${row.status}
   </span>
 </td>
+
 <td>
 <button class="detail-btn" data-id="${row.id}">
 Detail
@@ -94,6 +97,7 @@ Detail
 `;
 });
 
+});
 
 /* ================= SEARCH ================= */
 document.getElementById("searchNama")
@@ -106,13 +110,13 @@ tr.style.display=text.includes(keyword)?"":"none";
 });
 });
 
-
 /* ================= DETAIL MODAL ================= */
 document.addEventListener("click",e=>{
-if(!e.target.classList.contains("detail-btn")) return;
+
+if(e.target.classList.contains("detail-btn")){
 
 const id=parseInt(e.target.dataset.id);
-const dataRow=data.find(o=>o.id===id);
+const dataRow=globalData.find(o=>o.id===id);
 if(!dataRow) return;
 
 document.getElementById("d-nama").textContent=dataRow.nama;
@@ -120,86 +124,64 @@ document.getElementById("d-alamat").textContent=dataRow.alamat;
 document.getElementById("d-brand").textContent=dataRow.brand;
 document.getElementById("d-problem").textContent=dataRow.problem;
 document.getElementById("d-metode").textContent=dataRow.metode;
-const selesaiEl = document.getElementById("d-selesai");
-if(selesaiEl){
-  if(dataRow.tanggal_selesai){
-    selesaiEl.innerHTML = `<span style="color:green;">✅ ${new Date(dataRow.tanggal_selesai).toLocaleString("id-ID")}</span>`;
-  }else{
-    selesaiEl.innerHTML = `<span style="color:orange;">⏳ Belum selesai</span>`;
-  }
-}
+
 document.getElementById("d-status").textContent=dataRow.status;
 document.getElementById("d-tanggal").textContent=
 new Date(dataRow.created_at).toLocaleString("id-ID");
 
-// Bukti Transfer (dari user)
-document.getElementById("d-bukti").innerHTML = dataRow.bukti
-  ? `<a href="${dataRow.bukti}" target="_blank" class="bukti-link">
-        <i class="fa-solid fa-receipt"></i> Lihat Bukti Transfer
-     </a>`
-  : "-";
+document.getElementById("statusModal")?.style?.display="flex";
+}
 
-// Bukti Service Selesai (dari admin)
-document.getElementById("d-bukti-service").innerHTML =
-  dataRow.bukti_service
-    ? `<a href="${dataRow.bukti_service}" target="_blank" class="bukti-link">
-          <i class="fa-solid fa-image"></i> Lihat Bukti Service
-       </a>`
-    : "Service belum selesai";
+/* ================= STATUS CLICK ================= */
+if(e.target.closest(".status-clickable")){
 
-document.getElementById("detailModal").style.display="flex";
+const el = e.target.closest(".status-clickable");
+const id = parseInt(el.dataset.id);
+
+const dataRow = globalData.find(o=>o.id===id);
+if(!dataRow) return;
+
+const status = dataRow.status.toLowerCase();
+
+const popup = document.getElementById("statusPopup");
+const text = document.getElementById("popupText");
+
+// reset animasi biar bisa replay
+popup.classList.remove("show");
+void popup.offsetWidth;
+
+let message = "";
+
+if(status==="pending"){
+  message="⏳ Menunggu antrian teknisi";
+}
+else if(status==="proses"){
+  message="🔧 Teknisi sedang mengerjakan perangkat";
+}
+else if(status==="selesai"){
+  message="✅ Service selesai, siap diambil";
+}
+else if(status==="batal"){
+  message="❌ Service dibatalkan";
+}
+
+text.innerHTML = `
+  <h3>${status.toUpperCase()}</h3>
+  <p>${message}</p>
+`;
+
+popup.style.display = "flex";
+popup.classList.add("show");
+}
 });
 
-
-document.getElementById("closeModal").onclick=()=>{
-document.getElementById("detailModal").style.display="none";
-};
-
-});
-
-/* ================= STATUS CLICK POPUP ================= */
-document.addEventListener("click", (e)=>{
-
-  const el = e.target.closest(".status-clickable");
-  if(!el) return;
-
-  const status = el.dataset.status;
-
-  const popup = document.getElementById("statusPopup");
-  const text = document.getElementById("popupText");
-
-  let message = "";
-
-  switch(status.toLowerCase()){
-    case "pending":
-      message = "⏳ Menunggu konfirmasi teknisi";
-      break;
-    case "proses":
-      message = "🔧 Perangkat sedang diperbaiki";
-      break;
-    case "selesai":
-      message = "✅ Perbaikan sudah selesai";
-      break;
-    case "batal":
-      message = "❌ Service dibatalkan";
-      break;
-  }
-
-  text.innerHTML = `
-    <h3>${status.toUpperCase()}</h3>
-    <p>${message}</p>
-  `;
-
-  popup.style.display = "flex";
-});
-
-/* close popup */
+/* ================= CLOSE POPUP ================= */
 document.getElementById("closeStatusPopup").onclick = ()=>{
-  document.getElementById("statusPopup").style.display = "none";
+document.getElementById("statusPopup").style.display="none";
 };
 
 document.getElementById("statusPopup").onclick = (e)=>{
-  if(e.target.id === "statusPopup"){
-    e.target.style.display = "none";
-  }
+if(e.target.id === "statusPopup"){
+e.target.style.display="none";
+}
 };
