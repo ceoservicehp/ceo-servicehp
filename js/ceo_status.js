@@ -81,9 +81,6 @@ tbody.innerHTML+=`
 <td><span class="status-badge ${statusClass}">
 ${row.status}
 </span></td>
-<td style="color:#009688;font-weight:600">
-${rupiah(row.total)}
-</td>
 <td>
 <button class="detail-btn" data-id="${row.id}">
 Detail
@@ -119,12 +116,6 @@ document.getElementById("d-alamat").textContent=dataRow.alamat;
 document.getElementById("d-brand").textContent=dataRow.brand;
 document.getElementById("d-problem").textContent=dataRow.problem;
 document.getElementById("d-metode").textContent=dataRow.metode;
-/* document.getElementById("sparepartContainer").innerHTML =
-  formatSparepart(dataRow.sparepart);
-document.getElementById("d-totalspare").textContent=
-  rupiah(dataRow.total_sparepart || 0);
-document.getElementById("d-transport").textContent=
-  rupiah(dataRow.transport || 0);
 const selesaiEl = document.getElementById("d-selesai");
 if(selesaiEl){
   if(dataRow.tanggal_selesai){
