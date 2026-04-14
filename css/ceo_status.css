@@ -386,55 +386,90 @@ padding:10px;
 
 }
 
-/* ================= Animasi Status ================= */
+/* ================= STATUS BASE ================= */
 .status-badge {
-  padding: 5px 10px;
-  border-radius: 8px;
-  font-weight: bold;
+  padding: 6px 14px;
+  border-radius: 12px;
+  font-weight: 700;
   display: inline-block;
   cursor: pointer;
-}
-
-/* ================= STATUS WARNA ================= */
-.status-pending {
-  background: #ffeb3b;
-  color: #000;
-  animation: pulse 1.5s infinite;
-}
-
-.status-proses {
-  background: #2196f3;
-  color: white;
   position: relative;
+  transition: all 0.3s ease;
   overflow: hidden;
 }
 
+/* ================= PENDING ================= */
+.status-pending {
+  background: #ffe082;
+  color: #5c4500;
+  animation: pendingPulse 1.8s infinite;
+}
+
+@keyframes pendingPulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.5);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 12px 4px rgba(255, 193, 7, 0.2);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(255, 193, 7, 0);
+  }
+}
+
+/* ================= PROSES ================= */
+.status-proses {
+  background: #2196f3;
+  color: white;
+  overflow: hidden;
+}
+
+/* efek cahaya jalan */
+.status-proses::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -120%;
+  width: 120%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(255,255,255,0.4),
+    transparent
+  );
+  animation: slide 1.2s infinite;
+}
+
+@keyframes slide {
+  0% { left: -120%; }
+  100% { left: 120%; }
+}
+
+/* ================= SELESAI ================= */
 .status-selesai {
   background: #4caf50;
   color: white;
-  animation: bounce 1.2s infinite;
+  animation: successPop 1.5s infinite;
 }
 
+@keyframes successPop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+
+/* ================= BATAL ================= */
 .status-batal {
   background: #f44336;
   color: white;
-  animation: shake 0.6s infinite;
+  animation: dangerShake 0.6s infinite;
 }
 
-/* ================= ANIMASI ================= */
-
-@keyframes pulse {
-  0% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.1); opacity: 0.7; }
-  100% { transform: scale(1); opacity: 1; }
-}
-
-@keyframes bounce {
-  0%,100% { transform: translateY(0); }
-  50% { transform: translateY(-5px); }
-}
-
-@keyframes shake {
+@keyframes dangerShake {
   0% { transform: translateX(0); }
   25% { transform: translateX(-2px); }
   50% { transform: translateX(2px); }
@@ -442,30 +477,22 @@ padding:10px;
   100% { transform: translateX(0); }
 }
 
-/* ================= PROSES LOADING EFFECT ================= */
-.status-proses::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: rgba(255,255,255,0.3);
-  animation: slide 1.5s infinite;
+/* ================= CLICK EFFECT ================= */
+.status-badge:active {
+  transform: scale(0.95);
 }
 
-@keyframes slide {
-  0% { left: -100%; }
-  100% { left: 100%; }
+/* ================= STATUS ACTIVE ================= */
+.status-active {
+  outline: 2px solid #fff;
+  box-shadow: 0 0 15px rgba(0,0,0,0.3);
+  transform: scale(1.1);
 }
 
 /* ================= POPUP ================= */
 .status-popup {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  inset: 0;
   background: rgba(0,0,0,0.5);
   display: none;
   justify-content: center;
