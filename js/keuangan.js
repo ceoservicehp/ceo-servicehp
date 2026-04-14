@@ -12,17 +12,23 @@ function formatSparepart(sparepartJSON){
     if(!sparepartJSON) return "-";
 
     try{
-
         const parts = JSON.parse(sparepartJSON);
-
         if(!Array.isArray(parts) || parts.length === 0){
             return "-";
         }
-
         return parts.map(p => {
             const qty = Number(p.qty || 0);
-            return `${p.nama} x${qty}`;
-        }).join("<br>");
+            const harga = Number(p.harga || 0);
+            const total = harga * qty;
+            return `
+            <div style="font-size:13px">
+                ${p.nama} x${qty} 
+                <span style="color:#2980b9;">
+                (${rupiah(harga)})
+                </span>
+            </div>
+            `;
+        }).join("");
 
     }catch(e){
         return "-";
