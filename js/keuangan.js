@@ -253,34 +253,36 @@ function renderByTab(income = incomeData, expense = expenseData){
     tbody.innerHTML = "";
 
    income.forEach((row,i)=>{
-    const spare = row.total_sparepart || 0;
-       
-       tbody.innerHTML += `
-       <tr>
-       <td>${i+1}</td>
-       <td>${row.nama || "-"}</td>
-       <td>${row.alamat || "-"}</td>
-       <td>${row.metode || "-"}</td>
-       <td>
-       ${row.created_at 
-         ? new Date(row.created_at).toLocaleDateString("id-ID")
-         : "-"}
-         </td>
-         <td>${row.status || "-"}</td>
-         <td>
-         ${row.tanggal_selesai
-           ? new Date(row.tanggal_selesai).toLocaleDateString("id-ID")
-           : "-"}
-           </td>
-           <td style="font-size:13px;">
-            ${sparepartList}
-            </td>
-           <td style="color:#27ae60;font-weight:700;">
-           ${rupiah(row.total || 0)}
-           </td>
-           </tr>
-           `;
-   });
+
+    const sparepartList = formatSparepart(row.sparepart); // ← WAJIB ADA
+
+    tbody.innerHTML += `
+    <tr>
+
+        <td>${i+1}</td>
+        <td>${row.nama || "-"}</td>
+        <td>${row.alamat || "-"}</td>
+        <td>${row.metode || "-"}</td>
+        <td>
+        ${row.created_at
+        ? new Date(row.created_at).toLocaleDateString("id-ID")
+        : "-"}
+        </td>
+        <td>${row.status || "-"}</td>
+        <td>
+        ${row.tanggal_selesai
+        ? new Date(row.tanggal_selesai).toLocaleDateString("id-ID")
+        : "-"}
+        </td>
+        <td>${sparepartList}</td>
+        <td style="color:#27ae60;font-weight:700;">
+        ${rupiah(row.total || 0)}
+        </td>
+
+    </tr>
+    `;
+});
+
 }
 
     /* ================= EXPENSE ================= */
