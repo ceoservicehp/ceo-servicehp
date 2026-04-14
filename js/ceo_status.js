@@ -211,7 +211,7 @@ text.innerHTML = `
 `;
 
 popup.style.display = "flex";
-popup.classList.add("show");
+popup.className = "status-popup show " + status;
 
 });
 
