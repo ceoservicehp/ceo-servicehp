@@ -128,7 +128,7 @@ document.getElementById("d-total").textContent=
   rupiah(dataRow.total || 0);
 document.getElementById("d-status").textContent=dataRow.status;
 document.getElementById("d-tanggal").textContent=
-new Date(dataRow.created_at).toLocaleString("id-ID"); */
+new Date(dataRow.created_at).toLocaleString("id-ID");
 
 // Bukti Transfer (dari user)
 document.getElementById("d-bukti").innerHTML = dataRow.bukti
