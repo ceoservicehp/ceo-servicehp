@@ -208,13 +208,53 @@ color:#fbbc04;
 
 /* ===== HERO BUTTON FIX ===== */
 
-.hero-actions{
+.hero-buttons{
 display:flex;
 justify-content:center;
 align-items:center;
-gap:14px;
-margin-top:25px;
+gap:16px;
+margin-top:30px;
 flex-wrap:nowrap;
+}
+
+/* ===== HERO BUTTON STYLE ===== */
+
+.btn-hero{
+display:flex;
+align-items:center;
+justify-content:center;
+padding:14px 28px;
+border-radius:40px;
+background:white;
+font-weight:700;
+text-decoration:none;
+font-size:16px;
+white-space:nowrap;
+box-shadow:0 6px 18px rgba(0,0,0,0.15);
+transition:.25s;
+}
+
+/* rating button */
+
+.rating-btn{
+color:#333;
+}
+
+.rating-btn span{
+color:#fbbc04;
+}
+
+/* service button */
+
+.service-btn{
+color:#1f6f78;
+}
+
+/* hover */
+
+.btn-hero:hover{
+transform:translateY(-3px);
+box-shadow:0 12px 28px rgba(0,0,0,0.25);
 }
 
 /* samakan tinggi tombol */
@@ -444,12 +484,11 @@ height:220px;
 
 @media(max-width:600px){
 
-.hero-actions{
+.hero-buttons{
 gap:10px;
 }
 
-.hero-rating,
-.btn-primary{
+.btn-hero{
 padding:12px 18px;
 font-size:14px;
 }
