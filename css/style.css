@@ -585,7 +585,19 @@ position:relative;
 display:flex;
 gap:20px;
 padding:20px;
-transition:transform 0.5s ease;
+overflow-x:auto;
+scroll-behavior:smooth;
+cursor:grab;
+-ms-overflow-style:none;
+scrollbar-width:none;
+}
+
+.reviews-slider::-webkit-scrollbar{
+display:none;
+}
+
+.reviews-slider:active{
+cursor:grabbing;
 }
 
 /* card */
@@ -597,6 +609,12 @@ border-radius:16px;
 padding:20px;
 box-shadow:0 10px 30px rgba(0,0,0,0.08);
 text-align:left;
+transition:0.3s;
+}
+
+.review-card:hover{
+transform:translateY(-5px);
+box-shadow:0 16px 35px rgba(0,0,0,0.12);
 }
 
 /* rating */
