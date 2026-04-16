@@ -550,6 +550,8 @@ function initUI(){
             }
             
             // render ulang sparepart lama
+            renderSelectedParts();
+            hitungTotalSparepart();
         
         document.getElementById("edit-total-sparepart").value =
         formatRupiahInput((data.total_sparepart ?? 0).toString());
@@ -722,14 +724,17 @@ function hitungTotalSparepart(){
   let total = 0;
 
   selectedParts.forEach(item=>{
-
     const harga = parseInt(item.harga) || 0;
     const qty   = parseInt(item.qty) || 0;
 
     total += harga * qty;
   });
 
-  document.getElementById("edit-total-sparepart").value = total || 0;
+  const field = document.getElementById("edit-total-sparepart");
+
+  if(field){
+    field.value = formatRupiahInput(total.toString());
+  }
 }
 
 /* ================= Update QTY & Remove Part ================= */
