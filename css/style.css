@@ -5,12 +5,16 @@ padding:0;
 box-sizing:border-box;
 }
 
-body{
+html{
 font-family:'Segoe UI',sans-serif;
 background:#f4f7fb;
 color:#333;
 scroll-behavior:smooth;
 overflow-x:hidden;
+}
+
+#reviews{
+scroll-margin-top:60px;
 }
 
 /* ================= HEADER ================= */
