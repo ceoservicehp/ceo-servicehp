@@ -66,45 +66,39 @@ startAutoSlide();
 }
 
 // ================= AUTO SLIDER =================
+
 function startAutoSlide(){
 
 const slider = document.querySelector(".reviews-slider");
 
 if(!slider) return;
 
+// duplicate card supaya infinite
+slider.innerHTML += slider.innerHTML;
+
 let position = 0;
-let interval;
+let speed = 0.3;
 let isPaused = false;
 
-function slide(){
+function animate(){
 
-if(isPaused) return;
+if(!isPaused){
 
-const card = slider.querySelector(".review-card");
-const cardWidth = card ? card.offsetWidth : 300;
+position -= speed;
 
-position += cardWidth + 20;
-
-slider.scrollTo({
-left: position,
-behavior: "smooth"
-});
-
-if(position >= slider.scrollWidth - slider.clientWidth){
+if(Math.abs(position) >= slider.scrollWidth / 2){
 position = 0;
 }
 
+slider.style.transform = `translateX(${position}px)`;
+
 }
 
-function start(){
-interval = setInterval(slide,4000);
+requestAnimationFrame(animate);
+
 }
 
-function stop(){
-clearInterval(interval);
-}
-
-start();
+animate();
 
 
 // pause saat hover
@@ -113,7 +107,7 @@ isPaused = true;
 });
 
 
-// lanjut lagi saat mouse keluar
+// lanjut saat keluar
 slider.addEventListener("mouseleave",()=>{
 isPaused = false;
 });
