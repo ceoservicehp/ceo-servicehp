@@ -184,15 +184,6 @@ opacity:.95;
 }
 
 /* ======== Ulasan ====== */
-.hero-actions{
-display:flex;
-justify-content:center;
-align-items:center;
-gap:14px;
-margin-top:25px;
-flex-wrap:nowrap;
-}
-
 .hero-rating{
 display:flex;
 align-items:center;
@@ -244,9 +235,11 @@ transition:.3s;
 
 /* ===== BUTTON ===== */
 .btn-primary{
-display:inline-block;
-padding:14px 30px;
-border-radius:30px;
+display:flex;
+align-items:center;
+justify-content:center;
+padding:14px 28px;
+border-radius:40px;
 background:white;
 color:#1f6f78;
 font-weight:700;
@@ -593,14 +586,8 @@ text-align:center;
 
 /* hero rating */
 
-.hero-rating{
+.google-reviews .hero-rating{
 margin-top:15px;
-background:white;
-display:inline-block;
-padding:8px 14px;
-border-radius:30px;
-font-weight:bold;
-box-shadow:0 4px 12px rgba(0,0,0,0.1);
 }
 
 .hero-rating span{
