@@ -66,7 +66,6 @@ startAutoSlide();
 }
 
 // ================= AUTO SLIDER =================
-
 function startAutoSlide(){
 
 const slider = document.querySelector(".reviews-slider");
@@ -74,10 +73,15 @@ const slider = document.querySelector(".reviews-slider");
 if(!slider) return;
 
 let position = 0;
+let interval;
+let isPaused = false;
 
-setInterval(()=>{
+function slide(){
 
-const cardWidth = slider.querySelector(".review-card")?.offsetWidth || 300;
+if(isPaused) return;
+
+const card = slider.querySelector(".review-card");
+const cardWidth = card ? card.offsetWidth : 300;
 
 position += cardWidth + 20;
 
@@ -90,6 +94,34 @@ if(position >= slider.scrollWidth - slider.clientWidth){
 position = 0;
 }
 
-},4000);
+}
+
+function start(){
+interval = setInterval(slide,4000);
+}
+
+function stop(){
+clearInterval(interval);
+}
+
+start();
+
+
+// pause saat hover
+slider.addEventListener("mouseenter",()=>{
+isPaused = true;
+});
+
+
+// lanjut lagi saat mouse keluar
+slider.addEventListener("mouseleave",()=>{
+isPaused = false;
+});
+
+
+// pause saat klik
+slider.addEventListener("click",()=>{
+isPaused = true;
+});
 
 }
