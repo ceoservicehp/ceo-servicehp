@@ -36,8 +36,8 @@ function formatSparepart(sparepartJSON){
 }
 
 let currentTab = "income";
-let incomeData = [];
-let expenseData = [];
+let filteredIncomeData = [];
+let filteredExpenseData = [];
 
 /* ================= INIT ================= */
 document.addEventListener("DOMContentLoaded", async ()=>{
@@ -194,24 +194,24 @@ function filterByDate(){
     const start = document.getElementById("startDate")?.value;
     const end = document.getElementById("endDate")?.value;
 
-    let filteredIncome = incomeData;
-    let filteredExpense = expenseData;
+    filteredIncomeData = incomeData;
+    filteredExpenseData = expenseData;
 
     if(start && end){
 
-        filteredIncome = incomeData.filter(o=>{
+        filteredIncomeData = incomeData.filter(o=>{
             const d = o.created_at.split("T")[0];
             return d >= start && d <= end;
         });
 
-        filteredExpense = expenseData.filter(o=>{
+        filteredExpenseData = expenseData.filter(o=>{
             const d = o.created_at.split("T")[0];
             return d >= start && d <= end;
         });
     }
 
-    renderByTab(filteredIncome, filteredExpense);
-    updateFinanceCards(filteredIncome, filteredExpense);
+    renderByTab(filteredIncomeData, filteredExpenseData);
+    updateFinanceCards(filteredIncomeData, filteredExpenseData);
 }
 
 /* ================= UPDATE FINANCE CARDS ================= */
@@ -579,24 +579,75 @@ function setupExportButtons(){
 function exportToCSV(){
 
     let rows = [];
+    let fileName = "laporan_keuangan.csv";
 
     if(currentTab==="income"){
-        rows = incomeData.map(o=>[o.nama,o.total,o.created_at]);
+
+        rows.push([
+            "No",
+            "Nama",
+            "Alamat",
+            "Metode",
+            "Tanggal Masuk",
+            "Status",
+            "Tanggal Selesai",
+            "Total"
+        ]);
+
+        filteredIncomeData.forEach((o,i)=>{
+            rows.push([
+                i+1,
+                o.nama,
+                o.alamat,
+                o.metode,
+                new Date(o.created_at).toLocaleDateString("id-ID"),
+                o.status,
+                o.tanggal_selesai
+                    ? new Date(o.tanggal_selesai).toLocaleDateString("id-ID")
+                    : "-",
+                o.total
+            ]);
+        });
+
+        fileName = "laporan_pemasukan.csv";
     }
+
     else if(currentTab==="expense"){
-        rows = expenseData.map(o=>[o.title,o.category,o.amount,o.created_at]);
-    }
-    else{
-        alert("Pilih tab Pemasukan atau Pengeluaran dulu.");
-        return;
+
+        rows.push([
+            "No",
+            "Judul",
+            "Kategori",
+            "Penerima",
+            "Harga",
+            "Qty",
+            "Total",
+            "Tanggal"
+        ]);
+
+        filteredExpenseData.forEach((o,i)=>{
+            rows.push([
+                i+1,
+                o.title,
+                o.category,
+                o.profiles?.full_name || "-",
+                o.price,
+                o.qty,
+                o.amount,
+                new Date(o.created_at).toLocaleDateString("id-ID")
+            ]);
+        });
+
+        fileName = "laporan_pengeluaran.csv";
     }
 
-    let csv="data:text/csv;charset=utf-8,";
-    rows.forEach(r=> csv+=r.join(",")+"\n");
+    let csv = "data:text/csv;charset=utf-8,";
+    rows.forEach(r => csv += r.join(",") + "\n");
 
-    const link=document.createElement("a");
-    link.href=encodeURI(csv);
-    link.download="laporan_keuangan.csv";
+    const link = document.createElement("a");
+    link.href = encodeURI(csv);
+    link.download = fileName;
+
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
