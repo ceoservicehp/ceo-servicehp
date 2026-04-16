@@ -540,13 +540,15 @@ function initUI(){
         document.getElementById("edit-metode").value=data.metode ?? "";
         // reset dulu
             selectedParts = [];
-            
+
             if(data.sparepart){
-              try{
+            
+              if(typeof data.sparepart === "string"){
                 selectedParts = JSON.parse(data.sparepart);
-              }catch(e){
-                selectedParts = [];
+              }else{
+                selectedParts = data.sparepart;
               }
+            
             }
             
             // render ulang sparepart lama
