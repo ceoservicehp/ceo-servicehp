@@ -16,16 +16,20 @@ if(status === google.maps.places.PlacesServiceStatus.OK){
 // HERO BADGE
 const hero = document.getElementById("hero-rating");
 
+if(hero){
 hero.innerHTML = `
 <span>⭐ ${place.rating}</span> Google Rating
 `;
+}
 
 // SUMMARY
 const summary = document.getElementById("review-summary");
 
+if(summary){
 summary.innerHTML = `
 ⭐ ${place.rating} / 5 dari ${place.user_ratings_total} ulasan Google
 `;
+}
 
 // REVIEWS
 const container = document.getElementById("reviews-container");
@@ -40,7 +44,7 @@ card.innerHTML = `
 <div class="review-rating">⭐ ${review.rating}</div>
 
 <div class="review-text">
-"${review.text.substring(0,120)}..."
+"${review.text.substring(0,100)}..."
 </div>
 
 <div class="review-author">
@@ -61,27 +65,29 @@ startAutoSlide();
 
 }
 
-// AUTO SLIDER
+// ================= AUTO SLIDER =================
 
 function startAutoSlide(){
 
 const slider = document.querySelector(".reviews-slider");
 
-let scrollAmount = 0;
+if(!slider) return;
+
+let position = 0;
 
 setInterval(()=>{
 
-scrollAmount += 320;
-
-if(scrollAmount >= slider.scrollWidth){
-scrollAmount = 0;
-}
+position += 320;
 
 slider.scrollTo({
-left: scrollAmount,
+left: position,
 behavior:"smooth"
 });
 
-},4000);
+if(position >= slider.scrollWidth - slider.clientWidth){
+position = 0;
+}
+
+},2000);
 
 }
