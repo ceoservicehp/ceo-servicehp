@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://ceo-servicehp.vercel.app/sitemap.xml
