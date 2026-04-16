@@ -577,6 +577,7 @@ font-size:18px;
 .reviews-wrapper{
 overflow:hidden;
 position:relative;
+width:100%;
 }
 
 /* slider */
@@ -585,15 +586,9 @@ position:relative;
 display:flex;
 gap:20px;
 padding:20px;
-overflow-x:auto;
-scroll-behavior:smooth;
+will-change:transform;
 cursor:grab;
--ms-overflow-style:none;
-scrollbar-width:none;
-}
-
-.reviews-slider::-webkit-scrollbar{
-display:none;
+transition:transform 0.1s linear;
 }
 
 .reviews-slider:active{
@@ -603,6 +598,7 @@ cursor:grabbing;
 /* card */
 
 .review-card{
+flex-shrink:0;
 min-width:300px;
 background:white;
 border-radius:16px;
