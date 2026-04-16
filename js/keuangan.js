@@ -35,7 +35,12 @@ function formatSparepart(sparepartJSON){
     }
 }
 
+/* ================= GLOBAL DATA ================= */
+
 let currentTab = "income";
+let incomeData = [];
+let expenseData = [];
+
 let filteredIncomeData = [];
 let filteredExpenseData = [];
 
