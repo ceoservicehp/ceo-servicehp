@@ -183,14 +183,31 @@ margin-bottom:25px;
 opacity:.95;
 }
 
+/* ======== Ulasan ====== */
+.hero-actions{
+display:flex;
+gap:16px;
+justify-content:center;
+align-items:center;
+margin-top:20px;
+flex-wrap:wrap;
+}
+
 .hero-rating{
-margin:14px 0 20px 0;
 display:inline-block;
-padding:6px 14px;
+padding:10px 16px;
 background:#fff;
-border-radius:30px;
+border-radius:8px;
 font-weight:600;
 box-shadow:0 6px 18px rgba(0,0,0,0.1);
+text-decoration:none;
+color:#000;
+transition:0.3s;
+}
+
+.hero-rating:hover{
+transform:translateY(-2px);
+box-shadow:0 10px 22px rgba(0,0,0,0.15);
 }
 
 .hero-rating span{
