@@ -40,8 +40,11 @@ const card = document.createElement("div");
 
 card.className = "review-card";
 
-card.innerHTML = `
+// ⭐⭐⭐⭐⭐
 const stars = "⭐".repeat(review.rating);
+
+card.innerHTML = `
+<div class="review-rating">${stars}</div>
 
 <div class="review-text">
 "${review.text.substring(0,100)}..."
