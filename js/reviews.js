@@ -23,7 +23,7 @@ heroScore.innerText = place.rating;
 }
 
 if(heroText){
-heroText.innerText = place.user_ratings_total + " Ulasan Google";
+heroText.innerText = place.user_ratings_total + " Rating Google";
 }
 
 // SUMMARY
