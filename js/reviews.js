@@ -21,6 +21,12 @@ hero.innerHTML = `
 <span>⭐ ${place.rating}</span> Google Rating
 `;
 }
+ 
+  const heroScore = document.getElementById("hero-rating-score");
+
+if(heroScore){
+heroScore.innerText = place.rating;
+}
 
 // SUMMARY
 const summary = document.getElementById("review-summary");
