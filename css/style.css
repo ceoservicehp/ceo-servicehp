@@ -510,57 +510,92 @@ right:0;
 background:linear-gradient(to left,#E6F1F1,transparent);
 }
 
-/* ================= ULASAN ================= */
+/* ================= GOOGLE REVIEW PREMIUM ================= */
+
 .google-reviews{
 padding:80px 20px;
 background:#f7f7f7;
 text-align:center;
 }
 
-.review-summary{
-margin-bottom:40px;
+/* hero rating */
+
+.hero-rating{
+margin-top:15px;
+background:white;
+display:inline-block;
+padding:8px 14px;
+border-radius:30px;
+font-weight:bold;
+box-shadow:0 4px 12px rgba(0,0,0,0.1);
 }
 
-.review-summary h3{
-font-size:36px;
-margin:0;
-}
-
-.review-summary span{
+.hero-rating span{
 color:#fbbc04;
-font-size:20px;
 }
+
+/* summary */
+
+.review-summary{
+margin-bottom:30px;
+font-size:18px;
+}
+
+/* slider wrapper */
+
+.reviews-wrapper{
+overflow:hidden;
+position:relative;
+}
+
+/* slider */
 
 .reviews-slider{
 display:flex;
 gap:20px;
-overflow-x:auto;
 padding:20px;
-scroll-snap-type:x mandatory;
+transition:transform 0.5s ease;
 }
+
+/* card */
 
 .review-card{
-min-width:280px;
+min-width:300px;
 background:white;
-border-radius:14px;
+border-radius:16px;
 padding:20px;
-box-shadow:0 10px 25px rgba(0,0,0,0.08);
+box-shadow:0 10px 30px rgba(0,0,0,0.08);
 text-align:left;
-scroll-snap-align:start;
-transition:0.3s;
 }
 
-.review-card:hover{
-transform:translateY(-5px);
-}
-
-.review-author{
-margin-top:15px;
-font-weight:bold;
-}
+/* rating */
 
 .review-rating{
 color:#fbbc04;
 font-size:18px;
 margin-bottom:10px;
+}
+
+/* text */
+
+.review-text{
+font-size:14px;
+line-height:1.6;
+color:#444;
+margin-bottom:15px;
+}
+
+/* author */
+
+.review-author{
+display:flex;
+align-items:center;
+gap:10px;
+font-weight:bold;
+}
+
+.review-author img{
+width:32px;
+height:32px;
+border-radius:50%;
 }
