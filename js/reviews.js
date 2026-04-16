@@ -1,4 +1,4 @@
-function initReviews(){
+window.initReviews = function(){
 
 const placeId = "ChIJs3Rm5rj3aS4RM2KQVElH7Ww";
 
