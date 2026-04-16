@@ -1,6 +1,6 @@
 window.initReviews = function(){
 
-const placeId = "ChIJs3Rm5rj3aS4RM2KQVElH7Ww";
+const placeId = "ChIJc5ryGwD3aS4Rq9ega0ifNZo";
 
 const map = new google.maps.Map(document.createElement("div"));
 
