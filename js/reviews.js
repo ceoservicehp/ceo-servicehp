@@ -90,6 +90,6 @@ if(position >= slider.scrollWidth - slider.clientWidth){
 position = 0;
 }
 
-},2000);
+},4000);
 
 }
