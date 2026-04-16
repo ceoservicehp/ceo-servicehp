@@ -682,7 +682,7 @@ const { error } = await client
       brand: document.getElementById("edit-brand").value,
       problem: document.getElementById("edit-problem").value,
       metode: document.getElementById("edit-metode").value,
-      sparepart: document.getElementById("edit-sparepart").value,
+      sparepart: JSON.stringify(selectedParts),
       total_sparepart: spare,
       transport: transport,
       jasa: jasa,
