@@ -551,9 +551,26 @@ function initUI(){
             
             }
             
-            // render ulang sparepart lama
-            renderSelectedParts();
-            hitungTotalSparepart();
+            const container = document.getElementById("sparepartContainer");
+            if(container) container.innerHTML = "";
+            
+            selectedParts.forEach(item => {
+            
+              const row = document.createElement("div");
+              row.className = "sparepart-row";
+            
+              row.innerHTML = `
+                <input type="text" class="sparepart-name" value="${item.nama}">
+                <input type="text" class="sparepart-price rupiah-input" value="${formatRupiahInput(item.harga.toString())}">
+                <button type="button" class="btn-remove-sparepart">✕</button>
+              `;
+            
+              container.appendChild(row);
+            
+            });
+            
+            initRupiahInputs();
+            hitungTotalManualSparepart();
         
         document.getElementById("edit-total-sparepart").value =
         formatRupiahInput((data.total_sparepart ?? 0).toString());
