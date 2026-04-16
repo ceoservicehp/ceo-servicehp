@@ -580,6 +580,38 @@ position:relative;
 width:100%;
 }
 
+.reviews-wrapper{
+overflow:hidden;
+position:relative;
+width:100%;
+}
+
+/* blur kiri */
+.reviews-wrapper::before{
+content:"";
+position:absolute;
+left:0;
+top:0;
+width:80px;
+height:100%;
+background:linear-gradient(to right,#f7f7f7,transparent);
+z-index:2;
+pointer-events:none;
+}
+
+/* blur kanan */
+.reviews-wrapper::after{
+content:"";
+position:absolute;
+right:0;
+top:0;
+width:80px;
+height:100%;
+background:linear-gradient(to left,#f7f7f7,transparent);
+z-index:2;
+pointer-events:none;
+}
+
 /* slider */
 
 .reviews-slider{
