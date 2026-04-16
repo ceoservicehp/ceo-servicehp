@@ -77,11 +77,13 @@ let position = 0;
 
 setInterval(()=>{
 
-position += 320;
+const cardWidth = slider.querySelector(".review-card")?.offsetWidth || 300;
+
+position += cardWidth + 20;
 
 slider.scrollTo({
 left: position,
-behavior:"smooth"
+behavior: "smooth"
 });
 
 if(position >= slider.scrollWidth - slider.clientWidth){
