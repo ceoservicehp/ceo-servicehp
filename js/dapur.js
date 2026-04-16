@@ -621,8 +621,10 @@ function initUI(){
 
     /* SAVE EDIT */
    document.getElementById("saveEdit").onclick = async () => {
-      
-       kumpulkanSparepartManual();
+
+   // simpan item yang sedang ada di list
+   document.getElementById("edit-sparepart").value =
+       JSON.stringify(selectedParts);
 
     const id = parseInt(document.getElementById("edit-id").value);
 
