@@ -404,6 +404,61 @@ box-shadow:0 3px 12px rgba(0,0,0,0.06);
 text-align:center;
 }
 
+/* ===== CONTACT TEXT ===== */
+
+.contact h2{
+font-size:26px;
+margin-bottom:10px;
+color:#1f6f78;
+}
+
+.contact p{
+font-size:15px;
+line-height:1.6;
+margin:4px 0;
+color:#444;
+}
+
+/* tombol whatsapp */
+
+.btn-whatsapp{
+display:inline-block;
+margin-top:12px;
+padding:10px 22px;
+border-radius:30px;
+background:#25D366;
+color:white;
+text-decoration:none;
+font-weight:600;
+box-shadow:0 5px 15px rgba(0,0,0,0.12);
+transition:.25s;
+}
+
+.btn-whatsapp:hover{
+background:#1ebe5d;
+transform:translateY(-2px);
+}
+
+/* ===== CONTACT MOBILE ===== */
+
+@media(max-width:600px){
+
+.contact h2{
+font-size:20px;
+}
+
+.contact p{
+font-size:13px;
+line-height:1.5;
+}
+
+.btn-whatsapp{
+font-size:13px;
+padding:8px 18px;
+}
+
+}
+
 /* ================= ACCORDION CLEAN ================= */
 
 #store-info{
