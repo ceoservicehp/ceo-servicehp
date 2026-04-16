@@ -12,20 +12,18 @@ fields: ["name","rating","user_ratings_total","reviews","url"]
 }, function(place,status){
 
 if(status === google.maps.places.PlacesServiceStatus.OK){
-
-// HERO BADGE
-const hero = document.getElementById("hero-rating");
-
-if(hero){
-hero.innerHTML = `
-<span>⭐ ${place.rating}</span> Google Rating
-`;
-}
  
-  const heroScore = document.getElementById("hero-rating-score");
+// HERO RATING
+
+const heroScore = document.getElementById("hero-rating-score");
+const heroText = document.querySelector("#hero-rating .rating-text");
 
 if(heroScore){
 heroScore.innerText = place.rating;
+}
+
+if(heroText){
+heroText.innerText = place.user_ratings_total + " Ulasan Google";
 }
 
 // SUMMARY
