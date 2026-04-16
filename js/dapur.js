@@ -543,22 +543,10 @@ function initUI(){
 
             if(data.sparepart){
             
-              try{
-            
-                if(typeof data.sparepart === "string"){
-            
-                  if(data.sparepart === "Tidak ada"){
-                    selectedParts = [];
-                  }else{
-                    selectedParts = JSON.parse(data.sparepart);
-                  }
-            
-                }else{
-                  selectedParts = data.sparepart;
-                }
-            
-              }catch(e){
-                selectedParts = [];
+              if(typeof data.sparepart === "string"){
+                selectedParts = JSON.parse(data.sparepart);
+              }else{
+                selectedParts = data.sparepart;
               }
             
             }
@@ -636,6 +624,24 @@ function initUI(){
     /* SAVE EDIT */
    document.getElementById("saveEdit").onclick = async () => {
 
+    // ambil data dari form
+    selectedParts = [];
+    
+    document.querySelectorAll(".sparepart-row").forEach(row=>{
+    
+      const nama = row.querySelector(".sparepart-name")?.value || "";
+      const harga = parseRupiah(row.querySelector(".sparepart-price")?.value || "0");
+    
+      if(nama){
+        selectedParts.push({
+          nama:nama,
+          harga:harga,
+          qty:1
+        });
+      }
+    
+    });
+
    // simpan item yang sedang ada di list
    document.getElementById("edit-sparepart").value =
        JSON.stringify(selectedParts);
@@ -696,7 +702,7 @@ const { error } = await client
       brand: document.getElementById("edit-brand").value,
       problem: document.getElementById("edit-problem").value,
       metode: document.getElementById("edit-metode").value,
-      sparepart: JSON.stringify(selectedParts),
+      sparepart: selectedParts,
       total_sparepart: spare,
       transport: transport,
       jasa: jasa,
