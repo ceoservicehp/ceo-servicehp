@@ -257,36 +257,76 @@ transform:translateY(-3px);
 box-shadow:0 12px 28px rgba(0,0,0,0.25);
 }
 
-/* samakan tinggi tombol */
+/* ===== HERO BUTTON PREMIUM ===== */
 
-.hero-rating,
-.btn-primary{
+.hero-buttons{
+display:flex;
+justify-content:center;
+align-items:center;
+gap:16px;
+margin-top:30px;
+}
+
+.btn-hero{
 display:flex;
 align-items:center;
-justify-content:center;
+gap:8px;
 padding:14px 28px;
 border-radius:40px;
 background:white;
+font-weight:600;
+text-decoration:none;
+font-size:16px;
+white-space:nowrap;
+box-shadow:0 8px 22px rgba(0,0,0,0.15);
+transition:.25s;
+}
+
+/* rating */
+
+.rating-btn{
+color:#222;
+}
+
+.rating-btn span{
+font-weight:700;
+}
+
+.rating-text{
+font-size:14px;
+opacity:.7;
+}
+
+/* service */
+
+.service-btn{
 color:#1f6f78;
 font-weight:700;
-text-decoration:none;
-transition:.3s;
+}
+
+/* hover */
+
+.btn-hero:hover{
+transform:translateY(-3px);
+box-shadow:0 12px 30px rgba(0,0,0,0.25);
+}
+
+/* mobile */
+
+@media(max-width:600px){
+
+.hero-buttons{
+gap:10px;
+}
+
+.btn-hero{
+padding:12px 18px;
+font-size:14px;
+}
+
 }
 
 /* ===== BUTTON ===== */
-.btn-primary{
-display:flex;
-align-items:center;
-justify-content:center;
-padding:14px 28px;
-border-radius:40px;
-background:white;
-color:#1f6f78;
-font-weight:700;
-text-decoration:none;
-transition:.3s;
-}
-
 .btn-primary:hover{
 background:#00c2c7;
 color:white;
