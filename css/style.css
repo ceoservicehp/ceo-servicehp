@@ -214,6 +214,31 @@ box-shadow:0 10px 22px rgba(0,0,0,0.15);
 color:#fbbc04;
 }
 
+/* ===== HERO BUTTON FIX ===== */
+
+.hero-actions{
+display:flex;
+justify-content:center;
+align-items:center;
+gap:14px;
+margin-top:25px;
+flex-wrap:nowrap;
+}
+
+/* samakan tinggi tombol */
+
+.hero-rating,
+.btn-primary{
+display:flex;
+align-items:center;
+justify-content:center;
+padding:14px 28px;
+border-radius:40px;
+font-size:16px;
+font-weight:600;
+white-space:nowrap;
+}
+
 /* ===== BUTTON ===== */
 .btn-primary{
 display:inline-block;
@@ -417,6 +442,20 @@ font-size:14px;
 
 .map-container iframe{
 height:220px;
+}
+
+}
+
+@media(max-width:600px){
+
+.hero-actions{
+gap:10px;
+}
+
+.hero-rating,
+.btn-primary{
+padding:12px 18px;
+font-size:14px;
 }
 
 }
