@@ -543,10 +543,22 @@ function initUI(){
 
             if(data.sparepart){
             
-              if(typeof data.sparepart === "string"){
-                selectedParts = JSON.parse(data.sparepart);
-              }else{
-                selectedParts = data.sparepart;
+              try{
+            
+                if(typeof data.sparepart === "string"){
+            
+                  if(data.sparepart === "Tidak ada"){
+                    selectedParts = [];
+                  }else{
+                    selectedParts = JSON.parse(data.sparepart);
+                  }
+            
+                }else{
+                  selectedParts = data.sparepart;
+                }
+            
+              }catch(e){
+                selectedParts = [];
               }
             
             }
