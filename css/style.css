@@ -396,7 +396,7 @@ display:block;
 
 /* ===== CONTACT ===== */
 .contact{
-margin:20px 5%;
+margin:10px 5% 30px 5%;
 background:white;
 padding:18px;
 border-radius:12px;
@@ -717,7 +717,7 @@ background:linear-gradient(to left,#E6F1F1,transparent);
 /* ================= GOOGLE REVIEW PREMIUM ================= */
 
 .google-reviews{
-padding:80px 20px;
+padding:40px 20px;
 background:#f7f7f7;
 text-align:center;
 }
