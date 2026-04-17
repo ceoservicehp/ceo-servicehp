@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Service Bonding</title>
+
+<style>
+
+body{
+margin:0;
+font-family:Segoe UI,sans-serif;
+background:#f4f7fb;
+}
+
+header{
+background:linear-gradient(90deg,#1f6f78,#00c2c7);
+color:white;
+padding:15px 20px;
+font-size:20px;
+font-weight:600;
+}
+
+.pdf-container{
+width:100%;
+height:100vh;
+overflow:hidden;
+}
+
+iframe{
+width:100%;
+height:100%;
+border:none;
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+Service Hardware
+</header>
+
+<div class="pdf-container">
+
+<iframe 
+src="https://drive.google.com/file/d/1DaGJjRfIB0zORlyBw92ebB3ciH54LAyZ/preview"
+></iframe>
+
+</div>
+
+<script>
+
+/* Disable klik kanan */
+document.addEventListener("contextmenu", e => e.preventDefault());
+
+/* Disable save dan print */
+document.addEventListener("keydown", function(e){
+
+if(e.ctrlKey && (e.key === "s" || e.key === "p")){
+e.preventDefault();
+}
+
+});
+
+</script>
+
+</body>
+</html>
