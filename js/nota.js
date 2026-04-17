@@ -242,7 +242,7 @@ if(paid === 0 && rowPaid){
   rowPaid.style.display = "none";
 }
 
-if(remaining <= 0 && rowRemaining){
+if(remaining === 0 && rowRemaining){
   rowRemaining.style.display = "none";
 }
   
