@@ -188,13 +188,35 @@ document.getElementById("grand-total").textContent = rupiah(grand);
 /* ================= PEMBAYARAN ================= */
 
 const paid = data.amount_paid || 0;
-const remaining = grand - paid;
+let remaining = grand - paid;
 
 const paidEl = document.getElementById("paid-total");
 const remainingEl = document.getElementById("remaining-total");
+const remainingRow = document.getElementById("row-remaining");
 
 if(paidEl) paidEl.textContent = rupiah(paid);
-if(remainingEl) remainingEl.textContent = rupiah(remaining < 0 ? 0 : remaining);
+
+if(remainingRow && remainingEl){
+
+  // KURANG BAYAR
+  if(remaining > 0){
+    remainingRow.querySelector("span").textContent = "Kurang Bayar";
+    remainingEl.textContent = "- " + rupiah(remaining);
+  }
+
+  // LEBIH BAYAR
+  else if(remaining < 0){
+    const change = Math.abs(remaining);
+    remainingRow.querySelector("span").textContent = "Kembalian";
+    remainingEl.textContent = rupiah(change);
+  }
+
+  // PAS
+  else{
+    remainingRow.style.display = "none";
+  }
+
+}
 
   /* ================= HIDE ZERO VALUE ================= */
 
