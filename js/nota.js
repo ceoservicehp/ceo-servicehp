@@ -163,7 +163,6 @@ if(data.sparepart){
           <td>${item.nama}</td>
           <td>${qty}</td>
           <td>${rupiah(harga)}</td>
-          <td>${rupiah(total)}</td>
         </tr>
       `;
 
