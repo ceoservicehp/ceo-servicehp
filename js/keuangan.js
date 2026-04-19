@@ -290,11 +290,12 @@ function renderByTab(income = incomeData, expense = expenseData){
         <div style="color:#27ae60;font-weight:700;">
         Dibayar: ${rupiah(row.amount_paid || 0)}
         </div>
-        
+        <td>
         <div style="color:#e74c3c;font-size:12px;">
         Sisa: ${rupiah(row.remaining_amount || 0)}
         </div>
-        
+        </td>
+        <td>
         <div style="font-size:12px;color:#666;">
         Total: ${rupiah(row.total || 0)}
         </div>
