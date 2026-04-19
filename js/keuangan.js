@@ -399,6 +399,10 @@ function renderByTab(income = incomeData, expense = expenseData){
 
             <td>${sparepartList}</td>
 
+            <td style="color:#c0392b;font-weight:600;">
+            ${jatuhTempoText}
+            </td>
+
             <td style="color:#27ae60;">
             ${rupiah(row.amount_paid || 0)}
             </td>
@@ -409,10 +413,6 @@ function renderByTab(income = incomeData, expense = expenseData){
 
             <td>
             ${rupiah(row.total || 0)}
-            </td>
-
-            <td style="color:#c0392b;font-weight:600;">
-            ${jatuhTempoText}
             </td>
 
             </tr>
