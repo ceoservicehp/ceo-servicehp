@@ -356,7 +356,6 @@ function renderByTab(income = incomeData, expense = expenseData){
         </tr>`;
     });
     }
-}
 
 /* ================= DEBT ================= */
     else if(currentTab === "debt"){
