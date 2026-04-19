@@ -223,7 +223,7 @@ function filterByDate(){
 function updateFinanceCards(income, expense){
 
     const totalIncome = income.reduce((sum,row)=>
-        sum + (Number(row.total) || 0),0);
+        sum + (Number(row.amount_paid) || 0),0););
 
     const totalExpense = expense.reduce((sum,row)=>
         sum + (Number(row.amount) || 0),0);
@@ -286,8 +286,18 @@ function renderByTab(income = incomeData, expense = expenseData){
         : "-"}
         </td>
         <td>${sparepartList}</td>
-        <td style="color:#27ae60;font-weight:700;">
-        ${rupiah(row.total || 0)}
+        <td>
+        <div style="color:#27ae60;font-weight:700;">
+        Dibayar: ${rupiah(row.amount_paid || 0)}
+        </div>
+        
+        <div style="color:#e74c3c;font-size:12px;">
+        Sisa: ${rupiah(row.remaining_amount || 0)}
+        </div>
+        
+        <div style="font-size:12px;color:#666;">
+        Total: ${rupiah(row.total || 0)}
+        </div>
         </td>
 
     </tr>
@@ -596,6 +606,9 @@ function exportToCSV(){
             "Tanggal Masuk",
             "Status",
             "Tanggal Selesai",
+            "Sparepart",
+            "Dibayar",
+            "Sisa",
             "Total"
         ]);
 
@@ -610,6 +623,9 @@ function exportToCSV(){
                 o.tanggal_selesai
                     ? new Date(o.tanggal_selesai).toLocaleDateString("id-ID")
                     : "-",
+                o.sparepart,
+                o.amount_paid,
+                o.ramaining_amount,
                 o.total
             ]);
         });
