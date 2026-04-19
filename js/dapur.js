@@ -544,8 +544,16 @@ function initUI(){
             if(data.sparepart){
             
               if(typeof data.sparepart === "string"){
-                selectedParts = JSON.parse(data.sparepart);
-              }else{
+            
+                if(data.sparepart !== "Tidak ada"){
+                  try{
+                    selectedParts = JSON.parse(data.sparepart);
+                  }catch{
+                    selectedParts = [];
+                  }
+                }
+            
+              }else if(Array.isArray(data.sparepart)){
                 selectedParts = data.sparepart;
               }
             
@@ -719,7 +727,7 @@ const { error } = await client
       brand: document.getElementById("edit-brand").value,
       problem: document.getElementById("edit-problem").value,
       metode: document.getElementById("edit-metode").value,
-      sparepart: selectedParts,
+      sparepart: JSON.stringify(selectedParts),
       total_sparepart: spare,
       transport: transport,
       jasa: jasa,
