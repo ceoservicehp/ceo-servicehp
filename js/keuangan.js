@@ -255,6 +255,7 @@ function renderByTab(income = incomeData, expense = expenseData){
 
     const incomeWrapper = document.getElementById("incomeTableWrapper");
     const expenseWrapper = document.getElementById("expenseTableWrapper");
+    const debtWrapper = document.getElementById("debtTableWrapper");
 
     if(incomeWrapper) incomeWrapper.style.display = "none";
     if(expenseWrapper) expenseWrapper.style.display = "none";
@@ -355,6 +356,70 @@ function renderByTab(income = incomeData, expense = expenseData){
         </tr>`;
     });
     }
+}
+
+/* ================= DEBT ================= */
+else if(currentTab === "debt"){
+
+if(incomeWrapper) incomeWrapper.style.display = "none";
+if(expenseWrapper) expenseWrapper.style.display = "none";
+
+const debtWrapper = document.getElementById("debtTableWrapper");
+if(debtWrapper) debtWrapper.style.display = "block";
+
+const tbody = document.getElementById("debtTable");
+tbody.innerHTML = "";
+
+const debts = income.filter(o => Number(o.remaining_amount) > 0);
+const selesai = row.tanggal_selesai
+    ? new Date(row.tanggal_selesai)
+    : new Date(row.created_at);
+
+const jatuhTempo = new Date(selesai);
+jatuhTempo.setDate(jatuhTempo.getDate() + 7);
+
+const jatuhTempoText = jatuhTempo.toLocaleDateString("id-ID");
+
+debts.forEach((row,i)=>{
+
+const sparepartList = formatSparepart(row.sparepart);
+
+tbody.innerHTML += `
+<tr>
+
+<td>${i+1}</td>
+<td>${row.nama || "-"}</td>
+<td>${row.alamat || "-"}</td>
+<td>${row.metode || "-"}</td>
+
+<td>
+${row.created_at
+? new Date(row.created_at).toLocaleDateString("id-ID")
+: "-"}
+</td>
+
+<td style="color:#e67e22;font-weight:600;">
+Belum Lunas
+</td>
+
+<td>${sparepartList}</td>
+
+<td style="color:#27ae60;">
+${rupiah(row.amount_paid || 0)}
+</td>
+
+<td style="color:#e74c3c;font-weight:600;">
+${rupiah(row.remaining_amount || 0)}
+</td>
+
+<td>
+${rupiah(row.total || 0)}
+</td>
+
+</tr>
+`;
+});
+
 }
 
 async function loadExpenseCategories(){
