@@ -366,21 +366,13 @@ function renderByTab(income = incomeData, expense = expenseData){
         const tbody = document.getElementById("debtTable");
         tbody.innerHTML = "";
 
-        const debts = income.filter(o => Number(o.remaining_amount) > 0);
-
-        debts.forEach((row,i)=>{
-
-            const sparepartList = formatSparepart(row.sparepart);
-
-            const selesai = row.tanggal_selesai
-                ? new Date(row.tanggal_selesai)
-                : new Date(row.created_at);
-
-            const jatuhTempo = new Date(selesai);
-            jatuhTempo.setDate(jatuhTempo.getDate() + 7);
-
-            const jatuhTempoText =
-                jatuhTempo.toLocaleDateString("id-ID");
+        debt.forEach((row,i)=>{
+        
+        const sparepartList = formatSparepart(row.sparepart);
+        
+        const total = row.total || 0;
+        const dibayar = row.amount_paid || 0;
+        const sisa = row.remaining_amount || 0;
 
             tbody.innerHTML += `
             <tr>
@@ -395,33 +387,33 @@ function renderByTab(income = incomeData, expense = expenseData){
             </td>
 
             <td style="color:#e67e22;font-weight:600;">
-            Belum Lunas
+            ${row.payment_status || "-"}
             </td>
 
-           <td style="color:#e74c3c;font-weight:600;">
-            ${row.jatuh_tempo
-            ? new Date(row.jatuh_tempo).toLocaleDateString("id-ID")
+            <td style="color:#e74c3c;font-weight:600;">
+            ${row.due_date
+            ? new Date(row.due_date).toLocaleDateString("id-ID")
             : "-"}
             </td>
 
             <td>${sparepartList}</td>
 
-            <td style="color:#27ae60;">
-            ${rupiah(row.amount_paid || 0)}
+            <td style="color:#27ae60;font-weight:600;">
+            ${rupiah(dibayar)}
             </td>
-
+            
             <td style="color:#e74c3c;font-weight:600;">
-            ${rupiah(row.remaining_amount || 0)}
+            ${rupiah(sisa)}
             </td>
-
-            <td>
-            ${rupiah(row.total || 0)}
+            
+            <td style="font-weight:600;">
+            ${rupiah(total)}
             </td>
-
-            </tr>
-            `;
-        });
-    }
+            
+        </tr>
+        `;
+    });
+}
 
 }
 
