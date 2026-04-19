@@ -359,71 +359,70 @@ function renderByTab(income = incomeData, expense = expenseData){
 }
 
 /* ================= DEBT ================= */
-else if(currentTab === "debt"){
+    else if(currentTab === "debt"){
 
-if(incomeWrapper) incomeWrapper.style.display = "none";
-if(expenseWrapper) expenseWrapper.style.display = "none";
-if(debtWrapper) debtWrapper.style.display = "block";
+        if(debtWrapper) debtWrapper.style.display = "block";
 
-const tbody = document.getElementById("debtTable");
-tbody.innerHTML = "";
+        const tbody = document.getElementById("debtTable");
+        tbody.innerHTML = "";
 
-const debts = income.filter(o => Number(o.remaining_amount) > 0);
+        const debts = income.filter(o => Number(o.remaining_amount) > 0);
 
-debts.forEach((row,i)=>{
+        debts.forEach((row,i)=>{
 
-const sparepartList = formatSparepart(row.sparepart);
+            const sparepartList = formatSparepart(row.sparepart);
 
-const selesai = row.tanggal_selesai
-    ? new Date(row.tanggal_selesai)
-    : new Date(row.created_at);
+            const selesai = row.tanggal_selesai
+                ? new Date(row.tanggal_selesai)
+                : new Date(row.created_at);
 
-const jatuhTempo = new Date(selesai);
-jatuhTempo.setDate(jatuhTempo.getDate() + 7);
+            const jatuhTempo = new Date(selesai);
+            jatuhTempo.setDate(jatuhTempo.getDate() + 7);
 
-const jatuhTempoText = jatuhTempo.toLocaleDateString("id-ID");
+            const jatuhTempoText =
+                jatuhTempo.toLocaleDateString("id-ID");
 
-tbody.innerHTML += `
-<tr>
+            tbody.innerHTML += `
+            <tr>
 
-<td>${i+1}</td>
-<td>${row.nama || "-"}</td>
-<td>${row.alamat || "-"}</td>
-<td>${row.metode || "-"}</td>
+            <td>${i+1}</td>
+            <td>${row.nama || "-"}</td>
+            <td>${row.alamat || "-"}</td>
+            <td>${row.metode || "-"}</td>
 
-<td>
-${row.created_at
-? new Date(row.created_at).toLocaleDateString("id-ID")
-: "-"}
-</td>
+            <td>
+            ${new Date(row.created_at).toLocaleDateString("id-ID")}
+            </td>
 
-<td style="color:#e67e22;font-weight:600;">
-Belum Lunas
-</td>
+            <td style="color:#e67e22;font-weight:600;">
+            Belum Lunas
+            </td>
 
-<td>${sparepartList}</td>
+            <td>${sparepartList}</td>
 
-<td style="color:#27ae60;">
-${rupiah(row.amount_paid || 0)}
-</td>
+            <td style="color:#27ae60;">
+            ${rupiah(row.amount_paid || 0)}
+            </td>
 
-<td style="color:#e74c3c;font-weight:600;">
-${rupiah(row.remaining_amount || 0)}
-</td>
+            <td style="color:#e74c3c;font-weight:600;">
+            ${rupiah(row.remaining_amount || 0)}
+            </td>
 
-<td>
-${rupiah(row.total || 0)}
-</td>
+            <td>
+            ${rupiah(row.total || 0)}
+            </td>
 
-<td style="color:#c0392b;font-weight:600;">
-${jatuhTempoText}
-</td>
+            <td style="color:#c0392b;font-weight:600;">
+            ${jatuhTempoText}
+            </td>
 
-</tr>
-`;
-});
+            </tr>
+            `;
+        });
+    }
 
 }
+
 async function loadExpenseCategories(){
 
     const { data } = await client
