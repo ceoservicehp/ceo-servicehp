@@ -234,15 +234,20 @@ function updateFinanceCards(income, expense){
         ? ((profit / totalIncome) * 100).toFixed(1)
         : 0;
 
+    const totalDebt = income.reduce((sum,row)=>
+        sum + (Number(row.remaining_amount) || 0),0);
+
     const incomeEl = document.getElementById("totalIncome");
     const expenseEl = document.getElementById("totalExpense");
     const profitEl = document.getElementById("totalProfit");
     const marginEl = document.getElementById("totalMargin");
+    const debtEl = document.getElementById("totalDebt");
 
     if(incomeEl) incomeEl.textContent = rupiah(totalIncome);
     if(expenseEl) expenseEl.textContent = rupiah(totalExpense);
     if(profitEl) profitEl.textContent = rupiah(profit);
     if(marginEl) marginEl.textContent = margin + "%";
+    if(debtEl) debtEl.textContent = rupiah(totalDebt);
 }
 
 /* ================= RENDER TABLE ================= */
@@ -620,6 +625,7 @@ function exportToCSV(){
             "Tanggal Selesai",
             "Sparepart",
             "Dibayar",
+            "Kembalian",
             "Sisa",
             "Total"
         ]);
@@ -637,6 +643,7 @@ function exportToCSV(){
                     : "-",
                 o.sparepart,
                 o.amount_paid,
+                o.kembalian,
                 o.remaining_amount,
                 o.total
             ]);
