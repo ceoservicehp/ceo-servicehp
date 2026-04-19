@@ -259,6 +259,7 @@ function renderByTab(income = incomeData, expense = expenseData){
 
     if(incomeWrapper) incomeWrapper.style.display = "none";
     if(expenseWrapper) expenseWrapper.style.display = "none";
+    if(debtWrapper) debtWrapper.style.display = "none";
 
     /* ================= INCOME ================= */
    if(currentTab === "income"){
