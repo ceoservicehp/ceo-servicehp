@@ -224,6 +224,13 @@ transition:.3s;
 border:1px solid rgba(0,0,0,.04);
 }
 
+.cards{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+gap:20px;
+margin-bottom:30px;
+}
+
 .highlight p{ color:#16a34a; }
 .expense p{ color:#dc2626; }
 .profit p{ color:#0891b2; }
