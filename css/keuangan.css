@@ -228,6 +228,7 @@ border:1px solid rgba(0,0,0,.04);
 .expense p{ color:#dc2626; }
 .profit p{ color:#0891b2; }
 .margin p{ color:#7c3aed; }
+.debt p{color:#f59e0b; }
 
 /* ================= FILTER ================= */
 .filter-box{
