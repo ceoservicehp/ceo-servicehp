@@ -398,8 +398,10 @@ function renderByTab(income = incomeData, expense = expenseData){
             Belum Lunas
             </td>
 
-            <td style="color:#c0392b;font-weight:600;">
-            ${jatuhTempoText}
+           <td style="color:#e74c3c;font-weight:600;">
+            ${row.jatuh_tempo
+            ? new Date(row.jatuh_tempo).toLocaleDateString("id-ID")
+            : "-"}
             </td>
 
             <td>${sparepartList}</td>
