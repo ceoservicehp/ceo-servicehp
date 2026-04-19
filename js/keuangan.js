@@ -287,7 +287,7 @@ function renderByTab(income = incomeData, expense = expenseData){
         </td>
         <td>${sparepartList}</td>
         
-        <td style="color:#27ae60;font-weight:700;">
+        <td style="color:#27ae60;font-weight:600;">
         ${rupiah(row.amount_paid || 0)}
         </td>
         
@@ -295,7 +295,7 @@ function renderByTab(income = incomeData, expense = expenseData){
         ${rupiah(row.remaining_amount || 0)}
         </td>
         
-        <td style="font-size:12px;color:#666;">
+        <td style="font-size:14px;color:#000;">
         ${rupiah(row.total || 0)}
         </td>
     </tr>
