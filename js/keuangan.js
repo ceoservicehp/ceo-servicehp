@@ -234,8 +234,9 @@ function updateFinanceCards(income, expense){
         ? ((profit / totalIncome) * 100).toFixed(1)
         : 0;
 
-    const totalDebt = income.reduce((sum,row)=>
-        sum + (Number(row.remaining_amount) || 0),0);
+    const totalDebt = income
+        .filter(row => (row.remaining_amount || 0) > 0)
+        .reduce((sum,row)=> sum + Number(row.remaining_amount),0);
 
     const incomeEl = document.getElementById("totalIncome");
     const expenseEl = document.getElementById("totalExpense");
