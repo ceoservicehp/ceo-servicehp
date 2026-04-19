@@ -286,22 +286,18 @@ function renderByTab(income = incomeData, expense = expenseData){
         : "-"}
         </td>
         <td>${sparepartList}</td>
-        <td>
-
-        <div style="color:#27ae60;font-weight:700;">
-        Dibayar: ${rupiah(row.amount_paid || 0)}
-        </div>
         
-        <div style="color:#e74c3c;font-size:12px;">
-        Sisa: ${rupiah(row.remaining_amount || 0)}
-        </div>
-        
-        <div style="font-size:12px;color:#666;">
-        Total: ${rupiah(row.total || 0)}
-        </div>
-        
+        <td style="color:#27ae60;font-weight:700;">
+        ${rupiah(row.amount_paid || 0)}
         </td>
-
+        
+        <td style="color:#e74c3c;font-size:12px;">
+        ${rupiah(row.remaining_amount || 0)}
+        </td>
+        
+        <td style="font-size:12px;color:#666;">
+        ${rupiah(row.total || 0)}
+        </td>
     </tr>
     `;
 });
