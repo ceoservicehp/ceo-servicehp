@@ -223,7 +223,7 @@ function filterByDate(){
 function updateFinanceCards(income, expense){
 
     const totalIncome = income.reduce((sum,row)=>
-        sum + (Number(row.amount_paid) || 0),0););
+        sum + (Number(row.amount_paid) || 0),0);
 
     const totalExpense = expense.reduce((sum,row)=>
         sum + (Number(row.amount) || 0),0);
@@ -287,18 +287,19 @@ function renderByTab(income = incomeData, expense = expenseData){
         </td>
         <td>${sparepartList}</td>
         <td>
+
         <div style="color:#27ae60;font-weight:700;">
         Dibayar: ${rupiah(row.amount_paid || 0)}
         </div>
-        <td>
+        
         <div style="color:#e74c3c;font-size:12px;">
         Sisa: ${rupiah(row.remaining_amount || 0)}
         </div>
-        </td>
-        <td>
+        
         <div style="font-size:12px;color:#666;">
         Total: ${rupiah(row.total || 0)}
         </div>
+        
         </td>
 
     </tr>
@@ -626,7 +627,7 @@ function exportToCSV(){
                     : "-",
                 o.sparepart,
                 o.amount_paid,
-                o.ramaining_amount,
+                o.remaining_amount,
                 o.total
             ]);
         });
