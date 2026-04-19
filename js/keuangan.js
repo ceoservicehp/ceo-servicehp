@@ -363,14 +363,17 @@ else if(currentTab === "debt"){
 
 if(incomeWrapper) incomeWrapper.style.display = "none";
 if(expenseWrapper) expenseWrapper.style.display = "none";
-
-const debtWrapper = document.getElementById("debtTableWrapper");
 if(debtWrapper) debtWrapper.style.display = "block";
 
 const tbody = document.getElementById("debtTable");
 tbody.innerHTML = "";
 
 const debts = income.filter(o => Number(o.remaining_amount) > 0);
+
+debts.forEach((row,i)=>{
+
+const sparepartList = formatSparepart(row.sparepart);
+
 const selesai = row.tanggal_selesai
     ? new Date(row.tanggal_selesai)
     : new Date(row.created_at);
@@ -379,10 +382,6 @@ const jatuhTempo = new Date(selesai);
 jatuhTempo.setDate(jatuhTempo.getDate() + 7);
 
 const jatuhTempoText = jatuhTempo.toLocaleDateString("id-ID");
-
-debts.forEach((row,i)=>{
-
-const sparepartList = formatSparepart(row.sparepart);
 
 tbody.innerHTML += `
 <tr>
@@ -416,12 +415,15 @@ ${rupiah(row.remaining_amount || 0)}
 ${rupiah(row.total || 0)}
 </td>
 
+<td style="color:#c0392b;font-weight:600;">
+${jatuhTempoText}
+</td>
+
 </tr>
 `;
 });
 
 }
-
 async function loadExpenseCategories(){
 
     const { data } = await client
