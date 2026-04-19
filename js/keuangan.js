@@ -397,11 +397,11 @@ function renderByTab(income = incomeData, expense = expenseData){
             Belum Lunas
             </td>
 
-            <td>${sparepartList}</td>
-
             <td style="color:#c0392b;font-weight:600;">
             ${jatuhTempoText}
             </td>
+
+            <td>${sparepartList}</td>
 
             <td style="color:#27ae60;">
             ${rupiah(row.amount_paid || 0)}
