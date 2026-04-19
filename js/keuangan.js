@@ -266,6 +266,16 @@ function renderByTab(income = incomeData, expense = expenseData){
    income.forEach((row,i)=>{
 
     const sparepartList = formatSparepart(row.sparepart); // ← WAJIB ADA
+    const total = Number(row.total || 0);
+    const dibayar = Number(row.amount_paid || 0);
+    let sisa = Number(row.remaining_amount || 0);
+    
+    let kembalian = 0;
+    
+    if(dibayar > total){
+        kembalian = dibayar - total;
+        sisa = 0;
+    }
 
     tbody.innerHTML += `
     <tr>
@@ -288,15 +298,19 @@ function renderByTab(income = incomeData, expense = expenseData){
         <td>${sparepartList}</td>
         
         <td style="color:#27ae60;font-weight:600;">
-        ${rupiah(row.amount_paid || 0)}
+        ${rupiah(dibayar)}
         </td>
         
-        <td style="color:#e74c3c;font-size:12px;">
-        ${rupiah(row.remaining_amount || 0)}
+        <td style="color:#2980b9;font-weight:600;">
+        ${kembalian > 0 ? rupiah(kembalian) : "-"}
         </td>
         
-        <td style="font-size:14px;color:#000;">
-        ${rupiah(row.total || 0)}
+        <td style="color:#e74c3c;font-weight:600;">
+        ${rupiah(sisa)}
+        </td>
+        
+        <td style="font-size:14px;color:#000;font-weight:600;">
+        ${rupiah(total)}
         </td>
     </tr>
     `;
