@@ -360,58 +360,65 @@ function renderByTab(income = incomeData, expense = expenseData){
 
 /* ================= DEBT ================= */
     else if(currentTab === "debt"){
-
         if(debtWrapper) debtWrapper.style.display = "block";
-
+        
         const tbody = document.getElementById("debtTable");
         tbody.innerHTML = "";
 
-        debt.forEach((row,i)=>{
+/* ambil data yang masih ada sisa pembayaran */
+        const debt = income.filter(row => (row.remaining_amount || 0) > 0);
+        
+        if(debt.length === 0){
+            tbody.innerHTML = `<tr><td colspan="11">Tidak ada piutang</td></tr>`;
+            return;
+        }
+        
+    debt.forEach((row,i)=>{
         
         const sparepartList = formatSparepart(row.sparepart);
         
         const total = row.total || 0;
         const dibayar = row.amount_paid || 0;
         const sisa = row.remaining_amount || 0;
+        
+    tbody.innerHTML += `
+    <tr>
+        <td>${i+1}</td>
+        <td>${row.nama || "-"}</td>
+        <td>${row.alamat || "-"}</td>
+        <td>${row.metode || "-"}</td>
 
-            tbody.innerHTML += `
-            <tr>
+        <td>
+        ${row.created_at
+        ? new Date(row.created_at).toLocaleDateString("id-ID")
+        : "-"}
+        </td>
+        
+        <td style="color:#e67e22;font-weight:600;">
+        ${row.payment_status || "-"}
+        </td>
+        
+        <td style="color:#e74c3c;font-weight:600;">
+        ${row.due_date
+        ? new Date(row.due_date).toLocaleDateString("id-ID")
+        : "-"}
+        </td>
 
-            <td>${i+1}</td>
-            <td>${row.nama || "-"}</td>
-            <td>${row.alamat || "-"}</td>
-            <td>${row.metode || "-"}</td>
+        <td>${sparepartList}</td>
 
-            <td>
-            ${new Date(row.created_at).toLocaleDateString("id-ID")}
-            </td>
-
-            <td style="color:#e67e22;font-weight:600;">
-            ${row.payment_status || "-"}
-            </td>
-
-            <td style="color:#e74c3c;font-weight:600;">
-            ${row.due_date
-            ? new Date(row.due_date).toLocaleDateString("id-ID")
-            : "-"}
-            </td>
-
-            <td>${sparepartList}</td>
-
-            <td style="color:#27ae60;font-weight:600;">
-            ${rupiah(dibayar)}
-            </td>
-            
-            <td style="color:#e74c3c;font-weight:600;">
-            ${rupiah(sisa)}
-            </td>
-            
-            <td style="font-weight:600;">
-            ${rupiah(total)}
-            </td>
-            
-        </tr>
-        `;
+        <td style="color:#27ae60;font-weight:600;">
+        ${rupiah(dibayar)}
+        </td>
+        
+        <td style="color:#e74c3c;font-weight:600;">
+        ${rupiah(sisa)}
+        </td>
+        
+        <td style="font-weight:600;">
+        ${rupiah(total)}
+        </td>    
+    </tr>
+    `;
     });
 }
 
