@@ -346,12 +346,31 @@ function renderTable(){
             <td>${row.alamat ?? "-"}</td>
             <td>
                 ${
-                    row.phone
-                    ? `<a href="https://wa.me/${formatWa(row.phone)}"
-                         target="_blank"
-                         class="wa-link">
-                         <i class="fab fa-whatsapp"></i> ${row.phone}
-                       </a>`
+                   row.phone
+                    ? `<a href="https://wa.me/${formatWa(row.phone)}?text=${encodeURIComponent(
+                        `Halo ${row.nama},
+                        
+                        Terima kasih telah menggunakan layanan 
+                        CEO Part & Service HP 📱
+                        
+                        Untuk melihat status perbaikan perangkat Anda,
+                        silakan cek melalui halaman berikut:
+
+                        🔎 Cek Status Service:
+                        https://ceo-servicehp.vercel.app/ceo_status.html
+                        
+                        Silakan masukkan Nama Anda yang sesuai pada saat pengisian form untuk melihat
+                        status service terbaru.
+                        
+                        Jika ada pertanyaan silakan balas pesan ini.
+                        
+                        Terima kasih 🙏
+                        CEO Part & Service HP`
+                    )}"
+                    target="_blank"
+                    class="wa-link">
+                    <i class="fab fa-whatsapp"></i> ${row.phone}
+                    </a>`
                     : "-"
                 }
             </td>
