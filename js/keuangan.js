@@ -676,6 +676,24 @@ function setupExportButtons(){
     ?.addEventListener("click", generatePDF);
 }
 
+function formatSparepartCSV(sparepartJSON){
+
+    if(!sparepartJSON) return "-";
+
+    try{
+        const parts = JSON.parse(sparepartJSON);
+
+        if(!Array.isArray(parts)) return "-";
+
+        return parts.map(p => 
+            `${p.nama} x${p.qty} (${rupiah(p.harga)})`
+        ).join(" | ");
+
+    }catch{
+        return "-";
+    }
+} 
+
 function exportToCSV(){
 
     let rows = [];
@@ -709,7 +727,7 @@ function exportToCSV(){
                 o.tanggal_selesai
                     ? new Date(o.tanggal_selesai).toLocaleDateString("id-ID")
                     : "-",
-                formatSparepart(o.sparepart),
+                formatSparepartCSV(o.sparepart),
                 o.amount_paid,
                 o.kembalian,
                 o.remaining_amount,
@@ -778,7 +796,7 @@ function exportToCSV(){
             o.due_date
                 ? new Date(o.due_date).toLocaleDateString("id-ID")
                 : "-",
-            formatSparepart(o.sparepart),
+            formatSparepartCSV(o.sparepart),
             o.amount_paid,
             o.remaining_amount,
             o.total
