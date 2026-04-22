@@ -709,7 +709,7 @@ function exportToCSV(){
                 o.tanggal_selesai
                     ? new Date(o.tanggal_selesai).toLocaleDateString("id-ID")
                     : "-",
-                o.sparepart,
+                formatSparepart(o.sparepart),
                 o.amount_paid,
                 o.kembalian,
                 o.remaining_amount,
@@ -749,8 +749,49 @@ function exportToCSV(){
         fileName = "laporan_pengeluaran.csv";
     }
 
+    else if(currentTab==="debt"){
+
+    rows.push([
+        "No",
+        "Nama",
+        "Alamat",
+        "Metode",
+        "Tanggal Masuk",
+        "Status Pembayaran",
+        "Jatuh Tempo",
+        "Sparepart",
+        "Sudah Dibayar",
+        "Sisa",
+        "Total"
+    ]);
+
+    const debt = filteredIncomeData.filter(o => (o.remaining_amount || 0) > 0);
+
+    debt.forEach((o,i)=>{
+        rows.push([
+            i+1,
+            o.nama,
+            o.alamat,
+            o.metode,
+            new Date(o.created_at).toLocaleDateString("id-ID"),
+            o.payment_status || "-",
+            o.due_date
+                ? new Date(o.due_date).toLocaleDateString("id-ID")
+                : "-",
+            formatSparepart(o.sparepart),
+            o.amount_paid,
+            o.remaining_amount,
+            o.total
+        ]);
+    });
+
+    fileName = "laporan_piutang.csv";
+}
+
     let csv = "data:text/csv;charset=utf-8,";
-    rows.forEach(r => csv += r.join(",") + "\n");
+    rows.forEach(r => {
+    csv += r.map(v => `"${v}"`).join(",") + "\n";
+    });
 
     const link = document.createElement("a");
     link.href = encodeURI(csv);
