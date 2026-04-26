@@ -888,3 +888,30 @@ color:white;
 transform:translateY(-2px);
 box-shadow:0 10px 24px rgba(0,194,199,0.4);
 }
+
+/* floating chat */
+.floating-wa{
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  z-index: 999;
+}
+
+.floating-wa a{
+  width:60px;
+  height:60px;
+  background:#25D366;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:white;
+  font-size:28px;
+  text-decoration:none;
+  box-shadow:0 6px 16px rgba(0,0,0,0.25);
+  transition:0.3s;
+}
+
+.floating-wa a:hover{
+  transform:scale(1.1);
+}
