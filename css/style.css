@@ -890,8 +890,10 @@ box-shadow:0 10px 24px rgba(0,194,199,0.4);
 }
 
 .reviews-slider{
-overflow-x:auto;
-scroll-behavior:smooth;
+display:flex;
+gap:20px;
+padding:20px;
+will-change:transform;
 }
 
 /* floating chat */
