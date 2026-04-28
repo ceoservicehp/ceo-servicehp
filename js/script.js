@@ -199,16 +199,9 @@ let isDragging = false;
 let startX;
 let startPos;
 
-/* AUTO SLIDE */
+function startSlider(){
 
-function animateReviews(){
-
-const firstCard = reviewTrack.children[0];
-
-if(!firstCard){
-requestAnimationFrame(animateReviews);
-return;
-}
+function animate(){
 
 if(!isHover && !isDragging){
 
@@ -217,6 +210,7 @@ position += speed;
 reviewTrack.style.transform =
 `translate3d(-${position}px,0,0)`;
 
+const firstCard = reviewTrack.children[0];
 const cardWidth = firstCard.offsetWidth + 20;
 
 if(position >= cardWidth){
@@ -228,18 +222,17 @@ position -= cardWidth;
 
 }
 
-requestAnimationFrame(animateReviews);
-
+requestAnimationFrame(animate);
 }
 
-animateReviews();
+animate();
 
-/* HOVER PAUSE */
+/* hover pause */
 
 reviewTrack.addEventListener("mouseenter",()=> isHover = true);
 reviewTrack.addEventListener("mouseleave",()=> isHover = false);
 
-/* DRAG DESKTOP */
+/* drag desktop */
 
 reviewTrack.addEventListener("mousedown",(e)=>{
 
@@ -247,14 +240,11 @@ isDragging = true;
 startX = e.pageX;
 startPos = position;
 
-reviewTrack.style.cursor="grabbing";
-
 });
 
 window.addEventListener("mouseup",()=>{
 
 isDragging=false;
-reviewTrack.style.cursor="grab";
 
 });
 
@@ -263,7 +253,6 @@ window.addEventListener("mousemove",(e)=>{
 if(!isDragging) return;
 
 const move = e.pageX - startX;
-
 position = startPos - move;
 
 reviewTrack.style.transform =
@@ -271,7 +260,7 @@ reviewTrack.style.transform =
 
 });
 
-/* TOUCH MOBILE */
+/* swipe mobile */
 
 reviewTrack.addEventListener("touchstart",(e)=>{
 
@@ -297,5 +286,22 @@ reviewTrack.addEventListener("touchend",()=>{
 isDragging=false;
 
 });
+
+}
+
+/* tunggu sampai review card muncul */
+
+const observer = new MutationObserver(()=>{
+
+if(reviewTrack.children.length > 0){
+
+observer.disconnect();
+startSlider();
+
+}
+
+});
+
+observer.observe(reviewTrack,{childList:true});
 
 });
