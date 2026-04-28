@@ -865,6 +865,13 @@ function formatSparepartCSV(sparepartJSON){
 } 
 
 function exportToCSV(){
+    const start = document.getElementById("startDate")?.value;
+    const end = document.getElementById("endDate")?.value;
+    
+    const isFilterActive = start && end;
+
+    const exportIncome = isFilterActive ? filteredIncomeData : summaryIncomeData;
+    const exportExpense = isFilterActive ? filteredExpenseData : summaryExpenseData;
 
     let rows = [];
     let fileName = "laporan_keuangan.csv";
@@ -886,7 +893,7 @@ function exportToCSV(){
             "Total"
         ]);
 
-        filteredIncomeData.forEach((o,i)=>{
+        exportIncome.forEach((o,i)=>{
             rows.push([
                 i+1,
                 o.nama,
@@ -921,7 +928,7 @@ function exportToCSV(){
             "Tanggal"
         ]);
 
-        filteredExpenseData.forEach((o,i)=>{
+        exportExpense.forEach((o,i)=>{
             rows.push([
                 i+1,
                 o.title,
@@ -953,7 +960,7 @@ function exportToCSV(){
         "Total"
     ]);
 
-    const debt = filteredIncomeData.filter(o => (o.remaining_amount || 0) > 0);
+    const debt = exportIncome.filter(o => (o.remaining_amount || 0) > 0);
 
     debt.forEach((o,i)=>{
         rows.push([
