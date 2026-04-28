@@ -76,6 +76,7 @@ document.addEventListener("DOMContentLoaded", async ()=>{
     setupExpenseForm();
     setupExportButtons();
 
+    await loadSummaryData();
     await loadFinance();
 });
 
@@ -219,6 +220,20 @@ updatePagination();
 filterByDate();
 }
 
+/* ================= LOAD SUMMARY (UNTUK CARD) ================= */
+async function loadSummaryData(){
+
+    const { data:income } = await client
+        .from("service_orders")
+        .select("*")
+        .eq("status","selesai");
+
+    const { data:expense } = await client
+        .from("expenses")
+        .select("*");
+
+    updateFinanceCards(income || [], expense || []);
+}
 
 function filterByDate(){
 
