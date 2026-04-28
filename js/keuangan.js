@@ -44,6 +44,10 @@ let expenseData = [];
 let filteredIncomeData = [];
 let filteredExpenseData = [];
 
+let currentPage = 1;
+let pageSize = 10;
+let totalRows = 0;
+
 /* ================= INIT ================= */
 document.addEventListener("DOMContentLoaded", async ()=>{
 
@@ -174,25 +178,35 @@ function applyQuickFilter(type){
 
 /* ================= LOAD DATA ================= */
 async function loadFinance(){
-
-    const { data:income } = await client
+    const start = (currentPage - 1) * pageSize;
+    const end = start + pageSize - 1;
+    
+    const { data:income, count:incomeCount } = await client
         .from("service_orders")
-        .select("*")
+        .select("*",{count:"exact"})
         .eq("status","selesai")
-        .order("created_at", { ascending:false });
-
-   const { data:expense } = await client
+        .order("created_at",{ascending:false})
+        .range(start,end);
+    
+    const { data:expense, count:expenseCount } = await client
         .from("expenses")
         .select(`
-            *,
-            profiles:honor_user_id(full_name)
-        `)
-        .order("created_at", { ascending:false });
+        *,
+        profiles:honor_user_id(full_name)
+        `,{count:"exact"})
+        .order("created_at",{ascending:false})
+        .range(start,end);
 
-    incomeData = income || [];
-    expenseData = expense || [];
+incomeData = income || [];
+expenseData = expense || [];
 
-    filterByDate();
+totalRows = currentTab === "income"
+? incomeCount
+: expenseCount;
+
+updatePagination();
+
+filterByDate();
 }
 
 
@@ -220,6 +234,62 @@ function filterByDate(){
     renderByTab(filteredIncomeData, filteredExpenseData);
     updateFinanceCards(filteredIncomeData, filteredExpenseData);
 }
+
+function updatePagination(){
+    const totalPages = Math.ceil(totalRows / pageSize);
+
+    const pageNumbers = document.getElementById("pageNumbers");
+    if(!pageNumbers) return;
+    pageNumbers.innerHTML = "";
+
+    for(let i=1;i<=totalPages;i++){
+
+        const btn = document.createElement("button");
+        btn.textContent = i;
+        
+        if(i === currentPage){
+            btn.classList.add("active");
+        }
+        
+        btn.addEventListener("click",()=>{
+            currentPage = i;
+            
+            loadFinance();
+        });
+        
+        pageNumbers.appendChild(btn);
+    }
+}
+
+document.getElementById("prevPage")
+    ?.addEventListener("click",()=>{
+        if(currentPage > 1){
+            
+            currentPage--;
+            loadFinance();
+        }
+    });
+
+document.getElementById("nextPage")
+    ?.addEventListener("click",()=>{
+        
+        const totalPages = Math.ceil(totalRows / pageSize);
+        
+        if(currentPage < totalPages){
+            currentPage++;
+            loadFinance();
+        }
+    });
+
+document.getElementById("pageSize")
+?.addEventListener("change",function(){
+
+pageSize = Number(this.value);
+currentPage = 1;
+
+loadFinance();
+
+});
 
 /* ================= UPDATE FINANCE CARDS ================= */
 function updateFinanceCards(income, expense){
