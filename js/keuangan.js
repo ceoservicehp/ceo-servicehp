@@ -41,6 +41,9 @@ let currentTab = "income";
 let incomeData = [];
 let expenseData = [];
 
+let summaryIncomeData = [];
+let summaryExpenseData = [];
+
 let filteredIncomeData = [];
 let filteredExpenseData = [];
 
@@ -232,7 +235,10 @@ async function loadSummaryData(){
         .from("expenses")
         .select("*");
 
-    updateFinanceCards(income || [], expense || []);
+    summaryIncomeData = income || [];
+    summaryExpenseData = expense || [];
+    
+    updateFinanceCards(summaryIncomeData, summaryExpenseData);
 }
 
 function filterByDate(){
@@ -240,17 +246,17 @@ function filterByDate(){
     const start = document.getElementById("startDate")?.value;
     const end = document.getElementById("endDate")?.value;
 
-    filteredIncomeData = incomeData;
-    filteredExpenseData = expenseData;
+    filteredIncomeData = summaryIncomeData;
+    filteredExpenseData = summaryExpenseData;
 
     if(start && end){
 
-        filteredIncomeData = incomeData.filter(o=>{
+        filteredIncomeData = summaryIncomeData.filter(o=>{
             const d = o.created_at.split("T")[0];
             return d >= start && d <= end;
         });
 
-        filteredExpenseData = expenseData.filter(o=>{
+        filteredExpenseData = summaryExpenseData.filter(o=>{
             const d = o.created_at.split("T")[0];
             return d >= start && d <= end;
         });
@@ -673,7 +679,8 @@ function setupExpenseForm(){
         }
 
         modal.style.display="none";
-        loadFinance();
+        await loadSummaryData();
+        await loadFinance();
     });
 
    // ================= CLOSE MODAL =================
