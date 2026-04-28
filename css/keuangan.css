@@ -480,6 +480,17 @@ font-size:12px;
 
 }
 
+/* ================= TABLE STRIPED ================= */
+
+.admin-table tbody tr:nth-child(even){
+background:#f8fafc;
+}
+
+.admin-table tbody tr:hover{
+background:#e2e8f0;
+transition:0.2s;
+}
+
 /* ================= BADGE ================= */
 .category-badge{
   padding:6px 12px;
