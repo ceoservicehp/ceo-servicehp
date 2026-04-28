@@ -747,12 +747,6 @@ position:relative;
 width:100%;
 }
 
-.reviews-wrapper{
-overflow:hidden;
-position:relative;
-width:100%;
-}
-
 /* blur kiri */
 .reviews-wrapper::before{
 content:"";
@@ -894,6 +888,9 @@ display:flex;
 gap:20px;
 padding:20px;
 will-change:transform;
+cursor:grab;
+
+align-items:stretch;
 }
 
 /* floating chat */
