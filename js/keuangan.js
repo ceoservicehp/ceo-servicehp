@@ -117,7 +117,8 @@ function setupTabs(){
 
             btn.classList.add("active");
             currentTab = btn.dataset.tab;
-            renderByTab();
+            currentPage = 1;
+            loadFinance();
         });
     });
 }
@@ -204,6 +205,9 @@ totalRows = currentTab === "income"
 ? incomeCount
 : expenseCount;
 
+const totalPages = Math.ceil(totalRows / pageSize);
+if(currentPage > totalPages) currentPage = totalPages || 1;
+
 updatePagination();
 
 filterByDate();
@@ -236,29 +240,39 @@ function filterByDate(){
 }
 
 function updatePagination(){
+
     const totalPages = Math.ceil(totalRows / pageSize);
 
     const pageNumbers = document.getElementById("pageNumbers");
     if(!pageNumbers) return;
+
     pageNumbers.innerHTML = "";
 
     for(let i=1;i<=totalPages;i++){
 
         const btn = document.createElement("button");
         btn.textContent = i;
-        
+
         if(i === currentPage){
             btn.classList.add("active");
         }
-        
+
         btn.addEventListener("click",()=>{
             currentPage = i;
-            
             loadFinance();
         });
-        
+
         pageNumbers.appendChild(btn);
     }
+
+    /* update tombol prev / next */
+
+    const prevBtn = document.getElementById("prevPage");
+    const nextBtn = document.getElementById("nextPage");
+
+    if(prevBtn) prevBtn.disabled = currentPage === 1;
+    if(nextBtn) nextBtn.disabled = currentPage === totalPages;
+
 }
 
 document.getElementById("prevPage")
@@ -360,7 +374,7 @@ function renderByTab(income = incomeData, expense = expenseData){
     tbody.innerHTML += `
     <tr>
 
-        <td>${i+1}</td>
+        <td>${(currentPage - 1) * pageSize + i + 1}</td>
         <td>${row.nama || "-"}</td>
         <td>${row.alamat || "-"}</td>
         <td>${row.metode || "-"}</td>
@@ -416,7 +430,7 @@ function renderByTab(income = incomeData, expense = expenseData){
 
         tbody.innerHTML += `
         <tr>
-            <td>${i+1}</td>
+            <td>${(currentPage - 1) * pageSize + i + 1}</td>
             <td>${row.title}</td>
             <td>${row.category}</td>
             <td>${penerima}</td>
@@ -456,7 +470,7 @@ function renderByTab(income = incomeData, expense = expenseData){
         
     tbody.innerHTML += `
     <tr>
-        <td>${i+1}</td>
+        <td>${(currentPage - 1) * pageSize + i + 1}</td>
         <td>${row.nama || "-"}</td>
         <td>${row.alamat || "-"}</td>
         <td>${row.metode || "-"}</td>
