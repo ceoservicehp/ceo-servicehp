@@ -246,21 +246,31 @@ function filterByDate(){
     const start = document.getElementById("startDate")?.value;
     const end = document.getElementById("endDate")?.value;
 
-    filteredIncomeData = summaryIncomeData;
-    filteredExpenseData = summaryExpenseData;
+    /* jika TIDAK ada filter → gunakan data pagination */
+    if(!start || !end){
 
-    if(start && end){
+        filteredIncomeData = incomeData;
+        filteredExpenseData = expenseData;
 
-        filteredIncomeData = summaryIncomeData.filter(o=>{
-            const d = o.created_at.split("T")[0];
-            return d >= start && d <= end;
-        });
+        renderByTab(filteredIncomeData, filteredExpenseData);
 
-        filteredExpenseData = summaryExpenseData.filter(o=>{
-            const d = o.created_at.split("T")[0];
-            return d >= start && d <= end;
-        });
+        /* card tetap pakai semua data */
+        updateFinanceCards(summaryIncomeData, summaryExpenseData);
+
+        return;
     }
+
+    /* jika ada filter → pakai semua data lalu difilter */
+
+    filteredIncomeData = summaryIncomeData.filter(o=>{
+        const d = o.created_at.split("T")[0];
+        return d >= start && d <= end;
+    });
+
+    filteredExpenseData = summaryExpenseData.filter(o=>{
+        const d = o.created_at.split("T")[0];
+        return d >= start && d <= end;
+    });
 
     renderByTab(filteredIncomeData, filteredExpenseData);
     updateFinanceCards(filteredIncomeData, filteredExpenseData);
