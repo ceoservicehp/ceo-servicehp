@@ -183,7 +183,7 @@ isDragging=false;
 
 });
 
-/* ================= REVIEW SLIDER (SAMA SEPERTI ATAS) ================= */
+/* ================= REVIEW SLIDER ================= */
 
 document.addEventListener("DOMContentLoaded",()=>{
 
@@ -193,23 +193,20 @@ if(!reviewTrack) return;
 
 let speed = 0.4;
 let position = 0;
-let isHover = false;
-let isDragging = false;
-
-let startX;
-let startPos;
-
-
-/* ===== AUTO SCROLL ===== */
 
 function animateReviews(){
 
-if(!isHover && !isDragging){
+const firstCard = reviewTrack.children[0];
+
+if(!firstCard){
+requestAnimationFrame(animateReviews);
+return;
+}
 
 position += speed;
+
 reviewTrack.style.transform = `translate3d(-${position}px,0,0)`;
 
-const firstCard = reviewTrack.children[0];
 const cardWidth = firstCard.offsetWidth + 20;
 
 if(position >= cardWidth){
@@ -219,13 +216,13 @@ position -= cardWidth;
 
 }
 
-}
-
 requestAnimationFrame(animateReviews);
 
 }
 
 animateReviews();
+
+});
 
 
 /* ===== HOVER PAUSE ===== */
