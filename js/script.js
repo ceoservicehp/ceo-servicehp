@@ -191,8 +191,15 @@ const reviewTrack = document.querySelector(".reviews-slider");
 
 if(!reviewTrack) return;
 
-let speed = 0.4;
+let speed = 0.25;
 let position = 0;
+let isHover = false;
+let isDragging = false;
+
+let startX;
+let startPos;
+
+/* AUTO SLIDE */
 
 function animateReviews(){
 
@@ -203,9 +210,12 @@ requestAnimationFrame(animateReviews);
 return;
 }
 
+if(!isHover && !isDragging){
+
 position += speed;
 
-reviewTrack.style.transform = `translate3d(-${position}px,0,0)`;
+reviewTrack.style.transform =
+`translate3d(-${position}px,0,0)`;
 
 const cardWidth = firstCard.offsetWidth + 20;
 
@@ -216,22 +226,20 @@ position -= cardWidth;
 
 }
 
+}
+
 requestAnimationFrame(animateReviews);
 
 }
 
 animateReviews();
 
-});
-
-
-/* ===== HOVER PAUSE ===== */
+/* HOVER PAUSE */
 
 reviewTrack.addEventListener("mouseenter",()=> isHover = true);
 reviewTrack.addEventListener("mouseleave",()=> isHover = false);
 
-
-/* ===== DRAG DESKTOP ===== */
+/* DRAG DESKTOP */
 
 reviewTrack.addEventListener("mousedown",(e)=>{
 
@@ -255,14 +263,15 @@ window.addEventListener("mousemove",(e)=>{
 if(!isDragging) return;
 
 const move = e.pageX - startX;
+
 position = startPos - move;
 
-reviewTrack.style.transform = `translate3d(-${position}px,0,0)`;
+reviewTrack.style.transform =
+`translate3d(-${position}px,0,0)`;
 
 });
 
-
-/* ===== TOUCH MOBILE ===== */
+/* TOUCH MOBILE */
 
 reviewTrack.addEventListener("touchstart",(e)=>{
 
@@ -275,9 +284,11 @@ startPos = position;
 reviewTrack.addEventListener("touchmove",(e)=>{
 
 const move = e.touches[0].pageX - startX;
+
 position = startPos - move;
 
-reviewTrack.style.transform = `translate3d(-${position}px,0,0)`;
+reviewTrack.style.transform =
+`translate3d(-${position}px,0,0)`;
 
 });
 
