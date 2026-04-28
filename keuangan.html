@@ -150,6 +150,28 @@
     <button id="exportPDF" class="btn-dark">Export PDF</button>
     <button id="addExpenseBtn" class="btn-primary">+ Tambah Pengeluaran</button>
   </div>
+
+<!-- ================= PAGINATION ATAS ================= -->
+<div class="table-pagination">
+  
+  <div class="page-size">
+    Show:
+    <select id="pageSize">
+      <option value="10">10</option>
+      <option value="20">20</option>
+      <option value="50">50</option>
+      <option value="100">100</option>
+    </select>
+  </div>
+  
+  <div class="page-nav">
+    <button id="prevPage">← Prev</button>
+    
+    <span id="pageNumbers"></span>
+    
+    <button id="nextPage">Next →</button>
+  </div>
+</div>
   
   <!-- ================= TABLE ================= -->
  <!-- INCOME TABLE -->
@@ -229,7 +251,7 @@
 
 </div>
 
-<!-- ================= PAGINATION ================= -->
+<!-- ================= PAGINATION BAWAH ================= -->
 <div class="table-pagination">
   
   <div class="page-size">
