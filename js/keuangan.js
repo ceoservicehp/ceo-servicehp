@@ -178,14 +178,16 @@ async function loadFinance(){
     const { data:income } = await client
         .from("service_orders")
         .select("*")
-        .eq("status","selesai");
+        .eq("status","selesai")
+        .order("created_at", { ascending:false });
 
    const { data:expense } = await client
-    .from("expenses")
-    .select(`
-        *,
-        profiles:honor_user_id(full_name)
-    `);
+        .from("expenses")
+        .select(`
+            *,
+            profiles:honor_user_id(full_name)
+        `)
+        .order("created_at", { ascending:false });
 
     incomeData = income || [];
     expenseData = expense || [];
