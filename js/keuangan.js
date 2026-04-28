@@ -201,9 +201,15 @@ async function loadFinance(){
 incomeData = income || [];
 expenseData = expense || [];
 
-totalRows = currentTab === "income"
-? incomeCount
-: expenseCount;
+if(currentTab === "income"){
+    totalRows = incomeCount;
+}
+else if(currentTab === "expense"){
+    totalRows = expenseCount;
+}
+else if(currentTab === "debt"){
+    totalRows = income.filter(row => (row.remaining_amount || 0) > 0).length;
+}
 
 const totalPages = Math.ceil(totalRows / pageSize);
 if(currentPage > totalPages) currentPage = totalPages || 1;
