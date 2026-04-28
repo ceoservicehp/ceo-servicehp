@@ -183,7 +183,7 @@ isDragging=false;
 
 });
 
-/* ================= REVIEW AUTO SLIDER ================= */
+/* ================= REVIEW SLIDER (SAMA SEPERTI ATAS) ================= */
 
 document.addEventListener("DOMContentLoaded",()=>{
 
@@ -200,9 +200,9 @@ let startX;
 let startPos;
 
 
-/* AUTO SLIDE */
+/* ===== AUTO SCROLL ===== */
 
-function animate(){
+function animateReviews(){
 
 if(!isHover && !isDragging){
 
@@ -221,20 +221,20 @@ position -= cardWidth;
 
 }
 
-requestAnimationFrame(animate);
+requestAnimationFrame(animateReviews);
 
 }
 
-animate();
+animateReviews();
 
 
-/* PAUSE HOVER */
+/* ===== HOVER PAUSE ===== */
 
 reviewTrack.addEventListener("mouseenter",()=> isHover = true);
 reviewTrack.addEventListener("mouseleave",()=> isHover = false);
 
 
-/* DRAG DESKTOP */
+/* ===== DRAG DESKTOP ===== */
 
 reviewTrack.addEventListener("mousedown",(e)=>{
 
@@ -265,7 +265,7 @@ reviewTrack.style.transform = `translate3d(-${position}px,0,0)`;
 });
 
 
-/* TOUCH MOBILE */
+/* ===== TOUCH MOBILE ===== */
 
 reviewTrack.addEventListener("touchstart",(e)=>{
 
