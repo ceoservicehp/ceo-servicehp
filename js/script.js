@@ -183,53 +183,111 @@ isDragging=false;
 
 });
 
-/* ================= REVIEW SLIDER DRAG ================= */
+/* ================= REVIEW AUTO SLIDER ================= */
 
 document.addEventListener("DOMContentLoaded",()=>{
 
-const slider = document.querySelector(".reviews-slider");
+const reviewTrack = document.querySelector(".reviews-slider");
 
-if(!slider) return;
+if(!reviewTrack) return;
 
-let isDown = false;
+let speed = 0.4;
+let position = 0;
+let isHover = false;
+let isDragging = false;
+
 let startX;
-let scrollLeft;
+let startPos;
 
-slider.addEventListener("mousedown",(e)=>{
-  isDown = true;
-  slider.classList.add("active");
-  startX = e.pageX - slider.offsetLeft;
-  scrollLeft = slider.scrollLeft;
+
+/* AUTO SLIDE */
+
+function animate(){
+
+if(!isHover && !isDragging){
+
+position += speed;
+reviewTrack.style.transform = `translate3d(-${position}px,0,0)`;
+
+const firstCard = reviewTrack.children[0];
+const cardWidth = firstCard.offsetWidth + 20;
+
+if(position >= cardWidth){
+
+reviewTrack.appendChild(firstCard);
+position -= cardWidth;
+
+}
+
+}
+
+requestAnimationFrame(animate);
+
+}
+
+animate();
+
+
+/* PAUSE HOVER */
+
+reviewTrack.addEventListener("mouseenter",()=> isHover = true);
+reviewTrack.addEventListener("mouseleave",()=> isHover = false);
+
+
+/* DRAG DESKTOP */
+
+reviewTrack.addEventListener("mousedown",(e)=>{
+
+isDragging = true;
+startX = e.pageX;
+startPos = position;
+
+reviewTrack.style.cursor="grabbing";
+
 });
 
-slider.addEventListener("mouseleave",()=>{
-  isDown = false;
+window.addEventListener("mouseup",()=>{
+
+isDragging=false;
+reviewTrack.style.cursor="grab";
+
 });
 
-slider.addEventListener("mouseup",()=>{
-  isDown = false;
+window.addEventListener("mousemove",(e)=>{
+
+if(!isDragging) return;
+
+const move = e.pageX - startX;
+position = startPos - move;
+
+reviewTrack.style.transform = `translate3d(-${position}px,0,0)`;
+
 });
 
-slider.addEventListener("mousemove",(e)=>{
-  if(!isDown) return;
-  e.preventDefault();
-  const x = e.pageX - slider.offsetLeft;
-  const walk = (x - startX) * 2;
-  slider.scrollLeft = scrollLeft - walk;
+
+/* TOUCH MOBILE */
+
+reviewTrack.addEventListener("touchstart",(e)=>{
+
+isDragging = true;
+startX = e.touches[0].pageX;
+startPos = position;
+
 });
 
+reviewTrack.addEventListener("touchmove",(e)=>{
 
-/* ===== MOBILE SWIPE ===== */
+const move = e.touches[0].pageX - startX;
+position = startPos - move;
 
-slider.addEventListener("touchstart",(e)=>{
-  startX = e.touches[0].pageX;
-  scrollLeft = slider.scrollLeft;
+reviewTrack.style.transform = `translate3d(-${position}px,0,0)`;
+
 });
 
-slider.addEventListener("touchmove",(e)=>{
-  const x = e.touches[0].pageX;
-  const walk = (x - startX) * 2;
-  slider.scrollLeft = scrollLeft - walk;
+reviewTrack.addEventListener("touchend",()=>{
+
+isDragging=false;
+
 });
 
 });
