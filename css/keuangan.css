@@ -470,6 +470,16 @@ margin-bottom:15px;
   background:#f8fafc;
 }
 
+@media(max-width:768px){
+
+.admin-table th,
+.admin-table td{
+padding:12px;
+font-size:12px;
+}
+
+}
+
 /* ================= BADGE ================= */
 .category-badge{
   padding:6px 12px;
