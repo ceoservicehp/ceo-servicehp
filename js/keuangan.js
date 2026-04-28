@@ -279,13 +279,41 @@ function filterByDate(){
 function updatePagination(){
 
     const totalPages = Math.ceil(totalRows / pageSize);
-
     const pageNumbers = document.getElementById("pageNumbers");
+
     if(!pageNumbers) return;
 
     pageNumbers.innerHTML = "";
 
-    for(let i=1;i<=totalPages;i++){
+    const maxVisible = 5; // jumlah tombol maksimal
+    let startPage = Math.max(1, currentPage - 2);
+    let endPage = Math.min(totalPages, startPage + maxVisible - 1);
+
+    if(endPage - startPage < maxVisible - 1){
+        startPage = Math.max(1, endPage - maxVisible + 1);
+    }
+
+    /* halaman pertama */
+    if(startPage > 1){
+
+        const firstBtn = document.createElement("button");
+        firstBtn.textContent = 1;
+        firstBtn.addEventListener("click",()=>{
+            currentPage = 1;
+            loadFinance();
+        });
+
+        pageNumbers.appendChild(firstBtn);
+
+        if(startPage > 2){
+            const dots = document.createElement("span");
+            dots.textContent = "...";
+            pageNumbers.appendChild(dots);
+        }
+    }
+
+    /* halaman tengah */
+    for(let i = startPage; i <= endPage; i++){
 
         const btn = document.createElement("button");
         btn.textContent = i;
@@ -302,16 +330,34 @@ function updatePagination(){
         pageNumbers.appendChild(btn);
     }
 
-    /* update tombol prev / next */
+    /* halaman terakhir */
+    if(endPage < totalPages){
+
+        if(endPage < totalPages - 1){
+            const dots = document.createElement("span");
+            dots.textContent = "...";
+            pageNumbers.appendChild(dots);
+        }
+
+        const lastBtn = document.createElement("button");
+        lastBtn.textContent = totalPages;
+
+        lastBtn.addEventListener("click",()=>{
+            currentPage = totalPages;
+            loadFinance();
+        });
+
+        pageNumbers.appendChild(lastBtn);
+    }
+
+    /* prev next */
 
     const prevBtn = document.getElementById("prevPage");
     const nextBtn = document.getElementById("nextPage");
 
     if(prevBtn) prevBtn.disabled = currentPage === 1;
     if(nextBtn) nextBtn.disabled = currentPage === totalPages;
-
 }
-
 document.getElementById("prevPage")
     ?.addEventListener("click",()=>{
         if(currentPage > 1){
