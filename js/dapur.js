@@ -366,6 +366,18 @@ function updatePagination(){
 
     if(prevBtn) prevBtn.disabled = currentPage === 1;
     if(nextBtn) nextBtn.disabled = currentPage === totalPages;
+
+    /* page info */
+
+    const info = document.getElementById("pageInfo");
+    
+    if(info){
+    
+    const start = (currentPage - 1) * pageSize + 1;
+    const end = Math.min(currentPage * pageSize, totalRows);
+    
+    info.innerText = `Showing ${start}-${end} of ${totalRows} orders`;
+    }
 }
 
 /* ================= PREV PAGE ================= */
@@ -395,6 +407,7 @@ document.getElementById("nextPage")
     }
 
 });
+
 
 /* ================= PAGE SIZE ================= */
 
