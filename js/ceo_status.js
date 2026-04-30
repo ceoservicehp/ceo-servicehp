@@ -163,6 +163,24 @@ if(selesai){
       ? new Date(dataRow.tanggal_selesai).toLocaleString("id-ID")
       : "-";
 }
+
+const stepProses = document.getElementById("step-proses");
+const stepSelesai = document.getElementById("step-selesai");
+
+if(stepProses) stepProses.classList.remove("completed");
+if(stepSelesai) stepSelesai.classList.remove("completed");
+
+if(dataRow.status === "proses"){
+    stepProses?.classList.add("completed");
+}
+
+if(dataRow.status === "selesai"){
+    stepProses?.classList.add("completed");
+    stepSelesai?.classList.add("completed");
+}
+
+const stepMasuk = document.getElementById("step-masuk");
+stepMasuk?.classList.add("completed");
     
 /* ===== TANGGAL SELESAI ===== */
 const selesaiEl = document.getElementById("d-selesai");
