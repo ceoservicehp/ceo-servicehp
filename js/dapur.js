@@ -243,12 +243,16 @@ async function loadOrders(){
 
     tbody.innerHTML=`<tr><td colspan="9">Loading...</td></tr>`;
 
-    const {data,error}=await client
-        .from("service_orders")
-        .select("*")
-        .order("created_at",{ascending:false});
+    /* hitung pagination */
 
-    // console.log("Data dari service_orders:", data, error);  // ✅ cek di console
+    const start = (currentPage - 1) * pageSize;
+    const end = start + pageSize - 1;
+
+    const {data,error,count}=await client
+        .from("service_orders")
+        .select("*",{count:"exact"})
+        .order("created_at",{ascending:false})
+        .range(start,end);
 
     if(error){
         tbody.innerHTML=`<tr><td colspan="9">Error load data</td></tr>`;
@@ -256,12 +260,10 @@ async function loadOrders(){
         return;
     }
 
-    if(!data || data.length===0){
-        tbody.innerHTML=`<tr><td colspan="9">Belum ada pesanan</td></tr>`;
-        return;
-    }
+    totalRows = count;
 
     allOrders=data;
+
     renderTable();
     updatePagination();
 }
@@ -435,10 +437,6 @@ async function loadSpareparts(){
 }
 
 /* ================= RENDER TABLE ================= */
-function rupiah(n){
-    return "Rp " + Number(n || 0).toLocaleString("id-ID");
-}
-
 function renderTable(){
     const tbody=document.getElementById("orderTable");
     if(!tbody) return;
@@ -450,16 +448,14 @@ function renderTable(){
             o.metode?.toLowerCase().includes(currentFilter)
         );
     }
-    
-    totalRows = rows.length;
-    
-    /* ================= PAGINATION ================= */
-    
+
+    /* PAGINATION */
+
     const start = (currentPage - 1) * pageSize;
     const end = start + pageSize;
-    
-    rows = rows.slice(start, end);
 
+    rows = rows.slice(start, end);
+    
     if(rows.length===0){
         tbody.innerHTML=`<tr><td colspan="9">Tidak ada data</td></tr>`;
         return;
@@ -1012,8 +1008,11 @@ document.addEventListener("click",e=>{
 
     e.target.classList.add("active");
 
-    currentFilter=e.target.dataset.filter;
-    renderTable();
+    currentFilter = e.target.dataset.filter;
+
+    currentPage = 1;
+    
+    loadOrders();
 });
 
 /* ================= DELETE ================= */
@@ -1063,18 +1062,17 @@ document.addEventListener("change",async e=>{
 document.getElementById("searchNama")
 ?.addEventListener("input", e => {
 
-    const keyword = e.target.value.toLowerCase();
+    const keyword = e.target.value.trim();
 
-    document.querySelectorAll("#orderTable tr")
-        .forEach(tr => {
+    if(keyword.length < 2){
+        loadOrders();
+        return;
+    }
 
-            const namaCell = tr.children[2];
-            if(!namaCell) return;
+    currentPage = 1;
 
-            const nama = namaCell.innerText.toLowerCase();
+    loadOrders();
 
-            tr.style.display = nama.includes(keyword) ? "" : "none";
-        });
 });
 
 /* ================= CHECK ALL ================= */
@@ -1134,7 +1132,9 @@ document.getElementById("filterTanggal")
     const selected = e.target.value;
 
     if(!selected){
+        currentPage = 1;
         renderTable();
+        updatePagination();
         return;
     }
 
