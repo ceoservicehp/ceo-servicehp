@@ -127,8 +127,12 @@ document.getElementById("d-alamat").textContent = dataRow.alamat;
 document.getElementById("d-brand").textContent = dataRow.brand;
 document.getElementById("d-problem").textContent = dataRow.problem;
 document.getElementById("d-metode").textContent = dataRow.metode;
-document.getElementById("d-perbaikan").textContent =
-dataRow.jenis_perbaikan || "Informasi tidak tersedia";
+const perbaikanEl = document.getElementById("d-perbaikan");
+
+if(perbaikanEl){
+  perbaikanEl.textContent =
+    dataRow.jenis_perbaikan || "Informasi tidak tersedia";
+}
 
 document.getElementById("d-status").textContent = dataRow.status;
 document.getElementById("d-tanggal").textContent =
