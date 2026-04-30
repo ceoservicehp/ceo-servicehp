@@ -267,10 +267,6 @@ async function loadOrders(){
     if(currentFilter !== "all"){
     query = query.ilike("metode", `%${currentFilter.replace(/-/g," ")}%`);
     }
-
-    query = query.eq("metode", metodeMap[currentFilter]);
-    
-    }
     
     const {data,error,count} = await query.range(start,end);
 
