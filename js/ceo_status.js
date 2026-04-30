@@ -150,13 +150,6 @@ if(selesaiEl){
   }
 }
 
-/* ===== BUKTI TRANSFER ===== */
-document.getElementById("d-bukti").innerHTML = dataRow.bukti
-  ? `<a href="${dataRow.bukti}" target="_blank">
-        <i class="fa-solid fa-receipt"></i> Lihat Bukti Transfer
-     </a>`
-  : "-";
-
 /* ===== BUKTI SERVICE SELESAI ===== */
 const buktiServiceEl = document.getElementById("d-bukti-service");
 
