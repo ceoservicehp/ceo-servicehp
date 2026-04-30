@@ -68,6 +68,7 @@ function applyRolePermission(role){
 
 /* ================= GLOBAL ================= */
 let allOrders=[];
+let currentSearch="";
 let currentFilter="all";
 let selectedParts = [];
 
@@ -259,8 +260,16 @@ async function loadOrders(){
     .select("*",{count:"exact"})
     .order("created_at",{ascending:false});
 
+    if(currentSearch){
+    query = query.ilike("nama", `%${currentSearch}%`);
+    }
+
     if(currentFilter !== "all"){
-        query = query.eq("metode", currentFilter);
+    query = query.ilike("metode", `%${currentFilter.replace(/-/g," ")}%`);
+    }
+
+    query = query.eq("metode", metodeMap[currentFilter]);
+    
     }
     
     const {data,error,count} = await query.range(start,end);
@@ -1067,15 +1076,8 @@ document.addEventListener("change",async e=>{
 document.getElementById("searchNama")
 ?.addEventListener("input", e => {
 
-    const keyword = e.target.value.trim();
-
-    if(keyword.length < 2){
-        loadOrders();
-        return;
-    }
-
+    currentSearch = e.target.value.trim();
     currentPage = 1;
-
     loadOrders();
 
 });
