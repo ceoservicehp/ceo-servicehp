@@ -460,7 +460,7 @@ function renderTable(){
 
     if(currentFilter !== "all"){
         rows = allOrders.filter(o =>
-            o.metode?.toLowerCase().includes(currentFilter)
+            (o.metode || "").toLowerCase() === currentFilter.toLowerCase()
         );
     }
     
