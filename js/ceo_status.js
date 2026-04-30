@@ -138,6 +138,32 @@ document.getElementById("d-status").textContent = dataRow.status;
 document.getElementById("d-tanggal").textContent =
 new Date(dataRow.created_at).toLocaleString("id-ID");
 
+/* ===== PROGRESS SERVICE ===== */
+
+const masuk = document.getElementById("p-masuk");
+const proses = document.getElementById("p-proses");
+const selesai = document.getElementById("p-selesai");
+
+if(masuk){
+  masuk.textContent =
+    new Date(dataRow.created_at).toLocaleString("id-ID");
+}
+
+if(proses){
+  proses.textContent =
+    dataRow.status === "pending"
+      ? "-"
+      : new Date(dataRow.updated_at || dataRow.created_at)
+          .toLocaleString("id-ID");
+}
+
+if(selesai){
+  selesai.textContent =
+    dataRow.tanggal_selesai
+      ? new Date(dataRow.tanggal_selesai).toLocaleString("id-ID")
+      : "-";
+}
+    
 /* ===== TANGGAL SELESAI ===== */
 const selesaiEl = document.getElementById("d-selesai");
 if(selesaiEl){
