@@ -211,6 +211,12 @@ function parseRupiah(value){
   return parseInt(value.replace(/\./g,"")) || 0;
 }
 
+function rupiah(angka){
+    if(!angka) return "Rp 0";
+
+    return "Rp " + Number(angka).toLocaleString("id-ID");
+}
+
 function initRupiahInputs(){
 
   document.querySelectorAll(".rupiah-input").forEach(input=>{
