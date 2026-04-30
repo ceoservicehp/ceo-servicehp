@@ -254,11 +254,16 @@ async function loadOrders(){
     const start = (currentPage - 1) * pageSize;
     const end = start + pageSize - 1;
 
-    const {data,error,count}=await client
-        .from("service_orders")
-        .select("*",{count:"exact"})
-        .order("created_at",{ascending:false})
-        .range(start,end);
+    let query = client
+    .from("service_orders")
+    .select("*",{count:"exact"})
+    .order("created_at",{ascending:false});
+
+    if(currentFilter !== "all"){
+        query = query.eq("metode", currentFilter);
+    }
+    
+    const {data,error,count} = await query.range(start,end);
 
     if(error){
         tbody.innerHTML=`<tr><td colspan="9">Error load data</td></tr>`;
@@ -303,8 +308,7 @@ function updatePagination(){
 
         firstBtn.onclick = ()=>{
             currentPage = 1;
-            renderTable();
-            updatePagination();
+            loadOrders();
         };
 
         pageNumbers.appendChild(firstBtn);
@@ -351,8 +355,7 @@ function updatePagination(){
 
         lastBtn.onclick = ()=>{
             currentPage = totalPages;
-            renderTable();
-            updatePagination();
+            loadOrders();
         };
 
         pageNumbers.appendChild(lastBtn);
@@ -457,12 +460,6 @@ function renderTable(){
     if(!tbody) return;
 
     let rows = allOrders;
-
-    if(currentFilter !== "all"){
-        rows = allOrders.filter(o =>
-            (o.metode || "").toLowerCase() === currentFilter.toLowerCase()
-        );
-    }
     
     if(rows.length===0){
         tbody.innerHTML=`<tr><td colspan="9">Tidak ada data</td></tr>`;
@@ -1141,8 +1138,7 @@ document.getElementById("filterTanggal")
 
     if(!selected){
         currentPage = 1;
-        renderTable();
-        updatePagination();
+        loadOrders();
         return;
     }
 
