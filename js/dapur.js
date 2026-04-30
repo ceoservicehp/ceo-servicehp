@@ -431,7 +431,7 @@ CEO Part & Service.
 
 📄 *INVOICE SERVICE HP*
 Nama: ${nama}
-Status Service: ${status}
+Status Service: ${newStatus}
 Status Pembayaran: Silakan cek invoice
 
 ${garansiText}
