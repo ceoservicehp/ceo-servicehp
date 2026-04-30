@@ -886,3 +886,72 @@ font-size:13px;
 .wa-invoice-btn:hover{
 background:#1ebe5d;
 }
+
+/* ================= PAGINATION ================= */
+
+.table-pagination{
+display:flex;
+justify-content:space-between;
+align-items:center;
+flex-wrap:wrap;
+margin-top:15px;
+gap:10px;
+font-size:14px;
+}
+
+/* show dropdown */
+
+.page-size{
+display:flex;
+align-items:center;
+gap:6px;
+}
+
+.page-size select{
+padding:4px 8px;
+border-radius:6px;
+border:1px solid #ccc;
+background:#fff;
+cursor:pointer;
+}
+
+/* navigation */
+
+.page-nav{
+display:flex;
+align-items:center;
+gap:6px;
+}
+
+/* button */
+
+.page-nav button{
+padding:5px 10px;
+border:1px solid #ddd;
+background:white;
+border-radius:6px;
+cursor:pointer;
+transition:0.2s;
+font-size:13px;
+}
+
+/* hover */
+
+.page-nav button:hover{
+background:#f1f1f1;
+}
+
+/* active page */
+
+.page-nav button.active{
+background:#3498db;
+color:white;
+border-color:#3498db;
+}
+
+/* disabled */
+
+.page-nav button:disabled{
+opacity:0.5;
+cursor:not-allowed;
+}
