@@ -410,9 +410,10 @@ document.addEventListener("click", e => {
   const btn = e.target.closest(".wa-invoice-btn");
   if(!btn) return;
 
-  const phone = btn.dataset.phone;
-  const id = btn.dataset.id;
-  const nama = btn.dataset.nama;
+    const phone = btn.dataset.phone;
+    const id = btn.dataset.id;
+    const nama = btn.dataset.nama;
+    const status = btn.dataset.status;
 
   if(!phone){
     alert("Nomor HP tidak tersedia");
@@ -431,7 +432,7 @@ CEO Part & Service.
 
 📄 *INVOICE SERVICE HP*
 Nama: ${nama}
-Status Service: ${newStatus}
+Status Service: ${status}
 Status Pembayaran: Silakan cek invoice
 
 ${garansiText}
