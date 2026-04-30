@@ -63,6 +63,11 @@ if(!data.length){
 
 globalData = data;
 
+    const totalEl = document.getElementById("totalService");
+if(totalEl){
+  totalEl.textContent = data.length;
+}
+
 tbody.innerHTML = "";
 
 data.forEach((row,i)=>{
