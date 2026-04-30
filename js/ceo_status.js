@@ -127,6 +127,8 @@ document.getElementById("d-alamat").textContent = dataRow.alamat;
 document.getElementById("d-brand").textContent = dataRow.brand;
 document.getElementById("d-problem").textContent = dataRow.problem;
 document.getElementById("d-metode").textContent = dataRow.metode;
+document.getElementById("d-perbaikan").textContent =
+dataRow.jenis_perbaikan || "Informasi tidak tersedia";
 
 document.getElementById("d-status").textContent = dataRow.status;
 document.getElementById("d-tanggal").textContent =
@@ -152,12 +154,32 @@ document.getElementById("d-bukti").innerHTML = dataRow.bukti
   : "-";
 
 /* ===== BUKTI SERVICE SELESAI ===== */
-document.getElementById("d-bukti-service").innerHTML =
-  dataRow.bukti_service
-    ? `<a href="${dataRow.bukti_service}" target="_blank">
-        <i class="fa-solid fa-image"></i> Lihat Bukti Service
-       </a>`
-    : "Service belum selesai";
+const buktiServiceEl = document.getElementById("d-bukti-service");
+
+if(dataRow.bukti_service){
+
+  buktiServiceEl.innerHTML = `
+    <a href="${dataRow.bukti_service}" target="_blank">
+      <i class="fa-solid fa-image"></i> Lihat Foto Hasil Service
+    </a>
+  `;
+
+}else if(dataRow.status === "selesai"){
+
+  buktiServiceEl.innerHTML = `
+    <span style="color:#777;">
+      Teknisi tidak mengunggah foto hasil service.
+    </span>
+  `;
+
+}else{
+
+  buktiServiceEl.innerHTML = `
+    <span style="color:orange;">
+      ⏳ Service sedang dikerjakan
+    </span>
+  `;
+}
 
 document.getElementById("detailModal").style.display = "flex";
 return;
