@@ -328,10 +328,9 @@ function updatePagination(){
         }
 
         btn.onclick = ()=>{
-            currentPage = i;
-            renderTable();
-            updatePagination();
-        };
+        currentPage = i;
+        loadOrders();
+    };
 
         pageNumbers.appendChild(btn);
     }
@@ -387,8 +386,7 @@ document.getElementById("prevPage")
 
     if(currentPage > 1){
         currentPage--;
-        renderTable();
-        updatePagination();
+        loadOrders();
     }
 
 });
@@ -402,8 +400,7 @@ document.getElementById("nextPage")
 
     if(currentPage < totalPages){
         currentPage++;
-        renderTable();
-        updatePagination();
+        loadOrders();
     }
 
 });
@@ -417,8 +414,7 @@ document.getElementById("pageSize")
 pageSize = Number(this.value);
 currentPage = 1;
 
-renderTable();
-updatePagination();
+loadOrders();
 
 });
 
