@@ -391,12 +391,13 @@ CEO Part & Service HP`
                 Nota
               </a>
             
-              <button class="wa-invoice-btn"
-                data-phone="${row.phone}"
-                data-id="${row.id}"
-                data-nama="${row.nama}">
-                <i class="fa-brands fa-whatsapp"></i> Kirim
-              </button>
+                <button class="wa-invoice-btn"
+                  data-phone="${row.phone}"
+                  data-id="${row.id}"
+                  data-nama="${row.nama}"
+                  data-status="${row.status}">
+                  <i class="fa-brands fa-whatsapp"></i> Kirim
+                </button>
             
             </td>
         </tr>
