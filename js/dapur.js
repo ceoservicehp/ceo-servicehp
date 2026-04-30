@@ -467,13 +467,6 @@ function renderTable(){
             o.metode?.toLowerCase().includes(currentFilter)
         );
     }
-
-    /* PAGINATION */
-
-    const start = (currentPage - 1) * pageSize;
-    const end = start + pageSize;
-
-    rows = rows.slice(start, end);
     
     if(rows.length===0){
         tbody.innerHTML=`<tr><td colspan="9">Tidak ada data</td></tr>`;
