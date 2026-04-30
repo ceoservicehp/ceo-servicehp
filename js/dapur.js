@@ -266,6 +266,141 @@ async function loadOrders(){
     updatePagination();
 }
 
+/* ================= UPDATE PAGINATION ================= */
+
+function updatePagination(){
+
+    const totalPages = Math.ceil(totalRows / pageSize);
+    const pageNumbers = document.getElementById("pageNumbers");
+
+    if(!pageNumbers) return;
+
+    pageNumbers.innerHTML = "";
+
+    const maxVisible = 5;
+
+    let startPage = Math.max(1, currentPage - 2);
+    let endPage = Math.min(totalPages, startPage + maxVisible - 1);
+
+    if(endPage - startPage < maxVisible - 1){
+        startPage = Math.max(1, endPage - maxVisible + 1);
+    }
+
+    /* halaman pertama */
+
+    if(startPage > 1){
+
+        const firstBtn = document.createElement("button");
+        firstBtn.textContent = 1;
+
+        firstBtn.onclick = ()=>{
+            currentPage = 1;
+            renderTable();
+            updatePagination();
+        };
+
+        pageNumbers.appendChild(firstBtn);
+
+        if(startPage > 2){
+            const dots = document.createElement("span");
+            dots.textContent = "...";
+            pageNumbers.appendChild(dots);
+        }
+    }
+
+    /* halaman tengah */
+
+    for(let i=startPage;i<=endPage;i++){
+
+        const btn = document.createElement("button");
+        btn.textContent = i;
+
+        if(i === currentPage){
+            btn.classList.add("active");
+        }
+
+        btn.onclick = ()=>{
+            currentPage = i;
+            renderTable();
+            updatePagination();
+        };
+
+        pageNumbers.appendChild(btn);
+    }
+
+    /* halaman terakhir */
+
+    if(endPage < totalPages){
+
+        if(endPage < totalPages - 1){
+
+            const dots = document.createElement("span");
+            dots.textContent = "...";
+            pageNumbers.appendChild(dots);
+        }
+
+        const lastBtn = document.createElement("button");
+        lastBtn.textContent = totalPages;
+
+        lastBtn.onclick = ()=>{
+            currentPage = totalPages;
+            renderTable();
+            updatePagination();
+        };
+
+        pageNumbers.appendChild(lastBtn);
+    }
+
+    /* prev next */
+
+    const prevBtn = document.getElementById("prevPage");
+    const nextBtn = document.getElementById("nextPage");
+
+    if(prevBtn) prevBtn.disabled = currentPage === 1;
+    if(nextBtn) nextBtn.disabled = currentPage === totalPages;
+}
+
+/* ================= PREV PAGE ================= */
+
+document.getElementById("prevPage")
+?.addEventListener("click",()=>{
+
+    if(currentPage > 1){
+        currentPage--;
+        renderTable();
+        updatePagination();
+    }
+
+});
+
+/* ================= NEXT PAGE ================= */
+
+document.getElementById("nextPage")
+?.addEventListener("click",()=>{
+
+    const totalPages = Math.ceil(totalRows / pageSize);
+
+    if(currentPage < totalPages){
+        currentPage++;
+        renderTable();
+        updatePagination();
+    }
+
+});
+
+/* ================= PAGE SIZE ================= */
+
+document.getElementById("pageSize")
+?.addEventListener("change",function(){
+
+pageSize = Number(this.value);
+currentPage = 1;
+
+renderTable();
+updatePagination();
+
+});
+
 /* ================= LOAD SPAREPART ================= */
 async function loadSpareparts(){
 
