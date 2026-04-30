@@ -71,6 +71,11 @@ let allOrders=[];
 let currentFilter="all";
 let selectedParts = [];
 
+/* ================= PAGINATION ================= */
+let currentPage = 1;
+let pageSize = 10;
+let totalRows = 0;
+
 /* ================= SPAREPART MANUAL ================= */
 function initSparepartManual(){
 
@@ -258,6 +263,7 @@ async function loadOrders(){
 
     allOrders=data;
     renderTable();
+    updatePagination();
 }
 
 /* ================= LOAD SPAREPART ================= */
@@ -302,13 +308,22 @@ function renderTable(){
     const tbody=document.getElementById("orderTable");
     if(!tbody) return;
 
-    let rows=allOrders;
+    let rows = allOrders;
 
-    if(currentFilter!=="all"){
-        rows=allOrders.filter(o =>
+    if(currentFilter !== "all"){
+        rows = allOrders.filter(o =>
             o.metode?.toLowerCase().includes(currentFilter)
         );
     }
+    
+    totalRows = rows.length;
+    
+    /* ================= PAGINATION ================= */
+    
+    const start = (currentPage - 1) * pageSize;
+    const end = start + pageSize;
+    
+    rows = rows.slice(start, end);
 
     if(rows.length===0){
         tbody.innerHTML=`<tr><td colspan="9">Tidak ada data</td></tr>`;
@@ -318,6 +333,8 @@ function renderTable(){
     tbody.innerHTML="";
 
     rows.forEach((row,i)=>{
+
+    const nomor = (currentPage - 1) * pageSize + i + 1;
 
         let statusClass="status-pending";
         if(row.status==="proses") statusClass="status-proses";
@@ -341,30 +358,30 @@ function renderTable(){
         tbody.innerHTML+=`
         <tr>
             <td><input type="checkbox" class="row-check" data-id="${row.id}"></td>
-            <td>${i+1}</td>
+            <td>${nomor}</td>
             <td>${row.nama ?? "-"}</td>
             <td>${row.alamat ?? "-"}</td>
             <td>
                 ${
                    row.phone
                     ? `<a href="https://wa.me/${formatWa(row.phone)}?text=${encodeURIComponent(
-`Halo ${row.nama},
-
-Terima kasih telah menggunakan layanan
-CEO Part & Service HP 📱
-
-Untuk melihat status perbaikan perangkat Anda,
-silakan cek melalui halaman berikut:
-
-🔎 Cek Status Service:
-https://ceo-servicehp.vercel.app/ceo_status.html
-
-Silakan masukkan Nama Anda yang sesuai pada saat pengisian form untuk melihat status service terbaru.
-
-Jika ada pertanyaan silakan balas pesan ini.
-
-Terima kasih 🙏
-CEO Part & Service HP`
+            `Halo ${row.nama},
+            
+            Terima kasih telah menggunakan layanan
+            CEO Part & Service HP 📱
+            
+            Untuk melihat status perbaikan perangkat Anda,
+            silakan cek melalui halaman berikut:
+            
+            🔎 Cek Status Service:
+            https://ceo-servicehp.vercel.app/ceo_status.html
+            
+            Silakan masukkan Nama Anda yang sesuai pada saat pengisian form untuk melihat status service terbaru.
+            
+            Jika ada pertanyaan silakan balas pesan ini.
+            
+            Terima kasih 🙏
+            CEO Part & Service HP`
                     )}"
                     target="_blank"
                     class="wa-link">
