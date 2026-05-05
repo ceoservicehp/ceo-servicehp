@@ -346,8 +346,8 @@ function downloadPDF(){
 
     image: { type: 'jpeg', quality: 0.98 },
 
-   html2canvas: {
-    scale: 1.5, // 🔥 ini penting (2 terlalu berat → jadi pucat)
+     html2canvas: {
+    scale: 1.5,
     useCORS: true,
     scrollY: 0,
     backgroundColor: "#ffffff",
@@ -357,12 +357,13 @@ function downloadPDF(){
     logging: false,
     foreignObjectRendering: false,
     removeContainer: true
+  }, // ← 🔥 INI YANG KURANG
+  
+  jsPDF: {
+    unit: 'mm',
+    format: 'a4',
+    orientation: 'portrait'
   }
-    jsPDF: {
-      unit: 'mm',
-      format: 'a4',
-      orientation: 'portrait'
-    }
   };
 
  setTimeout(()=>{
@@ -372,9 +373,9 @@ function downloadPDF(){
     .save()
     .then(()=>{
       document.body.classList.remove("pdf-body");
+      element.style.background = ""; // 🔥 reset
     });
 }, 500);
-
 }
 
 /* ================= WHATSAPP ================= */
