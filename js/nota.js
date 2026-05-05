@@ -338,6 +338,9 @@ function downloadPDF(){
 
   const element = document.getElementById("invoice-area");
 
+  const wmText = document.getElementById("watermark").textContent;
+  element.setAttribute("data-wm", wmText);
+
   const wm = document.getElementById("watermark");
   const stamp = document.getElementById("digital-stamp");
 
