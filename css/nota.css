@@ -226,13 +226,14 @@ background:var(--danger);
 }
 
 /* ================= WATERMARK ================= */
-body.pdf-body .watermark{
-  position:fixed;
+.watermark{
+  position:absolute;
   top:50%;
   left:50%;
   transform:translate(-50%,-50%) rotate(-25deg);
-  font-size:70px;
-  z-index:0;
+  font-size:90px;
+  opacity:.06;
+  pointer-events:none;
 }
 
 /* ================= DIGITAL STAMP ================= */
@@ -504,12 +505,6 @@ overflow:hidden;
 /* 🔥 TAMBAHAN INI */
 opacity:1 !important;
 filter:none !important;
-}
-
-/* 🔥 FIX WARNA PDF AGAR TIDAK PUDAR */
-body.pdf-body *{
-  opacity:1 !important;
-  filter:none !important;
 }
 
 /* container utama */
