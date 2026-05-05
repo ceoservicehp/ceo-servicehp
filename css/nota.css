@@ -500,10 +500,21 @@ padding:0 !important;
 margin:0 !important;
 font-size:13px;
 overflow:hidden;
+
+/* 🔥 TAMBAHAN INI */
+opacity:1 !important;
+filter:none !important;
+}
+
+/* 🔥 FIX WARNA PDF AGAR TIDAK PUDAR */
+body.pdf-body *{
+  opacity:1 !important;
+  filter:none !important;
 }
 
 /* container utama */
 body.pdf-body .invoice{
+background:#ffffff !important;
 overflow: hidden;
 
 width:210mm !important;
@@ -551,11 +562,13 @@ display:none !important;
 
 /* watermark */
 body.pdf-body .watermark{
-opacity:.12 !important;
+opacity:.08 !important;
+mix-blend-mode: normal;
 }
 
 body.pdf-body .digital-stamp{
-opacity:.25 !important;
+opacity:.15 !important;
+mix-blend-mode: normal;
 }
 
 /* floating chat */
