@@ -508,6 +508,7 @@ margin:0 !important;
 
 /* container utama */
 body.pdf-body .invoice{
+overflow: hidden;
 
 width:210mm !important;
 min-height:297mm !important;
@@ -586,4 +587,11 @@ opacity:.25 !important;
 
 .floating-wa a:hover{
   transform:scale(1.1);
+}
+
+.invoice,
+.info-wrapper,
+.bottom-section,
+.sparepart-table{
+  page-break-inside: avoid;
 }
