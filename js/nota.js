@@ -343,9 +343,6 @@ function downloadPDF(){
   const wm = document.getElementById("watermark");
   const stamp = document.getElementById("digital-stamp");
 
-  wm.style.display = "none";
-  stamp.style.display = "none";
-
   document.body.classList.add("pdf-body");
 
   const opt = {
@@ -382,8 +379,6 @@ function downloadPDF(){
       .then(()=>{
         document.body.classList.remove("pdf-body");
 
-        wm.style.display = "";
-        stamp.style.display = "";
         element.style.background = "";
       });
   }, 500);
