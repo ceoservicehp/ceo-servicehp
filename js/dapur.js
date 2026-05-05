@@ -70,6 +70,7 @@ function applyRolePermission(role){
 let allOrders=[];
 let currentSearch="";
 let currentFilter="all";
+let currentDateFilter = "";
 let selectedParts = [];
 
 /* ================= PAGINATION ================= */
@@ -266,6 +267,12 @@ async function loadOrders(){
 
     if(currentFilter !== "all"){
     query = query.ilike("metode", `%${currentFilter.replace(/-/g," ")}%`);
+    }
+
+    if(currentDateFilter){
+    query = query
+        .gte("created_at", currentDateFilter + "T00:00:00")
+        .lte("created_at", currentDateFilter + "T23:59:59");
     }
     
     const {data,error,count} = await query.range(start,end);
@@ -1129,85 +1136,9 @@ document.getElementById("hapusTerpilih")
 document.getElementById("filterTanggal")
 ?.addEventListener("change", e => {
 
-    const selected = e.target.value;
-
-    if(!selected){
-        currentPage = 1;
-        loadOrders();
-        return;
-    }
-
-    const filtered = allOrders.filter(o => {
-
-        const created = new Date(o.created_at)
-            .toISOString()
-            .split("T")[0];
-
-        return created === selected;
-    });
-
-    const tbody = document.getElementById("orderTable");
-    tbody.innerHTML = "";
-
-    if(filtered.length === 0){
-        tbody.innerHTML = `<tr><td colspan="9">Tidak ada data</td></tr>`;
-        return;
-    }
-
-    filtered.forEach((row,i)=>{
-
-        let statusClass="status-pending";
-        if(row.status==="proses") statusClass="status-proses";
-        if(row.status==="selesai") statusClass="status-selesai";
-        if(row.status==="batal") statusClass="status-batal";
-
-        const totalKeseluruhan =
-          (row.total_sparepart || 0) +
-          (row.transport || 0) +
-          (row.jasa || 0);
-
-        const tanggal = row.created_at
-            ? new Date(row.created_at).toLocaleDateString("id-ID",{
-                day:"2-digit",
-                month:"short",
-                year:"numeric"
-            })
-            : "-";
-
-        tbody.innerHTML+=`
-        <tr>
-            <td><input type="checkbox" class="row-check" data-id="${row.id}"></td>
-            <td>${i+1}</td>
-            <td>${row.nama ?? "-"}</td>
-            <td>${row.alamat ?? "-"}</td>
-            <td>
-                ${
-                    row.phone
-                    ? `<a href="https://wa.me/${formatWa(row.phone)}"
-                         target="_blank"
-                         class="wa-link">
-                         <i class="fab fa-whatsapp"></i> ${row.phone}
-                       </a>`
-                    : "-"
-                }
-            </td>
-            <td>${tanggal}</td>
-            <td>
-                <span class="status-badge ${statusClass}">
-                    ${row.status ?? "pending"}
-                </span>
-            </td>
-            <td style="font-weight:600; color:#009688;">
-                ${rupiah(totalKeseluruhan)}
-            </td>
-            <td>
-                <button class="detail-btn" data-id="${row.id}">
-                    Detail
-                </button>
-            </td>
-        </tr>
-        `;
-    });
+    currentDateFilter = e.target.value;
+    currentPage = 1;
+    loadOrders();
 
 });
 
