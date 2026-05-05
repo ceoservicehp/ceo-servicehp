@@ -388,6 +388,10 @@ function downloadPDF(){
     });
 }
 
+function printPDF(){
+  window.print();
+}
+
 /* ================= WHATSAPP ================= */
 function sendWhatsApp(){
   if(!currentData) return;
