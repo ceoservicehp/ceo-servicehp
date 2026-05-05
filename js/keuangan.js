@@ -44,9 +44,6 @@ let expenseData = [];
 let summaryIncomeData = [];
 let summaryExpenseData = [];
 
-let filteredIncomeData = [];
-let filteredExpenseData = [];
-
 let currentPage = 1;
 let pageSize = 10;
 let totalRows = 0;
@@ -186,21 +183,38 @@ async function loadFinance(){
     const start = (currentPage - 1) * pageSize;
     const end = start + pageSize - 1;
     
-    const { data:income, count:incomeCount } = await client
+   const startDate = document.getElementById("startDate")?.value;
+    const endDate = document.getElementById("endDate")?.value;
+    
+    let incomeQuery = client
         .from("service_orders")
         .select("*",{count:"exact"})
         .eq("status","selesai")
-        .order("created_at",{ascending:false})
-        .range(start,end);
+        .order("created_at",{ascending:false});
     
-    const { data:expense, count:expenseCount } = await client
-        .from("expenses")
-        .select(`
+    if(startDate && endDate){
+        incomeQuery = incomeQuery
+            .gte("created_at", startDate + "T00:00:00")
+            .lte("created_at", endDate + "T23:59:59");
+    }
+    
+    const { data:income, count:incomeCount } = await incomeQuery.range(start,end);
+    
+    let expenseQuery = client
+    .from("expenses")
+    .select(`
         *,
         profiles:honor_user_id(full_name)
-        `,{count:"exact"})
-        .order("created_at",{ascending:false})
-        .range(start,end);
+    `,{count:"exact"})
+    .order("created_at",{ascending:false});
+
+    if(startDate && endDate){
+        expenseQuery = expenseQuery
+            .gte("created_at", startDate + "T00:00:00")
+            .lte("created_at", endDate + "T23:59:59");
+    }
+    
+    const { data:expense, count:expenseCount } = await expenseQuery.range(start,end);
 
 incomeData = income || [];
 expenseData = expense || [];
@@ -212,15 +226,20 @@ else if(currentTab === "expense"){
     totalRows = expenseCount;
 }
 else if(currentTab === "debt"){
-    totalRows = income.filter(row => (row.remaining_amount || 0) > 0).length;
+    totalRows = incomeCount;
 }
 
 const totalPages = Math.ceil(totalRows / pageSize);
 if(currentPage > totalPages) currentPage = totalPages || 1;
 
 updatePagination();
+renderByTab(incomeData, expenseData);
 
-filterByDate();
+if(startDate && endDate){
+    updateFinanceCards(incomeData, expenseData);
+}else{
+    updateFinanceCards(summaryIncomeData, summaryExpenseData);
+}
 }
 
 /* ================= LOAD SUMMARY (UNTUK CARD) ================= */
@@ -239,41 +258,6 @@ async function loadSummaryData(){
     summaryExpenseData = expense || [];
     
     updateFinanceCards(summaryIncomeData, summaryExpenseData);
-}
-
-function filterByDate(){
-
-    const start = document.getElementById("startDate")?.value;
-    const end = document.getElementById("endDate")?.value;
-
-    /* jika TIDAK ada filter → gunakan data pagination */
-    if(!start || !end){
-
-        filteredIncomeData = incomeData;
-        filteredExpenseData = expenseData;
-
-        renderByTab(filteredIncomeData, filteredExpenseData);
-
-        /* card tetap pakai semua data */
-        updateFinanceCards(summaryIncomeData, summaryExpenseData);
-
-        return;
-    }
-
-    /* jika ada filter → pakai semua data lalu difilter */
-
-    filteredIncomeData = summaryIncomeData.filter(o=>{
-        const d = o.created_at.split("T")[0];
-        return d >= start && d <= end;
-    });
-
-    filteredExpenseData = summaryExpenseData.filter(o=>{
-        const d = o.created_at.split("T")[0];
-        return d >= start && d <= end;
-    });
-
-    renderByTab(filteredIncomeData, filteredExpenseData);
-    updateFinanceCards(filteredIncomeData, filteredExpenseData);
 }
 
 function updatePagination(){
@@ -870,8 +854,8 @@ function exportToCSV(){
     
     const isFilterActive = start && end;
 
-    const exportIncome = isFilterActive ? filteredIncomeData : summaryIncomeData;
-    const exportExpense = isFilterActive ? filteredExpenseData : summaryExpenseData;
+    const exportIncome = isFilterActive ? incomeData : summaryIncomeData;
+    const exportExpense = isFilterActive ? expenseData : summaryExpenseData;;
 
     let rows = [];
     let fileName = "laporan_keuangan.csv";
