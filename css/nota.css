@@ -510,7 +510,7 @@ margin:0 !important;
 body.pdf-body .invoice{
 
 width:210mm !important;
-min-height:297mm !important;
+height:297mm !important;
 
 margin:0 auto !important;
 padding:12mm !important;
