@@ -338,6 +338,14 @@ function downloadPDF(){
 
   const element = document.getElementById("invoice-area");
 
+  element.style.background = "#ffffff";
+
+  const wm = document.getElementById("watermark");
+  const stamp = document.getElementById("digital-stamp");
+
+  wm.style.display = "none";
+  stamp.style.display = "none";
+
   document.body.classList.add("pdf-body");
 
   const opt = {
@@ -354,7 +362,9 @@ function downloadPDF(){
       backgroundColor: "#ffffff",
       windowWidth: 1200,
       letterRendering: true,
-      logging: false
+      logging: false,
+      foreignObjectRendering: false,
+      removeContainer: true
     },
 
     jsPDF: {
@@ -371,6 +381,10 @@ function downloadPDF(){
       .save()
       .then(()=>{
         document.body.classList.remove("pdf-body");
+
+        wm.style.display = "";
+        stamp.style.display = "";
+        element.style.background = "";
       });
   }, 500);
 }
