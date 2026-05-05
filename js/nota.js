@@ -342,16 +342,19 @@ function downloadPDF(){
 
   const opt = {
     margin: [5, 5, 5, 5],
+
     filename: "Invoice_"+currentData.id+".pdf",
 
     image: { type: 'jpeg', quality: 0.98 },
 
     html2canvas: {
-      scale: 2,
+      scale: 1.5,
       useCORS: true,
       scrollY: 0,
       backgroundColor: "#ffffff",
-      windowWidth: 1200
+      windowWidth: 1200,
+      letterRendering: true,
+      logging: false
     },
 
     jsPDF: {
@@ -362,15 +365,14 @@ function downloadPDF(){
   };
 
   setTimeout(()=>{
-  html2pdf()
-    .set(opt)
-    .from(element)
-    .save()
-    .then(()=>{
-      document.body.classList.remove("pdf-body");
-    });
-}, 300);
-
+    html2pdf()
+      .set(opt)
+      .from(element)
+      .save()
+      .then(()=>{
+        document.body.classList.remove("pdf-body");
+      });
+  }, 500);
 }
 
 /* ================= WHATSAPP ================= */
