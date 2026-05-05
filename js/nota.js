@@ -341,7 +341,7 @@ function downloadPDF(){
   document.body.classList.add("pdf-body");
 
   const opt = {
-    margin: 0,
+    margin: [5, 5, 5, 5],
     filename: "Invoice_"+currentData.id+".pdf",
 
     image: { type: 'jpeg', quality: 0.98 },
@@ -361,6 +361,7 @@ function downloadPDF(){
     }
   };
 
+  setTimeout(()=>{
   html2pdf()
     .set(opt)
     .from(element)
@@ -368,6 +369,7 @@ function downloadPDF(){
     .then(()=>{
       document.body.classList.remove("pdf-body");
     });
+}, 300);
 
 }
 
