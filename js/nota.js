@@ -338,8 +338,6 @@ function downloadPDF(){
 
   const element = document.getElementById("invoice-area");
 
-  element.style.background = "#ffffff";
-
   const wm = document.getElementById("watermark");
   const stamp = document.getElementById("digital-stamp");
 
@@ -353,7 +351,7 @@ function downloadPDF(){
     image: { type: 'jpeg', quality: 0.98 },
 
     html2canvas: {
-      scale: 1.5,
+      scale: 2,
       useCORS: true,
       scrollY: 0,
       backgroundColor: "#ffffff",
