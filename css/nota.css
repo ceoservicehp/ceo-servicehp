@@ -64,7 +64,7 @@ object-fit:contain;
 .brand h1{
 color:var(--primary);
 margin:0;
-font-size:22px;
+font-size:26px;
 }
 
 .brand p{
@@ -95,7 +95,7 @@ font-size:12px;
 .info-wrapper{
 display:grid;
 grid-template-columns:1fr 1fr;
-gap:12px !important;
+gap:20px;
 margin-bottom:30px;
 }
 
@@ -227,23 +227,28 @@ background:var(--danger);
 
 /* ================= WATERMARK ================= */
 .watermark{
-  position:absolute;
-  top:50%;
-  left:50%;
-  transform:translate(-50%,-50%) rotate(-25deg);
-  font-size:90px;
-  opacity:.06;
-  pointer-events:none;
+position:absolute;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%) rotate(-25deg);
+font-size:90px;
+font-weight:800;
+opacity:.06;
+pointer-events:none;
+white-space:nowrap;
 }
 
 /* ================= DIGITAL STAMP ================= */
-body.pdf-body .digital-stamp{
-  position:fixed;
-  top:55%;
-  left:50%;
-  transform:translate(-50%,-50%) rotate(-15deg);
-  font-size:60px;
-  z-index:0;
+.digital-stamp{
+position:absolute;
+top:45%;
+left:50%;
+transform:translate(-50%,-50%) rotate(-15deg);
+font-size:70px;
+font-weight:800;
+opacity:.08;
+pointer-events:none;
+white-space:nowrap;
 }
 
 .stamp-paid{color:var(--success);}
@@ -254,7 +259,7 @@ body.pdf-body .digital-stamp{
 display:flex;
 justify-content:space-between;
 align-items:flex-end;
-margin-top:30px;
+margin-top:50px;
 padding-top:30px;
 border-top:1px solid #eee;
 flex-wrap:wrap;
@@ -499,20 +504,16 @@ body.pdf-body{
 background:white !important;
 padding:0 !important;
 margin:0 !important;
-font-size:13px;
-overflow:hidden;
 }
 
 /* container utama */
 body.pdf-body .invoice{
-background:#ffffff !important;
-overflow: hidden;
 
 width:210mm !important;
-height:297mm !important;
+min-height:297mm !important;
 
 margin:0 auto !important;
-padding:12mm !important;
+padding:20mm !important;
 
 box-sizing:border-box;
 
@@ -546,26 +547,18 @@ min-height:70px !important;
 }
 
 /* hilangkan tombol */
-body.pdf-body .watermark,
-body.pdf-body .digital-stamp{
-  display:none !important;
+body.pdf-body .actions,
+body.pdf-body .social-links{
+display:none !important;
 }
 
 /* watermark */
 body.pdf-body .watermark{
-  opacity:0.06 !important;
-  color: rgba(200,0,0,0.2) !important;
-  mix-blend-mode: normal !important;
+opacity:.12 !important;
 }
 
 body.pdf-body .digital-stamp{
-  opacity:0.12 !important;
-  mix-blend-mode: normal !important;
-}
-
-body.pdf-body .watermark,
-body.pdf-body .digital-stamp{
-  z-index:1 !important;
+opacity:.25 !important;
 }
 
 /* floating chat */
@@ -593,25 +586,4 @@ body.pdf-body .digital-stamp{
 
 .floating-wa a:hover{
   transform:scale(1.1);
-}
-
-.invoice,
-.info-wrapper,
-.bottom-section,
-.sparepart-table{
-  page-break-inside: avoid;
-}
-
-body.pdf-body .invoice::after{
-  content: attr(data-wm);
-  position:absolute;
-  top:50%;
-  left:50%;
-  transform:translate(-50%,-50%) rotate(-25deg);
-
-  font-size:80px;
-  font-weight:800;
-  color:rgba(200,0,0,0.08);
-
-  pointer-events:none;
 }
