@@ -388,7 +388,7 @@ function downloadPDF(){
     });
 }
 
-function printPDF(){
+function downloadPDF(){
   window.print();
 }
 
