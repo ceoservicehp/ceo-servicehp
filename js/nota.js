@@ -337,7 +337,7 @@ function downloadPDF(){
   if(!currentData) return;
 
   const element = document.getElementById("invoice-area");
-
+  element.style.background = "#ffffff";
   document.body.classList.add("pdf-body");
 
   const opt = {
@@ -346,14 +346,18 @@ function downloadPDF(){
 
     image: { type: 'jpeg', quality: 0.98 },
 
-    html2canvas: {
-      scale: 2,
-      useCORS: true,
-      scrollY: 0,
-      backgroundColor: "#ffffff",
-      windowWidth: 1200
-    },
-
+   html2canvas: {
+    scale: 1.5, // 🔥 ini penting (2 terlalu berat → jadi pucat)
+    useCORS: true,
+    scrollY: 0,
+    backgroundColor: "#ffffff",
+    windowWidth: 1200,
+  
+    letterRendering: true,
+    logging: false,
+    foreignObjectRendering: false,
+    removeContainer: true
+  }
     jsPDF: {
       unit: 'mm',
       format: 'a4',
@@ -369,7 +373,7 @@ function downloadPDF(){
     .then(()=>{
       document.body.classList.remove("pdf-body");
     });
-}, 400);
+}, 500);
 
 }
 
