@@ -562,13 +562,19 @@ display:none !important;
 
 /* watermark */
 body.pdf-body .watermark{
-opacity:.08 !important;
-mix-blend-mode: normal;
+  opacity:0.06 !important;
+  color: rgba(200,0,0,0.2) !important;
+  mix-blend-mode: normal !important;
 }
 
 body.pdf-body .digital-stamp{
-opacity:.15 !important;
-mix-blend-mode: normal;
+  opacity:0.12 !important;
+  mix-blend-mode: normal !important;
+}
+
+body.pdf-body .watermark,
+body.pdf-body .digital-stamp{
+  z-index:1 !important;
 }
 
 /* floating chat */
