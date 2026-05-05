@@ -513,7 +513,7 @@ width:210mm !important;
 min-height:297mm !important;
 
 margin:0 auto !important;
-padding:20mm !important;
+padding:12mm !important;
 
 box-sizing:border-box;
 
@@ -553,8 +553,9 @@ display:none !important;
 }
 
 /* watermark */
-body.pdf-body .watermark{
-opacity:.12 !important;
+body.pdf-body .watermark,
+body.pdf-body .digital-stamp{
+  display:none !important;
 }
 
 body.pdf-body .digital-stamp{
