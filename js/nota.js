@@ -336,9 +336,27 @@ function downloadPDF(){
 
   if(!currentData) return;
 
-  const element = document.getElementById("invoice-area");
-  element.style.background = "#ffffff";
-  document.body.classList.add("pdf-body");
+  const original = document.getElementById("invoice-area");
+
+  // 🔥 CLONE element (INI KUNCI)
+  const clone = original.cloneNode(true);
+
+  clone.style.background = "#ffffff";
+  clone.style.boxShadow = "none";
+
+  // 🔥 pastikan tidak ada efek aneh
+  clone.querySelectorAll("*").forEach(el=>{
+    el.style.filter = "none";
+    el.style.opacity = "1";
+  });
+
+  // 🔥 sembunyikan watermark di clone saja
+  const wm = clone.querySelector("#watermark");
+  const stamp = clone.querySelector("#digital-stamp");
+  if(wm) wm.remove();
+  if(stamp) stamp.remove();
+
+  document.body.appendChild(clone);
 
   const opt = {
     margin: [5,5,5,5],
@@ -346,36 +364,28 @@ function downloadPDF(){
 
     image: { type: 'jpeg', quality: 0.98 },
 
-     html2canvas: {
-    scale: 1.5,
-    useCORS: true,
-    scrollY: 0,
-    backgroundColor: "#ffffff",
-    windowWidth: 1200,
-  
-    letterRendering: true,
-    logging: false,
-    foreignObjectRendering: false,
-    removeContainer: true
-  }, // ← 🔥 INI YANG KURANG
-  
-  jsPDF: {
-    unit: 'mm',
-    format: 'a4',
-    orientation: 'portrait'
-  }
+    html2canvas: {
+      scale: 1.5,
+      useCORS: true,
+      backgroundColor: "#ffffff",
+      scrollY: 0,
+      windowWidth: 1200
+    },
+
+    jsPDF: {
+      unit: 'mm',
+      format: 'a4',
+      orientation: 'portrait'
+    }
   };
 
- setTimeout(()=>{
   html2pdf()
     .set(opt)
-    .from(element)
+    .from(clone)
     .save()
     .then(()=>{
-      document.body.classList.remove("pdf-body");
-      element.style.background = ""; // 🔥 reset
+      clone.remove(); // 🔥 cleanup
     });
-}, 500);
 }
 
 /* ================= WHATSAPP ================= */
