@@ -501,10 +501,6 @@ padding:0 !important;
 margin:0 !important;
 font-size:13px;
 overflow:hidden;
-
-/* 🔥 TAMBAHAN INI */
-opacity:1 !important;
-filter:none !important;
 }
 
 /* container utama */
@@ -550,9 +546,9 @@ min-height:70px !important;
 }
 
 /* hilangkan tombol */
-body.pdf-body .actions,
-body.pdf-body .social-links{
-display:none !important;
+body.pdf-body .watermark,
+body.pdf-body .digital-stamp{
+  display:none !important;
 }
 
 /* watermark */
@@ -604,4 +600,18 @@ body.pdf-body .digital-stamp{
 .bottom-section,
 .sparepart-table{
   page-break-inside: avoid;
+}
+
+body.pdf-body .invoice::after{
+  content: attr(data-wm);
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%) rotate(-25deg);
+
+  font-size:80px;
+  font-weight:800;
+  color:rgba(200,0,0,0.08);
+
+  pointer-events:none;
 }
