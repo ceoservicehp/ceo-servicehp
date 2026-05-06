@@ -492,7 +492,7 @@ pdf.roundedRect(
 
 // ================= TOTAL =================
 
-let finalY = pdf.lastAutoTable.finalY + 10;
+let finalY = pdf.lastAutoTable.finalY + 6;
 
 const transport = Number(currentData.transport || 0);
 const jasa = Number(currentData.jasa || 0);
@@ -507,119 +507,88 @@ const remaining = grand - dibayar;
 
 // total card
 drawBox(
-  112,
-  finalY - 5,
-  73,
-  34
-);
-
-pdf.setFont("helvetica","normal");
-pdf.setFontSize(9);
-
-pdf.setTextColor(90);
-
-pdf.text(
-  "Subtotal",
-  117,
-  finalY + 4
-);
-
-pdf.text(
-  formatRupiah(subtotal),
-  178,
-  finalY + 4,
-  {align:"right"}
-);
-
-pdf.text(
-  "Transport",
-  117,
-  finalY + 10
-);
-
-pdf.text(
-  formatRupiah(transport),
-  178,
-  finalY + 10,
-  {align:"right"}
-);
-
-pdf.text(
-  "Jasa",
-  117,
-  finalY + 16
-);
-
-pdf.text(
-  formatRupiah(jasa),
-  178,
-  finalY + 16,
-  {align:"right"}
-);
-
-pdf.setDrawColor(220);
-
-pdf.line(
-  117,
-  finalY + 19,
-  178,
-  finalY + 19
-);
-
-pdf.setFont("helvetica","bold");
-pdf.setFontSize(14);
-
-pdf.setTextColor(20,120,120);
-
-pdf.text(
-  "TOTAL",
-  117,
-  finalY + 28
-);
-
-pdf.text(
-  formatRupiah(grand),
-  178,
-  finalY + 28,
-  {align:"right"}
+  115,
+  finalY,
+  70,
+  32
 );
 
 pdf.setFont("helvetica","normal");
 pdf.setFontSize(8);
 
-pdf.setTextColor(100);
+pdf.setTextColor(110);
 
-if(remaining > 0){
+pdf.text(
+  "Subtotal",
+  120,
+  finalY + 6
+);
 
-  pdf.text(
-    "Kurang Bayar : " +
-    formatRupiah(remaining),
-    117,
-    finalY + 33
-  );
+pdf.text(
+  formatRupiah(subtotal),
+  176,
+  finalY + 6,
+  {align:"right"}
+);
 
-}else if(remaining < 0){
+pdf.text(
+  "Transport",
+  120,
+  finalY + 12
+);
 
-  pdf.text(
-    "Kembalian : " +
-    formatRupiah(Math.abs(remaining)),
-    117,
-    finalY + 33
-  );
+pdf.text(
+  formatRupiah(transport),
+  176,
+  finalY + 12,
+  {align:"right"}
+);
 
-}else{
+pdf.text(
+  "Jasa",
+  120,
+  finalY + 18
+);
 
-  pdf.text(
-    "Pembayaran Lunas",
-    117,
-    finalY + 33
-  );
+pdf.text(
+  formatRupiah(jasa),
+  176,
+  finalY + 18,
+  {align:"right"}
+);
 
-}
+// line
+pdf.setDrawColor(225);
 
+pdf.line(
+  120,
+  finalY + 21,
+  176,
+  finalY + 21
+);
+
+// total
+pdf.setFont("helvetica","bold");
+pdf.setFontSize(15);
+
+pdf.setTextColor(20,120,120);
+
+pdf.text(
+  "TOTAL",
+  120,
+  finalY + 30
+);
+
+pdf.text(
+  formatRupiah(grand),
+  176,
+  finalY + 30,
+  {align:"right"}
+);
+  
 // ================= GARANSI =================
 
-let garansiY = finalY + 36;
+let garansiY = finalY + 28;
 
 drawBox(
   15,
@@ -678,7 +647,7 @@ if(qrCanvas){
     qrImage,
     "PNG",
     20,
-    garansiY + 6,
+    garansiY + 2,
     20,
     20
   );
@@ -688,7 +657,7 @@ if(qrCanvas){
   pdf.text(
     "Scan Verifikasi",
     20,
-    garansiY + 29
+    garansiY + 24
   );
 
 }
@@ -701,7 +670,7 @@ pdf.setFontSize(9);
 pdf.text(
   "Hormat Kami,",
   145,
-  garansiY + 10
+  garansiY + 5
 );
 
 const sigBox =
@@ -724,7 +693,7 @@ if(
       img,
       "PNG",
       134,
-      garansiY + 6,
+      garansiY + 2,
       36,
       14
     );
@@ -741,13 +710,13 @@ pdf.text(
   document.getElementById("ttdName")
     .textContent,
   152,
-  garansiY + 25,
+  garansiY + 20,
   {align:"center"}
 );
 
 // ================= SYARAT GARANSI =================
 
-let syaratY = garansiY + 34;
+let syaratY = garansiY + 26;
 
 drawBox(
   15,
