@@ -1,775 +1,725 @@
-function drawHeader(pdf){
+Saya sudah pelajari struktur HTML, JS, dan CSS Anda. Sekarang saya tahu field `currentData` lengkapnya (termasuk `alamat`, `tanggal_selesai` — bukan `finished_at`, `use_top`, `due_date`, `top_days`, `amount_paid`, dll). Saya akan buatkan `invoice-pdf.js` versi yang sudah disempurnakan dengan:
 
-  pdf.setFont("helvetica","bold");
-  pdf.setFontSize(22);
+✅ Layout grid yang konsisten (margin, spacing, alignment proporsional)  
+✅ Header modern dengan badge invoice teal  
+✅ Card kiri-kanan: Data Pelanggan & Informasi Service (lengkap dengan Alamat, Tempo, Garansi)  
+✅ Detail Kerusakan dalam box terpisah (auto-wrap text)  
+✅ Tabel sparepart profesional dengan header teal solid  
+✅ Summary card dengan Subtotal, Transport, Jasa, Dibayar, Kurang Bayar/Kembalian  
+✅ TTD + QR section dengan auto page-break  
+✅ Syarat & Ketentuan Garansi yang rapi  
+✅ Watermark LUNAS/BELUM LUNAS proporsional di setiap halaman  
+✅ Footer dengan nomor halaman  
+✅ Auto multi-page handling supaya konten tidak terpotong
+Action: file_editor create /app/output/invoice-pdf.js --file-text "/* =====================================================================
+ * INVOICE PDF GENERATOR — CEO PART & SERVICE
+ * ---------------------------------------------------------------------
+ * Dibutuhkan (sudah ada di nota.html):
+ *   - jsPDF UMD          (window.jspdf.jsPDF)
+ *   - jsPDF AutoTable    (pdf.autoTable)
+ *   - QRCode (canvas di #qr)
+ *
+ * Fungsi utama yang dipanggil dari tombol Download:  downloadPDF()
+ * ===================================================================== */
+\"use strict\";
 
-  pdf.setTextColor(20,120,120);
+/* ================= COLOR PALETTE ================= */
+const PDF_COLORS = {
+  primary:      [31, 111, 120],   // teal brand
+  primaryDark:  [20, 80, 88],
+  primaryLight: [0, 194, 199],
+  accentSoft:   [235, 245, 247],
+  text:         [40, 40, 40],
+  textMid:      [110, 110, 110],
+  textSoft:     [160, 160, 160],
+  border:       [225, 232, 235],
+  bgSoft:       [249, 251, 252],
+  white:        [255, 255, 255],
+  success:      [40, 167, 69],
+  danger:       [220, 53, 69],
+  warnBg:       [253, 248, 235],
+  warnBorder:   [240, 220, 180]
+};
 
-  pdf.text("CEO PART & SERVICE", 20, 20);
+/* ================= PAGE GEOMETRY ================= */
+const PDF_PAGE = {
+  width:    210,
+  height:   297,
+  margin:   15,
+  contentW: 180,
+  footerY:  282
+};
 
-  pdf.setFontSize(10);
-
-  pdf.setTextColor(90);
-
-  pdf.text("Cellular Engineering Officer", 20, 27);
-
-  pdf.text("ITC Roxy Mas LT.1 No.123 B", 20, 33);
-
-  pdf.text(
-    "Jl. KH. Hasyim Ashari No.125, Jakarta Pusat",
-    20,
-    39
-  );
-
-  pdf.setDrawColor(225);
-
-  pdf.line(20, 45, 190, 45);
-
-  return 55;
-}
-
-/* ================= DOWNLOAD PDF ================= */
-
-function loadImage(url){
-  return new Promise((resolve,reject)=>{
-
+/* ================= UTILITIES ================= */
+function pdfLoadImage(url) {
+  return new Promise((resolve, reject) => {
     const img = new Image();
-
-    img.crossOrigin = "Anonymous";
-
-    img.onload = ()=>resolve(img);
-
+    img.crossOrigin = \"Anonymous\";
+    img.onload = () => resolve(img);
     img.onerror = reject;
-
     img.src = url;
   });
 }
 
-async function downloadPDF(){
+function pdfRupiah(value) {
+  return \"Rp \" + Number(value || 0).toLocaleString(\"id-ID\");
+}
 
-  if(!currentData) return;
+function pdfFormatDate(value, withTime = false) {
+  if (!value) return \"-\";
+  const d = new Date(value);
+  if (isNaN(d.getTime())) return \"-\";
+  if (withTime) {
+    return d.toLocaleString(\"id-ID\", {
+      day: \"2-digit\", month: \"short\", year: \"numeric\",
+      hour: \"2-digit\", minute: \"2-digit\"
+    });
+  }
+  return d.toLocaleDateString(\"id-ID\", {
+    day: \"2-digit\", month: \"long\", year: \"numeric\"
+  });
+}
 
-  const { jsPDF } = window.jspdf;
+function pdfSetFill(pdf, rgb)  { pdf.setFillColor(rgb[0], rgb[1], rgb[2]); }
+function pdfSetDraw(pdf, rgb)  { pdf.setDrawColor(rgb[0], rgb[1], rgb[2]); }
+function pdfSetText(pdf, rgb)  { pdf.setTextColor(rgb[0], rgb[1], rgb[2]); }
 
-  const pdf = new jsPDF({
-    orientation: "portrait",
-    unit: "mm",
-    format: "a4"
+function pdfDrawCard(pdf, x, y, w, h, opts = {}) {
+  const {
+    fill   = PDF_COLORS.bgSoft,
+    border = PDF_COLORS.border,
+    radius = 3,
+    lineW  = 0.2
+  } = opts;
+  pdfSetFill(pdf, fill);
+  pdfSetDraw(pdf, border);
+  pdf.setLineWidth(lineW);
+  pdf.roundedRect(x, y, w, h, radius, radius, \"FD\");
+}
+
+function pdfAccentBar(pdf, x, y, h = 6, w = 1.6) {
+  pdfSetFill(pdf, PDF_COLORS.primary);
+  pdf.rect(x, y, w, h, \"F\");
+}
+
+/* ================= HEADER ================= */
+function pdfDrawHeader(pdf, data) {
+  const m = PDF_PAGE.margin;
+
+  // ----- Brand block -----
+  pdf.setFont(\"helvetica\", \"bold\");
+  pdf.setFontSize(18);
+  pdfSetText(pdf, PDF_COLORS.primary);
+  pdf.text(\"CEO PART & SERVICE\", m, 22);
+
+  pdf.setFont(\"helvetica\", \"italic\");
+  pdf.setFontSize(8.5);
+  pdfSetText(pdf, PDF_COLORS.primaryLight);
+  pdf.text(\"Cellular Engineering Officer\", m, 27.2);
+
+  pdf.setFont(\"helvetica\", \"normal\");
+  pdf.setFontSize(8);
+  pdfSetText(pdf, PDF_COLORS.textMid);
+  pdf.text(\"ITC Roxy Mas Lt.1 No.123 B\", m, 32.2);
+  pdf.text(\"Jl. KH. Hasyim Ashari No.125, Jakarta Pusat 10150\", m, 36.2);
+
+  // ----- Invoice badge (kanan) -----
+  const boxX = 142, boxY = 14, boxW = 53, boxH = 26;
+  pdfSetFill(pdf, PDF_COLORS.primary);
+  pdf.roundedRect(boxX, boxY, boxW, boxH, 3, 3, \"F\");
+
+  // Aksen highlight
+  pdfSetFill(pdf, PDF_COLORS.primaryLight);
+  pdf.roundedRect(boxX, boxY, boxW, 5, 3, 3, \"F\");
+  pdf.rect(boxX, boxY + 2, boxW, 3, \"F\");
+
+  pdf.setFont(\"helvetica\", \"bold\");
+  pdf.setFontSize(8.5);
+  pdfSetText(pdf, PDF_COLORS.white);
+  pdf.text(\"INVOICE\", boxX + boxW / 2, boxY + 4, { align: \"center\" });
+
+  pdf.setFontSize(13);
+  pdf.text(
+    \"INV-\" + String(data.id).padStart(5, \"0\"),
+    boxX + boxW / 2, boxY + 13,
+    { align: \"center\" }
+  );
+
+  pdf.setFont(\"helvetica\", \"normal\");
+  pdf.setFontSize(7.5);
+  pdf.text(
+    pdfFormatDate(data.created_at, true),
+    boxX + boxW / 2, boxY + 21,
+    { align: \"center\" }
+  );
+
+  // ----- Divider dengan aksen ganda -----
+  pdfSetDraw(pdf, PDF_COLORS.primary);
+  pdf.setLineWidth(0.6);
+  pdf.line(m, 44, PDF_PAGE.width - m, 44);
+  pdfSetDraw(pdf, PDF_COLORS.primaryLight);
+  pdf.setLineWidth(0.3);
+  pdf.line(m, 45.2, PDF_PAGE.width - m, 45.2);
+
+  return 52;
+}
+
+/* ================= INFO CARDS (Customer + Service) ================= */
+function pdfDrawInfoCards(pdf, y, data, isPaid) {
+  const m = PDF_PAGE.margin;
+  const gap = 6;
+  const cardW = (PDF_PAGE.contentW - gap) / 2;
+  const cardH = 70;
+  const leftX = m;
+  const rightX = m + cardW + gap;
+
+  pdfDrawCard(pdf, leftX, y, cardW, cardH);
+  pdfDrawCard(pdf, rightX, y, cardW, cardH);
+
+  // Card titles
+  function cardTitle(x, title) {
+    pdfAccentBar(pdf, x, y + 4.5, 6);
+    pdf.setFont(\"helvetica\", \"bold\");
+    pdf.setFontSize(11);
+    pdfSetText(pdf, PDF_COLORS.primary);
+    pdf.text(title, x + 4.5, y + 9.5);
+  }
+  cardTitle(leftX,  \"Data Pelanggan\");
+  cardTitle(rightX, \"Informasi Service\");
+
+  // Garis pemisah halus di bawah judul card
+  pdfSetDraw(pdf, PDF_COLORS.border);
+  pdf.setLineWidth(0.2);
+  pdf.line(leftX + 4,  y + 12.5, leftX + cardW - 4,  y + 12.5);
+  pdf.line(rightX + 4, y + 12.5, rightX + cardW - 4, y + 12.5);
+
+  const padX = 4.5;
+  const labelW = 22;
+
+  function infoRow(x, label, value, yPos, valueColor = PDF_COLORS.text) {
+    pdf.setFont(\"helvetica\", \"normal\");
+    pdf.setFontSize(8.5);
+    pdfSetText(pdf, PDF_COLORS.textMid);
+    pdf.text(label, x + padX, yPos);
+
+    pdf.setFont(\"helvetica\", \"bold\");
+    pdfSetText(pdf, valueColor);
+    const txt = pdf.splitTextToSize(
+      value || \"-\",
+      cardW - padX * 2 - labelW
+    );
+    pdf.text(txt, x + padX + labelW, yPos);
+    return txt.length;
+  }
+
+  // ----- KIRI: Pelanggan -----
+  let cy = y + 18;
+  const custFields = [
+    [\"Nama\",    data.nama],
+    [\"No HP\",   data.phone],
+    [\"Alamat\",  data.alamat],
+    [\"Merk HP\", data.brand],
+    [\"Metode\",  data.metode]
+  ];
+  custFields.forEach(([label, val]) => {
+    const lines = infoRow(leftX, label, val, cy);
+    cy += lines > 1 ? 4 + (lines * 3.4) : 7.2;
+    if (cy > y + cardH - 4) return; // safety
   });
 
-  let cursorY = 20;
+  // ----- KANAN: Service -----
+  let sy = y + 18;
+  infoRow(rightX, \"Status\",     data.status, sy); sy += 7.2;
+  infoRow(rightX, \"Tgl Masuk\",  pdfFormatDate(data.created_at), sy); sy += 7.2;
+  infoRow(rightX, \"Tgl Selesai\",
+    data.tanggal_selesai ? pdfFormatDate(data.tanggal_selesai) : \"-\", sy);
+  sy += 7.2;
 
-  // ================= HEADER =================
-
-  cursorY = drawHeader(pdf);
-
-  // ================= HELPER =================
-
-  function drawBox(x, y, w, h){
-
-    pdf.setDrawColor(230);
-    pdf.setFillColor(250,252,253);
-
-    pdf.roundedRect(
-      x,
-      y,
-      w,
-      h,
-      4,
-      4,
-      "FD"
-    );
+  if (data.use_top && data.due_date) {
+    infoRow(rightX, \"Tempo\",
+      `${data.top_days || 0} hari (${pdfFormatDate(data.due_date)})`, sy);
+    sy += 7.2;
   }
 
-  function formatRupiah(value){
-    return "Rp " + Number(value || 0).toLocaleString("id-ID");
+  if (data.garansi) {
+    infoRow(rightX, \"Garansi\", pdfFormatDate(data.garansi), sy);
+    sy += 7.2;
   }
 
- // ================= WATERMARK =================
+  // Payment badge
+  pdf.setFont(\"helvetica\", \"normal\");
+  pdf.setFontSize(8.5);
+  pdfSetText(pdf, PDF_COLORS.textMid);
+  pdf.text(\"Bayar\", rightX + padX, sy);
 
-pdf.setFont("helvetica","bold");
-pdf.setFontSize(42);
-
-pdf.setGState(
-  new pdf.GState({opacity:0.05})
-);
-
-if(
-  (currentData.payment_status || "")
-  .toLowerCase()
-  .includes("lunas")
-){
-
-  pdf.setTextColor(0,150,0);
-
+  const badgeW = 32, badgeH = 6;
+  const badgeX = rightX + padX + labelW;
+  pdfSetFill(pdf, isPaid ? PDF_COLORS.success : PDF_COLORS.danger);
+  pdf.roundedRect(badgeX, sy - 4.3, badgeW, badgeH, 1.5, 1.5, \"F\");
+  pdf.setFont(\"helvetica\", \"bold\");
+  pdf.setFontSize(7.8);
+  pdfSetText(pdf, PDF_COLORS.white);
   pdf.text(
-    "LUNAS",
-    105,
-    175,
-    {
-      align:"center",
-      angle:-25
-    }
+    isPaid ? \"LUNAS\" : \"BELUM LUNAS\",
+    badgeX + badgeW / 2, sy,
+    { align: \"center\" }
   );
 
-}else{
-
-  pdf.setTextColor(220,0,0);
-
-  pdf.text(
-    "BELUM LUNAS",
-    105,
-    175,
-    {
-      align:"center",
-      angle:-25
-    }
-  );
-
+  return y + cardH + 6;
 }
 
-pdf.setGState(
-  new pdf.GState({opacity:1})
-);
+/* ================= PROBLEM BOX ================= */
+function pdfDrawProblemBox(pdf, y, data) {
+  const m = PDF_PAGE.margin;
+  const w = PDF_PAGE.contentW;
 
-pdf.setTextColor(40);
-  
-  // ================= INVOICE INFO =================
+  // Title
+  pdfAccentBar(pdf, m, y - 1, 5);
+  pdf.setFont(\"helvetica\", \"bold\");
+  pdf.setFontSize(10);
+  pdfSetText(pdf, PDF_COLORS.primary);
+  pdf.text(\"Detail Kerusakan\", m + 4, y + 3);
 
-  drawBox(145, 14, 45, 22);
+  // Body
+  pdf.setFont(\"helvetica\", \"normal\");
+  pdf.setFontSize(8.8);
+  const text = pdf.splitTextToSize(data.problem || \"-\", w - 8);
+  const boxH = Math.max(11, text.length * 4.2 + 6);
 
-  pdf.setFont("helvetica","bold");
-  pdf.setFontSize(13);
+  pdfDrawCard(pdf, m, y + 5, w, boxH, {
+    fill: PDF_COLORS.bgSoft,
+    border: PDF_COLORS.border
+  });
 
-  pdf.setTextColor(40);
+  pdfSetText(pdf, PDF_COLORS.text);
+  pdf.text(text, m + 4, y + 10);
 
-  pdf.text(
-    "INV-"+String(currentData.id).padStart(5,"0"),
-    152,
-    24
-  );
+  return y + 5 + boxH + 6;
+}
 
-  pdf.setFont("helvetica","normal");
+/* ================= ITEMS TABLE ================= */
+function pdfDrawItemsTable(pdf, y, data) {
+  const m = PDF_PAGE.margin;
+
+  pdfAccentBar(pdf, m, y - 1, 5);
+  pdf.setFont(\"helvetica\", \"bold\");
+  pdf.setFontSize(11);
+  pdfSetText(pdf, PDF_COLORS.primary);
+  pdf.text(\"Detail Jenis Perbaikan / Sparepart\", m + 4, y + 3);
+
+  let body = [];
+  let subtotal = 0;
+
+  if (data.sparepart) {
+    try {
+      const items = JSON.parse(data.sparepart);
+      items.forEach((item, idx) => {
+        const harga = Number(item.harga || 0);
+        const qty   = Number(item.qty || 0);
+        const total = harga * qty;
+        subtotal += total;
+        body.push([
+          String(idx + 1),
+          item.nama || \"-\",
+          String(qty),
+          pdfRupiah(harga),
+          pdfRupiah(total)
+        ]);
+      });
+    } catch (e) { /* abaikan parse error */ }
+  }
+
+  if (body.length === 0) {
+    body.push([\"-\", \"Tidak ada item\", \"-\", \"-\", \"-\"]);
+  }
+
+  pdf.autoTable({
+    startY: y + 6,
+    margin: { left: m, right: m },
+    head: [[\"#\", \"Jenis Perbaikan / Sparepart\", \"Qty\", \"Harga\", \"Total\"]],
+    body: body,
+    theme: \"plain\",
+    styles: {
+      font: \"helvetica\",
+      fontSize: 9,
+      cellPadding: 3.2,
+      textColor: PDF_COLORS.text,
+      lineColor: PDF_COLORS.border,
+      lineWidth: 0.1,
+      valign: \"middle\"
+    },
+    headStyles: {
+      fillColor: PDF_COLORS.primary,
+      textColor: PDF_COLORS.white,
+      fontStyle: \"bold\",
+      halign: \"center\",
+      lineWidth: 0
+    },
+    columnStyles: {
+      0: { cellWidth: 10, halign: \"center\" },
+      1: { cellWidth: \"auto\" },
+      2: { cellWidth: 14, halign: \"center\" },
+      3: { cellWidth: 35, halign: \"right\" },
+      4: { cellWidth: 35, halign: \"right\", fontStyle: \"bold\" }
+    },
+    alternateRowStyles: { fillColor: [248, 251, 252] },
+    didDrawPage: () => {
+      // pastikan watermark tidak menutupi konten saat page break
+    }
+  });
+
+  return { finalY: pdf.lastAutoTable.finalY, subtotal };
+}
+
+/* ================= SUMMARY CARD ================= */
+function pdfDrawSummary(pdf, y, data, subtotal) {
+  const m = PDF_PAGE.margin;
+  const transport = Number(data.transport || 0);
+  const jasa      = Number(data.jasa || 0);
+  const dibayar   = Number(data.amount_paid || 0);
+  const grand     = subtotal + transport + jasa;
+  const remaining = grand - dibayar;
+
+  // Bangun rows dinamis
+  const rows = [];
+  rows.push({ label: \"Subtotal\", value: subtotal });
+  if (transport > 0) rows.push({ label: \"Transport\", value: transport });
+  if (jasa > 0)      rows.push({ label: \"Jasa\",      value: jasa });
+  if (dibayar > 0)   rows.push({ label: \"Dibayar\",   value: dibayar });
+
+  let extraRow = null;
+  if (dibayar > 0 && remaining > 0)      extraRow = { label: \"Kurang Bayar\", value: remaining, color: PDF_COLORS.danger };
+  else if (dibayar > 0 && remaining < 0) extraRow = { label: \"Kembalian\",    value: Math.abs(remaining), color: PDF_COLORS.success };
+
+  const rowH = 6.2;
+  const cardW = 80;
+  const cardX = PDF_PAGE.width - m - cardW;
+  const totalRows = rows.length + (extraRow ? 1 : 0);
+  const cardH = 6 + totalRows * rowH + 3 + 11; // padding + rows + sep + grand-total
+
+  // Page break check (pastikan summary muat di halaman ini)
+  if (y + cardH > PDF_PAGE.footerY - 10) {
+    pdf.addPage();
+    y = 20;
+  }
+
+  pdfDrawCard(pdf, cardX, y, cardW, cardH, {
+    fill: PDF_COLORS.white,
+    border: PDF_COLORS.border
+  });
+
+  pdf.setFont(\"helvetica\", \"normal\");
   pdf.setFontSize(9);
-
-  pdf.setTextColor(100);
-
-  pdf.text(
-    new Date(currentData.created_at)
-      .toLocaleString("id-ID"),
-    152,
-    31
-  );
-
-// ================= CUSTOMER & SERVICE =================
-
-cursorY += 6;
-
-const cardGap = 8;
-const leftCardX = 15;
-const rightCardX = 105;
-
-const cardY = cursorY;
-
-const leftCardW = 82;
-const rightCardW = 85;
-
-const cardH = 68;
-
-// card kiri
-drawBox(
-  leftCardX,
-  cardY,
-  leftCardW,
-  cardH
-);
-
-// card kanan
-drawBox(
-  rightCardX,
-  cardY,
-  rightCardW,
-  cardH
-);
-
-// ================= DATA PELANGGAN =================
-
-pdf.setFont("helvetica","bold");
-pdf.setFontSize(13);
-
-pdf.setTextColor(31,111,120);
-
-pdf.text(
-  "Data Pelanggan",
-  leftCardX + 5,
-  cardY + 10
-);
-
-pdf.setFont("helvetica","normal");
-pdf.setFontSize(9);
-
-pdf.setTextColor(70);
-
-let customerY = cardY + 20;
-
-function drawInfoRow(label,value,y){
-
-  pdf.setTextColor(120);
-
-  pdf.text(label, leftCardX + 5, y);
-
-  pdf.setTextColor(40);
-
-  pdf.text(
-    value || "-",
-    leftCardX + 32,
-    y
-  );
-
-}
-
-drawInfoRow(
-  "Nama",
-  currentData.nama,
-  customerY
-);
-
-customerY += 8;
-
-drawInfoRow(
-  "No HP",
-  currentData.phone,
-  customerY
-);
-
-customerY += 8;
-
-drawInfoRow(
-  "Merk HP",
-  currentData.brand,
-  customerY
-);
-
-customerY += 8;
-
-drawInfoRow(
-  "Metode",
-  currentData.metode,
-  customerY
-);
-
-// detail kerusakan
-customerY += 12;
-
-pdf.setFont("helvetica","bold");
-
-pdf.setTextColor(31,111,120);
-
-pdf.text(
-  "Detail Kerusakan",
-  leftCardX + 5,
-  customerY
-);
-
-customerY += 7;
-
-pdf.setFont("helvetica","normal");
-pdf.setFontSize(8);
-
-pdf.setTextColor(80);
-
-const problem = pdf.splitTextToSize(
-  currentData.problem || "-",
-  62
-);
-
-pdf.text(
-  problem,
-  leftCardX + 5,
-  customerY
-);
-
-// ================= INFORMASI SERVICE =================
-
-pdf.setFont("helvetica","bold");
-pdf.setFontSize(13);
-
-pdf.setTextColor(31,111,120);
-
-pdf.text(
-  "Informasi Service",
-  rightCardX + 5,
-  cardY + 10
-);
-
-pdf.setFont("helvetica","normal");
-pdf.setFontSize(9);
-
-let serviceY = cardY + 20;
-
-function drawServiceRow(label,value,y){
-
-  pdf.setTextColor(120);
-
-  pdf.text(label, rightCardX + 5, y);
-
-  pdf.setTextColor(40);
-
-  pdf.text(
-    value || "-",
-    rightCardX + 35,
-    y
-  );
-
-}
-
-drawServiceRow(
-  "Status",
-  currentData.status,
-  serviceY
-);
-
-serviceY += 8;
-
-drawServiceRow(
-  "Tgl Masuk",
-  new Date(currentData.created_at)
-    .toLocaleDateString("id-ID"),
-  serviceY
-);
-
-serviceY += 8;
-
-drawServiceRow(
-  "Tgl Selesai",
-  currentData.finished_at
-    ? new Date(currentData.finished_at)
-        .toLocaleDateString("id-ID")
-    : "-",
-  serviceY
-);
-
-serviceY += 8;
-
-// payment label
-pdf.setTextColor(120);
-
-pdf.text(
-  "Status Bayar",
-  rightCardX + 5,
-  serviceY
-);
-
-// badge
-const isPaid =
-  (currentData.payment_status || "")
-  .toLowerCase()
-  .includes("lunas");
-
-if(isPaid){
-
-  pdf.setFillColor(40,167,69);
-
-}else{
-
-  pdf.setFillColor(220,53,69);
-
-}
-
-pdf.roundedRect(
-  rightCardX + 35,
-  serviceY - 5,
-  30,
-  7,
-  3,
-  3,
-  "F"
-);
-
-pdf.setFontSize(7);
-
-pdf.setTextColor(255);
-
-pdf.text(
-  isPaid ? "LUNAS" : "BELUM",
-  rightCardX + 50,
-  serviceY,
-  {align:"center"}
-);
-
-// update cursor
-cursorY += cardH + 18;
-  
-// ================= TABLE =================
-
-pdf.setFont("helvetica","bold");
-pdf.setFontSize(13);
-
-pdf.setTextColor(20,120,120);
-
-pdf.text(
-  "Detail Jenis Perbaikan / Sparepart",
-  20,
-  cursorY
-);
-
-let body = [];
-let subtotal = 0;
-
-if(currentData.sparepart){
-
-  try{
-
-    const items = JSON.parse(currentData.sparepart);
-
-    items.forEach(item=>{
-
-      const harga = item.harga || 0;
-      const qty = item.qty || 0;
-
-      subtotal += harga * qty;
-
-      body.push([
-        item.nama || "-",
-        qty,
-        formatRupiah(harga)
-      ]);
-
-    });
-
-  }catch(e){}
-}
-
-pdf.autoTable({
-
-  startY: cursorY + 6,
-
-  margin:{
-    left:20,
-    right:20
-  },
-
-  head:[[
-    "Jenis Perbaikan / Sparepart",
-    "Qty",
-    "Harga"
-  ]],
-
-  body: body,
-
-  theme: "plain",
-
-  styles:{
-    fontSize:9,
-    cellPadding:3.5,
-    textColor:[60,60,60]
-  },
-
-  headStyles:{
-    fillColor:[235,245,247],
-    textColor:[40,40,40],
-    fontStyle:"bold"
-  },
-
-  alternateRowStyles:{
-    fillColor:[250,250,250]
+  let cy = y + 7;
+
+  rows.forEach((r) => {
+    pdfSetText(pdf, PDF_COLORS.textMid);
+    pdf.text(r.label, cardX + 4, cy);
+    pdfSetText(pdf, PDF_COLORS.text);
+    pdf.text(pdfRupiah(r.value), cardX + cardW - 4, cy, { align: \"right\" });
+    cy += rowH;
+  });
+
+  if (extraRow) {
+    pdf.setFont(\"helvetica\", \"bold\");
+    pdfSetText(pdf, extraRow.color);
+    pdf.text(extraRow.label, cardX + 4, cy);
+    pdf.text(pdfRupiah(extraRow.value), cardX + cardW - 4, cy, { align: \"right\" });
+    cy += rowH;
+    pdf.setFont(\"helvetica\", \"normal\");
   }
 
-});
+  // Separator
+  cy += 0.5;
+  pdfSetDraw(pdf, PDF_COLORS.border);
+  pdf.setLineWidth(0.3);
+  pdf.line(cardX + 3, cy, cardX + cardW - 3, cy);
+  cy += 3;
 
-// ================= TABLE BORDER =================
+  // Grand total — pill
+  pdfSetFill(pdf, PDF_COLORS.primary);
+  pdf.roundedRect(cardX + 2, cy, cardW - 4, 8.5, 2, 2, \"F\");
+  pdf.setFont(\"helvetica\", \"bold\");
+  pdf.setFontSize(11);
+  pdfSetText(pdf, PDF_COLORS.white);
+  pdf.text(\"TOTAL\", cardX + 6, cy + 5.8);
+  pdf.text(pdfRupiah(grand), cardX + cardW - 6, cy + 5.8, { align: \"right\" });
 
-pdf.setDrawColor(230);
-
-pdf.roundedRect(
-  15,
-  cursorY - 10,
-  175,
-  (pdf.lastAutoTable.finalY - (cursorY - 10)) + 8,
-  4,
-  4
-);
-
-// ================= TOTAL =================
-
-let finalY = pdf.lastAutoTable.finalY + 6;
-
-const transport = Number(currentData.transport || 0);
-const jasa = Number(currentData.jasa || 0);
-const dibayar = Number(currentData.amount_paid || 0);
-
-const grand =
-  subtotal +
-  transport +
-  jasa;
-
-const remaining = grand - dibayar;
-
-// total card
-drawBox(
-  115,
-  finalY,
-  70,
-  32
-);
-
-pdf.setFont("helvetica","normal");
-pdf.setFontSize(8);
-
-pdf.setTextColor(110);
-
-pdf.text(
-  "Subtotal",
-  120,
-  finalY + 6
-);
-
-pdf.text(
-  formatRupiah(subtotal),
-  176,
-  finalY + 6,
-  {align:"right"}
-);
-
-pdf.text(
-  "Transport",
-  120,
-  finalY + 12
-);
-
-pdf.text(
-  formatRupiah(transport),
-  176,
-  finalY + 12,
-  {align:"right"}
-);
-
-pdf.text(
-  "Jasa",
-  120,
-  finalY + 18
-);
-
-pdf.text(
-  formatRupiah(jasa),
-  176,
-  finalY + 18,
-  {align:"right"}
-);
-
-// line
-pdf.setDrawColor(225);
-
-pdf.line(
-  120,
-  finalY + 21,
-  176,
-  finalY + 21
-);
-
-// total
-pdf.setFont("helvetica","bold");
-pdf.setFontSize(15);
-
-pdf.setTextColor(20,120,120);
-
-pdf.text(
-  "TOTAL",
-  120,
-  finalY + 30
-);
-
-pdf.text(
-  formatRupiah(grand),
-  176,
-  finalY + 30,
-  {align:"right"}
-);
-  
-// ================= GARANSI =================
-
-let garansiY = finalY + 28;
-
-drawBox(
-  15,
-  garansiY - 7,
-  175,
-  24
-);
-
-pdf.setFont("helvetica","bold");
-pdf.setFontSize(11);
-
-pdf.setTextColor(20,120,120);
-
-pdf.text(
-  "Masa Garansi",
-  20,
-  garansiY
-);
-
-pdf.setFont("helvetica","normal");
-pdf.setFontSize(9);
-
-pdf.setTextColor(70);
-
-if(currentData.garansi){
-
-  pdf.text(
-    "Berlaku sampai: " +
-    new Date(currentData.garansi)
-      .toLocaleDateString("id-ID"),
-    20,
-    garansiY + 7
-  );
-
-}else{
-
-  pdf.text(
-    "Menyesuaikan jenis perbaikan",
-    20,
-    garansiY + 7
-  );
-
+  return y + cardH + 6;
 }
 
-// ================= QR =================
+/* ================= SIGNATURE & QR ================= */
+async function pdfDrawSignatureSection(pdf, y) {
+  const m = PDF_PAGE.margin;
+  const blockH = 48;
 
-const qrCanvas =
-  document.querySelector("#qr canvas");
+  // Page break safety
+  if (y + blockH > PDF_PAGE.footerY - 10) {
+    pdf.addPage();
+    y = 20;
+  }
 
-if(qrCanvas){
+  // Card pembungkus
+  pdfDrawCard(pdf, m, y, PDF_PAGE.contentW, blockH, {
+    fill: PDF_COLORS.white,
+    border: PDF_COLORS.border
+  });
 
-  const qrImage =
-    qrCanvas.toDataURL("image/png");
+  // ===== KIRI: QR =====
+  const qrCanvas = document.querySelector(\"#qr canvas\");
+  if (qrCanvas) {
+    try {
+      const qrImage = qrCanvas.toDataURL(\"image/png\");
+      pdf.addImage(qrImage, \"PNG\", m + 6, y + 5, 28, 28);
+    } catch (e) { /* skip */ }
+  }
+  pdf.setFont(\"helvetica\", \"bold\");
+  pdf.setFontSize(8);
+  pdfSetText(pdf, PDF_COLORS.primary);
+  pdf.text(\"Scan untuk Verifikasi\", m + 6 + 14, y + 38, { align: \"center\" });
 
-  pdf.addImage(
-    qrImage,
-    "PNG",
-    20,
-    garansiY + 2,
-    20,
-    20
-  );
-
+  pdf.setFont(\"helvetica\", \"normal\");
   pdf.setFontSize(7);
+  pdfSetText(pdf, PDF_COLORS.textMid);
+  pdf.text(\"Validasi keaslian nota\", m + 6 + 14, y + 42, { align: \"center\" });
 
-  pdf.text(
-    "Scan Verifikasi",
-    20,
-    garansiY + 24
-  );
+  // ===== TENGAH: garis vertikal halus =====
+  pdfSetDraw(pdf, PDF_COLORS.border);
+  pdf.setLineWidth(0.2);
+  pdf.line(PDF_PAGE.width / 2, y + 5, PDF_PAGE.width / 2, y + blockH - 5);
 
+  // ===== KANAN: TTD =====
+  const sigCenterX = PDF_PAGE.width - m - 32;
+  pdf.setFont(\"helvetica\", \"normal\");
+  pdf.setFontSize(9);
+  pdfSetText(pdf, PDF_COLORS.text);
+  pdf.text(\"Hormat Kami,\", sigCenterX, y + 7, { align: \"center\" });
+
+  // Signature image
+  const sigBox = document.getElementById(\"ttdImg\");
+  if (sigBox && sigBox.style.backgroundImage) {
+    const url = sigBox.style.backgroundImage
+      .replace(/^url\([\"']?/, \"\")
+      .replace(/[\"']?\)$/, \"\");
+    try {
+      const img = await pdfLoadImage(url);
+      pdf.addImage(img, \"PNG\", sigCenterX - 18, y + 9, 36, 18);
+    } catch (e) { /* skip */ }
+  }
+
+  // Garis tanda tangan
+  pdfSetDraw(pdf, PDF_COLORS.textSoft);
+  pdf.setLineWidth(0.3);
+  pdf.line(sigCenterX - 25, y + 30, sigCenterX + 25, y + 30);
+
+  pdf.setFont(\"helvetica\", \"bold\");
+  pdf.setFontSize(10);
+  pdfSetText(pdf, PDF_COLORS.primary);
+  const ttdName = document.getElementById(\"ttdName\")?.textContent?.trim()
+                  || \"CEO - PART & SERVICE\";
+  pdf.text(ttdName, sigCenterX, y + 35, { align: \"center\" });
+
+  pdf.setFont(\"helvetica\", \"italic\");
+  pdf.setFontSize(7.5);
+  pdfSetText(pdf, PDF_COLORS.textMid);
+  pdf.text(\"Cellular Engineering Officer\", sigCenterX, y + 39.5, { align: \"center\" });
+
+  return y + blockH + 5;
 }
 
-// ================= TTD =================
+/* ================= TERMS & WARRANTY ================= */
+function pdfDrawTerms(pdf, y, data) {
+  const m = PDF_PAGE.margin;
+  const w = PDF_PAGE.contentW;
 
-pdf.setFont("helvetica","normal");
-pdf.setFontSize(9);
+  const syarat = [
+    \"Garansi hanya berlaku untuk kerusakan yang sama dengan perbaikan sebelumnya.\",
+    \"Segel atau label garansi wajib dalam kondisi utuh.\",
+    \"Tidak berlaku jika perangkat terkena air atau cairan.\",
+    \"Kerusakan fisik (jatuh, retak, tekanan, dll) tidak termasuk garansi.\",
+    \"Tidak berlaku jika unit telah dibongkar atau diperbaiki pihak lain.\",
+    \"Nota wajib dibawa sebagai bukti saat melakukan klaim garansi.\"
+  ];
 
-pdf.text(
-  "Hormat Kami,",
-  145,
-  garansiY + 5
-);
+  // Hitung tinggi
+  let lineCount = 0;
+  syarat.forEach(s => {
+    const wrapped = pdf.splitTextToSize(s, w - 14);
+    lineCount += wrapped.length;
+  });
+  const boxH = 14 + lineCount * 4 + 6;
 
-const sigBox =
-  document.getElementById("ttdImg");
+  // Page break check
+  if (y + boxH > PDF_PAGE.footerY - 6) {
+    pdf.addPage();
+    y = 20;
+  }
 
-if(
-  sigBox &&
-  sigBox.style.backgroundImage
-){
+  pdfDrawCard(pdf, m, y, w, boxH, {
+    fill: PDF_COLORS.warnBg,
+    border: PDF_COLORS.warnBorder
+  });
 
-  const url = sigBox.style.backgroundImage
-    .replace(/^url\(["']?/, '')
-    .replace(/["']?\)$/, '');
+  // Title
+  pdfAccentBar(pdf, m + 3, y + 3.5, 5);
+  pdf.setFont(\"helvetica\", \"bold\");
+  pdf.setFontSize(10);
+  pdfSetText(pdf, PDF_COLORS.primary);
+  pdf.text(\"Syarat & Ketentuan Garansi\", m + 7, y + 7.5);
 
-  try{
+  // Garansi info
+  pdf.setFont(\"helvetica\", \"italic\");
+  pdf.setFontSize(8);
+  pdfSetText(pdf, PDF_COLORS.textMid);
+  const garansiInfo = data.garansi
+    ? \"Masa garansi berlaku sampai \" + pdfFormatDate(data.garansi) + \".\"
+    : \"Masa garansi menyesuaikan jenis perbaikan.\";
+  pdf.text(garansiInfo, m + 7, y + 12);
 
-    const img = await loadImage(url);
+  // Syarat list
+  pdf.setFont(\"helvetica\", \"normal\");
+  pdf.setFontSize(7.8);
+  pdfSetText(pdf, [70, 70, 70]);
 
-    pdf.addImage(
-      img,
-      "PNG",
-      134,
-      garansiY + 2,
-      36,
-      14
+  let cy = y + 18;
+  syarat.forEach((s, i) => {
+    pdf.setFont(\"helvetica\", \"bold\");
+    pdfSetText(pdf, PDF_COLORS.primary);
+    pdf.text(`${i + 1}.`, m + 7, cy);
+
+    pdf.setFont(\"helvetica\", \"normal\");
+    pdfSetText(pdf, [70, 70, 70]);
+    const wrapped = pdf.splitTextToSize(s, w - 18);
+    pdf.text(wrapped, m + 12, cy);
+    cy += 4 * wrapped.length;
+  });
+
+  return y + boxH + 4;
+}
+
+/* ================= WATERMARK (per-page) ================= */
+function pdfDrawWatermark(pdf, isPaid) {
+  const totalPages = pdf.internal.getNumberOfPages();
+  for (let i = 1; i <= totalPages; i++) {
+    pdf.setPage(i);
+    pdf.setFont(\"helvetica\", \"bold\");
+    pdf.setFontSize(80);
+    pdf.setGState(new pdf.GState({ opacity: 0.06 }));
+    pdfSetText(pdf, isPaid ? PDF_COLORS.success : PDF_COLORS.danger);
+    pdf.text(
+      isPaid ? \"LUNAS\" : \"BELUM LUNAS\",
+      PDF_PAGE.width / 2,
+      PDF_PAGE.height / 2,
+      { align: \"center\", angle: -22 }
+    );
+    pdf.setGState(new pdf.GState({ opacity: 1 }));
+  }
+}
+
+/* ================= FOOTER (per-page) ================= */
+function pdfDrawFooter(pdf, data) {
+  const totalPages = pdf.internal.getNumberOfPages();
+  const m = PDF_PAGE.margin;
+
+  for (let i = 1; i <= totalPages; i++) {
+    pdf.setPage(i);
+
+    // Garis atas footer
+    pdfSetDraw(pdf, PDF_COLORS.border);
+    pdf.setLineWidth(0.2);
+    pdf.line(m, PDF_PAGE.footerY, PDF_PAGE.width - m, PDF_PAGE.footerY);
+
+    // Pesan terima kasih
+    pdf.setFont(\"helvetica\", \"italic\");
+    pdf.setFontSize(7.5);
+    pdfSetText(pdf, PDF_COLORS.textMid);
+    pdf.text(
+      \"Terima kasih telah mempercayakan layanan Anda kepada CEO PART & SERVICE\",
+      PDF_PAGE.width / 2,
+      PDF_PAGE.footerY + 4,
+      { align: \"center\" }
     );
 
-  }catch(e){
-    console.log("TTD gagal");
+    // Meta footer kiri
+    pdf.setFont(\"helvetica\", \"normal\");
+    pdf.setFontSize(7);
+    pdfSetText(pdf, PDF_COLORS.textSoft);
+    pdf.text(
+      \"ceo-servicehp.vercel.app  ·  INV-\" + String(data.id).padStart(5, \"0\"),
+      m,
+      PDF_PAGE.footerY + 9
+    );
+
+    // Halaman X dari Y kanan
+    pdf.text(
+      `Halaman ${i} dari ${totalPages}`,
+      PDF_PAGE.width - m,
+      PDF_PAGE.footerY + 9,
+      { align: \"right\" }
+    );
+  }
+}
+
+/* ================= MAIN — downloadPDF ================= */
+async function downloadPDF() {
+  if (typeof currentData === \"undefined\" || !currentData) {
+    alert(\"Data invoice belum siap. Silakan tunggu sebentar.\");
+    return;
+  }
+  if (!window.jspdf || !window.jspdf.jsPDF) {
+    alert(\"Library jsPDF belum termuat.\");
+    return;
   }
 
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF({
+    orientation: \"portrait\",
+    unit: \"mm\",
+    format: \"a4\",
+    compress: true
+  });
+
+  // PDF metadata
+  pdf.setProperties({
+    title:    \"Invoice INV-\" + String(currentData.id).padStart(5, \"0\"),
+    subject:  \"Invoice Service HP — CEO PART & SERVICE\",
+    author:   \"CEO PART & SERVICE\",
+    keywords: \"invoice, service, hp, ceo\",
+    creator:  \"ceo-servicehp.vercel.app\"
+  });
+
+  const isPaid = (currentData.payment_status || \"\")
+    .toLowerCase()
+    .includes(\"lunas\");
+
+  // ===== Render sequence =====
+  let y = pdfDrawHeader(pdf, currentData);
+  y = pdfDrawInfoCards(pdf, y, currentData, isPaid);
+  y = pdfDrawProblemBox(pdf, y, currentData);
+
+  const tableResult = pdfDrawItemsTable(pdf, y, currentData);
+  y = tableResult.finalY + 6;
+
+  y = pdfDrawSummary(pdf, y, currentData, tableResult.subtotal);
+  y = await pdfDrawSignatureSection(pdf, y);
+  y = pdfDrawTerms(pdf, y, currentData);
+
+  // Watermark & footer terakhir (apply ke semua halaman)
+  pdfDrawWatermark(pdf, isPaid);
+  pdfDrawFooter(pdf, currentData);
+
+  // ===== Save =====
+  const safeName = (currentData.nama || \"Customer\")
+    .replace(/[^a-zA-Z0-9]+/g, \"_\")
+    .replace(/^_+|_+$/g, \"\")
+    .slice(0, 30);
+  const fileName =
+    `Invoice_INV-${String(currentData.id).padStart(5, \"0\")}_${safeName}.pdf`;
+
+  pdf.save(fileName);
 }
 
-pdf.setFont("helvetica","bold");
-
-pdf.text(
-  document.getElementById("ttdName")
-    .textContent,
-  152,
-  garansiY + 20,
-  {align:"center"}
-);
-
-// ================= SYARAT GARANSI =================
-
-let syaratY = garansiY + 26;
-
-drawBox(
-  15,
-  syaratY - 5,
-  175,
-  20
-);
-
-pdf.setFont("helvetica","bold");
-pdf.setFontSize(10);
-
-pdf.setTextColor(20,120,120);
-
-pdf.text(
-  "Syarat & Ketentuan Garansi",
-  20,
-  syaratY
-);
-
-pdf.setFont("helvetica","normal");
-pdf.setFontSize(7.5);
-
-pdf.setTextColor(90);
-
-const syarat = [
-  "• Garansi hanya berlaku sesuai jenis perbaikan.",
-  "• Garansi batal jika unit terkena air / benturan.",
-  "• Segel rusak membatalkan garansi.",
-  "• Nota wajib dibawa saat klaim garansi."
-];
-
-pdf.text(
-  syarat,
-  20,
-  syaratY + 6
-);
-
-// ================= FOOTER =================
-
-pdf.setFont("helvetica","normal");
-
-pdf.setFontSize(7);
-
-pdf.setTextColor(140);
-
-pdf.text(
-  "Terima kasih telah menggunakan layanan CEO PART & SERVICE",
-  105,
-  280,
-  {align:"center"}
-);
-  
-  // ================= SAVE =================
-
-  pdf.save(`Invoice_${currentData.id}.pdf`);
-}
+/* Expose ke global agar bisa dipanggil dari tombol di nota.html */
+window.downloadPDF = downloadPDF;
+"
+Observation: Create successful: /app/output/invoice-pdf.js
