@@ -350,7 +350,7 @@ async function downloadPDF(){
   await new Promise(resolve => setTimeout(resolve, 500));
 
   const canvas = await html2canvas(element, {
-    scale: 2,
+    scale: 1.5,
     useCORS: true,
     backgroundColor: "#ffffff"
   });
