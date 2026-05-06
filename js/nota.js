@@ -336,46 +336,148 @@ async function downloadPDF(){
 
   if(!currentData) return;
 
-  const element = document.getElementById("invoice-area");
-
-  const wm = document.getElementById("watermark");
-  const stamp = document.getElementById("digital-stamp");
-
-  wm.style.display = "none";
-  stamp.style.display = "none";
-
-  document.body.classList.add("pdf-body");
-
-  await new Promise(resolve => setTimeout(resolve, 500));
-
-  const canvas = await html2canvas(element, {
-    scale: 2,
-    useCORS: true,
-    backgroundColor: "#ffffff"
-  });
-
-  const imgData = canvas.toDataURL("image/jpeg", 1.0);
-
   const { jsPDF } = window.jspdf;
-
-  // 🔥 ukuran proporsional
-  const imgWidth = 210;
-  const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
   const pdf = new jsPDF({
     orientation: "portrait",
     unit: "mm",
-    format: [imgWidth, imgHeight]
+    format: "a4"
   });
 
-  pdf.addImage(imgData, "JPEG", 0, 0, imgWidth, imgHeight);
+  // ================= HEADER =================
+
+  pdf.setFont("helvetica","bold");
+  pdf.setFontSize(20);
+
+  pdf.setTextColor(20,120,120);
+  pdf.text("CEO PART & SERVICE", 20, 20);
+
+  pdf.setFontSize(10);
+  pdf.setTextColor(80);
+
+  pdf.text("Cellular Engineering Officer", 20, 26);
+  pdf.text("ITC Roxy Mas LT.1 No.123 B", 20, 31);
+  pdf.text("Jakarta Pusat", 20, 36);
+
+  // ================= INVOICE INFO =================
+
+  pdf.setFont("helvetica","bold");
+  pdf.setFontSize(12);
+
+  pdf.text(
+    "INV-"+String(currentData.id).padStart(5,"0"),
+    160,
+    20
+  );
+
+  pdf.setFont("helvetica","normal");
+
+  pdf.text(
+    new Date(currentData.created_at)
+      .toLocaleString("id-ID"),
+    160,
+    27
+  );
+
+  // ================= CUSTOMER =================
+
+  pdf.setFont("helvetica","bold");
+  pdf.text("Data Pelanggan", 20, 50);
+
+  pdf.setFont("helvetica","normal");
+
+  pdf.text(`Nama : ${currentData.nama || "-"}`, 20, 58);
+  pdf.text(`No HP : ${currentData.phone || "-"}`, 20, 65);
+  pdf.text(`Merk HP : ${currentData.brand || "-"}`, 20, 72);
+  pdf.text(`Metode : ${currentData.metode || "-"}`, 20, 79);
+
+  // ================= SERVICE =================
+
+  pdf.setFont("helvetica","bold");
+  pdf.text("Informasi Service", 110, 50);
+
+  pdf.setFont("helvetica","normal");
+
+  pdf.text(`Status : ${currentData.status || "-"}`, 110, 58);
+
+  pdf.text(
+    `Tgl Masuk : ${
+      new Date(currentData.created_at)
+        .toLocaleDateString("id-ID")
+    }`,
+    110,
+    65
+  );
+
+  // ================= TABLE =================
+
+  let body = [];
+
+  let subtotal = 0;
+
+  if(currentData.sparepart){
+
+    try{
+
+      const items = JSON.parse(currentData.sparepart);
+
+      items.forEach(item=>{
+
+        const harga = item.harga || 0;
+        const qty = item.qty || 0;
+
+        subtotal += harga * qty;
+
+        body.push([
+          item.nama,
+          qty,
+          "Rp " + harga.toLocaleString("id-ID")
+        ]);
+
+      });
+
+    }catch(e){}
+  }
+
+  pdf.autoTable({
+    startY: 90,
+
+    head: [[
+      "Jenis Perbaikan / Sparepart",
+      "Qty",
+      "Harga"
+    ]],
+
+    body: body,
+
+    theme: "grid",
+
+    headStyles:{
+      fillColor:[20,120,120]
+    }
+  });
+
+  // ================= TOTAL =================
+
+  let finalY = pdf.lastAutoTable.finalY + 15;
+
+  const grand =
+    subtotal +
+    (currentData.transport || 0) +
+    (currentData.jasa || 0);
+
+  pdf.setFont("helvetica","bold");
+  pdf.setFontSize(16);
+
+  pdf.text(
+    "Total : Rp " + grand.toLocaleString("id-ID"),
+    20,
+    finalY
+  );
+
+  // ================= SAVE =================
 
   pdf.save(`Invoice_${currentData.id}.pdf`);
-
-  document.body.classList.remove("pdf-body");
-
-  wm.style.display = "";
-  stamp.style.display = "";
 }
 
 /* ================= WHATSAPP ================= */
