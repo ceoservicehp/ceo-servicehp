@@ -337,9 +337,10 @@ async function downloadPDF(){
   if(!currentData) return;
 
   const element = document.getElementById("invoice-area");
+
   const wm = document.getElementById("watermark");
   const stamp = document.getElementById("digital-stamp");
-  
+
   wm.style.display = "none";
   stamp.style.display = "none";
 
@@ -365,8 +366,11 @@ async function downloadPDF(){
     format: "a4"
   });
 
+  // 🔥 ukuran otomatis proporsional
+  const imgProps = pdf.getImageProperties(imgData);
+
   const pdfWidth = 210;
-  const pdfHeight = 297;
+  const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
 
   pdf.addImage(imgData, "JPEG", 0, 0, pdfWidth, pdfHeight);
 
