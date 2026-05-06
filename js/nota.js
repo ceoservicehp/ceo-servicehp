@@ -332,6 +332,22 @@ async function loadSignature(){
 }
 
 /* ================= DOWNLOAD PDF ================= */
+
+function loadImage(url){
+  return new Promise((resolve,reject)=>{
+
+    const img = new Image();
+
+    img.crossOrigin = "Anonymous";
+
+    img.onload = ()=>resolve(img);
+
+    img.onerror = reject;
+
+    img.src = url;
+  });
+}
+
 async function downloadPDF(){
 
   if(!currentData) return;
@@ -389,6 +405,42 @@ async function downloadPDF(){
   // garis
   pdf.setDrawColor(225);
   pdf.line(20, 45, 190, 45);
+
+  // ================= WATERMARK =================
+
+pdf.setFontSize(50);
+
+if(currentData.payment_status === "Lunas"){
+
+  pdf.setTextColor(0,150,0,0.08);
+
+  pdf.text(
+    "LUNAS",
+    105,
+    170,
+    {
+      align:"center",
+      angle: -25
+    }
+  );
+
+}else{
+
+  pdf.setTextColor(220,0,0,0.08);
+
+  pdf.text(
+    "BELUM LUNAS",
+    105,
+    170,
+    {
+      align:"center",
+      angle: -25
+    }
+  );
+
+}
+
+pdf.setTextColor(40);
 
   // ================= INVOICE INFO =================
 
@@ -504,9 +556,32 @@ async function downloadPDF(){
     101
   );
 
+  // badge
+if((currentData.payment_status || "")
+.toLowerCase().includes("lunas")){
+
+  pdf.setFillColor(220,255,230);
+
+}else{
+
+  pdf.setFillColor(255,230,230);
+
+}
+
+pdf.roundedRect(108, 106, 40, 8, 2, 2, "F");
+
+pdf.setFontSize(9);
+
+pdf.text(
+  currentData.payment_status || "Belum Lunas",
+  128,
+  111,
+  {align:"center"}
+);
+
   // ================= TABLE =================
 
-  drawBox(15, 130, 175, 65);
+  drawBox(15, 130, 175, 80);
 
   pdf.setFont("helvetica","bold");
   pdf.setFontSize(13);
@@ -589,7 +664,7 @@ async function downloadPDF(){
 
   const transport = Number(currentData.transport || 0);
   const jasa = Number(currentData.jasa || 0);
-  const dibayar = Number(currentData.paid || 0);
+  const dibayar = Number(currentData.amount_paid || 0);
 
   const grand =
     subtotal +
@@ -631,6 +706,184 @@ async function downloadPDF(){
     {align:"right"}
   );
 
+  pdf.setFont("helvetica","normal");
+pdf.setFontSize(9);
+
+pdf.setTextColor(100);
+
+if(remaining > 0){
+
+  pdf.text(
+    "Kurang Bayar : " + formatRupiah(remaining),
+    118,
+    finalY + 40
+  );
+
+}else if(remaining < 0){
+
+  pdf.text(
+    "Kembalian : " + formatRupiah(Math.abs(remaining)),
+    118,
+    finalY + 40
+  );
+
+}else{
+
+  pdf.text(
+    "Pembayaran Lunas",
+    118,
+    finalY + 40
+  );
+
+}
+
+  // ================= GARANSI =================
+
+let garansiY = finalY + 50;
+
+drawBox(15, garansiY - 10, 175, 28);
+
+pdf.setFont("helvetica","bold");
+pdf.setFontSize(12);
+
+pdf.setTextColor(20,120,120);
+
+pdf.text("Masa Garansi", 20, garansiY);
+
+pdf.setFont("helvetica","normal");
+pdf.setFontSize(10);
+
+pdf.setTextColor(70);
+
+if(currentData.garansi){
+
+  pdf.text(
+    "Berlaku sampai: " +
+    new Date(currentData.garansi)
+      .toLocaleDateString("id-ID"),
+    20,
+    garansiY + 10
+  );
+
+}else{
+
+  pdf.text(
+    "Menyesuaikan jenis perbaikan",
+    20,
+    garansiY + 10
+  );
+
+}
+
+  // ================= QR =================
+
+const qrCanvas = document.querySelector("#qr canvas");
+
+if(qrCanvas){
+
+  const qrImage = qrCanvas.toDataURL("image/png");
+
+  pdf.addImage(
+    qrImage,
+    "PNG",
+    20,
+    garansiY + 18,
+    28,
+    28
+  );
+
+  pdf.setFontSize(9);
+
+  pdf.text(
+    "Scan untuk Verifikasi",
+    20,
+    garansiY + 50
+  );
+
+}
+
+  // ================= TTD =================
+
+pdf.setFont("helvetica","normal");
+pdf.setFontSize(10);
+
+pdf.text(
+  "Hormat Kami,",
+  145,
+  garansiY + 35
+);
+
+const sigBox = document.getElementById("ttdImg");
+
+if(sigBox && sigBox.style.backgroundImage){
+
+  const url = sigBox.style.backgroundImage
+    .replace(/^url\(["']?/, '')
+    .replace(/["']?\)$/, '');
+
+  try{
+
+    const img = await loadImage(url);
+
+    pdf.addImage(
+      img,
+      "PNG",
+      135,
+      garansiY + 30,
+      40,
+      18
+    );
+
+  }catch(e){
+    console.log("TTD gagal");
+  }
+
+}
+
+pdf.setFont("helvetica","bold");
+
+pdf.text(
+  document.getElementById("ttdName").textContent,
+  155,
+  garansiY + 55,
+  {align:"center"}
+);
+
+  // ================= SYARAT GARANSI =================
+
+let syaratY = garansiY + 75;
+
+drawBox(15, syaratY - 8, 175, 32);
+
+pdf.setFont("helvetica","bold");
+pdf.setFontSize(11);
+
+pdf.setTextColor(20,120,120);
+
+pdf.text(
+  "Syarat & Ketentuan Garansi",
+  20,
+  syaratY
+);
+
+pdf.setFont("helvetica","normal");
+pdf.setFontSize(9);
+
+pdf.setTextColor(90);
+
+const syarat = [
+  "• Garansi hanya berlaku sesuai jenis perbaikan.",
+  "• Garansi batal jika unit terkena air / benturan.",
+  "• Segel rusak membatalkan garansi.",
+  "• Nota wajib dibawa saat klaim garansi."
+];
+
+pdf.text(
+  syarat,
+  20,
+  syaratY + 8
+);
+
   // ================= FOOTER =================
 
   pdf.setFontSize(9);
@@ -639,14 +892,14 @@ async function downloadPDF(){
   pdf.text(
     "Terima kasih telah menggunakan layanan CEO PART & SERVICE",
     105,
-    285,
+    275,
     {align:"center"}
   );
 
   pdf.text(
     "Cellular Engineering Officer",
     105,
-    290,
+    280,
     {align:"center"}
   );
 
