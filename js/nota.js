@@ -341,6 +341,17 @@ async function downloadPDF(){
   // aktifkan mode PDF
   document.body.classList.add("pdf-body");
 
+  // tunggu render stabil
+  await new Promise(resolve => setTimeout(resolve, 500));
+
+  const canvas = await html2canvas(element, {
+    scale: 2,
+    useCORS: true,
+    backgroundColor: "#ffffff"
+  });
+
+  const imgData = canvas.toDataURL("image/jpeg", 1.0);
+
   const { jsPDF } = window.jspdf;
 
   const pdf = new jsPDF({
@@ -349,28 +360,15 @@ async function downloadPDF(){
     format: "a4"
   });
 
-  await pdf.html(element, {
+  const pdfWidth = 210;
+  const pdfHeight = 297;
 
-    margin: [5,5,5,5],
+  pdf.addImage(imgData, "JPEG", 0, 0, pdfWidth, pdfHeight);
 
-    autoPaging: "text",
+  pdf.save(`Invoice_${currentData.id}.pdf`);
 
-    html2canvas: {
-      scale: 0.8,
-      useCORS: true,
-      backgroundColor: "#ffffff"
-    },
-
-    callback: function(doc){
-
-      doc.save(`Invoice_${currentData.id}.pdf`);
-
-      // reset mode
-      document.body.classList.remove("pdf-body");
-    }
-
-  });
-
+  // reset
+  document.body.classList.remove("pdf-body");
 }
 
 /* ================= WHATSAPP ================= */
