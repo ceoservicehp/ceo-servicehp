@@ -1,26 +1,3 @@
-Saya sudah pelajari struktur HTML, JS, dan CSS Anda. Sekarang saya tahu field `currentData` lengkapnya (termasuk `alamat`, `tanggal_selesai` — bukan `finished_at`, `use_top`, `due_date`, `top_days`, `amount_paid`, dll). Saya akan buatkan `invoice-pdf.js` versi yang sudah disempurnakan dengan:
-
-✅ Layout grid yang konsisten (margin, spacing, alignment proporsional)  
-✅ Header modern dengan badge invoice teal  
-✅ Card kiri-kanan: Data Pelanggan & Informasi Service (lengkap dengan Alamat, Tempo, Garansi)  
-✅ Detail Kerusakan dalam box terpisah (auto-wrap text)  
-✅ Tabel sparepart profesional dengan header teal solid  
-✅ Summary card dengan Subtotal, Transport, Jasa, Dibayar, Kurang Bayar/Kembalian  
-✅ TTD + QR section dengan auto page-break  
-✅ Syarat & Ketentuan Garansi yang rapi  
-✅ Watermark LUNAS/BELUM LUNAS proporsional di setiap halaman  
-✅ Footer dengan nomor halaman  
-✅ Auto multi-page handling supaya konten tidak terpotong
-Action: file_editor create /app/output/invoice-pdf.js --file-text "/* =====================================================================
- * INVOICE PDF GENERATOR — CEO PART & SERVICE
- * ---------------------------------------------------------------------
- * Dibutuhkan (sudah ada di nota.html):
- *   - jsPDF UMD          (window.jspdf.jsPDF)
- *   - jsPDF AutoTable    (pdf.autoTable)
- *   - QRCode (canvas di #qr)
- *
- * Fungsi utama yang dipanggil dari tombol Download:  downloadPDF()
- * ===================================================================== */
 \"use strict\";
 
 /* ================= COLOR PALETTE ================= */
