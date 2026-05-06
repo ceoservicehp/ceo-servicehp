@@ -532,29 +532,134 @@ async function pdfDrawSignatureSection(pdf, y) {
   return y + blockH + 5;
 }
 
+/* ================= MINI: CHECKMARK ================= */
+function pdfDrawCheck(pdf, x, y, size, color) {
+  pdfSetDraw(pdf, color);
+  pdf.setLineWidth(0.7);
+  pdf.line(x, y - 0.2, x + size * 0.35, y + size * 0.45);
+  pdf.line(x + size * 0.35, y + size * 0.45, x + size, y - size * 0.55);
+}
+
+/* ================= WARRANTY (Masa Garansi) ================= */
+function pdfDrawWarranty(pdf, y, data) {
+  const m = PDF_PAGE.margin;
+  const w = PDF_PAGE.contentW;
+  const boxH = 22;
+
+  if (y + boxH > PDF_PAGE.footerY - 6) {
+    pdf.addPage();
+    y = 20;
+  }
+
+  pdfDrawCard(pdf, m, y, w, boxH, {
+    fill: PDF_COLORS.accentSoft,
+    border: PDF_COLORS.primaryLight
+  });
+
+  // Title dengan accent bar
+  pdfAccentBar(pdf, m + 3, y + 3.5, 5);
+  pdf.setFont("helvetica", "bold");
+  pdf.setFontSize(11);
+  pdfSetText(pdf, PDF_COLORS.primary);
+  pdf.text("Masa Garansi", m + 7, y + 7.5);
+
+  pdf.setFont("helvetica", "normal");
+  pdf.setFontSize(8.8);
+
+  if (data.garansi) {
+    const garansiDate = new Date(data.garansi);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    garansiDate.setHours(0, 0, 0, 0);
+    const isActive = garansiDate >= today;
+    const diffDays = Math.ceil(
+      Math.abs(garansiDate - today) / (1000 * 60 * 60 * 24)
+    );
+
+    // Berlaku sampai
+    pdfSetText(pdf, PDF_COLORS.textMid);
+    pdf.text("Berlaku sampai:", m + 7, y + 13.5);
+    pdf.setFont("helvetica", "bold");
+    pdfSetText(pdf, PDF_COLORS.text);
+    pdf.text(pdfFormatDate(data.garansi), m + 38, y + 13.5);
+
+    // Status
+    pdf.setFont("helvetica", "normal");
+    pdfSetText(pdf, PDF_COLORS.textMid);
+    pdf.text("Status:", m + 7, y + 18.5);
+
+    // Lingkaran indikator
+    pdfSetFill(pdf, isActive ? PDF_COLORS.success : PDF_COLORS.danger);
+    pdf.circle(m + 21, y + 17.6, 1.4, "F");
+
+    // Label status
+    pdf.setFont("helvetica", "bold");
+    pdfSetText(pdf, isActive ? PDF_COLORS.success : PDF_COLORS.danger);
+    const statusLabel = isActive ? "Aktif" : "Habis";
+    pdf.text(statusLabel, m + 24, y + 18.5);
+
+    // Sisa hari
+    pdf.setFont("helvetica", "normal");
+    pdfSetText(pdf, PDF_COLORS.textMid);
+    let suffix;
+    if (isActive) {
+      suffix = diffDays > 0 ? `(${diffDays} hari lagi)` : "(Hari ini terakhir)";
+    } else {
+      suffix = `(${diffDays} hari yang lalu)`;
+    }
+    const sx = m + 24 + pdf.getTextWidth(statusLabel) + 2;
+    pdf.text(suffix, sx, y + 18.5);
+  } else {
+    pdfSetText(pdf, PDF_COLORS.textMid);
+    pdf.text("Masa garansi:", m + 7, y + 14.5);
+    pdf.setFont("helvetica", "bold");
+    pdfSetText(pdf, PDF_COLORS.text);
+    pdf.text("Menyesuaikan jenis perbaikan", m + 35, y + 14.5);
+  }
+
+  return y + boxH + 5;
+}
+
 /* ================= TERMS & WARRANTY ================= */
 function pdfDrawTerms(pdf, y, data) {
   const m = PDF_PAGE.margin;
   const w = PDF_PAGE.contentW;
+
+  const intro =
+    "Kami berkomitmen memberikan kualitas terbaik pada setiap layanan perbaikan. " +
+    "Garansi diberikan sesuai dengan jenis kerusakan dan tindakan service yang dilakukan.";
 
   const syarat = [
     "Garansi hanya berlaku untuk kerusakan yang sama dengan perbaikan sebelumnya.",
     "Segel atau label garansi wajib dalam kondisi utuh.",
     "Tidak berlaku jika perangkat terkena air atau cairan.",
     "Kerusakan fisik (jatuh, retak, tekanan, dll) tidak termasuk garansi.",
-    "Tidak berlaku jika unit telah dibongkar atau diperbaiki pihak lain.",
-    "Nota wajib dibawa sebagai bukti saat melakukan klaim garansi."
+    "Tidak berlaku jika unit telah dibongkar atau diperbaiki pihak lain."
   ];
 
-  // Hitung tinggi
-  let lineCount = 0;
-  syarat.forEach(s => {
-    const wrapped = pdf.splitTextToSize(s, w - 14);
-    lineCount += wrapped.length;
-  });
-  const boxH = 14 + lineCount * 4 + 6;
+  const detail =
+    "Detail masa garansi akan diinformasikan langsung oleh teknisi setelah pengecekan perangkat.";
 
-  // Page break check
+  const checks = [
+    "Transparansi kondisi & biaya sebelum pengerjaan",
+    "Pengecekan menyeluruh sebelum unit diserahkan"
+  ];
+
+  // ---- Hitung tinggi ----
+  pdf.setFontSize(8);
+  const introLines = pdf.splitTextToSize(intro, w - 10).length;
+  let bulletLines = 0;
+  syarat.forEach(s => {
+    bulletLines += pdf.splitTextToSize(s, w - 16).length;
+  });
+  const detailLines = pdf.splitTextToSize(detail, w - 10).length;
+
+  const boxH =
+    11 + introLines * 4 + 3 +
+    bulletLines * 4 + 3 +
+    detailLines * 4 + 3 +
+    checks.length * 4.5 + 5;
+
   if (y + boxH > PDF_PAGE.footerY - 6) {
     pdf.addPage();
     y = 20;
@@ -568,35 +673,46 @@ function pdfDrawTerms(pdf, y, data) {
   // Title
   pdfAccentBar(pdf, m + 3, y + 3.5, 5);
   pdf.setFont("helvetica", "bold");
-  pdf.setFontSize(10);
+  pdf.setFontSize(11);
   pdfSetText(pdf, PDF_COLORS.primary);
   pdf.text("Syarat & Ketentuan Garansi", m + 7, y + 7.5);
 
-  // Garansi info
-  pdf.setFont("helvetica", "italic");
-  pdf.setFontSize(8);
-  pdfSetText(pdf, PDF_COLORS.textMid);
-  const garansiInfo = data.garansi
-    ? "Masa garansi berlaku sampai " + pdfFormatDate(data.garansi) + "."
-    : "Masa garansi menyesuaikan jenis perbaikan.";
-  pdf.text(garansiInfo, m + 7, y + 12);
+  let cy = y + 13;
 
-  // Syarat list
+  // Intro
   pdf.setFont("helvetica", "normal");
-  pdf.setFontSize(7.8);
+  pdf.setFontSize(8);
   pdfSetText(pdf, [70, 70, 70]);
+  const introWrapped = pdf.splitTextToSize(intro, w - 10);
+  pdf.text(introWrapped, m + 5, cy);
+  cy += introWrapped.length * 4 + 3;
 
-  let cy = y + 18;
-  syarat.forEach((s, i) => {
-    pdf.setFont("helvetica", "bold");
-    pdfSetText(pdf, PDF_COLORS.primary);
-    pdf.text(`${i + 1}.`, m + 7, cy);
+  // Bullet list syarat
+  syarat.forEach(s => {
+    pdfSetFill(pdf, PDF_COLORS.primary);
+    pdf.circle(m + 7, cy - 1.2, 0.8, "F");
 
-    pdf.setFont("helvetica", "normal");
+    const wrapped = pdf.splitTextToSize(s, w - 16);
     pdfSetText(pdf, [70, 70, 70]);
-    const wrapped = pdf.splitTextToSize(s, w - 18);
-    pdf.text(wrapped, m + 12, cy);
-    cy += 4 * wrapped.length;
+    pdf.text(wrapped, m + 11, cy);
+    cy += wrapped.length * 4;
+  });
+  cy += 3;
+
+  // Detail
+  const detailWrapped = pdf.splitTextToSize(detail, w - 10);
+  pdfSetText(pdf, [70, 70, 70]);
+  pdf.text(detailWrapped, m + 5, cy);
+  cy += detailWrapped.length * 4 + 3;
+
+  // Checklist (✓ digambar pakai garis supaya kompatibel di semua viewer)
+  checks.forEach(c => {
+    pdfDrawCheck(pdf, m + 5, cy - 1.5, 2.6, PDF_COLORS.success);
+    pdf.setFont("helvetica", "normal");
+    pdf.setFontSize(8);
+    pdfSetText(pdf, [60, 60, 60]);
+    pdf.text(c, m + 10, cy);
+    cy += 4.5;
   });
 
   return y + boxH + 4;
@@ -704,9 +820,10 @@ async function downloadPDF() {
 
   const tableResult = pdfDrawItemsTable(pdf, y, currentData);
   y = tableResult.finalY + 6;
-
+  
   y = pdfDrawSummary(pdf, y, currentData, tableResult.subtotal);
   y = await pdfDrawSignatureSection(pdf, y);
+  y = pdfDrawWarranty(pdf, y, currentData);
   y = pdfDrawTerms(pdf, y, currentData);
 
   // Watermark & footer terakhir (apply ke semua halaman)
