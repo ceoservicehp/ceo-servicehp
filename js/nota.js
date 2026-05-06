@@ -332,64 +332,45 @@ async function loadSignature(){
 }
 
 /* ================= DOWNLOAD PDF ================= */
-function downloadPDF(){
+async function downloadPDF(){
 
   if(!currentData) return;
 
-  const original = document.getElementById("invoice-area");
+  const element = document.getElementById("invoice-area");
 
-  // 🔥 CLONE element (INI KUNCI)
-  const clone = original.cloneNode(true);
+  // aktifkan mode PDF
+  document.body.classList.add("pdf-body");
 
-  clone.style.background = "#ffffff";
-  clone.style.boxShadow = "none";
+  const { jsPDF } = window.jspdf;
 
-  // 🔥 pastikan tidak ada efek aneh
-  clone.querySelectorAll("*").forEach(el=>{
-    el.style.filter = "none";
-    el.style.opacity = "1";
+  const pdf = new jsPDF({
+    orientation: "portrait",
+    unit: "mm",
+    format: "a4"
   });
 
-  // 🔥 sembunyikan watermark di clone saja
-  const wm = clone.querySelector("#watermark");
-  const stamp = clone.querySelector("#digital-stamp");
-  if(wm) wm.remove();
-  if(stamp) stamp.remove();
+  await pdf.html(element, {
 
-  document.body.appendChild(clone);
-
-  const opt = {
     margin: [5,5,5,5],
-    filename: "Invoice_"+currentData.id+".pdf",
 
-    image: { type: 'jpeg', quality: 0.98 },
+    autoPaging: "text",
 
     html2canvas: {
-      scale: 1.5,
+      scale: 0.8,
       useCORS: true,
-      backgroundColor: "#ffffff",
-      scrollY: 0,
-      windowWidth: 1200
+      backgroundColor: "#ffffff"
     },
 
-    jsPDF: {
-      unit: 'mm',
-      format: 'a4',
-      orientation: 'portrait'
+    callback: function(doc){
+
+      doc.save(`Invoice_${currentData.id}.pdf`);
+
+      // reset mode
+      document.body.classList.remove("pdf-body");
     }
-  };
 
-  html2pdf()
-    .set(opt)
-    .from(clone)
-    .save()
-    .then(()=>{
-      clone.remove(); // 🔥 cleanup
-    });
-}
+  });
 
-function downloadPDF(){
-  window.print();
 }
 
 /* ================= WHATSAPP ================= */
