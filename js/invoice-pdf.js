@@ -1,5 +1,3 @@
-\"use strict\";
-
 /* ================= COLOR PALETTE ================= */
 const PDF_COLORS = {
   primary:      [31, 111, 120],   // teal brand
