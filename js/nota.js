@@ -348,38 +348,34 @@ async function downloadPDF(){
 
   await new Promise(resolve => setTimeout(resolve, 500));
 
+  const canvas = await html2canvas(element, {
+    scale: 2,
+    useCORS: true,
+    backgroundColor: "#ffffff"
+  });
+
+  const imgData = canvas.toDataURL("image/jpeg", 1.0);
+
   const { jsPDF } = window.jspdf;
+
+  // 🔥 ukuran proporsional
+  const imgWidth = 210;
+  const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
   const pdf = new jsPDF({
     orientation: "portrait",
     unit: "mm",
-    format: "a4"
+    format: [imgWidth, imgHeight]
   });
 
-  await pdf.html(element, {
+  pdf.addImage(imgData, "JPEG", 0, 0, imgWidth, imgHeight);
 
-    margin: [8,8,8,8],
+  pdf.save(`Invoice_${currentData.id}.pdf`);
 
-    autoPaging: "text",
+  document.body.classList.remove("pdf-body");
 
-    html2canvas: {
-      scale: 1.2,
-      useCORS: true,
-      backgroundColor: "#ffffff"
-    },
-
-    callback: function(doc){
-
-      doc.save(`Invoice_${currentData.id}.pdf`);
-
-      document.body.classList.remove("pdf-body");
-
-      wm.style.display = "";
-      stamp.style.display = "";
-    }
-
-  });
-
+  wm.style.display = "";
+  stamp.style.display = "";
 }
 
 /* ================= WHATSAPP ================= */
