@@ -1,5 +1,5 @@
 /* =====================================================================
- * INVOICE PDF GENERATOR — CEO PART & SERVICE
+ * INVOICE PDF GENERATOR — CEO PART & SERVICE  (v2 — compact)
  * ---------------------------------------------------------------------
  * Dibutuhkan (sudah ada di nota.html):
  *   - jsPDF UMD          (window.jspdf.jsPDF)
@@ -151,25 +151,48 @@ function pdfDrawHeader(pdf, data) {
   return 52;
 }
 
-/* ================= INFO CARDS (Customer + Service) ================= */
+/* ================= INFO CARDS (Customer + Service) — COMPACT ================= */
 function pdfDrawInfoCards(pdf, y, data, isPaid) {
   const m = PDF_PAGE.margin;
   const gap = 6;
   const cardW = (PDF_PAGE.contentW - gap) / 2;
-  const cardH = 70;
   const leftX = m;
   const rightX = m + cardW + gap;
+
+  const padX = 4.5;
+  const labelW = 22;
+  const rowGap = 5.8;        // jarak antar baris (compact)
+  const titleOffset = 14;    // posisi baris pertama dari atas card
+
+  // ---- Tinggi dinamis: card kiri (Pelanggan) ----
+  pdf.setFont("helvetica", "bold");
+  pdf.setFontSize(8.5);
+  const alamatLines = pdf.splitTextToSize(
+    data.alamat || "-",
+    cardW - padX * 2 - labelW
+  ).length;
+  // 5 row tetap: Nama, No HP, Alamat, Merk HP, Metode
+  const leftContentH = titleOffset + (5 * rowGap) +
+                       Math.max(0, (alamatLines - 1) * 3.2);
+
+  // ---- Tinggi dinamis: card kanan (Service) ----
+  let serviceRows = 4; // Status + Tgl Masuk + Tgl Selesai + Bayar
+  if (data.use_top && data.due_date) serviceRows++;
+  if (data.garansi) serviceRows++;
+  const rightContentH = titleOffset + (serviceRows * rowGap);
+
+  const cardH = Math.max(leftContentH, rightContentH) + 4; // padding bawah
 
   pdfDrawCard(pdf, leftX, y, cardW, cardH);
   pdfDrawCard(pdf, rightX, y, cardW, cardH);
 
   // Card titles
   function cardTitle(x, title) {
-    pdfAccentBar(pdf, x, y + 4.5, 6);
+    pdfAccentBar(pdf, x, y + 4, 5.5);
     pdf.setFont("helvetica", "bold");
-    pdf.setFontSize(11);
+    pdf.setFontSize(10.5);
     pdfSetText(pdf, PDF_COLORS.primary);
-    pdf.text(title, x + 4.5, y + 9.5);
+    pdf.text(title, x + 4.5, y + 8.5);
   }
   cardTitle(leftX,  "Data Pelanggan");
   cardTitle(rightX, "Informasi Service");
@@ -177,11 +200,8 @@ function pdfDrawInfoCards(pdf, y, data, isPaid) {
   // Garis pemisah halus di bawah judul card
   pdfSetDraw(pdf, PDF_COLORS.border);
   pdf.setLineWidth(0.2);
-  pdf.line(leftX + 4,  y + 12.5, leftX + cardW - 4,  y + 12.5);
-  pdf.line(rightX + 4, y + 12.5, rightX + cardW - 4, y + 12.5);
-
-  const padX = 4.5;
-  const labelW = 22;
+  pdf.line(leftX + 4,  y + 11, leftX + cardW - 4,  y + 11);
+  pdf.line(rightX + 4, y + 11, rightX + cardW - 4, y + 11);
 
   function infoRow(x, label, value, yPos, valueColor = PDF_COLORS.text) {
     pdf.setFont("helvetica", "normal");
@@ -199,8 +219,10 @@ function pdfDrawInfoCards(pdf, y, data, isPaid) {
     return txt.length;
   }
 
+  const firstRowY = y + titleOffset + 2;
+
   // ----- KIRI: Pelanggan -----
-  let cy = y + 18;
+  let cy = firstRowY;
   const custFields = [
     ["Nama",    data.nama],
     ["No HP",   data.phone],
@@ -210,49 +232,48 @@ function pdfDrawInfoCards(pdf, y, data, isPaid) {
   ];
   custFields.forEach(([label, val]) => {
     const lines = infoRow(leftX, label, val, cy);
-    cy += lines > 1 ? 4 + (lines * 3.4) : 7.2;
-    if (cy > y + cardH - 4) return; // safety
+    cy += lines > 1 ? rowGap + (lines - 1) * 3.2 : rowGap;
   });
 
   // ----- KANAN: Service -----
-  let sy = y + 18;
-  infoRow(rightX, "Status",     data.status, sy); sy += 7.2;
-  infoRow(rightX, "Tgl Masuk",  pdfFormatDate(data.created_at), sy); sy += 7.2;
+  let sy = firstRowY;
+  infoRow(rightX, "Status",     data.status, sy); sy += rowGap;
+  infoRow(rightX, "Tgl Masuk",  pdfFormatDate(data.created_at), sy); sy += rowGap;
   infoRow(rightX, "Tgl Selesai",
     data.tanggal_selesai ? pdfFormatDate(data.tanggal_selesai) : "-", sy);
-  sy += 7.2;
+  sy += rowGap;
 
   if (data.use_top && data.due_date) {
     infoRow(rightX, "Tempo",
       `${data.top_days || 0} hari (${pdfFormatDate(data.due_date)})`, sy);
-    sy += 7.2;
+    sy += rowGap;
   }
 
   if (data.garansi) {
     infoRow(rightX, "Garansi", pdfFormatDate(data.garansi), sy);
-    sy += 7.2;
+    sy += rowGap;
   }
 
-  // Payment badge
+  // ----- Payment badge — auto-fit width -----
   pdf.setFont("helvetica", "normal");
   pdf.setFontSize(8.5);
   pdfSetText(pdf, PDF_COLORS.textMid);
   pdf.text("Bayar", rightX + padX, sy);
 
-  const badgeW = 32, badgeH = 6;
-  const badgeX = rightX + padX + labelW;
-  pdfSetFill(pdf, isPaid ? PDF_COLORS.success : PDF_COLORS.danger);
-  pdf.roundedRect(badgeX, sy - 4.3, badgeW, badgeH, 1.5, 1.5, "F");
+  const badgeText = isPaid ? "LUNAS" : "BELUM LUNAS";
   pdf.setFont("helvetica", "bold");
   pdf.setFontSize(7.8);
-  pdfSetText(pdf, PDF_COLORS.white);
-  pdf.text(
-    isPaid ? "LUNAS" : "BELUM LUNAS",
-    badgeX + badgeW / 2, sy,
-    { align: "center" }
-  );
+  const textW = pdf.getTextWidth(badgeText);
+  const badgeW = textW + 6;     // padding kiri-kanan 3mm
+  const badgeH = 5.5;
+  const badgeX = rightX + padX + labelW;
 
-  return y + cardH + 6;
+  pdfSetFill(pdf, isPaid ? PDF_COLORS.success : PDF_COLORS.danger);
+  pdf.roundedRect(badgeX, sy - 4, badgeW, badgeH, 1.2, 1.2, "F");
+  pdfSetText(pdf, PDF_COLORS.white);
+  pdf.text(badgeText, badgeX + badgeW / 2, sy - 0.3, { align: "center" });
+
+  return y + cardH + 5;
 }
 
 /* ================= PROBLEM BOX ================= */
@@ -349,10 +370,7 @@ function pdfDrawItemsTable(pdf, y, data) {
       3: { cellWidth: 35, halign: "right" },
       4: { cellWidth: 35, halign: "right", fontStyle: "bold" }
     },
-    alternateRowStyles: { fillColor: [248, 251, 252] },
-    didDrawPage: () => {
-      // pastikan watermark tidak menutupi konten saat page break
-    }
+    alternateRowStyles: { fillColor: [248, 251, 252] }
   });
 
   return { finalY: pdf.lastAutoTable.finalY, subtotal };
