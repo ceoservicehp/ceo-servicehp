@@ -708,5 +708,3 @@ async function downloadPDF() {
 
 /* Expose ke global agar bisa dipanggil dari tombol di nota.html */
 window.downloadPDF = downloadPDF;
-
-Observation: Create successful: /app/output/invoice-pdf.js
