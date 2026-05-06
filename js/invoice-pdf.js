@@ -346,7 +346,7 @@ pdf.text(
 );
 
 // update cursor
-cursorY += 90;
+cursorY += 82;
 
 // ================= TABLE =================
 
@@ -390,7 +390,7 @@ if(currentData.sparepart){
 
 pdf.autoTable({
 
-  startY: cursorY + 7,
+  startY: cursorY + 6,
 
   margin:{
     left:20,
@@ -408,8 +408,8 @@ pdf.autoTable({
   theme: "plain",
 
   styles:{
-    fontSize:10,
-    cellPadding:4,
+    fontSize:9,
+    cellPadding:3.5,
     textColor:[60,60,60]
   },
 
@@ -433,14 +433,14 @@ pdf.roundedRect(
   15,
   cursorY - 10,
   175,
-  (pdf.lastAutoTable.finalY - (cursorY - 10)) + 10,
+  (pdf.lastAutoTable.finalY - (cursorY - 10)) + 8,
   4,
   4
 );
 
 // ================= TOTAL =================
 
-let finalY = pdf.lastAutoTable.finalY + 18;
+let finalY = pdf.lastAutoTable.finalY + 10;
 
 const transport = Number(currentData.transport || 0);
 const jasa = Number(currentData.jasa || 0);
@@ -455,20 +455,20 @@ const remaining = grand - dibayar;
 
 // total card
 drawBox(
-  108,
-  finalY - 8,
-  77,
-  42
+  112,
+  finalY - 5,
+  73,
+  34
 );
 
 pdf.setFont("helvetica","normal");
-pdf.setFontSize(10);
+pdf.setFontSize(9);
 
 pdf.setTextColor(90);
 
 pdf.text(
   "Subtotal",
-  114,
+  117,
   finalY + 4
 );
 
@@ -481,59 +481,59 @@ pdf.text(
 
 pdf.text(
   "Transport",
-  114,
-  finalY + 12
+  117,
+  finalY + 10
 );
 
 pdf.text(
   formatRupiah(transport),
   178,
-  finalY + 12,
+  finalY + 10,
   {align:"right"}
 );
 
 pdf.text(
   "Jasa",
-  114,
-  finalY + 20
+  117,
+  finalY + 16
 );
 
 pdf.text(
   formatRupiah(jasa),
   178,
-  finalY + 20,
+  finalY + 16,
   {align:"right"}
 );
 
 pdf.setDrawColor(220);
 
 pdf.line(
-  114,
-  finalY + 24,
+  117,
+  finalY + 19,
   178,
-  finalY + 24
+  finalY + 19
 );
 
 pdf.setFont("helvetica","bold");
-pdf.setFontSize(16);
+pdf.setFontSize(14);
 
 pdf.setTextColor(20,120,120);
 
 pdf.text(
   "TOTAL",
-  114,
-  finalY + 34
+  117,
+  finalY + 28
 );
 
 pdf.text(
   formatRupiah(grand),
   178,
-  finalY + 34,
+  finalY + 28,
   {align:"right"}
 );
 
 pdf.setFont("helvetica","normal");
-pdf.setFontSize(9);
+pdf.setFontSize(8);
 
 pdf.setTextColor(100);
 
@@ -542,8 +542,8 @@ if(remaining > 0){
   pdf.text(
     "Kurang Bayar : " +
     formatRupiah(remaining),
-    114,
-    finalY + 42
+    117,
+    finalY + 33
   );
 
 }else if(remaining < 0){
@@ -551,33 +551,33 @@ if(remaining > 0){
   pdf.text(
     "Kembalian : " +
     formatRupiah(Math.abs(remaining)),
-    114,
-    finalY + 42
+    117,
+    finalY + 33
   );
 
 }else{
 
   pdf.text(
     "Pembayaran Lunas",
-    114,
-    finalY + 42
+    117,
+    finalY + 33
   );
 
 }
 
 // ================= GARANSI =================
 
-let garansiY = finalY + 58;
+let garansiY = finalY + 36;
 
 drawBox(
   15,
-  garansiY - 10,
+  garansiY - 7,
   175,
-  30
+  24
 );
 
 pdf.setFont("helvetica","bold");
-pdf.setFontSize(12);
+pdf.setFontSize(11);
 
 pdf.setTextColor(20,120,120);
 
@@ -588,7 +588,7 @@ pdf.text(
 );
 
 pdf.setFont("helvetica","normal");
-pdf.setFontSize(10);
+pdf.setFontSize(9);
 
 pdf.setTextColor(70);
 
@@ -599,7 +599,7 @@ if(currentData.garansi){
     new Date(currentData.garansi)
       .toLocaleDateString("id-ID"),
     20,
-    garansiY + 10
+    garansiY + 7
   );
 
 }else{
@@ -607,7 +607,7 @@ if(currentData.garansi){
   pdf.text(
     "Menyesuaikan jenis perbaikan",
     20,
-    garansiY + 10
+    garansiY + 7
   );
 
 }
@@ -626,17 +626,17 @@ if(qrCanvas){
     qrImage,
     "PNG",
     20,
-    garansiY + 12,
-    24,
-    24
+    garansiY + 6,
+    20,
+    20
   );
 
-  pdf.setFontSize(8);
+  pdf.setFontSize(7);
 
   pdf.text(
     "Scan Verifikasi",
     20,
-    garansiY + 40
+    garansiY + 29
   );
 
 }
@@ -644,12 +644,12 @@ if(qrCanvas){
 // ================= TTD =================
 
 pdf.setFont("helvetica","normal");
-pdf.setFontSize(10);
+pdf.setFontSize(9);
 
 pdf.text(
   "Hormat Kami,",
   145,
-  garansiY + 18
+  garansiY + 10
 );
 
 const sigBox =
@@ -671,10 +671,10 @@ if(
     pdf.addImage(
       img,
       "PNG",
-      132,
-      garansiY + 14,
-      42,
-      18
+      134,
+      garansiY + 6,
+      36,
+      14
     );
 
   }catch(e){
@@ -688,24 +688,24 @@ pdf.setFont("helvetica","bold");
 pdf.text(
   document.getElementById("ttdName")
     .textContent,
-  153,
-  garansiY + 38,
+  152,
+  garansiY + 25,
   {align:"center"}
 );
 
 // ================= SYARAT GARANSI =================
 
-let syaratY = garansiY + 48;
+let syaratY = garansiY + 34;
 
 drawBox(
   15,
-  syaratY - 8,
+  syaratY - 5,
   175,
-  24
+  20
 );
 
 pdf.setFont("helvetica","bold");
-pdf.setFontSize(11);
+pdf.setFontSize(10);
 
 pdf.setTextColor(20,120,120);
 
@@ -716,7 +716,7 @@ pdf.text(
 );
 
 pdf.setFont("helvetica","normal");
-pdf.setFontSize(9);
+pdf.setFontSize(7.5);
 
 pdf.setTextColor(90);
 
@@ -730,21 +730,21 @@ const syarat = [
 pdf.text(
   syarat,
   20,
-  syaratY + 8
+  syaratY + 6
 );
 
 // ================= FOOTER =================
 
 pdf.setFont("helvetica","normal");
 
-pdf.setFontSize(8);
+pdf.setFontSize(7);
 
 pdf.setTextColor(140);
 
 pdf.text(
   "Terima kasih telah menggunakan layanan CEO PART & SERVICE",
   105,
-  288,
+  280,
   {align:"center"}
 );
   
