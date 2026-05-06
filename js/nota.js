@@ -581,7 +581,7 @@ pdf.text(
 
   // ================= TABLE =================
 
-  drawBox(15, 130, 175, 80);
+  drawBox(15, 130, 175, 68);
 
   pdf.setFont("helvetica","bold");
   pdf.setFontSize(13);
@@ -660,7 +660,7 @@ pdf.text(
 
   // ================= TOTAL =================
 
-  let finalY = pdf.lastAutoTable.finalY + 15;
+  let finalY = pdf.lastAutoTable.finalY + 8;
 
   const transport = Number(currentData.transport || 0);
   const jasa = Number(currentData.jasa || 0);
@@ -739,7 +739,7 @@ if(remaining > 0){
 
   // ================= GARANSI =================
 
-let garansiY = finalY + 50;
+let garansiY = finalY + 38;
 
 drawBox(15, garansiY - 10, 175, 28);
 
@@ -787,9 +787,9 @@ if(qrCanvas){
     qrImage,
     "PNG",
     20,
-    garansiY + 18,
-    28,
-    28
+    garansiY + 14,
+    26,
+    26
   );
 
   pdf.setFontSize(9);
@@ -797,7 +797,7 @@ if(qrCanvas){
   pdf.text(
     "Scan untuk Verifikasi",
     20,
-    garansiY + 50
+    garansiY + 43
   );
 
 }
@@ -810,7 +810,7 @@ pdf.setFontSize(10);
 pdf.text(
   "Hormat Kami,",
   145,
-  garansiY + 35
+  garansiY + 22
 );
 
 const sigBox = document.getElementById("ttdImg");
@@ -829,7 +829,7 @@ if(sigBox && sigBox.style.backgroundImage){
       img,
       "PNG",
       135,
-      garansiY + 30,
+      garansiY + 18,
       40,
       18
     );
@@ -845,15 +845,15 @@ pdf.setFont("helvetica","bold");
 pdf.text(
   document.getElementById("ttdName").textContent,
   155,
-  garansiY + 55,
+  garansiY + 42,
   {align:"center"}
 );
 
   // ================= SYARAT GARANSI =================
 
-let syaratY = garansiY + 75;
+let syaratY = garansiY + 55;
 
-drawBox(15, syaratY - 8, 175, 32);
+drawBox(15, syaratY - 8, 175, 28);
 
 pdf.setFont("helvetica","bold");
 pdf.setFontSize(11);
@@ -883,25 +883,6 @@ pdf.text(
   20,
   syaratY + 8
 );
-
-  // ================= FOOTER =================
-
-  pdf.setFontSize(9);
-  pdf.setTextColor(120);
-
-  pdf.text(
-    "Terima kasih telah menggunakan layanan CEO PART & SERVICE",
-    105,
-    275,
-    {align:"center"}
-  );
-
-  pdf.text(
-    "Cellular Engineering Officer",
-    105,
-    280,
-    {align:"center"}
-  );
 
   // ================= SAVE =================
 
