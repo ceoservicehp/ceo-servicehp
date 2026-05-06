@@ -161,193 +161,245 @@ pdf.setTextColor(40);
     31
   );
 
-  // ================= CUSTOMER & SERVICE SECTION =================
+// ================= CUSTOMER & SERVICE =================
 
-cursorY += 5;
+cursorY += 6;
 
-// box kiri
-drawBox(15, cursorY, 82, 62);
+const cardGap = 8;
+const leftCardX = 15;
+const rightCardX = 105;
 
-// box kanan
-drawBox(103, cursorY, 87, 62);
+const cardY = cursorY;
+
+const leftCardW = 82;
+const rightCardW = 85;
+
+const cardH = 68;
+
+// card kiri
+drawBox(
+  leftCardX,
+  cardY,
+  leftCardW,
+  cardH
+);
+
+// card kanan
+drawBox(
+  rightCardX,
+  cardY,
+  rightCardW,
+  cardH
+);
 
 // ================= DATA PELANGGAN =================
 
 pdf.setFont("helvetica","bold");
 pdf.setFontSize(13);
 
-pdf.setTextColor(20,120,120);
+pdf.setTextColor(31,111,120);
 
-pdf.text("Data Pelanggan", 20, cursorY + 10);
+pdf.text(
+  "Data Pelanggan",
+  leftCardX + 5,
+  cardY + 10
+);
 
 pdf.setFont("helvetica","normal");
-pdf.setFontSize(10);
+pdf.setFontSize(9);
 
 pdf.setTextColor(70);
 
-let leftY = cursorY + 22;
+let customerY = cardY + 20;
 
-pdf.text(
-  `Nama : ${currentData.nama || "-"}`,
-  20,
-  leftY
+function drawInfoRow(label,value,y){
+
+  pdf.setTextColor(120);
+
+  pdf.text(label, leftCardX + 5, y);
+
+  pdf.setTextColor(40);
+
+  pdf.text(
+    value || "-",
+    leftCardX + 32,
+    y
+  );
+
+}
+
+drawInfoRow(
+  "Nama",
+  currentData.nama,
+  customerY
 );
 
-leftY += 9;
+customerY += 8;
 
-pdf.text(
-  `No HP : ${currentData.phone || "-"}`,
-  20,
-  leftY
+drawInfoRow(
+  "No HP",
+  currentData.phone,
+  customerY
 );
 
-leftY += 9;
+customerY += 8;
 
-pdf.text(
-  `Merk HP : ${currentData.brand || "-"}`,
-  20,
-  leftY
+drawInfoRow(
+  "Merk HP",
+  currentData.brand,
+  customerY
 );
 
-leftY += 9;
+customerY += 8;
 
-pdf.text(
-  `Metode : ${currentData.metode || "-"}`,
-  20,
-  leftY
+drawInfoRow(
+  "Metode",
+  currentData.metode,
+  customerY
 );
 
 // detail kerusakan
-leftY += 14;
+customerY += 12;
 
 pdf.setFont("helvetica","bold");
 
-pdf.setTextColor(40);
+pdf.setTextColor(31,111,120);
 
 pdf.text(
   "Detail Kerusakan",
-  20,
-  leftY
+  leftCardX + 5,
+  customerY
 );
 
-leftY += 7;
+customerY += 7;
 
 pdf.setFont("helvetica","normal");
+pdf.setFontSize(8);
 
-pdf.setTextColor(90);
+pdf.setTextColor(80);
 
 const problem = pdf.splitTextToSize(
   currentData.problem || "-",
-  68
+  62
 );
 
 pdf.text(
   problem,
-  20,
-  leftY
+  leftCardX + 5,
+  customerY
 );
 
-// ================= SERVICE =================
+// ================= INFORMASI SERVICE =================
 
 pdf.setFont("helvetica","bold");
 pdf.setFontSize(13);
 
-pdf.setTextColor(20,120,120);
+pdf.setTextColor(31,111,120);
 
 pdf.text(
   "Informasi Service",
-  108,
-  cursorY + 10
+  rightCardX + 5,
+  cardY + 10
 );
 
 pdf.setFont("helvetica","normal");
-pdf.setFontSize(10);
+pdf.setFontSize(9);
 
-pdf.setTextColor(70);
+let serviceY = cardY + 20;
 
-let rightY = cursorY + 22;
+function drawServiceRow(label,value,y){
 
-pdf.text(
-  `Status : ${currentData.status || "-"}`,
-  108,
-  rightY
+  pdf.setTextColor(120);
+
+  pdf.text(label, rightCardX + 5, y);
+
+  pdf.setTextColor(40);
+
+  pdf.text(
+    value || "-",
+    rightCardX + 35,
+    y
+  );
+
+}
+
+drawServiceRow(
+  "Status",
+  currentData.status,
+  serviceY
 );
 
-rightY += 9;
+serviceY += 8;
 
-pdf.text(
-  `Tgl Masuk : ${
-    new Date(currentData.created_at)
-      .toLocaleDateString("id-ID")
-  }`,
-  108,
-  rightY
+drawServiceRow(
+  "Tgl Masuk",
+  new Date(currentData.created_at)
+    .toLocaleDateString("id-ID"),
+  serviceY
 );
 
-rightY += 9;
+serviceY += 8;
 
-pdf.text(
-  `Tgl Selesai : ${
-    currentData.finished_at
+drawServiceRow(
+  "Tgl Selesai",
+  currentData.finished_at
     ? new Date(currentData.finished_at)
         .toLocaleDateString("id-ID")
-    : "-"
-  }`,
-  108,
-  rightY
+    : "-",
+  serviceY
 );
 
-rightY += 9;
+serviceY += 8;
+
+// payment label
+pdf.setTextColor(120);
 
 pdf.text(
-  `Status Bayar : ${
-    currentData.payment_status || "Belum Lunas"
-  }`,
-  108,
-  rightY
+  "Status Bayar",
+  rightCardX + 5,
+  serviceY
 );
 
-// badge status
-rightY += 10;
-
-if(
+// badge
+const isPaid =
   (currentData.payment_status || "")
   .toLowerCase()
-  .includes("lunas")
-){
+  .includes("lunas");
 
-  pdf.setFillColor(220,255,230);
+if(isPaid){
+
+  pdf.setFillColor(40,167,69);
 
 }else{
 
-  pdf.setFillColor(255,230,230);
+  pdf.setFillColor(220,53,69);
 
 }
 
 pdf.roundedRect(
-  108,
-  rightY - 6,
-  42,
-  8,
-  2,
-  2,
+  rightCardX + 35,
+  serviceY - 5,
+  30,
+  7,
+  3,
+  3,
   "F"
 );
 
-pdf.setFontSize(9);
+pdf.setFontSize(7);
 
-pdf.setTextColor(40);
+pdf.setTextColor(255);
 
 pdf.text(
-  currentData.payment_status || "Belum Lunas",
-  129,
-  rightY,
+  isPaid ? "LUNAS" : "BELUM",
+  rightCardX + 50,
+  serviceY,
   {align:"center"}
 );
 
 // update cursor
-cursorY += 82;
-
+cursorY += cardH + 18;
+  
 // ================= TABLE =================
 
 pdf.setFont("helvetica","bold");
