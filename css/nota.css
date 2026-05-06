@@ -619,10 +619,3 @@ body.pdf-body *{
   -webkit-print-color-adjust: exact !important;
 }
 
-/* ================= PDF PAGE BREAK ================= */
-
-body.pdf-body .pdf-page-break{
-  page-break-before: always;
-  break-before: page;
-  margin-top:20mm !important;
-}
