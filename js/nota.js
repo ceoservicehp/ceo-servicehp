@@ -344,75 +344,182 @@ async function downloadPDF(){
     format: "a4"
   });
 
+  // ================= HELPER =================
+
+  function drawBox(x, y, w, h){
+
+    pdf.setDrawColor(230);
+    pdf.setFillColor(250,252,253);
+
+    pdf.roundedRect(
+      x,
+      y,
+      w,
+      h,
+      4,
+      4,
+      "FD"
+    );
+  }
+
+  function formatRupiah(value){
+    return "Rp " + Number(value || 0).toLocaleString("id-ID");
+  }
+
   // ================= HEADER =================
 
   pdf.setFont("helvetica","bold");
-  pdf.setFontSize(20);
+  pdf.setFontSize(22);
 
   pdf.setTextColor(20,120,120);
   pdf.text("CEO PART & SERVICE", 20, 20);
 
   pdf.setFontSize(10);
-  pdf.setTextColor(80);
+  pdf.setTextColor(90);
 
-  pdf.text("Cellular Engineering Officer", 20, 26);
-  pdf.text("ITC Roxy Mas LT.1 No.123 B", 20, 31);
-  pdf.text("Jakarta Pusat", 20, 36);
+  pdf.text("Cellular Engineering Officer", 20, 27);
+  pdf.text("ITC Roxy Mas LT.1 No.123 B", 20, 33);
+
+  pdf.text(
+    "Jl. KH. Hasyim Ashari No.125, Jakarta Pusat",
+    20,
+    39
+  );
+
+  // garis
+  pdf.setDrawColor(225);
+  pdf.line(20, 45, 190, 45);
 
   // ================= INVOICE INFO =================
 
+  drawBox(145, 14, 45, 22);
+
   pdf.setFont("helvetica","bold");
-  pdf.setFontSize(12);
+  pdf.setFontSize(13);
+
+  pdf.setTextColor(40);
 
   pdf.text(
     "INV-"+String(currentData.id).padStart(5,"0"),
-    160,
-    20
+    152,
+    24
   );
 
   pdf.setFont("helvetica","normal");
+  pdf.setFontSize(9);
+
+  pdf.setTextColor(100);
 
   pdf.text(
     new Date(currentData.created_at)
       .toLocaleString("id-ID"),
-    160,
-    27
+    152,
+    31
   );
 
-  // ================= CUSTOMER =================
+  // ================= BOX =================
+
+  drawBox(15, 52, 82, 70);
+  drawBox(103, 52, 87, 70);
+
+  // ================= DATA PELANGGAN =================
 
   pdf.setFont("helvetica","bold");
-  pdf.text("Data Pelanggan", 20, 50);
+  pdf.setFontSize(13);
+
+  pdf.setTextColor(20,120,120);
+
+  pdf.text("Data Pelanggan", 20, 63);
 
   pdf.setFont("helvetica","normal");
+  pdf.setFontSize(10);
 
-  pdf.text(`Nama : ${currentData.nama || "-"}`, 20, 58);
-  pdf.text(`No HP : ${currentData.phone || "-"}`, 20, 65);
-  pdf.text(`Merk HP : ${currentData.brand || "-"}`, 20, 72);
-  pdf.text(`Metode : ${currentData.metode || "-"}`, 20, 79);
+  pdf.setTextColor(70);
+
+  pdf.text(`Nama : ${currentData.nama || "-"}`, 20, 74);
+
+  pdf.text(`No HP : ${currentData.phone || "-"}`, 20, 83);
+
+  pdf.text(`Merk HP : ${currentData.brand || "-"}`, 20, 92);
+
+  pdf.text(`Metode : ${currentData.metode || "-"}`, 20, 101);
+
+  // detail kerusakan
+  pdf.setFont("helvetica","bold");
+  pdf.setTextColor(40);
+
+  pdf.text("Detail Kerusakan", 20, 112);
+
+  pdf.setFont("helvetica","normal");
+  pdf.setTextColor(90);
+
+  const problem = pdf.splitTextToSize(
+    currentData.problem || "-",
+    68
+  );
+
+  pdf.text(problem, 20, 119);
 
   // ================= SERVICE =================
 
   pdf.setFont("helvetica","bold");
-  pdf.text("Informasi Service", 110, 50);
+  pdf.setFontSize(13);
+
+  pdf.setTextColor(20,120,120);
+
+  pdf.text("Informasi Service", 108, 63);
 
   pdf.setFont("helvetica","normal");
+  pdf.setFontSize(10);
 
-  pdf.text(`Status : ${currentData.status || "-"}`, 110, 58);
+  pdf.setTextColor(70);
+
+  pdf.text(`Status : ${currentData.status || "-"}`, 108, 74);
 
   pdf.text(
     `Tgl Masuk : ${
       new Date(currentData.created_at)
         .toLocaleDateString("id-ID")
     }`,
-    110,
-    65
+    108,
+    83
+  );
+
+  pdf.text(
+    `Tgl Selesai : ${
+      currentData.finished_at
+      ? new Date(currentData.finished_at)
+          .toLocaleDateString("id-ID")
+      : "-"
+    }`,
+    108,
+    92
+  );
+
+  pdf.text(
+    `Status Bayar : ${
+      currentData.payment_status || "Belum Lunas"
+    }`,
+    108,
+    101
   );
 
   // ================= TABLE =================
 
-  let body = [];
+  drawBox(15, 130, 175, 65);
 
+  pdf.setFont("helvetica","bold");
+  pdf.setFontSize(13);
+
+  pdf.setTextColor(20,120,120);
+
+  pdf.text(
+    "Detail Jenis Perbaikan / Sparepart",
+    20,
+    141
+  );
+
+  let body = [];
   let subtotal = 0;
 
   if(currentData.sparepart){
@@ -429,9 +536,9 @@ async function downloadPDF(){
         subtotal += harga * qty;
 
         body.push([
-          item.nama,
+          item.nama || "-",
           qty,
-          "Rp " + harga.toLocaleString("id-ID")
+          formatRupiah(harga)
         ]);
 
       });
@@ -440,9 +547,15 @@ async function downloadPDF(){
   }
 
   pdf.autoTable({
-    startY: 90,
 
-    head: [[
+    startY: 148,
+
+    margin:{
+      left:20,
+      right:20
+    },
+
+    head:[[
       "Jenis Perbaikan / Sparepart",
       "Qty",
       "Harga"
@@ -450,29 +563,91 @@ async function downloadPDF(){
 
     body: body,
 
-    theme: "grid",
+    theme: "plain",
+
+    styles:{
+      fontSize:10,
+      cellPadding:4,
+      textColor:[60,60,60]
+    },
 
     headStyles:{
-      fillColor:[20,120,120]
+      fillColor:[235,245,247],
+      textColor:[40,40,40],
+      fontStyle:"bold"
+    },
+
+    alternateRowStyles:{
+      fillColor:[250,250,250]
     }
+
   });
 
   // ================= TOTAL =================
 
   let finalY = pdf.lastAutoTable.finalY + 15;
 
+  const transport = Number(currentData.transport || 0);
+  const jasa = Number(currentData.jasa || 0);
+  const dibayar = Number(currentData.paid || 0);
+
   const grand =
     subtotal +
-    (currentData.transport || 0) +
-    (currentData.jasa || 0);
+    transport +
+    jasa;
+
+  const remaining = grand - dibayar;
+
+  drawBox(110, finalY - 5, 80, 42);
+
+  pdf.setFont("helvetica","normal");
+  pdf.setFontSize(10);
+
+  pdf.setTextColor(90);
+
+  pdf.text("Subtotal", 118, finalY + 4);
+  pdf.text(formatRupiah(subtotal), 165, finalY + 4, {align:"right"});
+
+  pdf.text("Transport", 118, finalY + 12);
+  pdf.text(formatRupiah(transport), 165, finalY + 12, {align:"right"});
+
+  pdf.text("Jasa", 118, finalY + 20);
+  pdf.text(formatRupiah(jasa), 165, finalY + 20, {align:"right"});
+
+  pdf.setDrawColor(220);
+  pdf.line(118, finalY + 24, 182, finalY + 24);
 
   pdf.setFont("helvetica","bold");
-  pdf.setFontSize(16);
+  pdf.setFontSize(14);
+
+  pdf.setTextColor(20,120,120);
+
+  pdf.text("TOTAL", 118, finalY + 33);
 
   pdf.text(
-    "Total : Rp " + grand.toLocaleString("id-ID"),
-    20,
-    finalY
+    formatRupiah(grand),
+    182,
+    finalY + 33,
+    {align:"right"}
+  );
+
+  // ================= FOOTER =================
+
+  pdf.setFontSize(9);
+  pdf.setTextColor(120);
+
+  pdf.text(
+    "Terima kasih telah menggunakan layanan CEO PART & SERVICE",
+    105,
+    285,
+    {align:"center"}
+  );
+
+  pdf.text(
+    "Cellular Engineering Officer",
+    105,
+    290,
+    {align:"center"}
   );
 
   // ================= SAVE =================
