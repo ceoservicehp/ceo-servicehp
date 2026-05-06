@@ -558,10 +558,6 @@ body.pdf-body .digital-stamp{
   display:none !important;
 }
 
-body.pdf-body .digital-stamp{
-opacity:.25 !important;
-}
-
 /* floating chat */
 .floating-wa{
   position: fixed;
@@ -610,4 +606,15 @@ opacity:.25 !important;
     display:none !important;
   }
 
+}
+
+body.pdf-body .invoice{
+  animation:none !important;
+  transform:none !important;
+  opacity:1 !important;
+}
+
+body.pdf-body *{
+  color-adjust: exact !important;
+  -webkit-print-color-adjust: exact !important;
 }
