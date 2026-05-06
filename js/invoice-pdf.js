@@ -8,7 +8,7 @@
  *
  * Fungsi utama yang dipanggil dari tombol Download:  downloadPDF()
  * ===================================================================== */
-\"use strict\";
+"use strict";
 
 /* ================= COLOR PALETTE ================= */
 const PDF_COLORS = {
