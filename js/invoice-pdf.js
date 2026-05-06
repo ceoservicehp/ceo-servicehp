@@ -346,337 +346,407 @@ pdf.text(
 );
 
 // update cursor
-cursorY += 78;
-  
-  // ================= TABLE =================
-  pdf.setFont("helvetica","bold");
-  pdf.setFontSize(13);
+cursorY += 90;
 
-  pdf.setTextColor(20,120,120);
+// ================= TABLE =================
+
+pdf.setFont("helvetica","bold");
+pdf.setFontSize(13);
+
+pdf.setTextColor(20,120,120);
+
+pdf.text(
+  "Detail Jenis Perbaikan / Sparepart",
+  20,
+  cursorY
+);
+
+let body = [];
+let subtotal = 0;
+
+if(currentData.sparepart){
+
+  try{
+
+    const items = JSON.parse(currentData.sparepart);
+
+    items.forEach(item=>{
+
+      const harga = item.harga || 0;
+      const qty = item.qty || 0;
+
+      subtotal += harga * qty;
+
+      body.push([
+        item.nama || "-",
+        qty,
+        formatRupiah(harga)
+      ]);
+
+    });
+
+  }catch(e){}
+}
+
+pdf.autoTable({
+
+  startY: cursorY + 7,
+
+  margin:{
+    left:20,
+    right:20
+  },
+
+  head:[[
+    "Jenis Perbaikan / Sparepart",
+    "Qty",
+    "Harga"
+  ]],
+
+  body: body,
+
+  theme: "plain",
+
+  styles:{
+    fontSize:10,
+    cellPadding:4,
+    textColor:[60,60,60]
+  },
+
+  headStyles:{
+    fillColor:[235,245,247],
+    textColor:[40,40,40],
+    fontStyle:"bold"
+  },
+
+  alternateRowStyles:{
+    fillColor:[250,250,250]
+  }
+
+});
+
+// ================= TABLE BORDER =================
+
+pdf.setDrawColor(230);
+
+pdf.roundedRect(
+  15,
+  cursorY - 10,
+  175,
+  (pdf.lastAutoTable.finalY - (cursorY - 10)) + 10,
+  4,
+  4
+);
+
+// ================= TOTAL =================
+
+let finalY = pdf.lastAutoTable.finalY + 18;
+
+const transport = Number(currentData.transport || 0);
+const jasa = Number(currentData.jasa || 0);
+const dibayar = Number(currentData.amount_paid || 0);
+
+const grand =
+  subtotal +
+  transport +
+  jasa;
+
+const remaining = grand - dibayar;
+
+// total card
+drawBox(
+  108,
+  finalY - 8,
+  77,
+  42
+);
+
+pdf.setFont("helvetica","normal");
+pdf.setFontSize(10);
+
+pdf.setTextColor(90);
+
+pdf.text(
+  "Subtotal",
+  114,
+  finalY + 4
+);
+
+pdf.text(
+  formatRupiah(subtotal),
+  178,
+  finalY + 4,
+  {align:"right"}
+);
+
+pdf.text(
+  "Transport",
+  114,
+  finalY + 12
+);
+
+pdf.text(
+  formatRupiah(transport),
+  178,
+  finalY + 12,
+  {align:"right"}
+);
+
+pdf.text(
+  "Jasa",
+  114,
+  finalY + 20
+);
+
+pdf.text(
+  formatRupiah(jasa),
+  178,
+  finalY + 20,
+  {align:"right"}
+);
+
+pdf.setDrawColor(220);
+
+pdf.line(
+  114,
+  finalY + 24,
+  178,
+  finalY + 24
+);
+
+pdf.setFont("helvetica","bold");
+pdf.setFontSize(16);
+
+pdf.setTextColor(20,120,120);
+
+pdf.text(
+  "TOTAL",
+  114,
+  finalY + 34
+);
+
+pdf.text(
+  formatRupiah(grand),
+  178,
+  finalY + 34,
+  {align:"right"}
+);
+
+pdf.setFont("helvetica","normal");
+pdf.setFontSize(9);
+
+pdf.setTextColor(100);
+
+if(remaining > 0){
 
   pdf.text(
-    "Detail Jenis Perbaikan / Sparepart",
+    "Kurang Bayar : " +
+    formatRupiah(remaining),
+    114,
+    finalY + 42
+  );
+
+}else if(remaining < 0){
+
+  pdf.text(
+    "Kembalian : " +
+    formatRupiah(Math.abs(remaining)),
+    114,
+    finalY + 42
+  );
+
+}else{
+
+  pdf.text(
+    "Pembayaran Lunas",
+    114,
+    finalY + 42
+  );
+
+}
+
+// ================= GARANSI =================
+
+let garansiY = finalY + 58;
+
+drawBox(
+  15,
+  garansiY - 10,
+  175,
+  30
+);
+
+pdf.setFont("helvetica","bold");
+pdf.setFontSize(12);
+
+pdf.setTextColor(20,120,120);
+
+pdf.text(
+  "Masa Garansi",
+  20,
+  garansiY
+);
+
+pdf.setFont("helvetica","normal");
+pdf.setFontSize(10);
+
+pdf.setTextColor(70);
+
+if(currentData.garansi){
+
+  pdf.text(
+    "Berlaku sampai: " +
+    new Date(currentData.garansi)
+      .toLocaleDateString("id-ID"),
     20,
-    141
+    garansiY + 10
   );
 
-  let body = [];
-  let subtotal = 0;
-
-  if(currentData.sparepart){
-
-    try{
-
-      const items = JSON.parse(currentData.sparepart);
-
-      items.forEach(item=>{
-
-        const harga = item.harga || 0;
-        const qty = item.qty || 0;
-
-        subtotal += harga * qty;
-
-        body.push([
-          item.nama || "-",
-          qty,
-          formatRupiah(harga)
-        ]);
-
-      });
-
-    }catch(e){}
-  }
-
-  pdf.autoTable({
-
-    startY: 148,
-
-    margin:{
-      left:20,
-      right:20
-    },
-
-    head:[[
-      "Jenis Perbaikan / Sparepart",
-      "Qty",
-      "Harga"
-    ]],
-
-    body: body,
-
-    theme: "plain",
-
-    styles:{
-      fontSize:10,
-      cellPadding:4,
-      textColor:[60,60,60]
-    },
-
-    headStyles:{
-      fillColor:[235,245,247],
-      textColor:[40,40,40],
-      fontStyle:"bold"
-    },
-
-    alternateRowStyles:{
-      fillColor:[250,250,250]
-    }
-
-  });
-
-  // ================= TABLE BORDER =================
-
-  pdf.setDrawColor(230);
-
-  pdf.roundedRect(
-    15,
-    130,
-    175,
-    (pdf.lastAutoTable.finalY - 130) + 10,
-    4,
-    4
-  );
-  
-  // ================= TOTAL =================
-
-  let finalY = pdf.lastAutoTable.finalY + 15;
-
-  const transport = Number(currentData.transport || 0);
-  const jasa = Number(currentData.jasa || 0);
-  const dibayar = Number(currentData.amount_paid || 0);
-
-  const grand =
-    subtotal +
-    transport +
-    jasa;
-
-  const remaining = grand - dibayar;
-
-  drawBox(118, finalY - 6, 67, 38);
-
-  pdf.setFont("helvetica","normal");
-  pdf.setFontSize(10);
-
-  pdf.setTextColor(90);
-
-  pdf.text("Subtotal", 118, finalY + 4);
-  pdf.text(formatRupiah(subtotal), 165, finalY + 4, {align:"right"});
-
-  pdf.text("Transport", 118, finalY + 12);
-  pdf.text(formatRupiah(transport), 165, finalY + 12, {align:"right"});
-
-  pdf.text("Jasa", 118, finalY + 20);
-  pdf.text(formatRupiah(jasa), 165, finalY + 20, {align:"right"});
-
-  pdf.setDrawColor(220);
-  pdf.line(118, finalY + 24, 182, finalY + 24);
-
-  pdf.setFont("helvetica","bold");
-  pdf.setFontSize(14);
-
-  pdf.setTextColor(20,120,120);
-
-  pdf.text("TOTAL", 118, finalY + 33);
+}else{
 
   pdf.text(
-    formatRupiah(grand),
-    182,
-    finalY + 33,
-    {align:"right"}
-  );
-
-  pdf.setFont("helvetica","normal");
-  pdf.setFontSize(9);
-
-  pdf.setTextColor(100);
-
-  if(remaining > 0){
-
-    pdf.text(
-      "Kurang Bayar : " + formatRupiah(remaining),
-      118,
-      finalY + 40
-    );
-
-  }else if(remaining < 0){
-
-    pdf.text(
-      "Kembalian : " + formatRupiah(Math.abs(remaining)),
-      118,
-      finalY + 40
-    );
-
-  }else{
-
-    pdf.text(
-      "Pembayaran Lunas",
-      118,
-      finalY + 40
-    );
-
-  }
-
-  // ================= GARANSI =================
-
-  let garansiY = finalY + 50;
-
-  drawBox(15, garansiY - 10, 175, 28);
-
-  pdf.setFont("helvetica","bold");
-  pdf.setFontSize(12);
-
-  pdf.setTextColor(20,120,120);
-
-  pdf.text("Masa Garansi", 20, garansiY);
-
-  pdf.setFont("helvetica","normal");
-  pdf.setFontSize(10);
-
-  pdf.setTextColor(70);
-
-  if(currentData.garansi){
-
-    pdf.text(
-      "Berlaku sampai: " +
-      new Date(currentData.garansi)
-        .toLocaleDateString("id-ID"),
-      20,
-      garansiY + 10
-    );
-
-  }else{
-
-    pdf.text(
-      "Menyesuaikan jenis perbaikan",
-      20,
-      garansiY + 10
-    );
-
-  }
-
-  // ================= QR =================
-
-  const qrCanvas = document.querySelector("#qr canvas");
-
-  if(qrCanvas){
-
-    const qrImage = qrCanvas.toDataURL("image/png");
-
-    pdf.addImage(
-      qrImage,
-      "PNG",
-      20,
-      garansiY + 20,
-      26,
-      26
-    );
-
-    pdf.setFontSize(9);
-
-    pdf.text(
-      "Scan untuk Verifikasi",
-      20,
-      garansiY + 43
-    );
-
-  }
-
-  // ================= TTD =================
-
-  pdf.setFont("helvetica","normal");
-  pdf.setFontSize(10);
-
-  pdf.text(
-    "Hormat Kami,",
-    145,
-    garansiY + 28
-  );
-
-  const sigBox = document.getElementById("ttdImg");
-
-  if(sigBox && sigBox.style.backgroundImage){
-
-    const url = sigBox.style.backgroundImage
-      .replace(/^url\(["']?/, '')
-      .replace(/["']?\)$/, '');
-
-    try{
-
-      const img = await loadImage(url);
-
-      pdf.addImage(
-        img,
-        "PNG",
-        135,
-        garansiY + 24,
-        40,
-        18
-      );
-
-    }catch(e){
-      console.log("TTD gagal");
-    }
-
-  }
-
-  pdf.setFont("helvetica","bold");
-
-  pdf.text(
-    document.getElementById("ttdName").textContent,
-    155,
-    garansiY + 48,
-    {align:"center"}
-  );
-
-  // ================= SYARAT GARANSI =================
-
-  let syaratY = garansiY + 50;
-
-  drawBox(15, syaratY - 8, 175, 24);
-
-  pdf.setFont("helvetica","bold");
-  pdf.setFontSize(11);
-
-  pdf.setTextColor(20,120,120);
-
-  pdf.text(
-    "Syarat & Ketentuan Garansi",
+    "Menyesuaikan jenis perbaikan",
     20,
-    syaratY
+    garansiY + 10
   );
 
-  pdf.setFont("helvetica","normal");
-  pdf.setFontSize(9);
+}
 
-  pdf.setTextColor(90);
+// ================= QR =================
 
-  const syarat = [
-    "• Garansi hanya berlaku sesuai jenis perbaikan.",
-    "• Garansi batal jika unit terkena air / benturan.",
-    "• Segel rusak membatalkan garansi.",
-    "• Nota wajib dibawa saat klaim garansi."
-  ];
+const qrCanvas =
+  document.querySelector("#qr canvas");
 
-  pdf.text(
-    syarat,
+if(qrCanvas){
+
+  const qrImage =
+    qrCanvas.toDataURL("image/png");
+
+  pdf.addImage(
+    qrImage,
+    "PNG",
     20,
-    syaratY + 10
+    garansiY + 12,
+    24,
+    24
   );
-
-  // ================= FOOTER =================
-
-  pdf.setFont("helvetica","normal");
 
   pdf.setFontSize(8);
 
-  pdf.setTextColor(140);
-
   pdf.text(
-    "Terima kasih telah menggunakan layanan CEO PART & SERVICE",
-    105,
-    290,
-    {align:"center"}
+    "Scan Verifikasi",
+    20,
+    garansiY + 40
   );
+
+}
+
+// ================= TTD =================
+
+pdf.setFont("helvetica","normal");
+pdf.setFontSize(10);
+
+pdf.text(
+  "Hormat Kami,",
+  145,
+  garansiY + 18
+);
+
+const sigBox =
+  document.getElementById("ttdImg");
+
+if(
+  sigBox &&
+  sigBox.style.backgroundImage
+){
+
+  const url = sigBox.style.backgroundImage
+    .replace(/^url\(["']?/, '')
+    .replace(/["']?\)$/, '');
+
+  try{
+
+    const img = await loadImage(url);
+
+    pdf.addImage(
+      img,
+      "PNG",
+      132,
+      garansiY + 14,
+      42,
+      18
+    );
+
+  }catch(e){
+    console.log("TTD gagal");
+  }
+
+}
+
+pdf.setFont("helvetica","bold");
+
+pdf.text(
+  document.getElementById("ttdName")
+    .textContent,
+  153,
+  garansiY + 38,
+  {align:"center"}
+);
+
+// ================= SYARAT GARANSI =================
+
+let syaratY = garansiY + 48;
+
+drawBox(
+  15,
+  syaratY - 8,
+  175,
+  24
+);
+
+pdf.setFont("helvetica","bold");
+pdf.setFontSize(11);
+
+pdf.setTextColor(20,120,120);
+
+pdf.text(
+  "Syarat & Ketentuan Garansi",
+  20,
+  syaratY
+);
+
+pdf.setFont("helvetica","normal");
+pdf.setFontSize(9);
+
+pdf.setTextColor(90);
+
+const syarat = [
+  "• Garansi hanya berlaku sesuai jenis perbaikan.",
+  "• Garansi batal jika unit terkena air / benturan.",
+  "• Segel rusak membatalkan garansi.",
+  "• Nota wajib dibawa saat klaim garansi."
+];
+
+pdf.text(
+  syarat,
+  20,
+  syaratY + 8
+);
+
+// ================= FOOTER =================
+
+pdf.setFont("helvetica","normal");
+
+pdf.setFontSize(8);
+
+pdf.setTextColor(140);
+
+pdf.text(
+  "Terima kasih telah menggunakan layanan CEO PART & SERVICE",
+  105,
+  288,
+  {align:"center"}
+);
   
   // ================= SAVE =================
 
