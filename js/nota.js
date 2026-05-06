@@ -337,6 +337,11 @@ async function downloadPDF(){
   if(!currentData) return;
 
   const element = document.getElementById("invoice-area");
+  const wm = document.getElementById("watermark");
+  const stamp = document.getElementById("digital-stamp");
+  
+  wm.style.display = "none";
+  stamp.style.display = "none";
 
   // aktifkan mode PDF
   document.body.classList.add("pdf-body");
@@ -369,6 +374,9 @@ async function downloadPDF(){
 
   // reset
   document.body.classList.remove("pdf-body");
+
+  wm.style.display = "";
+  stamp.style.display = "";
 }
 
 /* ================= WHATSAPP ================= */
