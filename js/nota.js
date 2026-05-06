@@ -406,42 +406,55 @@ async function downloadPDF(){
   pdf.setDrawColor(225);
   pdf.line(20, 45, 190, 45);
 
-  // ================= WATERMARK =================
+ // ================= WATERMARK =================
 
-pdf.setFontSize(50);
+pdf.setFont("helvetica","bold");
+pdf.setFontSize(42);
 
-if(currentData.payment_status === "Lunas"){
+pdf.setGState(
+  new pdf.GState({opacity:0.05})
+);
 
-  pdf.setTextColor(0,150,0,0.08);
+if(
+  (currentData.payment_status || "")
+  .toLowerCase()
+  .includes("lunas")
+){
+
+  pdf.setTextColor(0,150,0);
 
   pdf.text(
     "LUNAS",
     105,
-    170,
+    175,
     {
       align:"center",
-      angle: -25
+      angle:-25
     }
   );
 
 }else{
 
-  pdf.setTextColor(220,0,0,0.08);
+  pdf.setTextColor(220,0,0);
 
   pdf.text(
     "BELUM LUNAS",
     105,
-    170,
+    175,
     {
       align:"center",
-      angle: -25
+      angle:-25
     }
   );
 
 }
 
-pdf.setTextColor(40);
+pdf.setGState(
+  new pdf.GState({opacity:1})
+);
 
+pdf.setTextColor(40);
+  
   // ================= INVOICE INFO =================
 
   drawBox(145, 14, 45, 22);
@@ -580,9 +593,6 @@ pdf.text(
 );
 
   // ================= TABLE =================
-
-  drawBox(15, 130, 175, 68);
-
   pdf.setFont("helvetica","bold");
   pdf.setFontSize(13);
 
@@ -658,9 +668,22 @@ pdf.text(
 
   });
 
+  // ================= TABLE BORDER =================
+
+pdf.setDrawColor(230);
+
+pdf.roundedRect(
+  15,
+  130,
+  175,
+  (pdf.lastAutoTable.finalY - 130) + 10,
+  4,
+  4
+);
+  
   // ================= TOTAL =================
 
-  let finalY = pdf.lastAutoTable.finalY + 8;
+  let finalY = pdf.lastAutoTable.finalY + 15;
 
   const transport = Number(currentData.transport || 0);
   const jasa = Number(currentData.jasa || 0);
@@ -673,7 +696,7 @@ pdf.text(
 
   const remaining = grand - dibayar;
 
-  drawBox(110, finalY - 5, 80, 42);
+  drawBox(118, finalY - 6, 67, 38);
 
   pdf.setFont("helvetica","normal");
   pdf.setFontSize(10);
@@ -739,7 +762,7 @@ if(remaining > 0){
 
   // ================= GARANSI =================
 
-let garansiY = finalY + 38;
+let garansiY = finalY + 50;
 
 drawBox(15, garansiY - 10, 175, 28);
 
@@ -787,7 +810,7 @@ if(qrCanvas){
     qrImage,
     "PNG",
     20,
-    garansiY + 14,
+    garansiY + 20,
     26,
     26
   );
@@ -810,7 +833,7 @@ pdf.setFontSize(10);
 pdf.text(
   "Hormat Kami,",
   145,
-  garansiY + 22
+  garansiY + 28
 );
 
 const sigBox = document.getElementById("ttdImg");
@@ -829,7 +852,7 @@ if(sigBox && sigBox.style.backgroundImage){
       img,
       "PNG",
       135,
-      garansiY + 18,
+      garansiY + 24,
       40,
       18
     );
@@ -845,15 +868,15 @@ pdf.setFont("helvetica","bold");
 pdf.text(
   document.getElementById("ttdName").textContent,
   155,
-  garansiY + 42,
+  garansiY + 48,
   {align:"center"}
 );
 
   // ================= SYARAT GARANSI =================
 
-let syaratY = garansiY + 55;
+let syaratY = garansiY + 50;
 
-drawBox(15, syaratY - 8, 175, 28);
+drawBox(15, syaratY - 8, 175, 24);
 
 pdf.setFont("helvetica","bold");
 pdf.setFontSize(11);
@@ -881,9 +904,24 @@ const syarat = [
 pdf.text(
   syarat,
   20,
-  syaratY + 8
+  syaratY + 10
 );
 
+  // ================= FOOTER =================
+
+pdf.setFont("helvetica","normal");
+
+pdf.setFontSize(8);
+
+pdf.setTextColor(140);
+
+pdf.text(
+  "Terima kasih telah menggunakan layanan CEO PART & SERVICE",
+  105,
+  290,
+  {align:"center"}
+);
+  
   // ================= SAVE =================
 
   pdf.save(`Invoice_${currentData.id}.pdf`);
