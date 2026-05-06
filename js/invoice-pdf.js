@@ -1,3 +1,15 @@
+/* =====================================================================
+ * INVOICE PDF GENERATOR — CEO PART & SERVICE
+ * ---------------------------------------------------------------------
+ * Dibutuhkan (sudah ada di nota.html):
+ *   - jsPDF UMD          (window.jspdf.jsPDF)
+ *   - jsPDF AutoTable    (pdf.autoTable)
+ *   - QRCode (canvas di #qr)
+ *
+ * Fungsi utama yang dipanggil dari tombol Download:  downloadPDF()
+ * ===================================================================== */
+\"use strict\";
+
 /* ================= COLOR PALETTE ================= */
 const PDF_COLORS = {
   primary:      [31, 111, 120],   // teal brand
