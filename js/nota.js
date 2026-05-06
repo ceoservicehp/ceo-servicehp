@@ -344,19 +344,9 @@ async function downloadPDF(){
   wm.style.display = "none";
   stamp.style.display = "none";
 
-  // aktifkan mode PDF
   document.body.classList.add("pdf-body");
 
-  // tunggu render stabil
   await new Promise(resolve => setTimeout(resolve, 500));
-
-  const canvas = await html2canvas(element, {
-    scale: 1.5,
-    useCORS: true,
-    backgroundColor: "#ffffff"
-  });
-
-  const imgData = canvas.toDataURL("image/jpeg", 1.0);
 
   const { jsPDF } = window.jspdf;
 
@@ -366,21 +356,30 @@ async function downloadPDF(){
     format: "a4"
   });
 
-  // 🔥 ukuran otomatis proporsional
-  const imgProps = pdf.getImageProperties(imgData);
+  await pdf.html(element, {
 
-  const pdfWidth = 210;
-  const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+    margin: [8,8,8,8],
 
-  pdf.addImage(imgData, "JPEG", 0, 0, pdfWidth, pdfHeight);
+    autoPaging: "text",
 
-  pdf.save(`Invoice_${currentData.id}.pdf`);
+    html2canvas: {
+      scale: 1.2,
+      useCORS: true,
+      backgroundColor: "#ffffff"
+    },
 
-  // reset
-  document.body.classList.remove("pdf-body");
+    callback: function(doc){
 
-  wm.style.display = "";
-  stamp.style.display = "";
+      doc.save(`Invoice_${currentData.id}.pdf`);
+
+      document.body.classList.remove("pdf-body");
+
+      wm.style.display = "";
+      stamp.style.display = "";
+    }
+
+  });
+
 }
 
 /* ================= WHATSAPP ================= */
