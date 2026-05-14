@@ -131,6 +131,20 @@ if(garansiBox && garansiText){
     paymentStatusEl.classList.add("unpaid");
   }
 
+  /* ================= TOGGLE PDF BUTTON ================= */
+
+const pdfBtn = document.getElementById("downloadPdfBtn");
+
+if(pdfBtn){
+
+  if((data.payment_status || "").toLowerCase().includes("lunas")){
+    pdfBtn.style.display = "inline-flex";
+  }else{
+    pdfBtn.style.display = "none";
+  }
+
+}
+
   /* ================= TEMPO ================= */
   if(data.use_top && data.due_date){
     document.getElementById("top-section").style.display = "flex";
