@@ -195,8 +195,8 @@ async function loadFinance(){
     
     if(startDate && endDate){
         incomeQuery = incomeQuery
-            .gte("tanggal_selesai", startDate)
-            .lte("tanggal_selesai", endDate);
+            .gte("tanggal_selesai", startDate + "T00:00:00")
+            .lte("tanggal_selesai", endDate + "T23:59:59");
     }
     
     /* ================= DATA FULL UNTUK SUMMARY ================= */
@@ -210,8 +210,8 @@ const paginatedIncomeQuery = client
 
 if(startDate && endDate){
     paginatedIncomeQuery
-        .gte("tanggal_selesai", startDate)
-        .lte("tanggal_selesai", endDate);
+        .gte("tanggal_selesai", startDate + "T00:00:00")
+        .lte("tanggal_selesai", endDate + "T23:59:59");
 }
 
 const { data:income, count:incomeCount } =
