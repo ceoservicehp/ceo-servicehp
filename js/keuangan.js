@@ -156,15 +156,16 @@ function applyQuickFilter(type){
         start = end = today.toISOString().split("T")[0];
     }
 
-    if(type==="week"){
-        const first = new Date(today);
-        const day = today.getDay();
-        const diff = today.getDate() - day + (day===0?-6:1);
-        first.setDate(diff);
-        start = first.toISOString().split("T")[0];
-        end = today.toISOString().split("T")[0];
-    }
+   if(type==="week"){
+    const first = new Date(today);
+    const day = first.getDay() || 7;
 
+    first.setDate(first.getDate() - day + 1);
+
+    start = first.toISOString().split("T")[0];
+    end = today.toISOString().split("T")[0];
+}
+    
     if(type==="month"){
         const first = new Date(today.getFullYear(), today.getMonth(),1);
         start = first.toISOString().split("T")[0];
@@ -190,12 +191,12 @@ async function loadFinance(){
         .from("service_orders")
         .select("*",{count:"exact"})
         .eq("status","selesai")
-        .order("created_at",{ascending:false});
+        .order("tanggal_selesai",{ascending:false});
     
     if(startDate && endDate){
         incomeQuery = incomeQuery
-            .gte("created_at", startDate + "T00:00:00")
-            .lte("created_at", endDate + "T23:59:59");
+            .gte("tanggal_selesai", startDate)
+            .lte("tanggal_selesai", endDate);
     }
     
     const { data:income, count:incomeCount } = await incomeQuery.range(start,end);
