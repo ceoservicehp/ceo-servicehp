@@ -619,3 +619,66 @@ body.pdf-body *{
   -webkit-print-color-adjust: exact !important;
 }
 
+/* Rekening Modal */
+.rekening-modal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.5);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+}
+
+.rekening-box{
+  background:#fff;
+  width:90%;
+  max-width:360px;
+  border-radius:16px;
+  padding:24px;
+  text-align:center;
+  animation:popup .2s ease;
+}
+
+.bank-name{
+  font-size:18px;
+  font-weight:700;
+  margin-top:10px;
+}
+
+.rekening-number{
+  font-size:24px;
+  font-weight:700;
+  margin:15px 0;
+  letter-spacing:2px;
+}
+
+.copy-btn,
+.close-btn{
+  width:100%;
+  border:none;
+  padding:12px;
+  border-radius:10px;
+  cursor:pointer;
+  margin-top:10px;
+}
+
+.copy-btn{
+  background:#16a34a;
+  color:#fff;
+}
+
+.close-btn{
+  background:#e5e7eb;
+}
+
+@keyframes popup{
+  from{
+    transform:scale(.9);
+    opacity:0;
+  }
+  to{
+    transform:scale(1);
+    opacity:1;
+  }
+}
