@@ -126,12 +126,12 @@ if(paymentMethod){
 
         /* ================= TRANSFER ================= */
         if(paymentMethod.value === "Transfer"){
-            const rekening = "0745388201";
+            const rekening = "5855369360";
 
             paymentInfo.innerHTML = `
                 <div style="background:#f5f5f5;padding:12px;border-radius:8px;">
                     <p><b>Transfer ke:</b></p>
-                    <p>BNI</p>
+                    <p>BCA</p>
                     <p id="rekening-number" style="font-size:16px;font-weight:bold;">
                         ${rekening}
                     </p>
