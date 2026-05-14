@@ -181,10 +181,16 @@
   </div>
 
   <!-- ACTION BUTTON -->
- <div class="actions">
-    <button onclick="downloadPDF()" class="btn-print">
-      <i class="fa-solid fa-file-pdf"></i> Download PDF
-    </button>
+<div class="actions">
+  <button 
+    id="downloadPdfBtn"
+    onclick="downloadPDF()" 
+    class="btn-print"
+    style="display:none;"
+  >
+    <i class="fa-solid fa-file-pdf"></i> Download PDF
+  </button>
+</div>
 
     <!--<button onclick="sendWhatsApp()" class="btn-wa">
       <i class="fa-brands fa-whatsapp"></i> Kirim WhatsApp
