@@ -23,7 +23,7 @@ document.addEventListener("DOMContentLoaded", async ()=>{
     content.classList.toggle("active");
     icon?.classList.toggle("rotate");
   });
-
+ 
   /* ================= LOAD DATA ================= */
   const id = getId();
   if(!id) return;
@@ -131,23 +131,40 @@ if(garansiBox && garansiText){
     paymentStatusEl.classList.add("unpaid");
   }
 
-  /* ================= TOGGLE PDF BUTTON ================= */
+  /* ================= TOGGLE ACTION BUTTON ================= */
 
 const pdfBtn = document.getElementById("downloadPdfBtn");
+const rekeningBtn = document.getElementById("rekeningBtn");
 
-if(pdfBtn){
+const isPaid =
+  (data.payment_status || "")
+    .trim()
+    .toLowerCase() === "lunas";
 
-  const isPaid =
-    (data.payment_status || "")
-      .trim()
-      .toLowerCase() === "lunas";
+if(isPaid){
 
-  pdfBtn.style.display = isPaid
-    ? "inline-flex"
-    : "none";
+  // Jika lunas
+  if(pdfBtn){
+    pdfBtn.style.display = "inline-flex";
+  }
+
+  if(rekeningBtn){
+    rekeningBtn.style.display = "none";
+  }
+
+}else{
+
+  // Jika belum lunas
+  if(pdfBtn){
+    pdfBtn.style.display = "none";
+  }
+
+  if(rekeningBtn){
+    rekeningBtn.style.display = "inline-flex";
+  }
 
 }
-  
+ 
   /* ================= TEMPO ================= */
   if(data.use_top && data.due_date){
     document.getElementById("top-section").style.display = "flex";
@@ -346,6 +363,60 @@ async function loadSignature(){
     sigBox.style.backgroundRepeat = "no-repeat";
     sigBox.style.backgroundPosition = "center";
   }
+}
+
+/* ================= Fungsi Tombol Rekening & Download PDF ================= */
+function showRekening(){
+
+  const rekening = "5855369360";
+
+  const html = `
+    <div id="rekeningModal" class="rekening-modal">
+      <div class="rekening-box">
+
+        <h3>Informasi Pembayaran</h3>
+
+        <p class="bank-name">BANK BCA</p>
+
+        <div class="rekening-number">
+          ${rekening}
+        </div>
+
+        <p>a.n CEO SERVICE HP</p>
+
+        <button class="copy-btn" onclick="copyRekening('${rekening}')">
+          <i class="fa-solid fa-copy"></i>
+          Copy Nomor Rekening
+        </button>
+
+        <button class="close-btn" onclick="closeRekeningModal()">
+          Tutup
+        </button>
+
+      </div>
+    </div>
+  `;
+
+  document.body.insertAdjacentHTML("beforeend", html);
+
+}
+
+function copyRekening(rekening){
+
+  navigator.clipboard.writeText(rekening);
+
+  alert("Nomor rekening berhasil disalin");
+
+}
+
+function closeRekeningModal(){
+
+  const modal = document.getElementById("rekeningModal");
+
+  if(modal){
+    modal.remove();
+  }
+
 }
 
 /* ================= WHATSAPP ================= */
