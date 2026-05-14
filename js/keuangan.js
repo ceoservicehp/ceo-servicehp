@@ -199,7 +199,23 @@ async function loadFinance(){
             .lte("tanggal_selesai", endDate);
     }
     
-    const { data:income, count:incomeCount } = await incomeQuery.range(start,end);
+    /* ================= DATA FULL UNTUK SUMMARY ================= */
+const { data:fullIncome } = await incomeQuery;
+
+const paginatedIncomeQuery = client
+    .from("service_orders")
+    .select("*",{count:"exact"})
+    .eq("status","selesai")
+    .order("tanggal_selesai",{ascending:false});
+
+if(startDate && endDate){
+    paginatedIncomeQuery
+        .gte("tanggal_selesai", startDate)
+        .lte("tanggal_selesai", endDate);
+}
+
+const { data:income, count:incomeCount } =
+    await paginatedIncomeQuery.range(start,end);
     
     let expenseQuery = client
     .from("expenses")
@@ -215,7 +231,25 @@ async function loadFinance(){
             .lte("created_at", endDate + "T23:59:59");
     }
     
-    const { data:expense, count:expenseCount } = await expenseQuery.range(start,end);
+    /* ================= DATA FULL EXPENSE UNTUK SUMMARY ================= */
+const { data:fullExpense } = await expenseQuery;
+
+const paginatedExpenseQuery = client
+    .from("expenses")
+    .select(`
+        *,
+        profiles:honor_user_id(full_name)
+    `,{count:"exact"})
+    .order("created_at",{ascending:false});
+
+if(startDate && endDate){
+    paginatedExpenseQuery
+        .gte("created_at", startDate + "T00:00:00")
+        .lte("created_at", endDate + "T23:59:59");
+}
+
+const { data:expense, count:expenseCount } =
+    await paginatedExpenseQuery.range(start,end);
 
 incomeData = income || [];
 expenseData = expense || [];
@@ -237,8 +271,9 @@ updatePagination();
 renderByTab(incomeData, expenseData);
 
 if(startDate && endDate){
-    updateFinanceCards(incomeData, expenseData);
-}else{
+    updateFinanceCards(fullIncome || [], fullExpense || []);
+}
+else{
     updateFinanceCards(summaryIncomeData, summaryExpenseData);
 }
 }
