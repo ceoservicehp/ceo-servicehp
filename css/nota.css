@@ -321,6 +321,7 @@ flex-wrap:wrap;
 }
 
 .btn-print,
+.btn-pay,
 .btn-wa{
 padding:12px 18px;
 border:none;
@@ -346,6 +347,20 @@ background:#25D366;
 
 .btn-wa:hover{
 background:#1ebe5d;
+}
+
+.btn-pay{
+  background:var(--primary);
+  color:white;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+}
+
+.btn-pay:hover{
+  background:var(--primary-light);
+  transform:translateY(-2px);
 }
 
 /* ================= MOBILE ================= */
@@ -467,6 +482,7 @@ gap:12px;
 }
 
 .btn-print,
+.btn-pay,
 .btn-wa{
 width:100%;
 font-size:14px;
