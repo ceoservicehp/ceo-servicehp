@@ -709,9 +709,16 @@ body.pdf-body *{
 }
 
 .rekening-box p{
-  margin:8px 0;
-  color:#555;
+  margin:10px 0 4px;
   font-size:14px;
+  color:#6b7280;
+  font-weight:500;
+  letter-spacing:.4px;
+}
+
+.rekening-box p strong{
+  color:var(--primary);
+  font-weight:700;
 }
 
 .copy-btn,
