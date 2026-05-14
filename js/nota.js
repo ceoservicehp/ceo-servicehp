@@ -137,14 +137,17 @@ const pdfBtn = document.getElementById("downloadPdfBtn");
 
 if(pdfBtn){
 
-  if((data.payment_status || "").toLowerCase().includes("lunas")){
-    pdfBtn.style.display = "inline-flex";
-  }else{
-    pdfBtn.style.display = "none";
-  }
+  const isPaid =
+    (data.payment_status || "")
+      .trim()
+      .toLowerCase() === "lunas";
+
+  pdfBtn.style.display = isPaid
+    ? "inline-flex"
+    : "none";
 
 }
-
+  
   /* ================= TEMPO ================= */
   if(data.use_top && data.due_date){
     document.getElementById("top-section").style.display = "flex";
