@@ -382,7 +382,9 @@ function showRekening(){
           ${rekening}
         </div>
 
-        <p>a.n IKMAL FALAHI</p>
+        <p>
+          a.n <strong>IKMAL FALAHI</strong>
+        </p>
 
         <button class="copy-btn" onclick="copyRekening('${rekening}')">
           <i class="fa-solid fa-copy"></i>
