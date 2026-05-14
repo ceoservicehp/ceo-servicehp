@@ -182,14 +182,29 @@
 
   <!-- ACTION BUTTON -->
 <div class="actions">
-  <button 
+
+  <!-- Tombol Rekening -->
+  <button
+    id="rekeningBtn"
+    class="btn-pay"
+    onclick="showRekening()"
+    style="display:none;"
+  >
+    <i class="fa-solid fa-building-columns"></i>
+    Lihat Rekening
+  </button>
+
+  <!-- Tombol PDF -->
+  <button
     id="downloadPdfBtn"
-    onclick="downloadPDF()" 
+    onclick="downloadPDF()"
     class="btn-print"
     style="display:none;"
   >
-    <i class="fa-solid fa-file-pdf"></i> Download PDF
+    <i class="fa-solid fa-file-pdf"></i>
+    Download PDF
   </button>
+
 </div>
 
     <!--<button onclick="sendWhatsApp()" class="btn-wa">
