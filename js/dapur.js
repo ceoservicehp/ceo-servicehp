@@ -597,6 +597,8 @@ CEO Part & Service.
 Nama: ${nama}
 Status Service: ${status}
 Status Pembayaran: Silakan cek invoice
+Transfer ke No Rekening BCA
+a.n *Ikmal Falahi* *No. Rek* *5855369360*
 
 ${garansiText}
 *Syarat & Ketentuan Garansi:*
