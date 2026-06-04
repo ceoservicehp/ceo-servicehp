@@ -5,7 +5,13 @@ const client = window.supabaseClient;
 function rupiah(n){
     return "Rp " + Number(n || 0).toLocaleString("id-ID");
 }
+function localDate(date = new Date()) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
 
+    return `${year}-${month}-${day}`;
+}
 /* ================= FORMAT SPAREPART ================= */
 function formatSparepart(sparepartJSON){
 
@@ -40,9 +46,13 @@ function formatSparepart(sparepartJSON){
 let currentTab = "income";
 let incomeData = [];
 let expenseData = [];
+let debtData = [];
 
 let summaryIncomeData = [];
 let summaryExpenseData = [];
+
+let filteredIncomeData = [];
+let filteredExpenseData = [];
 
 let currentPage = 1;
 let pageSize = 10;
@@ -153,7 +163,7 @@ function applyQuickFilter(type){
     let start, end;
 
     if(type==="today"){
-        start = end = today.toISOString().split("T")[0];
+        start = end = localDate(today);
     }
 
    if(type==="week"){
@@ -162,14 +172,15 @@ function applyQuickFilter(type){
 
     first.setDate(first.getDate() - day + 1);
 
-    start = first.toISOString().split("T")[0];
-    end = today.toISOString().split("T")[0];
+    start = localDate(first);
+    end = localDate(today);
 }
     
     if(type==="month"){
-        const first = new Date(today.getFullYear(), today.getMonth(),1);
-        start = first.toISOString().split("T")[0];
-        end = today.toISOString().split("T")[0];
+        const first = new Date(today.getFullYear(), today.getMonth(), 1);
+
+        start = localDate(first);
+        end = localDate(today);
     }
 
     document.getElementById("startDate").value = start;
@@ -201,7 +212,7 @@ async function loadFinance(){
     
     /* ================= DATA FULL UNTUK SUMMARY ================= */
 const { data:fullIncome } = await incomeQuery;
-
+filteredIncomeData = fullIncome || [];
 const paginatedIncomeQuery = client
     .from("service_orders")
     .select("*",{count:"exact"})
@@ -233,7 +244,7 @@ const { data:income, count:incomeCount } =
     
     /* ================= DATA FULL EXPENSE UNTUK SUMMARY ================= */
 const { data:fullExpense } = await expenseQuery;
-
+filteredExpenseData = fullExpense || [];
 const paginatedExpenseQuery = client
     .from("expenses")
     .select(`
@@ -261,7 +272,19 @@ else if(currentTab === "expense"){
     totalRows = expenseCount;
 }
 else if(currentTab === "debt"){
-    totalRows = incomeCount;
+
+    const allDebt = (fullIncome || []).filter(
+        row => Number(row.remaining_amount || 0) > 0
+    );
+
+    debtData = allDebt;
+
+    totalRows = allDebt.length;
+
+    incomeData = allDebt.slice(
+        start,
+        start + pageSize
+    );
 }
 
 const totalPages = Math.ceil(totalRows / pageSize);
@@ -556,7 +579,7 @@ function renderByTab(income = incomeData, expense = expenseData){
         tbody.innerHTML = "";
 
 /* ambil data yang masih ada sisa pembayaran */
-        const debt = income.filter(row => (row.remaining_amount || 0) > 0);
+        const debt = income;
         
         if(debt.length === 0){
             tbody.innerHTML = `<tr><td colspan="11">Tidak ada piutang</td></tr>`;
@@ -890,8 +913,13 @@ function exportToCSV(){
     
     const isFilterActive = start && end;
 
-    const exportIncome = isFilterActive ? incomeData : summaryIncomeData;
-    const exportExpense = isFilterActive ? expenseData : summaryExpenseData;;
+const exportIncome = isFilterActive
+    ? filteredIncomeData
+    : summaryIncomeData;
+
+const exportExpense = isFilterActive
+    ? filteredExpenseData
+    : summaryExpenseData;
 
     let rows = [];
     let fileName = "laporan_keuangan.csv";
@@ -913,25 +941,33 @@ function exportToCSV(){
             "Total"
         ]);
 
-        exportIncome.forEach((o,i)=>{
-            rows.push([
-                i+1,
-                o.nama,
-                o.alamat,
-                o.metode,
-                new Date(o.created_at).toLocaleDateString("id-ID"),
-                o.status,
-                o.tanggal_selesai
-                    ? new Date(o.tanggal_selesai).toLocaleDateString("id-ID")
-                    : "-",
-                formatSparepartCSV(o.sparepart),
-                o.amount_paid,
-                o.kembalian,
-                o.remaining_amount,
-                o.total
-            ]);
-        });
+       exportIncome.forEach((o,i)=>{
 
+        const total = Number(o.total || 0);
+        const dibayar = Number(o.amount_paid || 0);
+    
+        const kembalian =
+            dibayar > total
+                ? dibayar - total
+                : 0;
+    
+        rows.push([
+            i+1,
+            o.nama,
+            o.alamat,
+            o.metode,
+            new Date(o.created_at).toLocaleDateString("id-ID"),
+            o.status,
+            o.tanggal_selesai
+                ? new Date(o.tanggal_selesai).toLocaleDateString("id-ID")
+                : "-",
+            formatSparepartCSV(o.sparepart),
+            dibayar,
+            kembalian,
+            o.remaining_amount,
+            total
+        ]);
+    });
         fileName = "laporan_pemasukan.csv";
     }
 
@@ -980,9 +1016,14 @@ function exportToCSV(){
         "Total"
     ]);
 
-    const debt = exportIncome.filter(o => (o.remaining_amount || 0) > 0);
-
-    debt.forEach((o,i)=>{
+    const debtData = (isFilterActive
+    ? filteredIncomeData
+    : summaryIncomeData
+    ).filter(
+        o => Number(o.remaining_amount || 0) > 0
+    );
+    
+    debtData.forEach((o,i)=>{
         rows.push([
             i+1,
             o.nama,
