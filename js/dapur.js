@@ -722,6 +722,11 @@ function initUI(){
         document.getElementById("edit-brand").value=data.brand ?? "";
         document.getElementById("edit-problem").value=data.problem ?? "";
         document.getElementById("edit-metode").value=data.metode ?? "";
+        document.getElementById("edit-ekspedisi").value =
+        data.ekspedisi ?? "";
+    
+        document.getElementById("edit-resi").value =
+        data.resi ?? "";
         // reset dulu
             selectedParts = [];
 
@@ -911,6 +916,8 @@ const { error } = await client
       brand: document.getElementById("edit-brand").value,
       problem: document.getElementById("edit-problem").value,
       metode: document.getElementById("edit-metode").value,
+      ekspedisi: document.getElementById("edit-ekspedisi").value || null,
+      resi: document.getElementById("edit-resi").value || null,
       sparepart: JSON.stringify(selectedParts),
       total_sparepart: spare,
       transport: transport,
