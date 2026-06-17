@@ -63,6 +63,38 @@ document.getElementById("filterCategory")
     resiSection = document.getElementById("resi-section");
     resiInput = document.getElementById("customer-resi");
     ekspedisiInput = document.getElementById("customer-ekspedisi");
+    const labelResi = document.getElementById("label-resi");
+    if(ekspedisiInput && labelResi){
+    
+        ekspedisiInput.addEventListener("change", ()=>{
+            const ojol = [
+                "Gojek",
+                "Grab",
+                "Maxim",
+                "Lalamove"
+            ];
+    
+            if(ojol.includes(ekspedisiInput.value)){
+    
+                labelResi.textContent =
+                    "Nomor Order / Nama Driver";
+    
+                resiInput.placeholder =
+                    "Masukkan nomor order atau nama driver";
+    
+            }else{
+    
+                labelResi.textContent =
+                    "Nomor Resi Pengiriman";
+    
+                resiInput.placeholder =
+                    "Masukkan nomor resi";
+    
+            }
+    
+        });
+    
+    }
 
     sparepartPriceEl = document.getElementById("sparepart-price");
     transportPriceEl = document.getElementById("transport-price");
@@ -585,13 +617,25 @@ document.getElementById("checkout").onclick = async () => {
         }
     
         if(!resiInput.value.trim()){
-            window.sending=false;
-            btn.disabled=false;
-            btn.textContent="Kirim Permintaan Service";
-            return alert("Nomor resi wajib diisi");
+
+        window.sending = false;
+        btn.disabled = false;
+        btn.textContent = "Kirim Permintaan Service";
+    
+        const ojol = [
+            "Gojek",
+            "Grab",
+            "Maxim",
+            "Lalamove"
+        ];
+    
+        if(ojol.includes(ekspedisiInput.value)){
+            return alert("Nomor order atau nama driver wajib diisi");
+        }
+    
+        return alert("Nomor resi wajib diisi");
         }
     }
-
     let spareList="Tidak ada";
     const keys=Object.keys(spareparts);
     if(keys.length){
@@ -693,8 +737,22 @@ try {
     }
     
     if (method === "Kirim Paket" && ekspedisiInput && resiInput) {
-    msg += `Ekspedisi: ${ekspedisiInput.value}\n`;
-    msg += `Nomor Resi: ${resiInput.value.trim()}\n`;
+
+    const ojol = [
+        "Gojek",
+        "Grab",
+        "Maxim",
+        "Lalamove"
+    ];
+
+    if(ojol.includes(ekspedisiInput.value)){
+        msg += `Kurir Ojol: ${ekspedisiInput.value}\n`;
+        msg += `Nomor Order/Driver: ${resiInput.value.trim()}\n`;
+    }else{
+        msg += `Ekspedisi: ${ekspedisiInput.value}\n`;
+        msg += `Nomor Resi: ${resiInput.value.trim()}\n`;
+    }
+
     msg += `Pengiriman ke alamat toko\n`;
     }
     
