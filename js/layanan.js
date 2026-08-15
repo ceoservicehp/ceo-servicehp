@@ -590,7 +590,7 @@ document.getElementById("checkout").onclick = async () => {
     const alamat=document.getElementById("customer-address").value.trim();
     const phone=document.getElementById("customer-phone").value.trim();
     const kategori = document.getElementById("device-category").value;
-    const model = document.getElementById("customer-model").value.trim();
+    const model = document.getElementById("device-model").value.trim();
     const problem=document.getElementById("customer-problem").value.trim();
     const method=metode.value;
     const file=document.getElementById("payment-proof")?.files[0];
