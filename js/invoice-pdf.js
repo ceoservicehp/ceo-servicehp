@@ -160,7 +160,7 @@ function pdfDrawInfoCards(pdf, y, data, isPaid) {
   const rightX = m + cardW + gap;
 
   const padX = 4.5;
-  const labelW = 22;
+  const labelW = 34;
   const rowGap = 5.8;        // jarak antar baris (compact)
   const titleOffset = 14;    // posisi baris pertama dari atas card
 
@@ -171,9 +171,9 @@ function pdfDrawInfoCards(pdf, y, data, isPaid) {
     data.alamat || "-",
     cardW - padX * 2 - labelW
   ).length;
-  // 5 row tetap: Nama, No HP, Alamat, Merk HP, Metode
-  const leftContentH = titleOffset + (5 * rowGap) +
-                       Math.max(0, (alamatLines - 1) * 3.2);
+  // 6 row: Nama, No HP, Alamat, Kategori Perangkat, Tipe / Model, Metode
+const leftContentH = titleOffset + (6 * rowGap) +
+                     Math.max(0, (alamatLines - 1) * 3.2);
 
   // ---- Tinggi dinamis: card kanan (Service) ----
   let serviceRows = 4; // Status + Tgl Masuk + Tgl Selesai + Bayar
@@ -227,7 +227,8 @@ function pdfDrawInfoCards(pdf, y, data, isPaid) {
     ["Nama",    data.nama],
     ["No HP",   data.phone],
     ["Alamat",  data.alamat],
-    ["Merk HP", data.brand],
+    ["Kategori Perangkat", data.kategori_perangkat],
+    ["Tipe / Model", data.tipe_model],
     ["Metode",  data.metode]
   ];
   custFields.forEach(([label, val]) => {
