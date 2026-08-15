@@ -71,8 +71,19 @@
 <label>No HP</label>
 <input type="tel" id="customer-phone">
 
-<label>Merk HP</label>
-<input type="text" id="customer-brand">
+<label>Kategori Perangkat</label>
+<select id="device-category">
+  <option value="">Pilih Kategori Perangkat</option>
+  <option value="LAPTOP">LAPTOP</option>
+  <option value="HANDPHONE">HANDPHONE</option>
+</select>
+
+<label>Tipe/Model Perangkat</label>
+<input 
+  type="text" 
+  id="device-model"
+  placeholder="Contoh: iPhone 16 ProMax / ASUS Vivobook 14"
+>
 
 <label>Keluhan</label>
 <textarea id="customer-problem"></textarea>
