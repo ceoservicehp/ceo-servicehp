@@ -589,12 +589,13 @@ document.getElementById("checkout").onclick = async () => {
     const nama=document.getElementById("customer-name").value.trim();
     const alamat=document.getElementById("customer-address").value.trim();
     const phone=document.getElementById("customer-phone").value.trim();
-    const brand=document.getElementById("customer-brand").value.trim();
+    const kategori = document.getElementById("device-category").value;
+    const model = document.getElementById("customer-model").value.trim();
     const problem=document.getElementById("customer-problem").value.trim();
     const method=metode.value;
     const file=document.getElementById("payment-proof")?.files[0];
 
-    if(!nama||!alamat||!phone||!brand||!problem||!method){
+    if(!nama || !alamat || !phone || !kategori || !model || !problem || !method){
         window.sending=false;
         btn.disabled=false;
         btn.textContent="Kirim Permintaan Service";
@@ -686,7 +687,8 @@ try {
         nama,
         alamat,
         phone,
-        brand,
+        kategori_perangkat: kategori,
+        tipe_model: model,
         problem,
         metode: method,
         ekspedisi: method==="Kirim Paket" ? ekspedisiInput.value : null,
@@ -727,7 +729,8 @@ try {
     msg += `=====================\n`;
     msg += `Nama: ${nama}\n`;
     msg += `No HP: ${phone}\n`;
-    msg += `Merk Hp: ${brand}\n`;
+    msg += `Kategori Perangkat: ${kategori}\n`;
+    msg += `Tipe/Model Perangkat: ${model}\n`;
     msg += `Keluhan: ${problem}\n`;
     msg += `Metode Service: ${method}\n`;
     
