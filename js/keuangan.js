@@ -272,16 +272,21 @@ let laptopQuery = client
     .from("service_orders")
     .select("*", { count: "exact" })
     .eq("kategori_perangkat", "LAPTOP")
-    .order("created_at", { ascending: false });
+    .eq("status", "selesai")
+    .order("tanggal_selesai", { ascending: false });
 
 if(startDate && endDate){
     laptopQuery = laptopQuery
-        .gte("created_at", startDate + "T00:00:00")
-        .lte("created_at", endDate + "T23:59:59");
+        .gte("tanggal_selesai", startDate + "T00:00:00")
+        .lte("tanggal_selesai", endDate + "T23:59:59");
 }
 
-const { data: laptop, count: laptopCount } =
+const { data: laptop, count: laptopCount, error: laptopError } =
     await laptopQuery.range(start, end);
+
+if(laptopError){
+    console.error("Gagal mengambil data laptop:", laptopError);
+}
 
 laptopData = laptop || [];
     
@@ -658,6 +663,90 @@ function renderByTab(income = incomeData, expense = expenseData, laptop = laptop
     });
 }
 
+/* ================= LAPTOP ================= */
+else if(currentTab === "laptop"){
+
+    if(laptopWrapper) laptopWrapper.style.display = "block";
+
+    const tbody = document.getElementById("laptopTable");
+
+    if(!tbody) return;
+
+    tbody.innerHTML = "";
+
+    if(laptop.length === 0){
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="13">
+                    Tidak ada service laptop
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
+    laptop.forEach((row, i)=>{
+
+        const total = Number(row.total || 0);
+        const dibayar = Number(row.amount_paid || 0);
+        const sisa = Number(row.remaining_amount || 0);
+
+        const sparepartList = formatSparepart(row.sparepart);
+
+        tbody.innerHTML += `
+        <tr>
+
+            <td>${(currentPage - 1) * pageSize + i + 1}</td>
+
+            <td>${row.nama || "-"}</td>
+
+            <td>${row.phone || "-"}</td>
+
+            <td>${row.alamat || "-"}</td>
+
+            <td>${row.kategori_perangkat || "-"}</td>
+
+            <td>${row.tipe_model || "-"}</td>
+
+            <td>
+                ${
+                    row.created_at
+                    ? new Date(row.created_at)
+                        .toLocaleDateString("id-ID")
+                    : "-"
+                }
+            </td>
+
+            <td>${row.status || "-"}</td>
+
+            <td>
+                ${
+                    row.tanggal_selesai
+                    ? new Date(row.tanggal_selesai)
+                        .toLocaleDateString("id-ID")
+                    : "-"
+                }
+            </td>
+
+            <td>${sparepartList}</td>
+
+            <td style="color:#27ae60;font-weight:600;">
+                ${rupiah(dibayar)}
+            </td>
+
+            <td style="color:#e74c3c;font-weight:600;">
+                ${rupiah(sisa)}
+            </td>
+
+            <td style="font-weight:600;">
+                ${rupiah(total)}
+            </td>
+
+        </tr>
+        `;
+    });
+}
+    
 }
 
 async function loadExpenseCategories(){
@@ -699,81 +788,6 @@ async function loadHonorUsers(){
             <option value="${user.id}">
                 ${user.full_name} (${user.position || "-"})
             </option>
-        `;
-    });
-}
-
-/* ================= LAPTOP ================= */
-else if(currentTab === "laptop"){
-
-    if(laptopWrapper) laptopWrapper.style.display = "block";
-
-    const tbody = document.getElementById("laptopTable");
-
-    if(!tbody) return;
-
-    tbody.innerHTML = "";
-
-    if(laptop.length === 0){
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="13">
-                    Tidak ada service laptop
-                </td>
-            </tr>
-        `;
-        return;
-    }
-
-    laptop.forEach((row, i)=>{
-
-        const total = Number(row.total || 0);
-        const dibayar = Number(row.amount_paid || 0);
-        const sisa = Number(row.remaining_amount || 0);
-
-        const sparepartList = formatSparepart(row.sparepart);
-
-        tbody.innerHTML += `
-        <tr>
-
-            <td>${(currentPage - 1) * pageSize + i + 1}</td>
-            <td>${row.nama || "-"}</td>
-            <td>${row.phone || "-"}</td>
-            <td>${row.alamat || "-"}</td>
-            <td>${row.kategori_perangkat || "-"}</td>
-            <td>${row.tipe_model || "-"}</td>
-
-            <td>
-                ${row.created_at
-                    ? new Date(row.created_at).toLocaleDateString("id-ID")
-                    : "-"
-                }
-            </td>
-
-            <td>${row.status || "-"}</td>
-
-            <td>
-                ${row.tanggal_selesai
-                    ? new Date(row.tanggal_selesai).toLocaleDateString("id-ID")
-                    : "-"
-                }
-            </td>
-
-            <td>${sparepartList}</td>
-
-            <td style="color:#27ae60;font-weight:600;">
-                ${rupiah(dibayar)}
-            </td>
-
-            <td style="color:#e74c3c;font-weight:600;">
-                ${rupiah(sisa)}
-            </td>
-
-            <td style="font-weight:600;">
-                ${rupiah(total)}
-            </td>
-
-        </tr>
         `;
     });
 }
