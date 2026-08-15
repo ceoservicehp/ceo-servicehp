@@ -326,7 +326,7 @@ if(startDate && endDate){
 else{
     updateFinanceCards(summaryIncomeData, summaryExpenseData);
 }
-
+} // ← TAMBAHKAN INI
 /* ================= LOAD SUMMARY (UNTUK CARD) ================= */
 async function loadSummaryData(){
 
