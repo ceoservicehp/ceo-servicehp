@@ -719,7 +719,8 @@ function initUI(){
         document.getElementById("edit-nama").value=data.nama ?? "";
         document.getElementById("edit-phone").value=data.phone ?? "";
         document.getElementById("edit-alamat").value=data.alamat ?? "";
-        document.getElementById("edit-brand").value=data.brand ?? "";
+        document.getElementById("edit-kategori-perangkat").value=data.kategori_perangkat ?? "";
+        document.getElementById("edit-tipe-model").value=data.tipe_model ?? "";
         document.getElementById("edit-problem").value=data.problem ?? "";
         document.getElementById("edit-metode").value=data.metode ?? "";
         document.getElementById("edit-ekspedisi").value =
@@ -913,7 +914,8 @@ const { error } = await client
       nama: document.getElementById("edit-nama").value,
       phone: document.getElementById("edit-phone").value,
       alamat: document.getElementById("edit-alamat").value,
-      brand: document.getElementById("edit-brand").value,
+      kategori_perangkat: document.getElementById("edit-kategori-perangkat").value || null,
+      tipe_model: document.getElementById("edit-tipe-model").value || null,
       problem: document.getElementById("edit-problem").value,
       metode: document.getElementById("edit-metode").value,
       ekspedisi: document.getElementById("edit-ekspedisi").value || null,
@@ -1209,7 +1211,3 @@ document.addEventListener("DOMContentLoaded", function(){
   });
 
 });
-
-
-
-
