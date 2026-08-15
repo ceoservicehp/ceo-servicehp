@@ -298,14 +298,13 @@ else if(currentTab === "debt"){
     );
 
     debtData = allDebt;
-
     totalRows = allDebt.length;
-
     incomeData = allDebt.slice(
         start,
         start + pageSize
     );
 }
+    
 else if(currentTab === "laptop"){
     totalRows = laptopCount;
 }
@@ -321,7 +320,6 @@ if(startDate && endDate){
 }
 else{
     updateFinanceCards(summaryIncomeData, summaryExpenseData);
-}
 }
 
 /* ================= LOAD SUMMARY (UNTUK CARD) ================= */
