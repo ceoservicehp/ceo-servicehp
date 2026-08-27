@@ -1071,16 +1071,67 @@ document.addEventListener("click",async e=>{
 });
 
 /* ================= UPDATE STATUS ================= */
-document.addEventListener("change",async e=>{
+document.addEventListener("change", async e => {
+
     if(!e.target.classList.contains("status-select")) return;
 
-    const id=e.target.dataset.id;
-    const val=e.target.value;
+    const id = e.target.dataset.id;
+    const val = e.target.value;
 
-    await client
-        .from("service_orders")       
-        .update({status:val})
-        .eq("id",id);
+    /*
+     * Ambil data service yang sedang diubah
+     */
+    const existingData = allOrders.find(o => o.id == id);
+
+    if(!existingData){
+        console.error("Data service tidak ditemukan:", id);
+        return;
+    }
+
+    /*
+     * Default:
+     * pertahankan tanggal selesai yang sudah ada
+     */
+    let tanggalSelesai = existingData.tanggal_selesai || null;
+
+    /*
+     * Jika status BARU berubah menjadi selesai
+     * dan sebelumnya belum pernah selesai,
+     * simpan waktu saat status diubah.
+     */
+    if(val === "selesai" && !tanggalSelesai){
+        tanggalSelesai = new Date().toISOString();
+    }
+
+    /*
+     * Jika status dikembalikan dari selesai ke status lain,
+     * tanggal selesai dikosongkan.
+     *
+     * Kalau kita ingin tanggal selesai tetap tersimpan sebagai
+     * riwayat terakhir, bagian ini nanti bisa kita ubah.
+     */
+    if(val !== "selesai"){
+        tanggalSelesai = null;
+    }
+
+    const { error } = await client
+        .from("service_orders")
+        .update({
+            status: val,
+            tanggal_selesai: tanggalSelesai
+        })
+        .eq("id", id);
+
+    if(error){
+        console.error("Gagal update status:", error);
+        alert("Gagal mengubah status service.");
+        return;
+    }
+
+    /*
+     * Refresh tabel agar tanggal selesai langsung terlihat.
+     */
+    await loadOrders();
 });
 
 /* ================= SEARCH ================= */
