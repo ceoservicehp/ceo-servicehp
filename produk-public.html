@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Produk — CEO Part & Service</title>
+    <meta
+        name="description"
+        content="Temukan sparepart, aksesoris, dan produk pilihan dari CEO Part & Service."
+    >
+
+    <link rel="icon" href="images/logo.png">
+
+    <!-- Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
+
+    <!-- Font Awesome -->
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    >
+
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase.js"></script>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/produk-public.css">
+</head>
+
+<body>
+
+<!-- =========================
+     HEADER
+========================= -->
+<header class="public-header">
+
+    <div class="header-inner">
+
+        <a href="index.html" class="brand">
+            <img src="images/logo.png" alt="CEO Part & Service">
+
+            <div class="brand-text">
+                <strong>CEO PART & SERVICE</strong>
+                <span>CELLULAR ENGINEERING OFFICER</span>
+            </div>
+        </a>
+
+        <button
+            class="mobile-menu-btn"
+            id="mobileMenuBtn"
+            type="button"
+            aria-label="Buka menu"
+        >
+            <i class="fa-solid fa-bars"></i>
+        </button>
+
+        <nav class="main-nav" id="mainNav">
+
+            <a href="index.html">
+                <i class="fa-solid fa-house"></i>
+                <span>Beranda</span>
+            </a>
+
+            <a href="layanan.html">
+                <i class="fa-solid fa-screwdriver-wrench"></i>
+                <span>Service</span>
+            </a>
+
+            <a href="ceo_status.html">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <span>Status Service</span>
+            </a>
+
+            <a href="produk-public.html" class="active">
+                <i class="fa-solid fa-box-open"></i>
+                <span>Produk</span>
+            </a>
+
+        </nav>
+
+    </div>
+
+</header>
+
+
+<!-- =========================
+     HERO
+========================= -->
+<section class="product-hero">
+
+    <div class="hero-content">
+
+        <div class="hero-badge">
+            <i class="fa-solid fa-store"></i>
+            Produk CEO Part & Service
+        </div>
+
+        <h1>
+            Temukan Produk &amp;
+            <span>Sparepart Pilihan</span>
+        </h1>
+
+        <p>
+            Berbagai kebutuhan smartphone, laptop, sparepart,
+            aksesoris, dan produk lainnya tersedia di CEO Part & Service.
+        </p>
+
+        <a href="#produkSection" class="hero-button">
+            <i class="fa-solid fa-bag-shopping"></i>
+            Lihat Produk
+        </a>
+
+    </div>
+
+</section>
+
+
+<!-- =========================
+     PRODUCT SECTION
+========================= -->
+<main class="product-section" id="produkSection">
+
+    <div class="section-heading">
+
+        <div>
+            <span class="section-label">
+                <i class="fa-solid fa-box"></i>
+                Katalog Produk
+            </span>
+
+            <h2>Produk Kami</h2>
+
+            <p>
+                Pilih produk yang Anda butuhkan dan pesan langsung melalui WhatsApp.
+            </p>
+        </div>
+
+    </div>
+
+
+    <!-- FILTER -->
+    <div class="product-toolbar">
+
+        <div class="search-box">
+
+            <i class="fa-solid fa-magnifying-glass"></i>
+
+            <input
+                type="search"
+                id="searchProduct"
+                placeholder="Cari produk..."
+                autocomplete="off"
+            >
+
+        </div>
+
+
+        <div class="category-wrapper">
+
+            <select id="categoryFilter">
+                <option value="all">Semua Kategori</option>
+            </select>
+
+        </div>
+
+
+        <div class="sort-wrapper">
+
+            <select id="sortProduct">
+
+                <option value="newest">
+                    Terbaru
+                </option>
+
+                <option value="name-asc">
+                    Nama A-Z
+                </option>
+
+                <option value="price-low">
+                    Harga Terendah
+                </option>
+
+                <option value="price-high">
+                    Harga Tertinggi
+                </option>
+
+            </select>
+
+        </div>
+
+    </div>
+
+
+    <!-- LOADING -->
+    <div class="product-loading" id="productLoading">
+
+        <div class="loading-spinner"></div>
+
+        <p>Memuat produk...</p>
+
+    </div>
+
+
+    <!-- PRODUCT GRID -->
+    <div
+        class="product-grid"
+        id="productGrid"
+        aria-live="polite"
+    ></div>
+
+
+    <!-- EMPTY -->
+    <div class="product-empty" id="productEmpty">
+
+        <div class="empty-icon">
+            <i class="fa-solid fa-box-open"></i>
+        </div>
+
+        <h3>Produk tidak ditemukan</h3>
+
+        <p>
+            Coba gunakan kata pencarian atau kategori yang berbeda.
+        </p>
+
+    </div>
+
+</main>
+
+
+<!-- =========================
+     PRODUCT DETAIL MODAL
+========================= -->
+<div
+    class="product-modal"
+    id="productModal"
+    aria-hidden="true"
+>
+
+    <div class="modal-overlay" id="modalOverlay"></div>
+
+    <div class="modal-card">
+
+        <button
+            class="modal-close"
+            id="modalClose"
+            type="button"
+            aria-label="Tutup"
+        >
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+
+
+        <div class="modal-image-wrapper">
+
+            <img
+                id="modalImage"
+                src=""
+                alt="Produk"
+            >
+
+        </div>
+
+
+        <div class="modal-content">
+
+            <span
+                class="modal-category"
+                id="modalCategory"
+            >
+                Produk
+            </span>
+
+            <h2 id="modalName">
+                Nama Produk
+            </h2>
+
+            <div
+                class="modal-price"
+                id="modalPrice"
+            >
+                Rp 0
+            </div>
+
+            <div
+                class="modal-stock"
+                id="modalStock"
+            >
+                Stok tersedia
+            </div>
+
+            <div
+                class="modal-description"
+                id="modalDescription"
+            ></div>
+
+
+            <!-- QUANTITY -->
+            <div class="quantity-area">
+
+                <span>Jumlah</span>
+
+                <div class="quantity-control">
+
+                    <button
+                        type="button"
+                        id="qtyMinus"
+                    >
+                        <i class="fa-solid fa-minus"></i>
+                    </button>
+
+                    <input
+                        type="number"
+                        id="productQty"
+                        value="1"
+                        min="1"
+                        max="1"
+                    >
+
+                    <button
+                        type="button"
+                        id="qtyPlus"
+                    >
+                        <i class="fa-solid fa-plus"></i>
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- TOTAL -->
+            <div class="modal-total">
+
+                <span>Total</span>
+
+                <strong id="modalTotal">
+                    Rp 0
+                </strong>
+
+            </div>
+
+
+            <button
+                type="button"
+                class="whatsapp-order-btn"
+                id="whatsappOrderBtn"
+            >
+                <i class="fa-brands fa-whatsapp"></i>
+                Pesan via WhatsApp
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================
+     FOOTER
+========================= -->
+<footer class="public-footer">
+
+    <div class="footer-inner">
+
+        <div class="footer-brand">
+
+            <img src="images/logo.png" alt="CEO Part & Service">
+
+            <div>
+                <strong>CEO PART & SERVICE</strong>
+
+                <p>
+                    Cellular Engineering Officer
+                </p>
+            </div>
+
+        </div>
+
+
+        <div class="footer-links">
+
+            <a href="index.html">
+                Beranda
+            </a>
+
+            <a href="layanan.html">
+                Service
+            </a>
+
+            <a href="ceo_status.html">
+                Status Service
+            </a>
+
+            <a href="produk-public.html">
+                Produk
+            </a>
+
+        </div>
+
+
+        <div class="footer-copy">
+
+            <p>
+                © <span id="footerYear"></span>
+                CEO Part & Service.
+                All Rights Reserved.
+            </p>
+
+        </div>
+
+    </div>
+
+</footer>
+
+
+<!-- JS -->
+<script src="js/produk-public.js" defer></script>
+
+</body>
+</html>
