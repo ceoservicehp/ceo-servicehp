@@ -20,6 +20,11 @@ let currentModalIndex = 0;
 let isSaving = false;
 let isImporting = false;
 
+/* VARIANT STATE */
+let currentVariantProduct = null;
+let currentVariants = [];
+let isSavingVariant = false;
+
 
 /* =========================================================
    HELPERS
@@ -308,6 +313,55 @@ function setupEvents() {
                 }
 
             }
+        );
+
+
+    /* VARIANT MODAL */
+    document
+        .getElementById("variantModalClose")
+        ?.addEventListener(
+            "click",
+            closeVariantModal
+        );
+
+
+    document
+        .getElementById("variantModal")
+        ?.addEventListener(
+            "click",
+            event => {
+
+                if (
+                    event.target.id ===
+                    "variantModal"
+                ) {
+                    closeVariantModal();
+                }
+            }
+        );
+
+
+    document
+        .getElementById("saveVariantBtn")
+        ?.addEventListener(
+            "click",
+            saveVariant
+        );
+
+
+    document
+        .getElementById("cancelVariantEditBtn")
+        ?.addEventListener(
+            "click",
+            resetVariantForm
+        );
+
+
+    document
+        .getElementById("refreshVariantsBtn")
+        ?.addEventListener(
+            "click",
+            loadVariants
         );
 
 
@@ -962,6 +1016,16 @@ function createProductTableRow(
 
                 <button
                     type="button"
+                    class="btn-variant"
+                    title="Kelola varian produk"
+                    aria-label="Kelola varian produk"
+                >
+                    <i class="fa-solid fa-layer-group"></i>
+                </button>
+
+
+                <button
+                    type="button"
                     class="btn-edit"
                     title="Edit produk"
                     aria-label="Edit produk"
@@ -1005,6 +1069,15 @@ function createProductTableRow(
             }
         );
     }
+
+
+    /* VARIANT */
+    row.querySelector(
+        ".btn-variant"
+    )?.addEventListener(
+        "click",
+        () => openVariantModal(product)
+    );
 
 
     /* EDIT */
@@ -1597,6 +1670,23 @@ function showNextImage() {
 ========================================================= */
 
 function handleGlobalKeyboard(event) {
+
+    const variantModal =
+        document.getElementById(
+            "variantModal"
+        );
+
+
+    if (
+        event.key === "Escape" &&
+        variantModal?.classList.contains(
+            "active"
+        )
+    ) {
+        closeVariantModal();
+        return;
+    }
+
 
     const modal =
         document.getElementById(
@@ -3271,6 +3361,1097 @@ async function importProducts() {
                 `;
         }
     }
+}
+
+
+/* =========================================================
+   PRODUCT VARIANTS
+========================================================= */
+
+function openVariantModal(product) {
+
+    if (!product?.id) {
+        return;
+    }
+
+
+    currentVariantProduct = product;
+    currentVariants = [];
+
+
+    const modal =
+        document.getElementById(
+            "variantModal"
+        );
+
+
+    const productIdInput =
+        document.getElementById(
+            "variantProductId"
+        );
+
+
+    const productLabel =
+        document.getElementById(
+            "variantProductLabel"
+        );
+
+
+    if (!modal) {
+        return;
+    }
+
+
+    if (productIdInput) {
+        productIdInput.value =
+            String(product.id);
+    }
+
+
+    if (productLabel) {
+        productLabel.textContent =
+            product.name ||
+            "Produk";
+    }
+
+
+    resetVariantForm();
+
+
+    modal.classList.add(
+        "active"
+    );
+
+
+    modal.setAttribute(
+        "aria-hidden",
+        "false"
+    );
+
+
+    document.body.classList.add(
+        "modal-open"
+    );
+
+
+    loadVariants();
+}
+
+
+function closeVariantModal() {
+
+    const modal =
+        document.getElementById(
+            "variantModal"
+        );
+
+
+    if (!modal) return;
+
+
+    modal.classList.remove(
+        "active"
+    );
+
+
+    modal.setAttribute(
+        "aria-hidden",
+        "true"
+    );
+
+
+    document.body.classList.remove(
+        "modal-open"
+    );
+
+
+    currentVariantProduct = null;
+    currentVariants = [];
+
+
+    resetVariantForm();
+}
+
+
+function resetVariantForm() {
+
+    const variantId =
+        document.getElementById(
+            "variantId"
+        );
+
+
+    const variantName =
+        document.getElementById(
+            "variantName"
+        );
+
+
+    const ram =
+        document.getElementById(
+            "variantRam"
+        );
+
+
+    const storage =
+        document.getElementById(
+            "variantStorage"
+        );
+
+
+    const color =
+        document.getElementById(
+            "variantColor"
+        );
+
+
+    const price =
+        document.getElementById(
+            "variantPrice"
+        );
+
+
+    const promo =
+        document.getElementById(
+            "variantPromoPrice"
+        );
+
+
+    const stock =
+        document.getElementById(
+            "variantStock"
+        );
+
+
+    const active =
+        document.getElementById(
+            "variantActive"
+        );
+
+
+    if (variantId) variantId.value = "";
+    if (variantName) variantName.value = "";
+    if (ram) ram.value = "";
+    if (storage) storage.value = "";
+    if (color) color.value = "";
+    if (price) price.value = "";
+    if (promo) promo.value = "";
+    if (stock) stock.value = "";
+    if (active) active.checked = true;
+
+
+    const title =
+        document.getElementById(
+            "variantFormTitle"
+        );
+
+
+    const badge =
+        document.getElementById(
+            "variantModeBadge"
+        );
+
+
+    const cancel =
+        document.getElementById(
+            "cancelVariantEditBtn"
+        );
+
+
+    if (title) {
+        title.textContent =
+            "Tambah Varian";
+    }
+
+
+    if (badge) {
+        badge.innerHTML = `
+            <i class="fa-solid fa-plus"></i>
+            Varian Baru
+        `;
+    }
+
+
+    if (cancel) {
+        cancel.hidden = true;
+    }
+}
+
+
+async function loadVariants() {
+
+    if (!currentVariantProduct?.id) {
+        return;
+    }
+
+
+    const tbody =
+        document.getElementById(
+            "variantTableBody"
+        );
+
+
+    const refreshButton =
+        document.getElementById(
+            "refreshVariantsBtn"
+        );
+
+
+    if (tbody) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="10" class="variant-loading">
+                    <i class="fa-solid fa-spinner fa-spin"></i>
+                    Memuat varian...
+                </td>
+            </tr>
+        `;
+    }
+
+
+    if (refreshButton) {
+        refreshButton.disabled = true;
+    }
+
+
+    try {
+
+        const {
+            data,
+            error
+        } = await client
+            .from("product_variants")
+            .select(`
+                id,
+                product_id,
+                variant_name,
+                ram,
+                storage,
+                color,
+                price,
+                promo_price,
+                stock,
+                is_active,
+                created_at,
+                updated_at
+            `)
+            .eq(
+                "product_id",
+                currentVariantProduct.id
+            )
+            .order(
+                "created_at",
+                {
+                    ascending: true
+                }
+            );
+
+
+        if (error) {
+            throw error;
+        }
+
+
+        currentVariants =
+            data || [];
+
+
+        renderVariants();
+        updateVariantCount(
+            currentVariants.length
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Gagal memuat varian:",
+            error
+        );
+
+
+        currentVariants = [];
+        updateVariantCount(0);
+
+
+        if (tbody) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="10" class="variant-error">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        Gagal memuat varian: ${escapeHTML(error.message || "Unknown error")}
+                    </td>
+                </tr>
+            `;
+        }
+
+    } finally {
+
+        if (refreshButton) {
+            refreshButton.disabled = false;
+        }
+    }
+}
+
+
+function renderVariants() {
+
+    const tbody =
+        document.getElementById(
+            "variantTableBody"
+        );
+
+
+    if (!tbody) return;
+
+
+    if (currentVariants.length === 0) {
+
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="10" class="variant-empty">
+                    <div class="variant-empty-content">
+                        <i class="fa-solid fa-layer-group"></i>
+                        <strong>Belum ada varian</strong>
+                        <span>
+                            Tambahkan varian RAM, storage, dan warna menggunakan form di atas.
+                        </span>
+                    </div>
+                </td>
+            </tr>
+        `;
+
+        return;
+    }
+
+
+    tbody.innerHTML = "";
+
+
+    currentVariants.forEach(
+        (variant, index) => {
+
+            const row =
+                document.createElement(
+                    "tr"
+                );
+
+
+            const price =
+                parseNumber(
+                    variant.price
+                );
+
+
+            const promo =
+                parseNumber(
+                    variant.promo_price
+                );
+
+
+            const stock =
+                parseNumber(
+                    variant.stock
+                );
+
+
+            const hasPromo =
+                promo > 0 &&
+                promo < price;
+
+
+            row.innerHTML = `
+                <td class="table-number">
+                    ${index + 1}
+                </td>
+
+                <td>
+                    <strong class="variant-name-cell">
+                        ${escapeHTML(variant.variant_name || "-")}
+                    </strong>
+                </td>
+
+                <td>${escapeHTML(variant.ram || "-")}</td>
+                <td>${escapeHTML(variant.storage || "-")}</td>
+                <td>${escapeHTML(variant.color || "-")}</td>
+
+                <td>
+                    <strong class="price-main">
+                        ${rupiah(price)}
+                    </strong>
+                </td>
+
+                <td>
+                    ${
+                        hasPromo
+                        ? `<span class="promo-price">${rupiah(promo)}</span>`
+                        : `<span class="no-promo">-</span>`
+                    }
+                </td>
+
+                <td>
+                    <span
+                        class="stock-pill ${
+                            stock === 0
+                            ? "empty"
+                            : stock <= 3
+                                ? "low"
+                                : "available"
+                        }"
+                    >
+                        ${stock === 0 ? "Habis" : stock}
+                    </span>
+                </td>
+
+                <td>
+                    <span
+                        class="status-pill ${
+                            variant.is_active
+                            ? "active"
+                            : "inactive"
+                        }"
+                    >
+                        <i class="fa-solid ${
+                            variant.is_active
+                            ? "fa-circle-check"
+                            : "fa-circle-xmark"
+                        }"></i>
+                        ${
+                            variant.is_active
+                            ? "Aktif"
+                            : "Nonaktif"
+                        }
+                    </span>
+                </td>
+
+                <td>
+                    <div class="variant-action-buttons">
+                        <button
+                            type="button"
+                            class="variant-edit-btn"
+                            title="Edit varian"
+                            aria-label="Edit varian"
+                        >
+                            <i class="fa-solid fa-pen"></i>
+                        </button>
+
+                        <button
+                            type="button"
+                            class="variant-delete-btn"
+                            title="Hapus varian"
+                            aria-label="Hapus varian"
+                        >
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            `;
+
+
+            row
+                .querySelector(
+                    ".variant-edit-btn"
+                )
+                ?.addEventListener(
+                    "click",
+                    () => editVariant(variant)
+                );
+
+
+            row
+                .querySelector(
+                    ".variant-delete-btn"
+                )
+                ?.addEventListener(
+                    "click",
+                    () => deleteVariant(variant)
+                );
+
+
+            tbody.appendChild(row);
+        }
+    );
+}
+
+
+function updateVariantCount(total) {
+
+    const badge =
+        document.getElementById(
+            "variantCountBadge"
+        );
+
+
+    if (!badge) return;
+
+
+    badge.textContent =
+        `${total} Varian`;
+}
+
+
+function buildVariantName(
+    ram,
+    storage,
+    color
+) {
+
+    return [
+        ram,
+        storage,
+        color
+    ]
+        .map(normalizeText)
+        .filter(Boolean)
+        .join(" / ");
+}
+
+
+function getVariantSignature(variant) {
+
+    return [
+        normalizeText(variant.ram).toLowerCase(),
+        normalizeText(variant.storage).toLowerCase(),
+        normalizeText(variant.color).toLowerCase()
+    ].join("|");
+}
+
+
+async function saveVariant() {
+
+    if (
+        isSavingVariant ||
+        !currentVariantProduct?.id
+    ) {
+        return;
+    }
+
+
+    const id =
+        document.getElementById(
+            "variantId"
+        )?.value.trim();
+
+
+    const ram =
+        normalizeText(
+            document.getElementById(
+                "variantRam"
+            )?.value
+        );
+
+
+    const storage =
+        normalizeText(
+            document.getElementById(
+                "variantStorage"
+            )?.value
+        );
+
+
+    const color =
+        normalizeText(
+            document.getElementById(
+                "variantColor"
+            )?.value
+        );
+
+
+    let variantName =
+        normalizeText(
+            document.getElementById(
+                "variantName"
+            )?.value
+        );
+
+
+    const price =
+        parseNumber(
+            document.getElementById(
+                "variantPrice"
+            )?.value
+        );
+
+
+    const promoPrice =
+        parseNumber(
+            document.getElementById(
+                "variantPromoPrice"
+            )?.value
+        );
+
+
+    const stock =
+        parseNumber(
+            document.getElementById(
+                "variantStock"
+            )?.value
+        );
+
+
+    const isActive =
+        document.getElementById(
+            "variantActive"
+        )?.checked ?? true;
+
+
+    if (!ram && !storage && !color) {
+
+        alert(
+            "Isi minimal salah satu spesifikasi varian: RAM, storage, atau warna."
+        );
+
+        document
+            .getElementById(
+                "variantRam"
+            )
+            ?.focus();
+
+        return;
+    }
+
+
+    if (!variantName) {
+        variantName =
+            buildVariantName(
+                ram,
+                storage,
+                color
+            );
+    }
+
+
+    if (price <= 0) {
+
+        alert(
+            "Harga jual varian harus lebih dari Rp 0."
+        );
+
+        document
+            .getElementById(
+                "variantPrice"
+            )
+            ?.focus();
+
+        return;
+    }
+
+
+    if (
+        promoPrice > 0 &&
+        promoPrice >= price
+    ) {
+
+        alert(
+            "Harga promo varian harus lebih rendah dari harga jual."
+        );
+
+        document
+            .getElementById(
+                "variantPromoPrice"
+            )
+            ?.focus();
+
+        return;
+    }
+
+
+    const newSignature =
+        getVariantSignature({
+            ram,
+            storage,
+            color
+        });
+
+
+    const duplicate =
+        currentVariants.find(
+            variant =>
+                String(variant.id) !==
+                    String(id || "") &&
+                getVariantSignature(variant) ===
+                    newSignature
+        );
+
+
+    if (duplicate) {
+
+        const continueSave =
+            confirm(
+                `Varian dengan spesifikasi yang sama sudah ada:\n\n${duplicate.variant_name || "Tanpa nama"}\n\nTetap simpan varian ini?`
+            );
+
+
+        if (!continueSave) {
+            return;
+        }
+    }
+
+
+    const payload = {
+        product_id:
+            currentVariantProduct.id,
+        variant_name:
+            variantName,
+        ram:
+            ram || null,
+        storage:
+            storage || null,
+        color:
+            color || null,
+        price,
+        promo_price:
+            promoPrice,
+        stock,
+        is_active:
+            isActive
+    };
+
+
+    if (id) {
+        payload.updated_at =
+            new Date().toISOString();
+    }
+
+
+    const saveButton =
+        document.getElementById(
+            "saveVariantBtn"
+        );
+
+
+    const cancelButton =
+        document.getElementById(
+            "cancelVariantEditBtn"
+        );
+
+
+    const originalHTML =
+        saveButton?.innerHTML ||
+        "";
+
+
+    isSavingVariant = true;
+
+
+    if (saveButton) {
+        saveButton.disabled = true;
+        saveButton.innerHTML = `
+            <i class="fa-solid fa-spinner fa-spin"></i>
+            <span>Menyimpan...</span>
+        `;
+    }
+
+
+    if (cancelButton) {
+        cancelButton.disabled = true;
+    }
+
+
+    try {
+
+        let error = null;
+
+
+        if (id) {
+
+            const result =
+                await client
+                    .from("product_variants")
+                    .update(payload)
+                    .eq("id", id)
+                    .eq(
+                        "product_id",
+                        currentVariantProduct.id
+                    );
+
+            error = result.error;
+
+        } else {
+
+            const result =
+                await client
+                    .from("product_variants")
+                    .insert(payload);
+
+            error = result.error;
+        }
+
+
+        if (error) {
+            throw error;
+        }
+
+
+        await loadVariants();
+        await syncProductStockFromVariants();
+
+
+        resetVariantForm();
+
+
+        alert(
+            id
+            ? "Varian berhasil diperbarui ✅"
+            : "Varian berhasil ditambahkan ✅"
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Gagal menyimpan varian:",
+            error
+        );
+
+
+        alert(
+            "Gagal menyimpan varian:\n" +
+            (error.message || "Unknown error")
+        );
+
+    } finally {
+
+        isSavingVariant = false;
+
+
+        if (saveButton) {
+            saveButton.disabled = false;
+            saveButton.innerHTML =
+                originalHTML ||
+                `
+                    <i class="fa-solid fa-floppy-disk"></i>
+                    <span>Simpan Varian</span>
+                `;
+        }
+
+
+        if (cancelButton) {
+            cancelButton.disabled = false;
+        }
+    }
+}
+
+
+function editVariant(variant) {
+
+    if (!variant?.id) {
+        return;
+    }
+
+
+    document.getElementById(
+        "variantId"
+    ).value =
+        variant.id;
+
+
+    document.getElementById(
+        "variantName"
+    ).value =
+        variant.variant_name || "";
+
+
+    document.getElementById(
+        "variantRam"
+    ).value =
+        variant.ram || "";
+
+
+    document.getElementById(
+        "variantStorage"
+    ).value =
+        variant.storage || "";
+
+
+    document.getElementById(
+        "variantColor"
+    ).value =
+        variant.color || "";
+
+
+    document.getElementById(
+        "variantPrice"
+    ).value =
+        variant.price ?? "";
+
+
+    document.getElementById(
+        "variantPromoPrice"
+    ).value =
+        variant.promo_price ?? "";
+
+
+    document.getElementById(
+        "variantStock"
+    ).value =
+        variant.stock ?? 0;
+
+
+    document.getElementById(
+        "variantActive"
+    ).checked =
+        Boolean(
+            variant.is_active
+        );
+
+
+    const title =
+        document.getElementById(
+            "variantFormTitle"
+        );
+
+
+    const badge =
+        document.getElementById(
+            "variantModeBadge"
+        );
+
+
+    const cancel =
+        document.getElementById(
+            "cancelVariantEditBtn"
+        );
+
+
+    if (title) {
+        title.textContent =
+            "Edit Varian";
+    }
+
+
+    if (badge) {
+        badge.innerHTML = `
+            <i class="fa-solid fa-pen"></i>
+            Mode Edit
+        `;
+    }
+
+
+    if (cancel) {
+        cancel.hidden = false;
+    }
+
+
+    document
+        .querySelector(
+            ".variant-form-card"
+        )
+        ?.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+}
+
+
+async function deleteVariant(variant) {
+
+    if (
+        !variant?.id ||
+        !currentVariantProduct?.id
+    ) {
+        return;
+    }
+
+
+    const confirmed =
+        confirm(
+            `Hapus varian ini?\n\n${variant.variant_name || "Varian tanpa nama"}\n\nData varian akan dihapus dari database.`
+        );
+
+
+    if (!confirmed) {
+        return;
+    }
+
+
+    const {
+        error
+    } = await client
+        .from("product_variants")
+        .delete()
+        .eq("id", variant.id)
+        .eq(
+            "product_id",
+            currentVariantProduct.id
+        );
+
+
+    if (error) {
+
+        console.error(
+            "Gagal menghapus varian:",
+            error
+        );
+
+
+        alert(
+            "Gagal menghapus varian:\n" +
+            error.message
+        );
+
+        return;
+    }
+
+
+    await loadVariants();
+    await syncProductStockFromVariants();
+
+
+    resetVariantForm();
+
+
+    alert(
+        "Varian berhasil dihapus ✅"
+    );
+}
+
+
+async function syncProductStockFromVariants() {
+
+    if (!currentVariantProduct?.id) {
+        return;
+    }
+
+
+    const totalStock =
+        currentVariants.reduce(
+            (total, variant) =>
+                total +
+                parseNumber(
+                    variant.stock
+                ),
+            0
+        );
+
+
+    const {
+        error
+    } = await client
+        .from("products")
+        .update({
+            stock: totalStock
+        })
+        .eq(
+            "id",
+            currentVariantProduct.id
+        );
+
+
+    if (error) {
+
+        console.warn(
+            "Varian tersimpan, tetapi stok produk induk gagal disinkronkan:",
+            error
+        );
+
+        return;
+    }
+
+
+    currentVariantProduct.stock =
+        totalStock;
+
+
+    await loadProducts();
 }
 
 
