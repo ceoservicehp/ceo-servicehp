@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Checkout pembelian handphone CEO Part & Service.">
+    <title>Checkout Produk — CEO Part & Service</title>
+
+    <link rel="icon" href="images/logo.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <link rel="stylesheet" href="css/checkout-produk.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="js/checkout-produk.js" defer></script>
+</head>
+<body>
+<header class="checkout-header">
+    <div class="header-inner">
+        <a href="index.html" class="brand">
+            <img src="images/logo.png" alt="CEO Part & Service">
+            <div class="brand-text">
+                <strong>CEO PART & SERVICE</strong>
+                <span>CELLULAR ENGINEERING OFFICER</span>
+            </div>
+        </a>
+        <a href="produk-public.html" class="back-link">
+            <i class="fa-solid fa-arrow-left"></i>
+            Kembali ke Produk
+        </a>
+    </div>
+</header>
+
+<main class="checkout-shell">
+    <div class="checkout-heading">
+        <span class="eyebrow"><i class="fa-solid fa-bag-shopping"></i> CHECKOUT PRODUK</span>
+        <h1>Selesaikan Pesanan Anda</h1>
+        <p>Periksa produk, tentukan lokasi dan pengiriman, lalu lengkapi data pembeli.</p>
+    </div>
+
+    <div id="checkoutAlert" class="checkout-alert" hidden></div>
+
+    <div class="checkout-layout">
+        <div class="checkout-main">
+            <section class="checkout-card" id="locationSection">
+                <div class="card-heading">
+                    <span class="step-number">1</span>
+                    <div>
+                        <h2><i class="fa-solid fa-location-dot"></i> Titik Lokasi</h2>
+                        <p>Klik peta atau gunakan lokasi perangkat. Lokasi wajib untuk Kurir Instan dan COD.</p>
+                    </div>
+                </div>
+
+                <div class="location-actions">
+                    <button type="button" class="secondary-btn" id="useMyLocationBtn">
+                        <i class="fa-solid fa-crosshairs"></i> Gunakan Lokasi Saya
+                    </button>
+                    <button type="button" class="ghost-btn" id="clearLocationBtn">
+                        <i class="fa-solid fa-rotate-left"></i> Hapus Titik
+                    </button>
+                </div>
+
+                <div id="checkoutMap" class="checkout-map"></div>
+                <div class="location-info" id="locationInfo">
+                    <i class="fa-solid fa-circle-info"></i>
+                    Belum ada titik lokasi dipilih.
+                </div>
+            </section>
+
+            <section class="checkout-card">
+                <div class="card-heading">
+                    <span class="step-number">2</span>
+                    <div>
+                        <h2><i class="fa-solid fa-user"></i> Data Pembeli</h2>
+                        <p>Gunakan nomor WhatsApp aktif agar admin dapat menghubungi Anda.</p>
+                    </div>
+                </div>
+
+                <div class="form-grid two-col">
+                    <label class="form-field">
+                        <span>Nama Lengkap <b>*</b></span>
+                        <input id="buyerName" type="text" maxlength="100" autocomplete="name" placeholder="Nama pembeli">
+                    </label>
+                    <label class="form-field">
+                        <span>WhatsApp <b>*</b></span>
+                        <input id="buyerPhone" type="tel" maxlength="20" autocomplete="tel" placeholder="08xxxxxxxxxx">
+                    </label>
+                    <label class="form-field full">
+                        <span>Email</span>
+                        <input id="buyerEmail" type="email" maxlength="120" autocomplete="email" placeholder="email@contoh.com (opsional)">
+                    </label>
+                    <label class="form-field full">
+                        <span>Alamat Lengkap <b>*</b></span>
+                        <textarea id="buyerAddress" rows="4" maxlength="500" autocomplete="street-address" placeholder="Nama jalan, nomor rumah, RT/RW, kelurahan, kecamatan, kota, kode pos"></textarea>
+                    </label>
+                </div>
+            </section>
+
+            <section class="checkout-card">
+                <div class="card-heading">
+                    <span class="step-number">3</span>
+                    <div>
+                        <h2><i class="fa-solid fa-truck-fast"></i> Pengiriman</h2>
+                        <p>Pilih cara menerima produk. Tarif kurir/ekspedisi akan menyesuaikan layanan yang dipilih.</p>
+                    </div>
+                </div>
+
+                <div class="option-grid" id="shippingOptions">
+                    <label class="choice-card">
+                        <input type="radio" name="shippingMethod" value="pickup" checked>
+                        <span class="choice-icon"><i class="fa-solid fa-store"></i></span>
+                        <span class="choice-body"><strong>Ambil di Toko</strong><small>Ambil langsung di CEO Part & Service. Ongkir Rp 0.</small></span>
+                    </label>
+                    <label class="choice-card">
+                        <input type="radio" name="shippingMethod" value="instant">
+                        <span class="choice-icon"><i class="fa-solid fa-motorcycle"></i></span>
+                        <span class="choice-body"><strong>Kurir Instan</strong><small>Gojek / Grab. Tarif dikonfirmasi admin sesuai aplikasi.</small></span>
+                    </label>
+                    <label class="choice-card">
+                        <input type="radio" name="shippingMethod" value="package">
+                        <span class="choice-icon"><i class="fa-solid fa-box"></i></span>
+                        <span class="choice-body"><strong>Kirim Paket</strong><small>JNE / J&T / SiCepat / ekspedisi lain. Tarif dikonfirmasi admin.</small></span>
+                    </label>
+                    <label class="choice-card">
+                        <input type="radio" name="shippingMethod" value="cod">
+                        <span class="choice-icon"><i class="fa-solid fa-hand-holding-dollar"></i></span>
+                        <span class="choice-body"><strong>COD Lokal</strong><small>Maksimal 10 km. Ongkir dihitung otomatis berdasarkan jarak.</small></span>
+                    </label>
+                </div>
+
+                <div class="dynamic-panel" id="shippingProviderPanel" hidden>
+                    <label class="form-field">
+                        <span id="shippingProviderLabel">Jasa Pengiriman</span>
+                        <select id="shippingProvider"></select>
+                    </label>
+                    <div class="shipping-note" id="shippingFeeNote"></div>
+                </div>
+            </section>
+
+            <section class="checkout-card">
+                <div class="card-heading">
+                    <span class="step-number">4</span>
+                    <div>
+                        <h2><i class="fa-solid fa-wallet"></i> Pembayaran</h2>
+                        <p>Metode pembayaran otomatis menyesuaikan metode pengiriman.</p>
+                    </div>
+                </div>
+                <div class="option-grid payment-grid" id="paymentOptions"></div>
+                <div class="payment-info" id="paymentInfo"></div>
+            </section>
+
+            <section class="checkout-card">
+                <div class="card-heading">
+                    <span class="step-number">5</span>
+                    <div>
+                        <h2><i class="fa-solid fa-note-sticky"></i> Catatan</h2>
+                        <p>Opsional. Tambahkan informasi yang perlu diketahui admin.</p>
+                    </div>
+                </div>
+                <label class="form-field">
+                    <textarea id="buyerNotes" rows="3" maxlength="500" placeholder="Contoh: hubungi lewat WhatsApp sebelum pengiriman"></textarea>
+                </label>
+                <label class="agreement-row">
+                    <input type="checkbox" id="termsAgree">
+                    <span>Saya memastikan data pesanan sudah benar dan memahami ketersediaan unit akan diverifikasi kembali oleh admin.</span>
+                </label>
+            </section>
+        </div>
+
+        <aside class="order-summary-card">
+            <div class="summary-title"><i class="fa-solid fa-receipt"></i> Ringkasan Pesanan</div>
+            <div class="product-summary" id="productSummary">
+                <div class="summary-loading"><i class="fa-solid fa-spinner fa-spin"></i> Memeriksa produk...</div>
+            </div>
+            <div class="summary-lines">
+                <div><span>Subtotal</span><strong id="summarySubtotal">Rp 0</strong></div>
+                <div><span>Ongkir</span><strong id="summaryShipping">Rp 0</strong></div>
+                <div class="pending-shipping" id="pendingShippingText" hidden>Ongkir akan dikonfirmasi admin.</div>
+                <div class="summary-total"><span>Total Sementara</span><strong id="summaryTotal">Rp 0</strong></div>
+            </div>
+            <button type="button" class="submit-order-btn" id="submitOrderBtn" disabled>
+                <i class="fa-solid fa-lock"></i> Memeriksa Pesanan
+            </button>
+            <p class="secure-note"><i class="fa-solid fa-shield-halved"></i> Harga dan stok diperiksa ulang dari database sebelum pesanan diproses.</p>
+        </aside>
+    </div>
+</main>
+
+<footer class="checkout-footer">
+    © <span id="footerYear"></span> CEO Part & Service — All Rights Reserved
+</footer>
+</body>
+</html>
