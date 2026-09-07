@@ -11,6 +11,10 @@ const COD_MAX_DISTANCE_KM = 10;
 const COD_FIRST_KM_FEE = 20000;
 const COD_NEXT_KM_FEE = 3000;
 
+const BANK_NAME = "BCA";
+const BANK_ACCOUNT = "5855369360";
+const BANK_ACCOUNT_NAME = "Ikmal Falahi";
+
 let checkoutItem = null;
 let verifiedProduct = null;
 let verifiedVariant = null;
@@ -349,12 +353,38 @@ function updatePaymentInfo() {
     const info = document.getElementById("paymentInfo");
     if (!info) return;
 
-    const messages = {
-        transfer: "Detail rekening dan instruksi pembayaran akan ditampilkan/dikirim setelah order tercatat.",
-        cash: "Pembayaran tunai dilakukan saat mengambil unit di toko.",
-        cod: "Pembayaran COD dilakukan saat unit diterima. COD hanya tersedia dalam radius yang ditentukan."
-    };
+    if (payment === "transfer") {
+        const pendingWarning = shippingFeePending
+            ? `<div class="bank-warning"><i class="fa-solid fa-triangle-exclamation"></i> Jangan transfer dulu. Ongkir dan total final masih menunggu konfirmasi admin.</div>`
+            : `<div class="bank-warning info"><i class="fa-solid fa-circle-info"></i> Buat pesanan terlebih dahulu agar transfer dapat dicocokkan dengan nomor pesanan.</div>`;
 
+        info.innerHTML = `
+            <div class="bank-card">
+                <div class="bank-card-head"><i class="fa-solid fa-building-columns"></i><div><small>Transfer Bank</small><strong>${BANK_NAME}</strong></div></div>
+                <div class="bank-account-row">
+                    <div><small>Nomor Rekening</small><strong>${BANK_ACCOUNT}</strong><span>a.n. ${BANK_ACCOUNT_NAME}</span></div>
+                    <button type="button" class="copy-bank-btn" id="copyBankBtn"><i class="fa-regular fa-copy"></i> Salin</button>
+                </div>
+                ${pendingWarning}
+            </div>`;
+
+        document.getElementById("copyBankBtn")?.addEventListener("click", async () => {
+            try {
+                await navigator.clipboard.writeText(BANK_ACCOUNT);
+                const btn = document.getElementById("copyBankBtn");
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> Tersalin';
+                setTimeout(() => { if (btn) btn.innerHTML = '<i class="fa-regular fa-copy"></i> Salin'; }, 1500);
+            } catch (_) {
+                alert(`Nomor rekening: ${BANK_ACCOUNT}`);
+            }
+        });
+        return;
+    }
+
+    const messages = {
+        cash: "Pembayaran tunai dilakukan saat mengambil unit di toko. Status tetap Belum Bayar sampai admin menerima pembayaran.",
+        cod: "Pembayaran COD dilakukan saat unit diterima. Status tetap Belum Bayar sampai pembayaran diterima."
+    };
     info.innerHTML = `<i class="fa-solid fa-circle-info"></i> ${messages[payment] || "Pilih metode pembayaran."}`;
 }
 
@@ -490,18 +520,63 @@ async function submitOrder() {
         return;
     }
 
-    const draft = collectOrderDraft();
-    sessionStorage.setItem("ceoProductOrderDraft", JSON.stringify(draft));
+    isSubmitting = true;
+    const btn = document.getElementById("submitOrderBtn");
+    const originalHtml = btn?.innerHTML || "";
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Membuat Pesanan...';
+    }
 
-    /*
-     * Tahap berikutnya akan mengganti blok ini dengan INSERT/RPC Supabase
-     * setelah struktur tabel orders + order_items diverifikasi.
-     * Frontend checkout sengaja tidak menebak nama kolom database.
-     */
-    showAlert(
-        "Checkout sudah valid. Data pesanan siap disimpan. Selanjutnya sambungkan ke struktur tabel orders/order_items Supabase yang sebenarnya.",
-        "success"
-    );
+    try {
+        // Verifikasi ulang tepat sebelum transaksi. RPC tetap menjadi sumber kebenaran harga/stok.
+        await verifyCheckoutItem();
+        if (!verifiedProduct) throw new Error("Produk tidak dapat diverifikasi.");
+
+        const validationAfterVerify = validateCheckout();
+        if (validationAfterVerify) throw new Error(validationAfterVerify);
+
+        const payload = collectOrderDraft();
+        const { data, error } = await client.rpc("create_product_order", {
+            p_product_id: Number(checkoutItem.product_id),
+            p_variant_id: checkoutItem.variant_id ? Number(checkoutItem.variant_id) : null,
+            p_quantity: Number(checkoutItem.qty),
+            p_customer_name: payload.buyer.name,
+            p_customer_whatsapp: payload.buyer.phone,
+            p_customer_email: payload.buyer.email || null,
+            p_customer_address: payload.buyer.address,
+            p_latitude: Number.isFinite(selectedLat) ? selectedLat : null,
+            p_longitude: Number.isFinite(selectedLng) ? selectedLng : null,
+            p_shipping_method: payload.shipping.method,
+            p_shipping_provider: payload.shipping.provider,
+            p_payment_method: payload.payment.method,
+            p_customer_note: payload.notes || null
+        });
+
+        if (error) throw error;
+        if (!data?.success) throw new Error("Pesanan gagal dibuat.");
+
+        const successData = {
+            ...data,
+            bank: { name: BANK_NAME, account: BANK_ACCOUNT, account_name: BANK_ACCOUNT_NAME },
+            created_at: new Date().toISOString()
+        };
+        sessionStorage.setItem("ceoProductOrderSuccess", JSON.stringify(successData));
+        sessionStorage.removeItem(CHECKOUT_FORM_KEY);
+        sessionStorage.removeItem("ceoProductOrderDraft");
+
+        window.location.href = "pesanan-berhasil.html";
+    } catch (error) {
+        console.error("Gagal membuat pesanan:", error);
+        const message = error?.message || "Pesanan gagal dibuat. Silakan coba lagi.";
+        showAlert(message, "error");
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = originalHtml || '<i class="fa-solid fa-bag-shopping"></i> Buat Pesanan';
+        }
+    } finally {
+        isSubmitting = false;
+    }
 }
 
 function saveFormDraft() {
