@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kelola Order HP — CEO Part & Service</title>
+<link rel="icon" href="images/logo.png">
+<link rel="stylesheet" href="css/order-produk.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/role_guard.js"></script>
+<script defer src="js/order-produk.js"></script>
+</head>
+<body>
+<header class="site-header">
+  <div id="logo-container"><img src="images/logo.png" width="55" height="55" alt="Logo CEO"><div><h1>CEO - ORDER PRODUK HP</h1><div class="tagline">CELLULAR ENGINEERING OFFICER</div></div></div>
+  <button class="menu-toggle" id="menuToggle" aria-label="Buka menu"><i class="fa-solid fa-bars"></i></button>
+</header>
+<nav class="top-nav" id="topNav">
+  <a href="index.html"><i class="fa-solid fa-house"></i> Beranda</a>
+  <a href="profile.html"><i class="fa-solid fa-user"></i> Profil</a>
+  <a href="dapur.html"><i class="fa-solid fa-kitchen-set"></i> Dapur</a>
+  <a href="produk.html"><i class="fa-solid fa-box-open"></i> Produk</a>
+  <a class="active" href="order-produk.html"><i class="fa-solid fa-cart-shopping"></i> Order HP</a>
+  <a href="keuangan.html"><i class="fa-solid fa-wallet"></i> Keuangan</a>
+</nav>
+<div class="nav-overlay" id="navOverlay"></div>
+<main class="container">
+  <section class="hero-card">
+    <div><span class="eyebrow">PENJUALAN HANDPHONE</span><h2>Kelola Order HP</h2><p>Kelola pesanan produk tanpa mencampur data service di Dapur.</p></div>
+    <button id="refreshBtn" class="btn primary"><i class="fa-solid fa-rotate"></i> Refresh</button>
+  </section>
+  <section class="stats" id="stats">
+    <article><span>Total Order</span><strong id="statTotal">0</strong></article>
+    <article><span>Menunggu Diproses</span><strong id="statWaiting">0</strong></article>
+    <article><span>Bukti Masuk</span><strong id="statProof">0</strong></article>
+    <article><span>Belum Lunas</span><strong id="statUnpaid">0</strong></article>
+  </section>
+  <section class="card filters">
+    <div class="search-wrap"><i class="fa-solid fa-magnifying-glass"></i><input id="searchInput" placeholder="Cari no. order, nama, WhatsApp, produk..."></div>
+    <select id="paymentFilter"><option value="all">Semua Pembayaran</option><option value="belum_bayar">Belum Bayar</option><option value="lunas">Lunas</option></select>
+    <select id="shippingFilter"><option value="all">Semua Pengiriman</option><option value="pickup">Ambil di Toko</option><option value="instant">Kurir Instan</option><option value="package">Kirim Paket</option><option value="cod">COD</option></select>
+    <select id="statusFilter"><option value="all">Semua Status</option><option value="menunggu_diproses">Menunggu Diproses</option><option value="dikemas">Dikemas</option><option value="dikirim">Dikirim</option><option value="dalam_perjalanan">Dalam Perjalanan</option><option value="selesai">Selesai</option><option value="gagal_dikirim">Gagal Dikirim</option></select>
+  </section>
+  <section class="card table-card"><div class="table-scroll"><table><thead><tr><th>No Order</th><th>Pembeli</th><th>Produk</th><th>Pengiriman</th><th>Pembayaran</th><th>Total</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="orderTableBody"><tr><td colspan="8" class="empty">Memuat order...</td></tr></tbody></table></div><div class="pagination"><button id="prevPage" class="btn">Prev</button><span id="pageInfo">1 / 1</span><button id="nextPage" class="btn">Next</button></div></section>
+</main>
+<div class="modal" id="detailModal" aria-hidden="true"><div class="modal-panel"><div class="modal-head"><div><span class="eyebrow">DETAIL PESANAN</span><h2 id="detailOrderNumber">-</h2></div><button class="icon-btn" id="closeModal"><i class="fa-solid fa-xmark"></i></button></div><div id="detailContent"></div></div></div>
+<footer>© <span id="year"></span> CEO Part & Service</footer>
+</body>
+</html>
