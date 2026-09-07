@@ -135,16 +135,23 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
         placeholder="Deskripsi produk..."></textarea>
     </div>
 
-    <!-- GAMBAR + PREVIEW -->
+    <!-- ================= GAMBAR PRODUK ================= -->
     <div class="form-group">
       <label>Gambar Produk</label>
-      <input type="file" id="productImage" accept="image/*">
-
-      <!-- Preview -->
-      <div style="margin-top:10px;">
-        <img id="imagePreview" 
-             src="" 
-             style="max-width:150px;display:none;border-radius:8px;">
+    
+      <input 
+        type="file" 
+        id="productImage" 
+        accept="image/*"
+        multiple
+      >
+    
+      <small style="display:block;margin-top:6px;color:#666;">
+        Maksimal 10 gambar. Gambar pertama akan menjadi gambar utama.
+      </small>
+    
+      <!-- Preview gambar -->
+      <div id="imagePreviewContainer" class="image-preview-container">
       </div>
     </div>
 
@@ -221,6 +228,46 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
 <footer>
   © 2026 CEO Part & Service — All Rights Reserved
 </footer>
+
+  <!-- ================= MODAL PREVIEW GAMBAR ================= -->
+<div id="imageModal" class="image-modal">
+  <div class="image-modal-content">
+
+    <button 
+      type="button"
+      class="image-modal-close"
+      id="imageModalClose">
+      &times;
+    </button>
+
+    <button
+      type="button"
+      class="image-modal-prev"
+      id="imageModalPrev">
+      <i class="fa-solid fa-chevron-left"></i>
+    </button>
+
+    <img 
+      id="imageModalMain"
+      src=""
+      alt="Preview Produk"
+    >
+
+    <button
+      type="button"
+      class="image-modal-next"
+      id="imageModalNext">
+      <i class="fa-solid fa-chevron-right"></i>
+    </button>
+
+    <div 
+      id="imageModalCounter"
+      class="image-modal-counter">
+      1 / 1
+    </div>
+
+  </div>
+</div>
 
 </body>
 </html>
