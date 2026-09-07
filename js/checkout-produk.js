@@ -76,7 +76,6 @@ document.addEventListener("DOMContentLoaded", initCheckout);
 async function initCheckout() {
     document.getElementById("footerYear").textContent = new Date().getFullYear();
     loadCheckoutPayload();
-    setupMap();
     setupEvents();
     restoreFormDraft();
     renderPaymentOptions();
@@ -388,8 +387,24 @@ function updatePaymentInfo() {
     info.innerHTML = `<i class="fa-solid fa-circle-info"></i> ${messages[payment] || "Pilih metode pembayaran."}`;
 }
 
+function updateLocationVisibility() {
+    const shipping = getSelectedShipping();
+    const section = document.getElementById("locationSection");
+    if (!section) return;
+
+    const needsLocation = ["instant", "package", "cod"].includes(shipping);
+    section.hidden = !needsLocation;
+
+    if (needsLocation) {
+        if (!map) setupMap();
+        // Leaflet perlu dihitung ulang setelah container yang semula hidden ditampilkan.
+        setTimeout(() => map?.invalidateSize(), 80);
+    }
+}
+
 function updateShippingState() {
     const shipping = getSelectedShipping();
+    updateLocationVisibility();
     const panel = document.getElementById("shippingProviderPanel");
     const select = document.getElementById("shippingProvider");
     const label = document.getElementById("shippingProviderLabel");
@@ -458,8 +473,8 @@ function validateCheckout() {
     if (email && !/^\S+@\S+\.\S+$/.test(email)) return "Format email belum valid.";
     if (!address) return "Alamat lengkap wajib diisi.";
 
-    if ((shipping === "instant" || shipping === "cod") && (!Number.isFinite(selectedLat) || !Number.isFinite(selectedLng))) {
-        return "Titik lokasi wajib dipilih untuk Kurir Instan dan COD.";
+    if ((["instant", "package", "cod"].includes(shipping)) && (!Number.isFinite(selectedLat) || !Number.isFinite(selectedLng))) {
+        return "Titik lokasi wajib dipilih untuk Kurir Instan, Kirim Paket, dan COD.";
     }
 
     if ((shipping === "instant" || shipping === "package") && !provider) {
