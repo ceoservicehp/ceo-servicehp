@@ -3,11 +3,22 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Kelola Produk — CEO Service HP</title>
-  
+
+<meta
+    name="description"
+    content="Kelola produk, sparepart, aksesoris, harga, stok, dan katalog CEO Part & Service."
+>
+
+<link rel="icon" href="images/logo.png">
+
 <link rel="stylesheet" href="css/produk.css">
-<link rel="stylesheet"
-href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/supabase.js"></script>
@@ -18,255 +29,738 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
 
 <body>
 
-<!-- ================= HEADER ================= -->
-<header>
-  <div id="logo-container">
-    <img src="images/logo.png" width="55">
+<!-- =========================================================
+     HEADER
+========================================================= -->
+<header class="site-header">
 
-    <div>
-      <h1>CEO - KELOLA PRODUK</h1>
-      <div class="tagline">CELLULAR ENGINEERING OFFICER</div>
+    <div id="logo-container">
+
+        <img
+            src="images/logo.png"
+            width="55"
+            height="55"
+            alt="Logo CEO Part & Service"
+        >
+
+        <div class="brand-text">
+            <h1>CEO - KELOLA PRODUK</h1>
+            <div class="tagline">
+                CELLULAR ENGINEERING OFFICER
+            </div>
+        </div>
+
     </div>
-  </div>
-  <button class="menu-toggle" id="menuToggle">
-  <i class="fa-solid fa-bars"></i>
-</button>
+
+    <button
+        type="button"
+        class="menu-toggle"
+        id="menuToggle"
+        aria-label="Buka menu"
+        aria-expanded="false"
+    >
+        <i class="fa-solid fa-bars"></i>
+    </button>
+
 </header>
 
-<!-- ================= NAVBAR ================= -->
-<nav class="top-nav">
-  <a href="index.html" class="nav-btn">
-    <i class="fa-solid fa-house"></i>
-    Beranda
-  </a>
 
-  <a href="profile.html" class="nav-btn">
-    <i class="fa-solid fa-user"></i>
-    Profil
-  </a>
- 
-  <a href="dapur.html" class="nav-btn">
-    <i class="fa-solid fa-kitchen-set"></i>
-    Dapur
-  </a>
+<!-- =========================================================
+     NAVBAR
+========================================================= -->
+<nav class="top-nav" aria-label="Navigasi utama">
 
-  <a href="produk.html" class="nav-btn">
-    <i class="fa-solid fa-box-open"></i>
-    Produk
-  </a>
+    <a href="index.html" class="nav-btn">
+        <i class="fa-solid fa-house"></i>
+        <span>Beranda</span>
+    </a>
 
-  <a href="keuangan.html" class="nav-btn">
-    <i class="fa-solid fa-wallet"></i>
-    Keuangan
-  </a>
+    <a href="profile.html" class="nav-btn">
+        <i class="fa-solid fa-user"></i>
+        <span>Profil</span>
+    </a>
 
-  <a href="layanan.html" class="nav-btn">
-    <i class="fa-solid fa-screwdriver-wrench"></i>
-    Layanan
-  </a>
+    <a href="dapur.html" class="nav-btn">
+        <i class="fa-solid fa-kitchen-set"></i>
+        <span>Dapur</span>
+    </a>
 
-  <a href="ceo_status.html" class="nav-btn">
-    <i class="fa-solid fa-chart-line"></i>
-    Status
-  </a>
+    <a href="produk.html" class="nav-btn active">
+        <i class="fa-solid fa-box-open"></i>
+        <span>Produk</span>
+    </a>
+
+    <a href="keuangan.html" class="nav-btn">
+        <i class="fa-solid fa-wallet"></i>
+        <span>Keuangan</span>
+    </a>
+
+    <a href="layanan.html" class="nav-btn">
+        <i class="fa-solid fa-screwdriver-wrench"></i>
+        <span>Layanan</span>
+    </a>
+
+    <a href="ceo_status.html" class="nav-btn">
+        <i class="fa-solid fa-chart-line"></i>
+        <span>Status</span>
+    </a>
+
 </nav>
-<div class="nav-overlay" id="navOverlay"></div>
+
+<div
+    class="nav-overlay"
+    id="navOverlay"
+    aria-hidden="true"
+></div>
 
 
-<div class="container">
+<!-- =========================================================
+     MAIN
+========================================================= -->
+<main class="container">
 
-  <!-- ================= FORM ================= -->
-  <div class="card">
-    <h2>Tambah / Edit Produk</h2>
+    <!-- =====================================================
+         FORM PRODUK
+    ====================================================== -->
+    <section class="card product-form-card">
 
-    <input type="hidden" id="productId">
+        <div class="card-header">
 
-    <div class="form-group">
-      <label>Nama Produk</label>
-      <input type="text" id="productName" placeholder="Contoh: LCD Samsung">
-    </div>
+            <div>
+                <span class="section-label">
+                    MANAJEMEN KATALOG
+                </span>
 
-    <!-- KATEGORI -->
-    <div class="form-group">
-      <label>Kategori</label>
-    
-      <div style="display:flex;gap:8px;">
-        <select id="productCategory" style="flex:1;"></select>
-    
-        <button type="button" id="addCategoryBtn">
-          ➕
-        </button>
-      </div>
-    
-      <!-- Input Tambah Kategori -->
-      <div id="newCategoryBox" style="margin-top:8px;display:none;">
-        <input type="text" id="newCategoryName" 
-               placeholder="Nama kategori baru">
-    
-        <button type="button" id="saveCategoryBtn">
-          Simpan
-        </button>
-      </div>
-    </div>
+                <h2 id="formTitle">
+                    Tambah Produk
+                </h2>
 
-    <div class="form-group">
-      <label>Harga</label>
-      <input type="number" id="productPrice" placeholder="150000">
-    </div>
+                <p class="card-description">
+                    Tambahkan atau ubah informasi produk yang akan
+                    ditampilkan pada katalog CEO Part & Service.
+                </p>
+            </div>
 
-    <div class="form-group">
-      <label>Harga Modal</label>
-      <input type="number" id="productCost">
-    </div>
-    
-    <div class="form-group">
-      <label>Harga Promo</label>
-      <input type="number" id="productPromo">
-    </div>
-    
-    <div class="form-group">
-      <label>Stok</label>
-      <input type="number" id="productStock">
-    </div>
+            <div class="form-status-badge" id="formModeBadge">
+                <i class="fa-solid fa-plus"></i>
+                Produk Baru
+            </div>
 
-    <div class="form-group">
-      <label>Deskripsi</label>
-      <textarea id="productDesc" rows="3"
-        placeholder="Deskripsi produk..."></textarea>
-    </div>
+        </div>
 
-    <!-- ================= GAMBAR PRODUK ================= -->
-    <div class="form-group">
-      <label>Gambar Produk</label>
-    
-      <input 
-        type="file" 
-        id="productImage" 
-        accept="image/*"
-        multiple
-      >
-    
-      <small style="display:block;margin-top:6px;color:#666;">
-        Maksimal 10 gambar. Gambar pertama akan menjadi gambar utama.
-      </small>
-    
-      <!-- Preview gambar -->
-      <div id="imagePreviewContainer" class="image-preview-container">
-      </div>
-    </div>
 
-    <div class="form-group">
-      <label>Status Produk</label>
-      <label>
-        <input type="checkbox" id="productActive" checked>
-        Aktif
-      </label>
-    </div>
+        <input
+            type="hidden"
+            id="productId"
+        >
 
-    <button class="btn-primary" id="saveProduct">
-      Simpan Produk
-    </button>
 
-  </div>
+        <!-- NAMA -->
+        <div class="form-group">
 
-  <!-- ================= IMPORT MASSAL ================= -->
-<div class="card">
-  <h2>📥 Import Produk Massal (CSV)</h2>
+            <label for="productName">
+                Nama Produk
+                <span>*</span>
+            </label>
 
-  <div class="form-group">
-    <label>Upload File CSV</label>
-    <input type="file" id="importFile" accept=".csv">
-  </div>
+            <input
+                type="text"
+                id="productName"
+                placeholder="Contoh: LCD Samsung A15"
+                maxlength="150"
+                autocomplete="off"
+            >
 
-  <small>
-    Format kolom CSV:<br>
-    name,category,price,cost,promo_price,stock,description,is_active
-  </small>
+        </div>
 
-  <br><br>
 
-  <button class="btn-primary" id="importBtn">
-    Import Produk
-  </button>
+        <!-- KATEGORI -->
+        <div class="form-group">
 
-  <div id="importResult" style="margin-top:10px;"></div>
-</div>
+            <label for="productCategory">
+                Kategori
+            </label>
 
-  <!-- ================= TABLE ================= -->
-  <div class="card">
-    <h2>Daftar Produk</h2>
+            <div class="category-row">
 
-    <div class="table-wrapper">
-      <table>
-        <thead>
-          <tr>
-            <th>No</th>
-            <th>Gambar</th>
-            <th>Nama</th>
-            <th>Kategori</th>
-            <th>Harga</th>
-            <th>Modal</th>
-            <th>Promo</th>
-            <th>Stok</th>
-            <th>Status</th>
-            <th>Aksi</th>
-          </tr>
-        </thead>
-        <tbody id="productTable">
-          <tr>
-            <td colspan="10">Memuat data...</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+                <select id="productCategory">
+                    <option value="">
+                        -- Pilih Kategori --
+                    </option>
+                </select>
 
-  </div>
+                <button
+                    type="button"
+                    class="btn-add-category"
+                    id="addCategoryBtn"
+                    title="Tambah kategori"
+                    aria-label="Tambah kategori"
+                >
+                    <i class="fa-solid fa-plus"></i>
+                </button>
 
-</div>
+            </div>
 
-<!-- ================= FOOTER ================= -->
+
+            <div
+                id="newCategoryBox"
+                class="new-category-box"
+                hidden
+            >
+
+                <div class="new-category-row">
+
+                    <input
+                        type="text"
+                        id="newCategoryName"
+                        placeholder="Nama kategori baru"
+                        maxlength="100"
+                    >
+
+                    <button
+                        type="button"
+                        class="btn-save-category"
+                        id="saveCategoryBtn"
+                    >
+                        <i class="fa-solid fa-check"></i>
+                        Simpan
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- HARGA -->
+        <div class="price-grid">
+
+            <div class="form-group">
+
+                <label for="productPrice">
+                    Harga Jual
+                    <span>*</span>
+                </label>
+
+                <div class="input-prefix">
+                    <span>Rp</span>
+
+                    <input
+                        type="number"
+                        id="productPrice"
+                        placeholder="150000"
+                        min="0"
+                        step="100"
+                        inputmode="numeric"
+                    >
+                </div>
+
+                <small>
+                    Harga normal yang ditampilkan kepada pelanggan.
+                </small>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="productCost">
+                    Harga Modal
+                </label>
+
+                <div class="input-prefix">
+
+                    <span>Rp</span>
+
+                    <input
+                        type="number"
+                        id="productCost"
+                        placeholder="100000"
+                        min="0"
+                        step="100"
+                        inputmode="numeric"
+                    >
+
+                </div>
+
+                <small>
+                    Hanya untuk kebutuhan admin/keuangan.
+                </small>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="productPromo">
+                    Harga Promo
+                </label>
+
+                <div class="input-prefix">
+
+                    <span>Rp</span>
+
+                    <input
+                        type="number"
+                        id="productPromo"
+                        placeholder="135000"
+                        min="0"
+                        step="100"
+                        inputmode="numeric"
+                    >
+
+                </div>
+
+                <small>
+                    Kosongkan jika produk tidak sedang promo.
+                </small>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="productStock">
+                    Stok
+                    <span>*</span>
+                </label>
+
+                <input
+                    type="number"
+                    id="productStock"
+                    placeholder="10"
+                    min="0"
+                    step="1"
+                    inputmode="numeric"
+                >
+
+                <small>
+                    Produk dengan stok 0 tetap dapat tampil di katalog.
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <!-- DESKRIPSI -->
+        <div class="form-group">
+
+            <label for="productDesc">
+                Deskripsi Produk
+            </label>
+
+            <textarea
+                id="productDesc"
+                rows="5"
+                maxlength="5000"
+                placeholder="Tuliskan deskripsi produk, spesifikasi, kondisi, atau informasi penting lainnya..."
+            ></textarea>
+
+            <div class="field-counter">
+                <span id="descriptionCounter">0</span>/5000
+            </div>
+
+        </div>
+
+
+        <!-- GAMBAR -->
+        <div class="form-group">
+
+            <div class="image-section-header">
+
+                <div>
+                    <label for="productImage">
+                        Gambar Produk
+                    </label>
+
+                    <p class="image-help">
+                        Maksimal 10 gambar. Gambar pertama akan menjadi
+                        <strong>gambar utama</strong> dan digunakan sebagai
+                        thumbnail produk di katalog publik.
+                    </p>
+                </div>
+
+                <span
+                    class="image-count-badge"
+                    id="imageCountBadge"
+                >
+                    0 / 10
+                </span>
+
+            </div>
+
+
+            <div class="file-upload-box">
+
+                <input
+                    type="file"
+                    id="productImage"
+                    accept="image/jpeg,image/png,image/webp,image/gif"
+                    multiple
+                >
+
+                <label
+                    for="productImage"
+                    class="file-upload-label"
+                >
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
+
+                    <span>
+                        Pilih Gambar Produk
+                    </span>
+
+                    <small>
+                        JPG, PNG, WEBP atau GIF
+                    </small>
+                </label>
+
+            </div>
+
+
+            <div
+                id="imagePreviewContainer"
+                class="image-preview-container"
+            ></div>
+
+        </div>
+
+
+        <!-- STATUS -->
+        <div class="active-product-box">
+
+            <div class="active-product-info">
+
+                <div class="active-icon">
+                    <i class="fa-solid fa-eye"></i>
+                </div>
+
+                <div>
+                    <strong>Produk Aktif</strong>
+
+                    <small>
+                        Produk aktif akan ditampilkan pada
+                        katalog publik CEO Part & Service.
+                    </small>
+                </div>
+
+            </div>
+
+            <label class="switch">
+
+                <input
+                    type="checkbox"
+                    id="productActive"
+                    checked
+                >
+
+                <span class="slider"></span>
+
+            </label>
+
+        </div>
+
+
+        <!-- ACTION -->
+        <div class="form-actions">
+
+            <button
+                type="button"
+                class="btn-secondary"
+                id="cancelEditBtn"
+                hidden
+            >
+                <i class="fa-solid fa-xmark"></i>
+                Batal Edit
+            </button>
+
+            <button
+                type="button"
+                class="btn-primary"
+                id="saveProduct"
+            >
+                <i class="fa-solid fa-floppy-disk"></i>
+                <span>Simpan Produk</span>
+            </button>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         IMPORT CSV
+    ====================================================== -->
+    <section class="card">
+
+        <div class="card-header compact">
+
+            <div>
+
+                <span class="section-label">
+                    IMPORT DATA
+                </span>
+
+                <h2>
+                    Import Produk Massal
+                </h2>
+
+                <p class="card-description">
+                    Tambahkan banyak produk sekaligus menggunakan file CSV.
+                </p>
+
+            </div>
+
+            <div class="import-icon">
+                <i class="fa-solid fa-file-csv"></i>
+            </div>
+
+        </div>
+
+
+        <div class="csv-info">
+
+            <div class="csv-info-icon">
+                <i class="fa-solid fa-circle-info"></i>
+            </div>
+
+            <div>
+
+                <strong>Format CSV</strong>
+
+                <code>
+                    name,category,price,cost,promo_price,stock,description,is_active,image_url
+                </code>
+
+                <p>
+                    Kolom <strong>image_url</strong> boleh dikosongkan.
+                    Jika diisi, gambar tersebut otomatis menjadi
+                    gambar utama dan dimasukkan ke <code>image_urls</code>.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="import-row">
+
+            <div class="file-upload-simple">
+
+                <input
+                    type="file"
+                    id="importFile"
+                    accept=".csv,text/csv"
+                >
+
+                <label for="importFile">
+                    <i class="fa-solid fa-file-arrow-up"></i>
+                    <span id="importFileName">
+                        Pilih file CSV
+                    </span>
+                </label>
+
+            </div>
+
+
+            <button
+                type="button"
+                class="btn-primary import-btn"
+                id="importBtn"
+            >
+                <i class="fa-solid fa-upload"></i>
+                Import Produk
+            </button>
+
+        </div>
+
+
+        <div
+            id="importResult"
+            class="import-result"
+            aria-live="polite"
+        ></div>
+
+    </section>
+
+
+    <!-- =====================================================
+         DAFTAR PRODUK
+    ====================================================== -->
+    <section class="card product-list-card">
+
+        <div class="card-header">
+
+            <div>
+
+                <span class="section-label">
+                    DATABASE PRODUK
+                </span>
+
+                <h2>
+                    Daftar Produk
+                </h2>
+
+                <p class="card-description">
+                    Kelola produk yang tersedia di sistem.
+                </p>
+
+            </div>
+
+            <div
+                class="product-total-badge"
+                id="productTotalBadge"
+            >
+                <i class="fa-solid fa-box"></i>
+                <span>0 Produk</span>
+            </div>
+
+        </div>
+
+
+        <div class="table-toolbar">
+
+            <div class="table-info">
+                Produk terbaru ditampilkan paling atas.
+            </div>
+
+            <button
+                type="button"
+                class="btn-refresh"
+                id="refreshProductsBtn"
+            >
+                <i class="fa-solid fa-rotate"></i>
+                Refresh
+            </button>
+
+        </div>
+
+
+        <div class="table-wrapper">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>No</th>
+                        <th>Gambar</th>
+                        <th>Nama</th>
+                        <th>Kategori</th>
+                        <th>Harga</th>
+                        <th>Modal</th>
+                        <th>Promo</th>
+                        <th>Stok</th>
+                        <th>Status</th>
+                        <th>Aksi</th>
+                    </tr>
+
+                </thead>
+
+                <tbody id="productTable">
+
+                    <tr>
+                        <td
+                            colspan="10"
+                            class="table-loading"
+                        >
+                            <i class="fa-solid fa-spinner fa-spin"></i>
+                            Memuat data produk...
+                        </td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+</main>
+
+
+<!-- =========================================================
+     FOOTER
+========================================================= -->
 <footer>
-  © 2026 CEO Part & Service — All Rights Reserved
+
+    <div>
+        © <span id="footerYear">2026</span>
+        CEO Part & Service
+    </div>
+
+    <small>
+        Cellular Engineering Officer
+    </small>
+
 </footer>
 
-  <!-- ================= MODAL PREVIEW GAMBAR ================= -->
-<div id="imageModal" class="image-modal">
-  <div class="image-modal-content">
 
-    <button 
-      type="button"
-      class="image-modal-close"
-      id="imageModalClose">
-      &times;
-    </button>
+<!-- =========================================================
+     MODAL PREVIEW GAMBAR
+========================================================= -->
+<div
+    id="imageModal"
+    class="image-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Preview gambar produk"
+>
 
-    <button
-      type="button"
-      class="image-modal-prev"
-      id="imageModalPrev">
-      <i class="fa-solid fa-chevron-left"></i>
-    </button>
+    <div class="image-modal-content">
 
-    <img 
-      id="imageModalMain"
-      src=""
-      alt="Preview Produk"
-    >
+        <button
+            type="button"
+            class="image-modal-close"
+            id="imageModalClose"
+            aria-label="Tutup preview"
+        >
+            <i class="fa-solid fa-xmark"></i>
+        </button>
 
-    <button
-      type="button"
-      class="image-modal-next"
-      id="imageModalNext">
-      <i class="fa-solid fa-chevron-right"></i>
-    </button>
 
-    <div 
-      id="imageModalCounter"
-      class="image-modal-counter">
-      1 / 1
+        <button
+            type="button"
+            class="image-modal-prev"
+            id="imageModalPrev"
+            aria-label="Gambar sebelumnya"
+        >
+            <i class="fa-solid fa-chevron-left"></i>
+        </button>
+
+
+        <div class="modal-image-stage">
+
+            <img
+                id="imageModalMain"
+                src=""
+                alt="Preview Produk"
+            >
+
+        </div>
+
+
+        <button
+            type="button"
+            class="image-modal-next"
+            id="imageModalNext"
+            aria-label="Gambar berikutnya"
+        >
+            <i class="fa-solid fa-chevron-right"></i>
+        </button>
+
+
+        <div
+            id="imageModalCounter"
+            class="image-modal-counter"
+        >
+            1 / 1
+        </div>
+
     </div>
 
-  </div>
 </div>
 
 </body>
