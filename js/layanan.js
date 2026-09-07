@@ -1,9 +1,22 @@
+"use strict";
+
+/* =========================================================
+   CEO ORDER SERVICE
+   layanan.js
+   ========================================================= */
+
 const client = window.supabaseClient;
 
+/* =========================================================
+   STATE
+   ========================================================= */
+
 let spareparts = {};
-let allProducts = []; // simpan semua produk
+let allProducts = [];
+
 let currentKeyword = "";
 let currentCategory = "";
+
 let transportCost = 0;
 
 let metode,
@@ -22,755 +35,2729 @@ let metode,
     coordInput,
     distanceInfo;
 
-/* ================= MAP GLOBAL ================= */
 let mapInstance = null;
 let marker = null;
+
 let paymentSection,
     paymentMethod,
     paymentInfo;
 
-/* ================= KOORDINAT TOKO ================= */
-/* GANTI dengan lokasi toko kamu */
-const TOKO_LAT = -6.166946854281742;   // contoh: Jakarta
+const TOKO_LAT = -6.166946854281742;
 const TOKO_LNG = 106.80309915767154;
 
-document.addEventListener("DOMContentLoaded",()=>{
+const WA_NUMBER = "628138892098";
 
-    if(!supabase){
-        alert("Supabase belum terhubung");
+
+/* =========================================================
+   DOM READY
+   ========================================================= */
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    /* -----------------------------------------------------
+       SUPABASE CHECK
+       ----------------------------------------------------- */
+
+    if (!client) {
+        console.error("Supabase client belum tersedia.");
+        alert("Supabase belum terhubung. Silakan refresh halaman.");
         return;
     }
-/* ===== SEARCH SPAREPART ===== */
-document.getElementById("searchSparepart")
-?.addEventListener("input", e => {
-    currentKeyword = e.target.value;
-    renderProducts();
-});
 
-/* ===== FILTER KATEGORI ===== */
-document.getElementById("filterCategory")
-?.addEventListener("change", e => {
-    currentCategory = e.target.value;
-    renderProducts();
-});
 
-    /* ================= AMBIL ELEMENT ================= */
-    metode = document.getElementById("service-option");
-    mapSection = document.getElementById("map-section");
-    transportSection = document.getElementById("transport-section");
-    proof = document.getElementById("payment-proof-section");
-    alamatToko = document.getElementById("alamat-toko");
-    resiSection = document.getElementById("resi-section");
-    resiInput = document.getElementById("customer-resi");
-    ekspedisiInput = document.getElementById("customer-ekspedisi");
-    const labelResi = document.getElementById("label-resi");
-    if(ekspedisiInput && labelResi){
-    
-        ekspedisiInput.addEventListener("change", ()=>{
-            const ojol = [
-                "Gojek",
-                "Grab",
-                "Maxim",
-                "Lalamove"
-            ];
-    
-            if(ojol.includes(ekspedisiInput.value)){
-    
+    /* -----------------------------------------------------
+       OPTIONAL PRODUCT ELEMENTS
+       
+       Section produk pada layanan.html saat ini memang
+       sudah dinonaktifkan/dihapus karena produk memiliki
+       halaman tersendiri.
+
+       Jadi fungsi produk hanya dijalankan jika element
+       products-container memang tersedia.
+       ----------------------------------------------------- */
+
+    const productsContainer =
+        document.getElementById("products-container");
+
+    const searchSparepart =
+        document.getElementById("searchSparepart");
+
+    const filterCategory =
+        document.getElementById("filterCategory");
+
+
+    if (searchSparepart) {
+
+        searchSparepart.addEventListener("input", () => {
+
+            currentKeyword =
+                searchSparepart.value.trim().toLowerCase();
+
+            renderProducts();
+
+        });
+
+    }
+
+
+    if (filterCategory) {
+
+        filterCategory.addEventListener("change", () => {
+
+            currentCategory =
+                filterCategory.value;
+
+            renderProducts();
+
+        });
+
+    }
+
+
+    /*
+     * Jangan load catalog produk jika container
+     * memang tidak ada.
+     */
+    if (productsContainer) {
+
+        loadProducts();
+        loadCategoriesFilter();
+
+    }
+
+
+    /* =====================================================
+       SERVICE ELEMENTS
+       ===================================================== */
+
+    metode =
+        document.getElementById("service-option");
+
+    mapSection =
+        document.getElementById("map-section");
+
+    transportSection =
+        document.getElementById("transport-section");
+
+    proof =
+        document.getElementById("payment-proof");
+
+    alamatToko =
+        document.getElementById("alamat-toko");
+
+    resiSection =
+        document.getElementById("resi-section");
+
+    resiInput =
+        document.getElementById("customer-resi");
+
+    ekspedisiInput =
+        document.getElementById("customer-ekspedisi");
+
+    sparepartPriceEl =
+        document.getElementById("sparepart-price");
+
+    transportPriceEl =
+        document.getElementById("transport-price");
+
+    totalPriceEl =
+        document.getElementById("total-price");
+
+    transportRow =
+        document.getElementById("transport-row");
+
+    ongkir =
+        document.getElementById("transport-fee");
+
+    coordInput =
+        document.getElementById("customer-coord");
+
+    distanceInfo =
+        document.getElementById("distance-info");
+
+
+    /* =====================================================
+       PAYMENT ELEMENTS
+       ===================================================== */
+
+    paymentSection =
+        document.getElementById("payment-section");
+
+    paymentMethod =
+        document.getElementById("payment-method");
+
+    paymentInfo =
+        document.getElementById("payment-info");
+
+
+    /* =====================================================
+       EXPEDITION
+       ===================================================== */
+
+    if (ekspedisiInput) {
+
+        ekspedisiInput.addEventListener("change", () => {
+
+            const labelResi =
+                document.getElementById("label-resi");
+
+            if (!labelResi) return;
+
+            const expedition =
+                ekspedisiInput.value;
+
+            const driverBased =
+                [
+                    "Gojek",
+                    "Grab",
+                    "Maxim",
+                    "Lalamove"
+                ].includes(expedition);
+
+
+            if (driverBased) {
+
                 labelResi.textContent =
                     "Nomor Order / Nama Driver";
-    
-                resiInput.placeholder =
-                    "Masukkan nomor order atau nama driver";
-    
-            }else{
-    
+
+                if (resiInput) {
+                    resiInput.placeholder =
+                        "Masukkan nomor order atau nama driver";
+                }
+
+            } else {
+
                 labelResi.textContent =
-                    "Nomor Resi Pengiriman";
-    
-                resiInput.placeholder =
-                    "Masukkan nomor resi";
-    
+                    "Nomor Resi";
+
+                if (resiInput) {
+                    resiInput.placeholder =
+                        "Masukkan nomor resi";
+                }
+
             }
-    
+
         });
-    
+
     }
 
-    sparepartPriceEl = document.getElementById("sparepart-price");
-    transportPriceEl = document.getElementById("transport-price");
-    totalPriceEl = document.getElementById("total-price");
-    transportRow = document.getElementById("transport-row");
 
-    ongkir = document.getElementById("transport-fee");
-    coordInput = document.getElementById("customer-coord");
-    distanceInfo = document.getElementById("distance-info");
-    paymentSection = document.getElementById("payment-section");
-    paymentMethod = document.getElementById("payment-method");
-    paymentInfo = document.getElementById("payment-info");
+    /* =====================================================
+       INITIAL SERVICE UI
+       ===================================================== */
 
-    /* ================= EVENT METODE ================= */
-    if(metode){
-        metode.addEventListener("change",()=>{
+    if (mapSection) {
+        mapSection.style.display = "none";
+    }
 
-           mapSection.style.display="none";
-            transportSection.style.display="none";
-            proof.style.display="none";
-            alamatToko.style.display="none";
-            transportRow.style.display="none";
-            transportCost=0;
-            
-            if(paymentSection){
-                paymentSection.style.display="none";
+    if (transportSection) {
+        transportSection.style.display = "none";
+    }
+
+    if (proof) {
+        const proofSection =
+            document.getElementById("payment-proof-section");
+
+        if (proofSection) {
+            proofSection.style.display = "none";
+        }
+    }
+
+    if (alamatToko) {
+        alamatToko.style.display = "none";
+    }
+
+    if (resiSection) {
+        resiSection.style.display = "none";
+    }
+
+    if (transportRow) {
+        transportRow.style.display = "none";
+    }
+
+    if (paymentSection) {
+        paymentSection.style.display = "none";
+    }
+
+
+    /* =====================================================
+       SERVICE METHOD CHANGE
+       ===================================================== */
+
+    if (metode) {
+
+        metode.addEventListener("change", () => {
+
+            const method =
+                metode.value;
+
+
+            /* ---------------------------------------------
+               RESET
+               --------------------------------------------- */
+
+            if (mapSection) {
+                mapSection.style.display = "none";
             }
-            if(resiSection){
-                resiSection.style.display="none";
+
+            if (transportSection) {
+                transportSection.style.display = "none";
             }
 
-               if(metode.value==="Home Service"){
-                    mapSection.style.display="block";
-                    transportSection.style.display="block";
-                    proof.style.display="block";
-                    transportRow.style.display="flex";
-                
-                    if(paymentSection){
-                        paymentSection.style.display="block";
-                    }
-                
+            if (alamatToko) {
+                alamatToko.style.display = "none";
+            }
+
+            if (resiSection) {
+                resiSection.style.display = "none";
+            }
+
+            if (transportRow) {
+                transportRow.style.display = "none";
+            }
+
+            if (paymentSection) {
+                paymentSection.style.display = "none";
+            }
+
+            const proofSection =
+                document.getElementById("payment-proof-section");
+
+            if (proofSection) {
+                proofSection.style.display = "none";
+            }
+
+
+            transportCost = 0;
+
+
+            /* ---------------------------------------------
+               HOME SERVICE
+               --------------------------------------------- */
+
+            if (method === "Home Service") {
+
+                if (mapSection) {
+                    mapSection.style.display = "block";
+                }
+
+                if (transportSection) {
+                    transportSection.style.display = "block";
+                }
+
+                if (transportRow) {
+                    transportRow.style.display = "flex";
+                }
+
+                if (paymentSection) {
+                    paymentSection.style.display = "block";
+                }
+
+                if (proofSection) {
+                    proofSection.style.display = "block";
+                }
+
+                /*
+                 * Initialize map sedikit setelah section
+                 * ditampilkan supaya ukuran Leaflet benar.
+                 */
+                setTimeout(() => {
                     initMap();
-                }
+                }, 100);
 
-
-            if(metode.value==="Kirim Paket"){
-                alamatToko.style.display="block";
-                if(resiSection){
-                    resiSection.style.display="block";
-                }
             }
+
+
+            /* ---------------------------------------------
+               KIRIM PAKET
+               --------------------------------------------- */
+
+            else if (method === "Kirim Paket") {
+
+                if (alamatToko) {
+                    alamatToko.style.display = "block";
+                }
+
+                if (resiSection) {
+                    resiSection.style.display = "block";
+                }
+
+            }
+
+
+            /* ---------------------------------------------
+               DATANG KE TOKO
+               --------------------------------------------- */
+
+            else if (method === "Datang ke Toko") {
+
+                if (alamatToko) {
+                    alamatToko.style.display = "block";
+                }
+
+            }
+
+
             updateTotal();
+
         });
+
     }
-    
-/* ================= METODE PEMBAYARAN ================= */
-if(paymentMethod){
-    paymentMethod.addEventListener("change", ()=>{
 
-        paymentInfo.innerHTML = "";
 
-        /* ================= TRANSFER ================= */
-        if(paymentMethod.value === "Transfer"){
-            const rekening = "5855369360";
+    /* =====================================================
+       PAYMENT METHOD
+       ===================================================== */
 
-            paymentInfo.innerHTML = `
-                <div style="background:#f5f5f5;padding:12px;border-radius:8px;">
-                    <p><b>Transfer ke:</b></p>
-                    <p>BCA</p>
-                    <p id="rekening-number" style="font-size:16px;font-weight:bold;">
-                        ${rekening}
-                    </p>
-                    <button id="copy-rekening" 
-                        style="margin-top:8px;padding:6px 10px;border:none;background:#1f6f78;color:#fff;border-radius:6px;cursor:pointer;">
-                        📋 Copy Nomor Rekening
-                    </button>
-                </div>
-            `;
+    if (paymentMethod) {
 
-            document.getElementById("copy-rekening").onclick = ()=>{
-                navigator.clipboard.writeText(rekening);
-                alert("Nomor rekening berhasil disalin!");
-            };
-        }
+        paymentMethod.addEventListener("change", () => {
 
-        /* ================= QRIS ================= */
-        if(paymentMethod.value === "QRIS"){
-            paymentInfo.innerHTML = `
-                <div style="background:#f5f5f5;padding:12px;border-radius:8px;text-align:center;">
-                    <p><b>Scan atau Download QRIS</b></p>
-                    <img src="images/qris.jpg" 
-                         width="220" 
-                         style="margin-top:8px;border-radius:10px;">
-                    
-                    <br>
+            const method =
+                paymentMethod.value;
 
-                    <a href="images/qris.jpg" 
-                       download="QRIS_CEO_Service_HP.jpg"
-                       style="display:inline-block;margin-top:10px;
-                              padding:6px 12px;
-                              background:#1f6f78;
-                              color:#fff;
-                              border-radius:6px;
-                              text-decoration:none;">
-                        ⬇ Download QRIS
-                    </a>
-                </div>
-            `;
-        }
-    });
-}
+            if (!paymentInfo) return;
 
-/* ================= ALAMAT ================= */
-  const copyAlamatBtn = document.getElementById("copy-alamat");
-    const alamatText = document.getElementById("alamat-text");
-    
-    if(copyAlamatBtn && alamatText){
-        copyAlamatBtn.addEventListener("click", ()=>{
-            navigator.clipboard.writeText(alamatText.textContent.trim())
-            .then(()=>{
-                copyAlamatBtn.textContent = "✅ Berhasil Disalin";
-                setTimeout(()=>{
-                    copyAlamatBtn.textContent = "📋 Copy Alamat";
-                },1500);
-            })
-            .catch(()=>{
-                alert("Gagal menyalin alamat");
-            });
+
+            /* ---------------------------------------------
+               TRANSFER
+               --------------------------------------------- */
+
+            if (method === "Transfer") {
+
+                paymentInfo.innerHTML = `
+                    <div class="payment-detail">
+                        <strong>Transfer Bank BCA</strong>
+                        <p>
+                            No. Rekening:
+                            <strong id="rekening-number">
+                                5855369360
+                            </strong>
+                        </p>
+
+                        <button
+                            type="button"
+                            id="copy-rekening"
+                            class="copy-btn"
+                        >
+                            <i class="fas fa-copy"></i>
+                            Salin Nomor Rekening
+                        </button>
+                    </div>
+                `;
+
+
+                const copyRekening =
+                    document.getElementById("copy-rekening");
+
+                if (copyRekening) {
+
+                    copyRekening.addEventListener(
+                        "click",
+                        async () => {
+
+                            try {
+
+                                await navigator.clipboard.writeText(
+                                    "5855369360"
+                                );
+
+                                copyRekening.innerHTML =
+                                    '<i class="fas fa-check"></i> Berhasil Disalin';
+
+                                setTimeout(() => {
+
+                                    copyRekening.innerHTML =
+                                        '<i class="fas fa-copy"></i> Salin Nomor Rekening';
+
+                                }, 2000);
+
+                            } catch (error) {
+
+                                console.error(
+                                    "Gagal menyalin rekening:",
+                                    error
+                                );
+
+                                alert(
+                                    "Nomor rekening: 5855369360"
+                                );
+
+                            }
+
+                        }
+                    );
+
+                }
+
+            }
+
+
+            /* ---------------------------------------------
+               QRIS
+               --------------------------------------------- */
+
+            else if (method === "QRIS") {
+
+                paymentInfo.innerHTML = `
+                    <div class="payment-detail qris-detail">
+
+                        <strong>Scan QRIS</strong>
+
+                        <div class="qris-image-wrapper">
+                            <img
+                                src="images/qris.jpg"
+                                alt="QRIS CEO Part & Service"
+                            >
+                        </div>
+
+                        <a
+                            href="images/qris.jpg"
+                            download="qris-ceo-part-service.jpg"
+                            class="download-qris"
+                        >
+                            <i class="fas fa-download"></i>
+                            Download QRIS
+                        </a>
+
+                    </div>
+                `;
+
+            }
+
+
+            else {
+
+                paymentInfo.innerHTML = "";
+
+            }
+
         });
+
     }
-    
-    loadProducts();
-    loadCategoriesFilter();
+
+
+    /* =====================================================
+       COPY STORE ADDRESS
+       ===================================================== */
+
+    const copyAlamat =
+        document.getElementById("copy-alamat");
+
+    const alamatText =
+        document.getElementById("alamat-text");
+
+
+    if (copyAlamat && alamatText) {
+
+        copyAlamat.addEventListener("click", async () => {
+
+            try {
+
+                await navigator.clipboard.writeText(
+                    alamatText.textContent.trim()
+                );
+
+                const original =
+                    copyAlamat.innerHTML;
+
+                copyAlamat.innerHTML =
+                    '<i class="fas fa-check"></i> Berhasil Disalin';
+
+                setTimeout(() => {
+
+                    copyAlamat.innerHTML =
+                        original;
+
+                }, 2000);
+
+            } catch (error) {
+
+                console.error(
+                    "Gagal menyalin alamat:",
+                    error
+                );
+
+                alert(
+                    "Alamat toko:\n" +
+                    alamatText.textContent.trim()
+                );
+
+            }
+
+        });
+
+    }
+
+
+    /* =====================================================
+       GPS BUTTON
+       ===================================================== */
+
+    const getLocationBtn =
+        document.getElementById("getLocation");
+
+
+    if (getLocationBtn) {
+
+        getLocationBtn.addEventListener("click", () => {
+
+            if (!navigator.geolocation) {
+
+                alert(
+                    "Browser Anda tidak mendukung fitur lokasi."
+                );
+
+                return;
+
+            }
+
+
+            getLocationBtn.disabled = true;
+
+            const originalText =
+                getLocationBtn.innerHTML;
+
+            getLocationBtn.innerHTML =
+                '<i class="fas fa-spinner fa-spin"></i> Mengambil lokasi...';
+
+
+            navigator.geolocation.getCurrentPosition(
+
+                (position) => {
+
+                    const lat =
+                        position.coords.latitude;
+
+                    const lng =
+                        position.coords.longitude;
+
+
+                    if (coordInput) {
+
+                        coordInput.value =
+                            `${lat},${lng}`;
+
+                    }
+
+
+                    initMap();
+
+
+                    if (mapInstance) {
+
+                        smoothMoveMarker(
+                            lat,
+                            lng
+                        );
+
+                    }
+
+
+                    getLocationBtn.disabled =
+                        false;
+
+                    getLocationBtn.innerHTML =
+                        originalText;
+
+                },
+
+                (error) => {
+
+                    console.error(
+                        "Geolocation error:",
+                        error
+                    );
+
+
+                    getLocationBtn.disabled =
+                        false;
+
+                    getLocationBtn.innerHTML =
+                        originalText;
+
+
+                    let message =
+                        "Lokasi tidak dapat diambil.";
+
+                    if (error.code === 1) {
+
+                        message =
+                            "Izin lokasi ditolak. Silakan izinkan akses lokasi pada browser.";
+
+                    } else if (error.code === 2) {
+
+                        message =
+                            "Lokasi tidak tersedia. Pastikan GPS/perangkat lokasi aktif.";
+
+                    } else if (error.code === 3) {
+
+                        message =
+                            "Pengambilan lokasi terlalu lama. Silakan coba lagi.";
+
+                    }
+
+                    alert(message);
+
+                },
+
+                {
+                    enableHighAccuracy: true,
+                    timeout: 15000,
+                    maximumAge: 0
+                }
+
+            );
+
+        });
+
+    }
+
+
+    /* =====================================================
+       CHECKOUT
+       ===================================================== */
+
+    const checkoutBtn =
+        document.getElementById("checkout");
+
+
+    if (checkoutBtn) {
+
+        checkoutBtn.addEventListener(
+            "click",
+            checkout
+        );
+
+    }
+
+
+    /* =====================================================
+       INITIAL TOTAL
+       ===================================================== */
+
+    renderCart();
+    updateTotal();
 
 });
 
-/* ================= HELPER ================= */
-function rupiah(n){
-return "Rp "+Number(n).toLocaleString("id-ID");
+
+/* =========================================================
+   RUPIAH
+   ========================================================= */
+
+function rupiah(n) {
+
+    return (
+        "Rp " +
+        Number(n || 0).toLocaleString("id-ID")
+    );
+
 }
 
-/* ================= TOTAL ================= */
-function updateTotal(){
 
-const spare=Object.values(spareparts)
-.reduce((a,b)=>a+(b.price*b.qty),0);
+/* =========================================================
+   UPDATE TOTAL
+   ========================================================= */
 
-const total=spare+transportCost;
+function updateTotal() {
 
-if(sparepartPriceEl) sparepartPriceEl.textContent=rupiah(spare);
-if(transportPriceEl) transportPriceEl.textContent=rupiah(transportCost);
-if(totalPriceEl) totalPriceEl.textContent=rupiah(total);
-}
+    let spareTotal = 0;
 
-/* ================= HITUNG JARAK ================= */
-function hitungJarak(lat,lng){
 
-const R=6371;
-const dLat=(lat-TOKO_LAT)*Math.PI/180;
-const dLng=(lng-TOKO_LNG)*Math.PI/180;
+    Object.values(spareparts).forEach(item => {
 
-const a=
-Math.sin(dLat/2)**2+
-Math.cos(TOKO_LAT*Math.PI/180)*
-Math.cos(lat*Math.PI/180)*
-Math.sin(dLng/2)**2;
+        const price =
+            Number(item.price || 0);
 
-return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
-}
+        const qty =
+            Number(item.qty || 0);
 
-function hitungOngkir(km){
+        spareTotal +=
+            price * qty;
 
-km=Math.ceil(km);
-let biaya=20000;
-if(km>1) biaya+=(km-1)*3000;
+    });
 
-return {biaya,km};
-}
 
-/* ================= SET LOCATION ================= */
-function smoothMoveMarker(lat, lng){
+    const transport =
+        Number(transportCost || 0);
 
-    if(!mapInstance || !marker) return;
+    const total =
+        spareTotal + transport;
 
-    const start = marker.getLatLng();
-    const end = L.latLng(lat, lng);
 
-    const duration = 600;
-    const startTime = performance.now();
+    if (sparepartPriceEl) {
 
-    function animate(time){
-        const progressRaw = Math.min((time - startTime) / duration, 1);
-        const progress = 1 - Math.pow(1 - progressRaw, 3); // easing
+        sparepartPriceEl.textContent =
+            rupiah(spareTotal);
 
-        const currentLat = start.lat + (end.lat - start.lat) * progress;
-        const currentLng = start.lng + (end.lng - start.lng) * progress;
-
-        marker.setLatLng([currentLat, currentLng]);
-
-        if(progressRaw < 1){
-            requestAnimationFrame(animate);
-        } else {
-
-            // 🔥 Hitung ongkir setelah sampai
-            coordInput.value = lat + "," + lng;
-
-            const jarak = hitungJarak(lat, lng);
-            const res = hitungOngkir(jarak);
-
-            transportCost = res.biaya;
-            ongkir.value = rupiah(res.biaya);
-            distanceInfo.textContent = "Jarak " + res.km + " KM";
-
-            updateTotal();
-
-            // Bounce
-            if(marker._icon){
-                marker._icon.classList.add("bounce");
-                setTimeout(()=>{
-                    marker._icon.classList.remove("bounce");
-                },600);
-            }
-        }
     }
 
-    requestAnimationFrame(animate);
 
-    mapInstance.flyTo([lat, lng], 15, {
-        duration: 0.8
-    });
-}
-/* ================= MAP ================= */
-function initMap(){
-    if(mapInstance) return;
+    if (transportPriceEl) {
 
-    mapInstance = L.map("map").setView([TOKO_LAT, TOKO_LNG], 13);
+        transportPriceEl.textContent =
+            rupiah(transport);
 
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        maxZoom: 19
-    }).addTo(mapInstance);
+    }
 
-    const customIcon = L.divIcon({
-        className: "custom-marker",
-        html: `<i class="fa-solid fa-location-dot"></i>`,
-        iconSize: [30,30],
-        iconAnchor: [15,30]
-    });
 
-    marker = L.marker([TOKO_LAT, TOKO_LNG], { icon: customIcon }).addTo(mapInstance);
+    if (totalPriceEl) {
 
-    mapInstance.on("click", e => {
-        const lat = e.latlng.lat;
-        const lng = e.latlng.lng;
-        smoothMoveMarker(lat, lng);
-    });
+        totalPriceEl.textContent =
+            rupiah(total);
+
+    }
+
+
+    if (ongkir) {
+
+        ongkir.value =
+            transport;
+
+    }
+
 }
 
-/* ================= LOAD PRODUK DARI DATABASE ================= */
-async function loadProducts(){
 
-    const { data, error } = await client
-        .from("products")
-        .select(`
-            *,
-            categories(name)
-        `)
-        .eq("is_active", true)
-        .order("created_at", { ascending: false });
+/* =========================================================
+   HITUNG JARAK
+   ========================================================= */
 
-    if(error){
-        console.error("Gagal load produk:", error);
+function hitungJarak(
+    lat1,
+    lng1,
+    lat2,
+    lng2
+) {
+
+    const R = 6371;
+
+    const dLat =
+        (lat2 - lat1) *
+        Math.PI /
+        180;
+
+    const dLng =
+        (lng2 - lng1) *
+        Math.PI /
+        180;
+
+
+    const a =
+        Math.sin(dLat / 2) *
+        Math.sin(dLat / 2) +
+
+        Math.cos(lat1 * Math.PI / 180) *
+        Math.cos(lat2 * Math.PI / 180) *
+
+        Math.sin(dLng / 2) *
+        Math.sin(dLng / 2);
+
+
+    const c =
+        2 *
+        Math.atan2(
+            Math.sqrt(a),
+            Math.sqrt(1 - a)
+        );
+
+
+    return R * c;
+
+}
+
+
+/* =========================================================
+   HITUNG ONGKIR
+   ========================================================= */
+
+function hitungOngkir(distanceKm) {
+
+    let cost = 20000;
+
+
+    /*
+     * 1 km pertama menggunakan biaya dasar.
+     * Setelah lebih dari 1 km:
+     * tambahan Rp3.000 per km.
+     */
+
+    if (distanceKm > 1) {
+
+        cost +=
+            Math.ceil(distanceKm - 1) *
+            3000;
+
+    }
+
+
+    return cost;
+
+}
+
+
+/* =========================================================
+   SMOOTH MOVE MARKER
+   ========================================================= */
+
+function smoothMoveMarker(
+    lat,
+    lng
+) {
+
+    if (!mapInstance) return;
+
+
+    const latLng =
+        [lat, lng];
+
+
+    if (!marker) {
+
+        marker =
+            L.marker(latLng)
+                .addTo(mapInstance);
+
+    } else {
+
+        marker.setLatLng(latLng);
+
+    }
+
+
+    mapInstance.setView(
+        latLng,
+        15
+    );
+
+
+    /* -----------------------------------------------------
+       HITUNG JARAK KE TOKO
+       ----------------------------------------------------- */
+
+    const distanceKm =
+        hitungJarak(
+            TOKO_LAT,
+            TOKO_LNG,
+            lat,
+            lng
+        );
+
+
+    transportCost =
+        hitungOngkir(distanceKm);
+
+
+    if (distanceInfo) {
+
+        distanceInfo.textContent =
+            `Jarak dari toko: ${distanceKm.toFixed(2)} km`;
+
+    }
+
+
+    if (transportPriceEl) {
+
+        transportPriceEl.textContent =
+            rupiah(transportCost);
+
+    }
+
+
+    if (ongkir) {
+
+        ongkir.value =
+            transportCost;
+
+    }
+
+
+    updateTotal();
+
+
+    /* -----------------------------------------------------
+       ANIMASI MARKER
+       ----------------------------------------------------- */
+
+    if (marker && marker._icon) {
+
+        marker._icon.classList.remove(
+            "marker-bounce"
+        );
+
+
+        void marker._icon.offsetWidth;
+
+
+        marker._icon.classList.add(
+            "marker-bounce"
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   INIT MAP
+   ========================================================= */
+
+function initMap() {
+
+    const mapElement =
+        document.getElementById("map");
+
+
+    if (!mapElement) return;
+
+
+    if (mapInstance) {
+
+        setTimeout(() => {
+
+            mapInstance.invalidateSize();
+
+        }, 100);
+
         return;
+
     }
 
-    allProducts = data || [];
-    renderProducts();
+
+    mapInstance =
+        L.map(mapElement).setView(
+            [
+                TOKO_LAT,
+                TOKO_LNG
+            ],
+            13
+        );
+
+
+    L.tileLayer(
+        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        {
+            attribution:
+                "&copy; OpenStreetMap contributors"
+        }
+    ).addTo(mapInstance);
+
+
+    /* -----------------------------------------------------
+       MARKER TOKO
+       ----------------------------------------------------- */
+
+    L.marker([
+        TOKO_LAT,
+        TOKO_LNG
+    ])
+        .addTo(mapInstance)
+        .bindPopup(
+            "<strong>CEO Part & Service</strong><br>Lokasi Toko"
+        );
+
+
+    /* -----------------------------------------------------
+       CLICK MAP
+       ----------------------------------------------------- */
+
+    mapInstance.on(
+        "click",
+        (e) => {
+
+            const lat =
+                e.latlng.lat;
+
+            const lng =
+                e.latlng.lng;
+
+
+            if (coordInput) {
+
+                coordInput.value =
+                    `${lat},${lng}`;
+
+            }
+
+
+            smoothMoveMarker(
+                lat,
+                lng
+            );
+
+        }
+    );
+
+
+    /* -----------------------------------------------------
+       JIKA COORD SUDAH ADA
+       ----------------------------------------------------- */
+
+    if (coordInput && coordInput.value) {
+
+        const parts =
+            coordInput.value.split(",");
+
+
+        if (parts.length === 2) {
+
+            const lat =
+                parseFloat(parts[0]);
+
+            const lng =
+                parseFloat(parts[1]);
+
+
+            if (
+                Number.isFinite(lat) &&
+                Number.isFinite(lng)
+            ) {
+
+                smoothMoveMarker(
+                    lat,
+                    lng
+                );
+
+            }
+
+        }
+
+    }
+
 }
 
-function attachProductEvents(){
 
-    document.querySelectorAll(".product-card button")
-        .forEach(btn=>{
+/* =========================================================
+   LOAD PRODUCTS
+   =========================================================
+   
+   Fungsi ini dipertahankan agar tidak merusak sistem lama.
+   Namun hanya dipanggil jika products-container tersedia.
+   ========================================================= */
 
-            btn.onclick = ()=>{
+async function loadProducts() {
 
-                const name = btn.dataset.name;
-                const price = parseInt(btn.dataset.price);
+    try {
 
-                if(spareparts[name]){
-                    spareparts[name].qty++;
-                }else{
-                    spareparts[name] = {
-                        price: price,
-                        qty: 1
+        const {
+            data,
+            error
+        } = await client
+            .from("products")
+            .select(`
+                id,
+                name,
+                description,
+                price,
+                promo_price,
+                stock,
+                image_url,
+                image_urls,
+                category_id,
+                categories (
+                    name
+                )
+            `)
+            .eq("is_active", true)
+            .order("created_at", {
+                ascending: false
+            });
+
+
+        if (error) {
+
+            console.error(
+                "Gagal mengambil produk:",
+                error
+            );
+
+            return;
+
+        }
+
+
+        allProducts =
+            data || [];
+
+
+        renderProducts();
+
+    } catch (error) {
+
+        console.error(
+            "Error loadProducts:",
+            error
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   ATTACH PRODUCT EVENTS
+   ========================================================= */
+
+function attachProductEvents() {
+
+    const buttons =
+        document.querySelectorAll(
+            ".add-product-btn"
+        );
+
+
+    buttons.forEach(button => {
+
+        button.addEventListener(
+            "click",
+            () => {
+
+                const productId =
+                    button.dataset.id;
+
+
+                const product =
+                    allProducts.find(
+                        p =>
+                            String(p.id) ===
+                            String(productId)
+                    );
+
+
+                if (!product) return;
+
+
+                const price =
+                    (
+                        Number(product.promo_price || 0) > 0 &&
+                        Number(product.promo_price) <
+                        Number(product.price || 0)
+                    )
+                        ? Number(product.promo_price)
+                        : Number(product.price || 0);
+
+
+                const key =
+                    String(product.id);
+
+
+                if (!spareparts[key]) {
+
+                    spareparts[key] = {
+
+                        id:
+                            product.id,
+
+                        name:
+                            product.name,
+
+                        price:
+                            price,
+
+                        qty:
+                            1
+
                     };
+
+                } else {
+
+                    spareparts[key].qty++;
+
                 }
 
-                btn.textContent="✔ Ditambahkan";
-                setTimeout(()=>btn.textContent="Tambah",800);
 
                 renderCart();
                 updateTotal();
-            };
+
+            }
+        );
+
+    });
+
+}
+
+
+/* =========================================================
+   LOAD CATEGORY FILTER
+   ========================================================= */
+
+async function loadCategoriesFilter() {
+
+    const filter =
+        document.getElementById(
+            "filterCategory"
+        );
+
+
+    if (!filter) return;
+
+
+    try {
+
+        const {
+            data,
+            error
+        } = await client
+            .from("categories")
+            .select(
+                "id, name"
+            )
+            .eq(
+                "is_active",
+                true
+            )
+            .order(
+                "name",
+                {
+                    ascending: true
+                }
+            );
+
+
+        if (error) {
+
+            console.error(
+                "Gagal mengambil kategori:",
+                error
+            );
+
+            return;
+
+        }
+
+
+        filter.innerHTML =
+            `<option value="">Semua Kategori</option>`;
+
+
+        (data || []).forEach(category => {
+
+            const option =
+                document.createElement("option");
+
+            option.value =
+                category.id;
+
+            option.textContent =
+                category.name;
+
+            filter.appendChild(
+                option
+            );
 
         });
-}
 
-/* ================= LOAD KATEGORI FILTER ================= */
-async function loadCategoriesFilter(){
+    } catch (error) {
 
-    const { data, error } = await client
-        .from("categories")
-        .select("name")
-        .eq("is_active", true)
-        .order("name");
+        console.error(
+            "Error loadCategoriesFilter:",
+            error
+        );
 
-    if(error){
-        console.error("Gagal load kategori:", error);
-        return;
     }
 
-    const select = document.getElementById("filterCategory");
-
-    if(!select) return;
-
-    select.innerHTML = `
-        <option value="all">Semua Kategori</option>
-    `;
-
-    data.forEach(cat=>{
-        select.innerHTML += `
-            <option value="${cat.name}">
-                ${cat.name}
-            </option>
-        `;
-    });
-
-    currentCategory = "all";
 }
 
-/* ================= RENDER CART ================= */
-function renderCart(){
 
-const box=document.getElementById("cart-items");
-const wrap=document.getElementById("cart-box");
+/* =========================================================
+   RENDER PRODUCTS
+   ========================================================= */
 
-if(!box || !wrap) return;
+function renderProducts() {
 
-box.innerHTML="";
+    const container =
+        document.getElementById(
+            "products-container"
+        );
 
-const keys=Object.keys(spareparts);
 
-if(keys.length===0){
-wrap.style.display="none";
-return;
-}
+    /*
+     * INI ADALAH PERBAIKAN UTAMA.
+     *
+     * Karena products-container memang sudah tidak ada
+     * di layanan.html, fungsi langsung berhenti.
+     */
 
-wrap.style.display="block";
+    if (!container) return;
 
-keys.forEach(name=>{
 
-const item=spareparts[name];
-
-const div=document.createElement("div");
-div.className="cart-row";
-
-div.innerHTML=`
-<span>${name}</span>
-
-<div class="cart-controls">
-<button class="minus" data-name="${name}">−</button>
-<span>${item.qty}</span>
-<button class="plus" data-name="${name}">+</button>
-<button class="remove" data-name="${name}">✕</button>
-</div>
-
-<span>${rupiah(item.price*item.qty)}</span>
-`;
-
-box.appendChild(div);
-});
-
-attachCartEvents();
-}
-
-function attachCartEvents(){
-
-document.querySelectorAll(".plus").forEach(btn=>{
-btn.onclick=()=>{
-spareparts[btn.dataset.name].qty++;
-renderCart();
-updateTotal();
-};
-});
-
-document.querySelectorAll(".minus").forEach(btn=>{
-btn.onclick=()=>{
-const item=spareparts[btn.dataset.name];
-item.qty--;
-
-if(item.qty<=0)
-delete spareparts[btn.dataset.name];
-
-renderCart();
-updateTotal();
-};
-});
-
-document.querySelectorAll(".remove").forEach(btn=>{
-btn.onclick=()=>{
-delete spareparts[btn.dataset.name];
-renderCart();
-updateTotal();
-};
-});
-}
-
-/* ================= Render Products================= */
-function renderProducts(){
-
-    const container = document.getElementById("products-container");
     container.innerHTML = "";
 
-    let filtered = allProducts.filter(p => {
 
-        const matchName = p.name
-            .toLowerCase()
-            .includes(currentKeyword.toLowerCase());
+    let products =
+        [...allProducts];
 
-        const matchCategory =
-            currentCategory === "all" ||
-            currentCategory === "" ||
-            p.categories?.name === currentCategory;
 
-        return matchName && matchCategory;
-    });
+    /* -----------------------------------------------------
+       SEARCH
+       ----------------------------------------------------- */
 
-    if(filtered.length === 0){
-        container.innerHTML = "<p>Tidak ada produk ditemukan</p>";
-        return;
+    if (currentKeyword) {
+
+        products =
+            products.filter(product => {
+
+                const name =
+                    String(
+                        product.name || ""
+                    ).toLowerCase();
+
+
+                const description =
+                    String(
+                        product.description || ""
+                    ).toLowerCase();
+
+
+                return (
+                    name.includes(
+                        currentKeyword
+                    ) ||
+                    description.includes(
+                        currentKeyword
+                    )
+                );
+
+            });
+
     }
 
-    filtered.forEach((p)=>{
 
-        const hargaTampil = p.promo_price && p.promo_price > 0
-            ? p.promo_price
-            : p.price;
+    /* -----------------------------------------------------
+       CATEGORY
+       ----------------------------------------------------- */
 
-        const div = document.createElement("div");
-        div.className = "product-card";
+    if (currentCategory) {
 
-        div.innerHTML = `
-            <img src="${p.image_url || ''}"
-                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-            <div class="no-img">
-                <i class="fa-solid fa-image"></i>
+        products =
+            products.filter(product => {
+
+                return String(
+                    product.category_id
+                ) === String(
+                    currentCategory
+                );
+
+            });
+
+    }
+
+
+    /* -----------------------------------------------------
+       EMPTY
+       ----------------------------------------------------- */
+
+    if (!products.length) {
+
+        container.innerHTML = `
+            <div class="empty-products">
+                <i class="fas fa-box-open"></i>
+                <p>Produk tidak ditemukan.</p>
             </div>
-            <h4>${p.name}</h4>
-            <p>${rupiah(hargaTampil)}</p>
-            <button data-name="${p.name}"
-                    data-price="${hargaTampil}">
-                Tambah
-            </button>
         `;
 
-        container.appendChild(div);
+        return;
+
+    }
+
+
+    /* -----------------------------------------------------
+       RENDER
+       ----------------------------------------------------- */
+
+    products.forEach(product => {
+
+        const price =
+            Number(
+                product.price || 0
+            );
+
+
+        const promoPrice =
+            Number(
+                product.promo_price || 0
+            );
+
+
+        const hasPromo =
+            promoPrice > 0 &&
+            promoPrice < price;
+
+
+        const finalPrice =
+            hasPromo
+                ? promoPrice
+                : price;
+
+
+        const stock =
+            Number(
+                product.stock || 0
+            );
+
+
+        const image =
+            product.image_url ||
+            "images/logo.png";
+
+
+        const card =
+            document.createElement("div");
+
+
+        card.className =
+            "product-card";
+
+
+        card.innerHTML = `
+
+            <div class="product-image">
+
+                <img
+                    src="${image}"
+                    alt="${product.name || "Produk"}"
+                    loading="lazy"
+                >
+
+            </div>
+
+
+            <div class="product-info">
+
+                <h3>
+                    ${product.name || "-"}
+                </h3>
+
+
+                <div class="product-price">
+
+                    ${
+                        hasPromo
+                            ? `
+                                <span class="old-price">
+                                    ${rupiah(price)}
+                                </span>
+                            `
+                            : ""
+                    }
+
+                    <strong>
+                        ${rupiah(finalPrice)}
+                    </strong>
+
+                </div>
+
+
+                <p class="product-stock">
+
+                    ${
+                        stock > 0
+                            ? `Stok: ${stock}`
+                            : "Stok habis"
+                    }
+
+                </p>
+
+
+                <button
+                    type="button"
+                    class="add-product-btn"
+                    data-id="${product.id}"
+                    ${stock <= 0 ? "disabled" : ""}
+                >
+
+                    <i class="fas fa-cart-plus"></i>
+
+                    ${
+                        stock > 0
+                            ? "Tambah"
+                            : "Stok Habis"
+                    }
+
+                </button>
+
+            </div>
+
+        `;
+
+
+        container.appendChild(
+            card
+        );
+
     });
+
 
     attachProductEvents();
+
 }
 
-/* ================= GPS ================= */
-document.getElementById("getLocation").onclick=()=>{
-navigator.geolocation.getCurrentPosition(pos=>{
-const lat = pos.coords.latitude;
-const lng = pos.coords.longitude;
 
-smoothMoveMarker(lat, lng);
-});
-};
+/* =========================================================
+   RENDER CART
+   ========================================================= */
 
-/* ================= SUBMIT ================= */
-document.getElementById("checkout").onclick = async () => {
+function renderCart() {
 
-    if(window.sending) return;
-    window.sending = true;
+    const cartItems =
+        document.getElementById(
+            "cart-items"
+        );
 
-    const btn=document.getElementById("checkout");
-    btn.disabled=true;
-    btn.textContent="Mengirim...";
 
-    const nama=document.getElementById("customer-name").value.trim();
-    const alamat=document.getElementById("customer-address").value.trim();
-    const phone=document.getElementById("customer-phone").value.trim();
-    const kategori = document.getElementById("device-category").value;
-    const model = document.getElementById("device-model").value.trim();
-    const problem=document.getElementById("customer-problem").value.trim();
-    const method=metode.value;
-    const file=document.getElementById("payment-proof")?.files[0];
+    if (!cartItems) return;
 
-    if(!nama || !alamat || !phone || !kategori || !model || !problem || !method){
-        window.sending=false;
-        btn.disabled=false;
-        btn.textContent="Kirim Permintaan Service";
-        return alert("Lengkapi data");
+
+    cartItems.innerHTML = "";
+
+
+    const items =
+        Object.values(
+            spareparts
+        );
+
+
+    /* -----------------------------------------------------
+       EMPTY CART
+       ----------------------------------------------------- */
+
+    if (!items.length) {
+
+        cartItems.innerHTML = `
+            <div class="empty-cart">
+                <i class="fas fa-cart-shopping"></i>
+                <p>Belum ada sparepart yang dipilih.</p>
+            </div>
+        `;
+
+        updateTotal();
+
+        return;
+
     }
 
-    if(method==="Home Service" && !coordInput.value){
-        window.sending=false;
-        btn.disabled=false;
-        btn.textContent="Kirim Permintaan Service";
-        return alert("Lokasi wajib diisi untuk Home Service");
-    }
 
-    if(method==="Kirim Paket"){
-        if(!ekspedisiInput.value){
-            window.sending=false;
-            btn.disabled=false;
-            btn.textContent="Kirim Permintaan Service";
-            return alert("Pilih ekspedisi terlebih dahulu");
-        }
-    
-        if(!resiInput.value.trim()){
+    /* -----------------------------------------------------
+       CART ITEMS
+       ----------------------------------------------------- */
 
-        window.sending = false;
-        btn.disabled = false;
-        btn.textContent = "Kirim Permintaan Service";
-    
-        const ojol = [
-            "Gojek",
-            "Grab",
-            "Maxim",
-            "Lalamove"
-        ];
-    
-        if(ojol.includes(ekspedisiInput.value)){
-            return alert("Nomor order atau nama driver wajib diisi");
-        }
-    
-        return alert("Nomor resi wajib diisi");
-        }
-    }
-    let spareList="Tidak ada";
-    const keys=Object.keys(spareparts);
-    if(keys.length){
-        spareList=keys.map(n=>{
-            const s=spareparts[n];
-            return `${n} x${s.qty} (${rupiah(s.price*s.qty)})`;
-        }).join(", ");
-    }
+    items.forEach(item => {
 
-    /* ================= UPLOAD BUKTI ================= */
-    let buktiUrl=null;
+        const itemTotal =
+            Number(item.price || 0) *
+            Number(item.qty || 0);
 
-    if(file){
-        const fileName=Date.now()+"_"+file.name;
 
-        const { error:uploadError } = await client.storage
-            .from("bukti-transfer")
-            .upload(fileName,file);
+        const row =
+            document.createElement("div");
 
-        if(uploadError){
-            alert("Gagal upload bukti transfer");
-            console.error(uploadError);
-            window.sending=false;
-            btn.disabled=false;
-            btn.textContent="Kirim Permintaan Service";
-            return;
-        }
 
-        const { data:publicUrl } = client.storage
-            .from("bukti-transfer")
-            .getPublicUrl(fileName);
+        row.className =
+            "cart-item";
 
-        buktiUrl=publicUrl.publicUrl;
-    }
 
-/* ================= SIMPAN KE SUPABASE ================= */
+        row.innerHTML = `
 
-const spareTotal = Object.values(spareparts)
-    .reduce((a,b)=>a+(b.price*b.qty),0);
+            <div class="cart-item-info">
 
-const total = spareTotal + transportCost;
+                <strong>
+                    ${item.name}
+                </strong>
 
-try {
+                <span>
+                    ${rupiah(item.price)}
+                </span>
 
-    const { error } = await client
-        .from("service_orders")
-        .insert({
-        nama,
-        alamat,
-        phone,
-        kategori_perangkat: kategori,
-        tipe_model: model,
-        problem,
-        metode: method,
-        ekspedisi: method==="Kirim Paket" ? ekspedisiInput.value : null,
-        resi: method==="Kirim Paket" ? resiInput.value.trim() : null,
-        sparepart: spareList,
-        total_sparepart: spareTotal,
-        transport: transportCost,
-        jasa: 0,
-        total: total,
-        coord: coordInput.value || null,
-        status: "pending",
-        bukti: buktiUrl
+            </div>
+
+
+            <div class="cart-item-actions">
+
+                <button
+                    type="button"
+                    class="qty-minus"
+                    data-id="${item.id}"
+                >
+                    <i class="fas fa-minus"></i>
+                </button>
+
+
+                <span class="cart-qty">
+                    ${item.qty}
+                </span>
+
+
+                <button
+                    type="button"
+                    class="qty-plus"
+                    data-id="${item.id}"
+                >
+                    <i class="fas fa-plus"></i>
+                </button>
+
+
+                <button
+                    type="button"
+                    class="remove-cart"
+                    data-id="${item.id}"
+                    title="Hapus"
+                >
+                    <i class="fas fa-trash"></i>
+                </button>
+
+            </div>
+
+
+            <div class="cart-item-total">
+
+                ${rupiah(itemTotal)}
+
+            </div>
+
+        `;
+
+
+        cartItems.appendChild(
+            row
+        );
+
     });
 
-    if(error) throw error;
 
-} catch (err) {
+    /* =====================================================
+       MINUS
+       ===================================================== */
 
-    console.error("Gagal kirim data:", err);
-    alert("Gagal kirim data ke server");
+    cartItems
+        .querySelectorAll(".qty-minus")
+        .forEach(button => {
 
-    window.sending=false;
-    btn.disabled=false;
-    btn.textContent="Kirim Permintaan Service";
-    return;
+            button.addEventListener(
+                "click",
+                () => {
+
+                    const id =
+                        String(
+                            button.dataset.id
+                        );
+
+
+                    if (!spareparts[id]) return;
+
+
+                    spareparts[id].qty--;
+
+
+                    if (
+                        spareparts[id].qty <= 0
+                    ) {
+
+                        delete spareparts[id];
+
+                    }
+
+
+                    renderCart();
+                    updateTotal();
+
+                }
+            );
+
+        });
+
+
+    /* =====================================================
+       PLUS
+       ===================================================== */
+
+    cartItems
+        .querySelectorAll(".qty-plus")
+        .forEach(button => {
+
+            button.addEventListener(
+                "click",
+                () => {
+
+                    const id =
+                        String(
+                            button.dataset.id
+                        );
+
+
+                    if (!spareparts[id]) return;
+
+
+                    spareparts[id].qty++;
+
+
+                    renderCart();
+                    updateTotal();
+
+                }
+            );
+
+        });
+
+
+    /* =====================================================
+       REMOVE
+       ===================================================== */
+
+    cartItems
+        .querySelectorAll(".remove-cart")
+        .forEach(button => {
+
+            button.addEventListener(
+                "click",
+                () => {
+
+                    const id =
+                        String(
+                            button.dataset.id
+                        );
+
+
+                    delete spareparts[id];
+
+
+                    renderCart();
+                    updateTotal();
+
+                }
+            );
+
+        });
+
+
+    updateTotal();
+
 }
-  
-    /* ================= MESSAGE WA ================= */
 
-    let lokasiMap = "-";
-    
-    if (method === "Home Service" && coordInput.value) {
-        const [lat, lng] = coordInput.value.split(",");
-        lokasiMap = `https://www.google.com/maps?q=${lat},${lng}`;
+
+/* =========================================================
+   CHECKOUT
+   ========================================================= */
+
+async function checkout() {
+
+    /*
+     * Mencegah tombol diklik berkali-kali
+     */
+
+    if (window.sending) return;
+
+
+    window.sending = true;
+
+
+    const checkoutBtn =
+        document.getElementById(
+            "checkout"
+        );
+
+
+    const originalButtonText =
+        checkoutBtn
+            ? checkoutBtn.innerHTML
+            : "";
+
+
+    try {
+
+        if (!client) {
+
+            throw new Error(
+                "Supabase belum terhubung."
+            );
+
+        }
+
+
+        /* =================================================
+           AMBIL DATA FORM
+           ================================================= */
+
+        const nama =
+            document
+                .getElementById(
+                    "customer-name"
+                )
+                ?.value
+                .trim();
+
+
+        const alamat =
+            document
+                .getElementById(
+                    "customer-address"
+                )
+                ?.value
+                .trim();
+
+
+        const phone =
+            document
+                .getElementById(
+                    "customer-phone"
+                )
+                ?.value
+                .trim();
+
+
+        const kategori =
+            document
+                .getElementById(
+                    "device-category"
+                )
+                ?.value;
+
+
+        const model =
+            document
+                .getElementById(
+                    "device-model"
+                )
+                ?.value
+                .trim();
+
+
+        const problem =
+            document
+                .getElementById(
+                    "customer-problem"
+                )
+                ?.value
+                .trim();
+
+
+        const method =
+            metode
+                ?.value;
+
+
+        /* =================================================
+           VALIDATION
+           ================================================= */
+
+        if (!nama) {
+
+            alert(
+                "Nama lengkap wajib diisi."
+            );
+
+            document
+                .getElementById(
+                    "customer-name"
+                )
+                ?.focus();
+
+            return;
+
+        }
+
+
+        if (!alamat) {
+
+            alert(
+                "Alamat wajib diisi."
+            );
+
+            document
+                .getElementById(
+                    "customer-address"
+                )
+                ?.focus();
+
+            return;
+
+        }
+
+
+        if (!phone) {
+
+            alert(
+                "Nomor WhatsApp wajib diisi."
+            );
+
+            document
+                .getElementById(
+                    "customer-phone"
+                )
+                ?.focus();
+
+            return;
+
+        }
+
+
+        if (!kategori) {
+
+            alert(
+                "Silakan pilih kategori perangkat."
+            );
+
+            document
+                .getElementById(
+                    "device-category"
+                )
+                ?.focus();
+
+            return;
+
+        }
+
+
+        if (!model) {
+
+            alert(
+                "Model perangkat wajib diisi."
+            );
+
+            document
+                .getElementById(
+                    "device-model"
+                )
+                ?.focus();
+
+            return;
+
+        }
+
+
+        if (!problem) {
+
+            alert(
+                "Keluhan/permasalahan perangkat wajib diisi."
+            );
+
+            document
+                .getElementById(
+                    "customer-problem"
+                )
+                ?.focus();
+
+            return;
+
+        }
+
+
+        if (!method) {
+
+            alert(
+                "Silakan pilih metode service."
+            );
+
+            metode?.focus();
+
+            return;
+
+        }
+
+
+        /* =================================================
+           HOME SERVICE VALIDATION
+           ================================================= */
+
+        if (
+            method === "Home Service" &&
+            (!coordInput ||
+                !coordInput.value.trim())
+        ) {
+
+            alert(
+                "Silakan tentukan lokasi service terlebih dahulu."
+            );
+
+            return;
+
+        }
+
+
+        /* =================================================
+           KIRIM PAKET VALIDATION
+           ================================================= */
+
+        let ekspedisi = null;
+        let resi = null;
+
+
+        if (method === "Kirim Paket") {
+
+            if (!ekspedisiInput) {
+
+                alert(
+                    "Pilihan ekspedisi tidak tersedia."
+                );
+
+                return;
+
+            }
+
+
+            ekspedisi =
+                ekspedisiInput.value;
+
+
+            resi =
+                resiInput
+                    ?.value
+                    .trim();
+
+
+            if (!ekspedisi) {
+
+                alert(
+                    "Silakan pilih ekspedisi."
+                );
+
+                ekspedisiInput.focus();
+
+                return;
+
+            }
+
+
+            if (!resi) {
+
+                alert(
+                    "Nomor resi / nomor order / nama driver wajib diisi."
+                );
+
+                resiInput?.focus();
+
+                return;
+
+            }
+
+        }
+
+
+        /* =================================================
+           SPAREPART LIST
+           ================================================= */
+
+        const spareList =
+            Object.values(
+                spareparts
+            )
+                .map(item => {
+
+                    return {
+                        id:
+                            item.id,
+
+                        name:
+                            item.name,
+
+                        price:
+                            Number(
+                                item.price || 0
+                            ),
+
+                        qty:
+                            Number(
+                                item.qty || 0
+                            ),
+
+                        subtotal:
+                            Number(
+                                item.price || 0
+                            ) *
+                            Number(
+                                item.qty || 0
+                            )
+                    };
+
+                });
+
+
+        const spareTotal =
+            spareList.reduce(
+                (
+                    total,
+                    item
+                ) =>
+                    total +
+                    Number(
+                        item.subtotal || 0
+                    ),
+                0
+            );
+
+
+        /* =================================================
+           TRANSPORT
+           ================================================= */
+
+        const transport =
+            method === "Home Service"
+                ? Number(
+                    transportCost || 0
+                )
+                : 0;
+
+
+        const total =
+            spareTotal +
+            transport;
+
+
+        /* =================================================
+           PAYMENT PROOF
+           ================================================= */
+
+        let buktiUrl = null;
+
+
+        const proofInput =
+            document.getElementById(
+                "payment-proof"
+            );
+
+
+        if (
+            method === "Home Service" &&
+            proofInput &&
+            proofInput.files &&
+            proofInput.files.length > 0
+        ) {
+
+            const file =
+                proofInput.files[0];
+
+
+            const maxSize =
+                5 * 1024 * 1024;
+
+
+            if (file.size > maxSize) {
+
+                alert(
+                    "Ukuran bukti pembayaran maksimal 5 MB."
+                );
+
+                return;
+
+            }
+
+
+            const extension =
+                file.name
+                    .split(".")
+                    .pop()
+                    .toLowerCase();
+
+
+            const allowedExtensions =
+                [
+                    "jpg",
+                    "jpeg",
+                    "png",
+                    "webp"
+                ];
+
+
+            if (
+                !allowedExtensions.includes(
+                    extension
+                )
+            ) {
+
+                alert(
+                    "Format bukti pembayaran harus JPG, JPEG, PNG, atau WEBP."
+                );
+
+                return;
+
+            }
+
+
+            const safeName =
+                file.name
+                    .replace(
+                        /[^a-zA-Z0-9._-]/g,
+                        "_"
+                    );
+
+
+            const fileName =
+                `${Date.now()}_${safeName}`;
+
+
+            const filePath =
+                fileName;
+
+
+            const {
+                error: uploadError
+            } = await client
+                .storage
+                .from("bukti-transfer")
+                .upload(
+                    filePath,
+                    file,
+                    {
+                        upsert: false
+                    }
+                );
+
+
+            if (uploadError) {
+
+                console.error(
+                    "Upload bukti gagal:",
+                    uploadError
+                );
+
+                throw new Error(
+                    "Bukti pembayaran gagal diupload."
+                );
+
+            }
+
+
+            const {
+                data: publicData
+            } =
+                client
+                    .storage
+                    .from(
+                        "bukti-transfer"
+                    )
+                    .getPublicUrl(
+                        filePath
+                    );
+
+
+            buktiUrl =
+                publicData?.publicUrl ||
+                null;
+
+        }
+
+
+        /* =================================================
+           BUTTON LOADING
+           ================================================= */
+
+        if (checkoutBtn) {
+
+            checkoutBtn.disabled = true;
+
+            checkoutBtn.innerHTML = `
+                <i class="fas fa-spinner fa-spin"></i>
+                Memproses...
+            `;
+
+        }
+
+
+        /* =================================================
+           INSERT SERVICE ORDER
+           ================================================= */
+
+        const orderData = {
+
+            nama,
+
+            alamat,
+
+            phone,
+
+            kategori_perangkat:
+                kategori,
+
+            tipe_model:
+                model,
+
+            problem,
+
+            metode:
+                method,
+
+            ekspedisi:
+                method === "Kirim Paket"
+                    ? ekspedisi
+                    : null,
+
+            resi:
+                method === "Kirim Paket"
+                    ? resi
+                    : null,
+
+            sparepart:
+                spareList,
+
+            total_sparepart:
+                spareTotal,
+
+            transport,
+
+            jasa:
+                0,
+
+            total,
+
+            coord:
+                coordInput?.value ||
+                null,
+
+            status:
+                "pending",
+
+            bukti:
+                buktiUrl
+
+        };
+
+
+        console.log(
+            "Data service order:",
+            orderData
+        );
+
+
+        const {
+            data,
+            error
+        } = await client
+            .from("service_orders")
+            .insert(
+                [orderData]
+            )
+            .select()
+            .single();
+
+
+        if (error) {
+
+            console.error(
+                "Gagal menyimpan service order:",
+                error
+            );
+
+            throw new Error(
+                error.message ||
+                "Data service gagal disimpan."
+            );
+
+        }
+
+
+        /* =================================================
+           WHATSAPP MESSAGE
+           ================================================= */
+
+        let message = "";
+
+        message +=
+            `*CEO PART & SERVICE*\n`;
+
+        message +=
+            `*ORDER SERVICE*\n`;
+
+        message +=
+            `━━━━━━━━━━━━━━━━━━\n\n`;
+
+
+        message +=
+            `*Data Pelanggan*\n`;
+
+        message +=
+            `Nama: ${nama}\n`;
+
+        message +=
+            `WhatsApp: ${phone}\n`;
+
+        message +=
+            `Alamat: ${alamat}\n\n`;
+
+
+        message +=
+            `*Perangkat*\n`;
+
+        message +=
+            `Kategori: ${kategori}\n`;
+
+        message +=
+            `Model: ${model}\n`;
+
+        message +=
+            `Keluhan: ${problem}\n\n`;
+
+
+        message +=
+            `*Metode Service*\n`;
+
+        message +=
+            `${method}\n\n`;
+
+
+        /* =================================================
+           HOME SERVICE WHATSAPP
+           ================================================= */
+
+        if (
+            method === "Home Service"
+        ) {
+
+            if (
+                coordInput &&
+                coordInput.value
+            ) {
+
+                const coords =
+                    coordInput.value;
+
+                const coordinateParts =
+                    coords.split(",");
+
+
+                if (
+                    coordinateParts.length === 2
+                ) {
+
+                    const lat =
+                        coordinateParts[0];
+
+                    const lng =
+                        coordinateParts[1];
+
+
+                    message +=
+                        `*Lokasi Service*\n`;
+
+                    message +=
+                        `https://www.google.com/maps?q=${lat},${lng}\n\n`;
+
+                }
+
+            }
+
+
+            message +=
+                `Transport: ${rupiah(transport)}\n\n`;
+
+        }
+
+
+        /* =================================================
+           KIRIM PAKET WHATSAPP
+           ================================================= */
+
+        if (
+            method === "Kirim Paket"
+        ) {
+
+            message +=
+                `Ekspedisi: ${ekspedisi}\n`;
+
+            message +=
+                `Resi / Order: ${resi}\n\n`;
+
+        }
+
+
+        /* =================================================
+           SPAREPART WHATSAPP
+           ================================================= */
+
+        if (
+            spareList.length > 0
+        ) {
+
+            message +=
+                `*Sparepart*\n`;
+
+
+            spareList.forEach(
+                item => {
+
+                    message +=
+                        `- ${item.name} x${item.qty} = ${rupiah(item.subtotal)}\n`;
+
+                }
+            );
+
+
+            message +=
+                `Subtotal Sparepart: ${rupiah(spareTotal)}\n\n`;
+
+        } else {
+
+            message +=
+                `Sparepart: Tidak ada\n\n`;
+
+        }
+
+
+        /* =================================================
+           TOTAL
+           ================================================= */
+
+        message +=
+            `*TOTAL: ${rupiah(total)}*\n\n`;
+
+
+        message +=
+            `Status: Menunggu diproses\n`;
+
+        message +=
+            `ID Order: ${data?.id || "-"}\n\n`;
+
+
+        message +=
+            `Terima kasih telah menggunakan layanan CEO Part & Service.`;
+
+
+        /* =================================================
+           OPEN WHATSAPP
+           ================================================= */
+
+        const whatsappUrl =
+            `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(
+                message
+            )}`;
+
+
+        window.open(
+            whatsappUrl,
+            "_blank"
+        );
+
+
+        /* =================================================
+           SUCCESS
+           ================================================= */
+
+        alert(
+            "Order service berhasil dikirim."
+        );
+
+
+        /* =================================================
+           RESET FORM
+           ================================================= */
+
+        const form =
+            document.querySelector(
+                "form"
+            );
+
+
+        if (form) {
+
+            form.reset();
+
+        }
+
+
+        spareparts = {};
+
+        transportCost = 0;
+
+
+        if (coordInput) {
+            coordInput.value = "";
+        }
+
+
+        if (distanceInfo) {
+            distanceInfo.textContent = "";
+        }
+
+
+        if (mapInstance) {
+
+            if (marker) {
+
+                mapInstance.removeLayer(
+                    marker
+                );
+
+                marker = null;
+
+            }
+
+        }
+
+
+        if (mapSection) {
+            mapSection.style.display = "none";
+        }
+
+        if (transportSection) {
+            transportSection.style.display = "none";
+        }
+
+        if (alamatToko) {
+            alamatToko.style.display = "none";
+        }
+
+        if (resiSection) {
+            resiSection.style.display = "none";
+        }
+
+        if (transportRow) {
+            transportRow.style.display = "none";
+        }
+
+        if (paymentSection) {
+            paymentSection.style.display = "none";
+        }
+
+
+        const proofSection =
+            document.getElementById(
+                "payment-proof-section"
+            );
+
+        if (proofSection) {
+            proofSection.style.display = "none";
+        }
+
+
+        if (paymentInfo) {
+            paymentInfo.innerHTML = "";
+        }
+
+
+        renderCart();
+        updateTotal();
+
+
+    } catch (error) {
+
+        console.error(
+            "Checkout error:",
+            error
+        );
+
+
+        alert(
+            error?.message ||
+            "Terjadi kesalahan saat mengirim order service."
+        );
+
+
+    } finally {
+
+        window.sending =
+            false;
+
+
+        if (checkoutBtn) {
+
+            checkoutBtn.disabled =
+                false;
+
+            checkoutBtn.innerHTML =
+                originalButtonText ||
+                "Kirim Order";
+
+        }
+
     }
-    
-    let msg = `📱 *SERVICE HP*\n`;
-    msg += `=====================\n`;
-    msg += `Nama: ${nama}\n`;
-    msg += `No HP: ${phone}\n`;
-    msg += `Kategori Perangkat: ${kategori}\n`;
-    msg += `Tipe/Model Perangkat: ${model}\n`;
-    msg += `Keluhan: ${problem}\n`;
-    msg += `Metode Service: ${method}\n`;
-    
-    if (method === "Home Service") {
-        msg += `📍 Lokasi: ${lokasiMap}\n`;
-        msg += `Transport: ${rupiah(transportCost)}\n`;
-    }
-    
-    if (method === "Kirim Paket" && ekspedisiInput && resiInput) {
 
-    const ojol = [
-        "Gojek",
-        "Grab",
-        "Maxim",
-        "Lalamove"
-    ];
-
-    if(ojol.includes(ekspedisiInput.value)){
-        msg += `Kurir Ojol: ${ekspedisiInput.value}\n`;
-        msg += `Nomor Order/Driver: ${resiInput.value.trim()}\n`;
-    }else{
-        msg += `Ekspedisi: ${ekspedisiInput.value}\n`;
-        msg += `Nomor Resi: ${resiInput.value.trim()}\n`;
-    }
-
-    msg += `Pengiriman ke alamat toko\n`;
-    }
-    
-    msg += `Sparepart: ${spareList}\n`;
-    msg += `---------------------\n`;
-    msg += `Total Estimasi: ${rupiah(total)}\n`;
-    msg += `\n(Jasa diinformasikan setelah pengecekan teknisi)`;
-    
-    window.open(
-        `https://wa.me/628138892098?text=${encodeURIComponent(msg)}`,
-        "_blank"
-    );
-    
-    window.sending=false;
-    btn.disabled=false;
-    btn.textContent="Kirim Permintaan Service";
-};
-
+}
