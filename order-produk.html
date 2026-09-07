@@ -40,8 +40,8 @@
   </section>
   <section class="card filters">
     <div class="search-wrap"><i class="fa-solid fa-magnifying-glass"></i><input id="searchInput" placeholder="Cari no. order, nama, WhatsApp, produk..."></div>
-    <select id="paymentFilter"><option value="all">Semua Pembayaran</option><option value="belum_bayar">Belum Bayar</option><option value="lunas">Lunas</option></select>
-    <select id="shippingFilter"><option value="all">Semua Pengiriman</option><option value="pickup">Ambil di Toko</option><option value="instant">Kurir Instan</option><option value="package">Kirim Paket</option><option value="cod">COD</option></select>
+    <select id="paymentFilter"><option value="all">Semua Pembayaran</option><option value="belum_bayar">Belum Bayar</option><option value="dp">DP</option><option value="sebagian">Sebagian</option><option value="lunas">Lunas</option><option value="refund">Refund</option></select>
+    <select id="shippingFilter"><option value="all">Semua Pengiriman</option><option value="pickup">Ambil di Toko</option><option value="instant">Kurir Instan</option><option value="package">Kirim Paket</option><option value="cod">COD</option><option value="delivery">Pengiriman Lain</option></select>
     <select id="statusFilter"><option value="all">Semua Status</option><option value="menunggu_diproses">Menunggu Diproses</option><option value="dikemas">Dikemas</option><option value="dikirim">Dikirim</option><option value="dalam_perjalanan">Dalam Perjalanan</option><option value="selesai">Selesai</option><option value="gagal_dikirim">Gagal Dikirim</option></select>
   </section>
   <section class="card table-card"><div class="table-scroll"><table><thead><tr><th>No Order</th><th>Pembeli</th><th>Produk</th><th>Pengiriman</th><th>Pembayaran</th><th>Total</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="orderTableBody"><tr><td colspan="8" class="empty">Memuat order...</td></tr></tbody></table></div><div class="pagination"><button id="prevPage" class="btn">Prev</button><span id="pageInfo">1 / 1</span><button id="nextPage" class="btn">Next</button></div></section>
