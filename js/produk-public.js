@@ -404,7 +404,7 @@ function setupEvents() {
         .getElementById("whatsappOrderBtn")
         ?.addEventListener(
             "click",
-            orderViaWhatsApp
+            startProductCheckout
         );
 
 
@@ -1438,8 +1438,8 @@ function updateSelectionUI(isFallback = false) {
         orderButton.disabled = stock <= 0;
         orderButton.innerHTML = stock > 0
             ? `
-                <i class="fa-brands fa-whatsapp"></i>
-                Pesan via WhatsApp
+                <i class="fa-solid fa-arrow-right"></i>
+                Lanjutkan Pemesanan
             `
             : `
                 <i class="fa-solid fa-ban"></i>
@@ -1919,7 +1919,7 @@ function updateModalTotal() {
    WHATSAPP ORDER
 ========================================================= */
 
-function orderViaWhatsApp() {
+function startProductCheckout() {
 
     if (!selectedProduct) return;
 
@@ -1936,55 +1936,48 @@ function orderViaWhatsApp() {
             : selectedProduct?.stock || 0
     );
 
-    if (stock <= 0) return;
-
-    if (!WHATSAPP_NUMBER || WHATSAPP_NUMBER.includes("x")) {
-        alert("Nomor WhatsApp toko belum dikonfigurasi.");
+    if (stock <= 0) {
+        alert("Stok produk yang dipilih sedang habis.");
         return;
     }
 
     const quantity = getCurrentQuantity();
-    const productName = selectedProduct?.name || "Produk";
-    const category = getCategoryName(selectedProduct);
-    const total = selectedPrice * quantity;
 
-    const source = selectedVariant || selectedProduct;
-    const normalPrice = Number(source?.price || 0);
-    const promoPrice = Number(source?.promo_price || 0);
-    const isPromo = promoPrice > 0 && promoPrice < normalPrice;
+    if (quantity < 1 || quantity > stock) {
+        alert("Jumlah pesanan tidak sesuai dengan stok yang tersedia.");
+        return;
+    }
 
-    const variantText = selectedVariant
-        ? `\n📱 Varian: ${getVariantSpecLabel(selectedVariant)}\n🎨 Warna: ${selectedVariant.color || "Standar"}`
-        : "";
+    const checkoutPayload = {
+        version: 1,
+        product_id: selectedProduct.id,
+        variant_id: selectedVariant?.id ?? null,
+        product_name: selectedProduct?.name || "Produk",
+        category: getCategoryName(selectedProduct),
+        variant_name: selectedVariant?.variant_name || "",
+        ram: selectedVariant?.ram || "",
+        storage: selectedVariant?.storage || "",
+        color: selectedVariant?.color || "",
+        unit_price: Number(selectedPrice || 0),
+        qty: quantity,
+        stock_snapshot: stock,
+        image_url: getProductImages(selectedProduct)[0] || "images/logo.png",
+        created_at: new Date().toISOString()
+    };
 
-    const message =
-        `Halo CEO Part & Service 👋
+    try {
+        sessionStorage.setItem(
+            "ceoProductCheckout",
+            JSON.stringify(checkoutPayload)
+        );
+    } catch (error) {
+        console.error("Gagal menyimpan data checkout:", error);
+        alert("Browser tidak dapat menyiapkan checkout. Silakan coba lagi.");
+        return;
+    }
 
-Saya ingin memesan produk:
-
-📦 Produk: ${productName}
-🏷️ Kategori: ${category}${variantText}
-💰 Harga: ${rupiah(selectedPrice)}${isPromo ? " (Harga Promo)" : ""}
-🔢 Jumlah: ${quantity}
-💵 Total: ${rupiah(total)}
-
-Mohon informasi ketersediaan dan proses pemesanannya.
-
-Terima kasih 🙏`;
-
-    const url =
-        "https://wa.me/" +
-        WHATSAPP_NUMBER +
-        "?text=" +
-        encodeURIComponent(message);
-
-    window.open(
-        url,
-        "_blank",
-        "noopener,noreferrer"
-    );
+    window.location.href = "checkout-produk.html";
 }
-
 
 
 /* =========================================================
