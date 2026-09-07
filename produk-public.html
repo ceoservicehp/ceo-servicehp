@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -5,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Produk — CEO Part & Service</title>
+
     <meta
         name="description"
         content="Temukan sparepart, aksesoris, dan produk pilihan dari CEO Part & Service."
@@ -12,7 +14,6 @@
 
     <link rel="icon" href="images/logo.png">
 
-    <!-- Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
@@ -20,43 +21,51 @@
         rel="stylesheet"
     >
 
-    <!-- Font Awesome -->
     <link
         rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
     >
 
+    <link rel="stylesheet" href="css/produk-public.css">
+
     <!-- Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase.js"></script>
 
-    <!-- CSS -->
-    <link rel="stylesheet" href="css/produk-public.css">
+    <!-- Public Product JS -->
+    <script src="js/produk-public.js" defer></script>
 </head>
 
 <body>
 
-<!-- =========================
+<!-- =====================================================
      HEADER
-========================= -->
+===================================================== -->
+
 <header class="public-header">
 
     <div class="header-inner">
 
         <a href="index.html" class="brand">
-            <img src="images/logo.png" alt="CEO Part & Service">
+
+            <img
+                src="images/logo.png"
+                alt="CEO Part & Service"
+            >
 
             <div class="brand-text">
                 <strong>CEO PART & SERVICE</strong>
                 <span>CELLULAR ENGINEERING OFFICER</span>
             </div>
+
         </a>
 
         <button
+            type="button"
             class="mobile-menu-btn"
             id="mobileMenuBtn"
-            type="button"
             aria-label="Buka menu"
+            aria-expanded="false"
         >
             <i class="fa-solid fa-bars"></i>
         </button>
@@ -65,22 +74,22 @@
 
             <a href="index.html">
                 <i class="fa-solid fa-house"></i>
-                <span>Beranda</span>
+                Beranda
             </a>
 
             <a href="layanan.html">
                 <i class="fa-solid fa-screwdriver-wrench"></i>
-                <span>Service</span>
+                Service
             </a>
 
             <a href="ceo_status.html">
                 <i class="fa-solid fa-magnifying-glass"></i>
-                <span>Status Service</span>
+                Status Service
             </a>
 
             <a href="produk-public.html" class="active">
                 <i class="fa-solid fa-box-open"></i>
-                <span>Produk</span>
+                Produk
             </a>
 
         </nav>
@@ -90,31 +99,34 @@
 </header>
 
 
-<!-- =========================
+<!-- =====================================================
      HERO
-========================= -->
+===================================================== -->
+
 <section class="product-hero">
 
     <div class="hero-content">
 
         <div class="hero-badge">
-            <i class="fa-solid fa-store"></i>
+            <i class="fa-solid fa-box-open"></i>
             Produk CEO Part & Service
         </div>
 
         <h1>
-            Temukan Produk &amp;
-            <span>Sparepart Pilihan</span>
+            Temukan
+            <span>Produk & Sparepart</span>
+            Pilihan
         </h1>
 
         <p>
-            Berbagai kebutuhan smartphone, laptop, sparepart,
-            aksesoris, dan produk lainnya tersedia di CEO Part & Service.
+            Temukan berbagai sparepart, aksesoris, dan produk pilihan
+            untuk kebutuhan smartphone, laptop, dan perangkat elektronik
+            lainnya dari CEO Part & Service.
         </p>
 
         <a href="#produkSection" class="hero-button">
-            <i class="fa-solid fa-bag-shopping"></i>
             Lihat Produk
+            <i class="fa-solid fa-arrow-down"></i>
         </a>
 
     </div>
@@ -122,30 +134,39 @@
 </section>
 
 
-<!-- =========================
+<!-- =====================================================
      PRODUCT SECTION
-========================= -->
-<main class="product-section" id="produkSection">
+===================================================== -->
+
+<main>
+
+<section class="product-section" id="produkSection">
 
     <div class="section-heading">
 
         <div>
+
             <span class="section-label">
-                <i class="fa-solid fa-box"></i>
+                <i class="fa-solid fa-store"></i>
                 Katalog Produk
             </span>
 
             <h2>Produk Kami</h2>
 
             <p>
-                Pilih produk yang Anda butuhkan dan pesan langsung melalui WhatsApp.
+                Pilih produk yang kamu butuhkan dan lakukan pemesanan
+                langsung melalui WhatsApp.
             </p>
+
         </div>
 
     </div>
 
 
-    <!-- FILTER -->
+    <!-- =================================================
+         TOOLBAR
+    ================================================== -->
+
     <div class="product-toolbar">
 
         <div class="search-box">
@@ -165,7 +186,11 @@
         <div class="category-wrapper">
 
             <select id="categoryFilter">
-                <option value="all">Semua Kategori</option>
+
+                <option value="">
+                    Semua Kategori
+                </option>
+
             </select>
 
         </div>
@@ -198,75 +223,141 @@
     </div>
 
 
-    <!-- LOADING -->
+    <!-- =================================================
+         LOADING
+    ================================================== -->
+
     <div class="product-loading" id="productLoading">
 
         <div class="loading-spinner"></div>
 
-        <p>Memuat produk...</p>
+        <span>
+            Memuat produk...
+        </span>
 
     </div>
 
 
-    <!-- PRODUCT GRID -->
+    <!-- =================================================
+         PRODUCT GRID
+    ================================================== -->
+
     <div
         class="product-grid"
         id="productGrid"
-        aria-live="polite"
     ></div>
 
 
-    <!-- EMPTY -->
-    <div class="product-empty" id="productEmpty">
+    <!-- =================================================
+         EMPTY
+    ================================================== -->
+
+    <div
+        class="product-empty"
+        id="productEmpty"
+    >
 
         <div class="empty-icon">
             <i class="fa-solid fa-box-open"></i>
         </div>
 
-        <h3>Produk tidak ditemukan</h3>
+        <h3>
+            Produk Tidak Ditemukan
+        </h3>
 
         <p>
-            Coba gunakan kata pencarian atau kategori yang berbeda.
+            Coba gunakan kata kunci atau kategori yang berbeda.
         </p>
 
     </div>
 
+</section>
+
 </main>
 
 
-<!-- =========================
-     PRODUCT DETAIL MODAL
-========================= -->
+<!-- =====================================================
+     PRODUCT MODAL
+===================================================== -->
+
 <div
     class="product-modal"
     id="productModal"
     aria-hidden="true"
 >
 
-    <div class="modal-overlay" id="modalOverlay"></div>
+    <div
+        class="modal-overlay"
+        id="modalOverlay"
+    ></div>
 
-    <div class="modal-card">
+
+    <div
+        class="modal-card"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modalName"
+    >
 
         <button
+            type="button"
             class="modal-close"
             id="modalClose"
-            type="button"
             aria-label="Tutup"
         >
             <i class="fa-solid fa-xmark"></i>
         </button>
 
 
-        <div class="modal-image-wrapper">
+        <!-- IMAGE -->
 
-            <img
-                id="modalImage"
-                src=""
-                alt="Produk"
-            >
+        <div class="modal-image-area">
+
+            <div class="modal-image-wrapper">
+
+                <img
+                    id="modalImage"
+                    src="images/logo.png"
+                    alt="Produk"
+                >
+
+                <button
+                    type="button"
+                    class="modal-image-nav prev"
+                    id="modalImagePrev"
+                    aria-label="Gambar sebelumnya"
+                >
+                    <i class="fa-solid fa-chevron-left"></i>
+                </button>
+
+                <button
+                    type="button"
+                    class="modal-image-nav next"
+                    id="modalImageNext"
+                    aria-label="Gambar berikutnya"
+                >
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+
+                <div
+                    class="modal-image-counter"
+                    id="modalImageCounter"
+                >
+                    1 / 1
+                </div>
+
+            </div>
+
+
+            <div
+                class="modal-thumbnails"
+                id="modalThumbnails"
+            ></div>
 
         </div>
 
+
+        <!-- CONTENT -->
 
         <div class="modal-content">
 
@@ -274,11 +365,11 @@
                 class="modal-category"
                 id="modalCategory"
             >
-                Produk
+                Umum
             </span>
 
             <h2 id="modalName">
-                Nama Produk
+                Produk
             </h2>
 
             <div
@@ -288,29 +379,35 @@
                 Rp 0
             </div>
 
-            <div
+            <span
                 class="modal-stock"
                 id="modalStock"
             >
                 Stok tersedia
-            </div>
+            </span>
 
             <div
                 class="modal-description"
                 id="modalDescription"
-            ></div>
+            >
+                -
+            </div>
 
 
             <!-- QUANTITY -->
+
             <div class="quantity-area">
 
-                <span>Jumlah</span>
+                <span>
+                    Jumlah
+                </span>
 
                 <div class="quantity-control">
 
                     <button
                         type="button"
                         id="qtyMinus"
+                        aria-label="Kurangi jumlah"
                     >
                         <i class="fa-solid fa-minus"></i>
                     </button>
@@ -320,12 +417,14 @@
                         id="productQty"
                         value="1"
                         min="1"
-                        max="1"
+                        step="1"
+                        inputmode="numeric"
                     >
 
                     <button
                         type="button"
                         id="qtyPlus"
+                        aria-label="Tambah jumlah"
                     >
                         <i class="fa-solid fa-plus"></i>
                     </button>
@@ -336,9 +435,12 @@
 
 
             <!-- TOTAL -->
+
             <div class="modal-total">
 
-                <span>Total</span>
+                <span>
+                    Total
+                </span>
 
                 <strong id="modalTotal">
                     Rp 0
@@ -346,6 +448,8 @@
 
             </div>
 
+
+            <!-- WHATSAPP -->
 
             <button
                 type="button"
@@ -363,23 +467,31 @@
 </div>
 
 
-<!-- =========================
+<!-- =====================================================
      FOOTER
-========================= -->
+===================================================== -->
+
 <footer class="public-footer">
 
     <div class="footer-inner">
 
         <div class="footer-brand">
 
-            <img src="images/logo.png" alt="CEO Part & Service">
+            <img
+                src="images/logo.png"
+                alt="CEO Part & Service"
+            >
 
             <div>
-                <strong>CEO PART & SERVICE</strong>
+
+                <strong>
+                    CEO PART & SERVICE
+                </strong>
 
                 <p>
                     Cellular Engineering Officer
                 </p>
+
             </div>
 
         </div>
@@ -410,8 +522,7 @@
 
             <p>
                 © <span id="footerYear"></span>
-                CEO Part & Service.
-                All Rights Reserved.
+                CEO Part & Service — All Rights Reserved
             </p>
 
         </div>
@@ -420,9 +531,6 @@
 
 </footer>
 
-
-<!-- JS -->
-<script src="js/produk-public.js" defer></script>
-
 </body>
 </html>
+```
