@@ -1,15 +1,23 @@
 "use strict";
 
 const client = window.supabaseClient;
+const MAX_PRODUCT_IMAGES = 10;
+
+let selectedImageFiles = [];
+let existingImageUrls = [];
+let removedExistingImages = [];
+let currentModalImages = [];
+let currentModalIndex = 0;
 
 function rupiah(n){
     return "Rp " + Number(n || 0).toLocaleString("id-ID");
 }
 
 document.addEventListener("DOMContentLoaded", ()=>{
-/* ===== IMPORT CSV ===== */
-document.getElementById("importBtn")
-    ?.addEventListener("click", importProducts);
+
+    /* ===== IMPORT CSV ===== */
+    document.getElementById("importBtn")
+        ?.addEventListener("click", importProducts);
 
     loadProducts();
     loadCategories();
@@ -35,15 +43,17 @@ document.getElementById("importBtn")
     document.getElementById("productImage")
         .addEventListener("change", function(){
 
-            const file = this.files[0];
-            const preview = document.getElementById("imagePreview");
+            const files = Array.from(this.files);
 
-            if(file){
-                preview.src = URL.createObjectURL(file);
-                preview.style.display = "block";
-            }else{
-                preview.style.display = "none";
+            if(files.length > MAX_PRODUCT_IMAGES){
+                alert("Maksimal 10 gambar produk.");
+                this.value = "";
+                return;
             }
+
+            selectedImageFiles = files;
+
+            renderImagePreviews();
         });
 });
 
@@ -86,8 +96,8 @@ async function saveCategory(){
 
     document.getElementById("productCategory").value = data.id;
 
-    input.value="";
-    document.getElementById("newCategoryBox").style.display="none";
+    input.value = "";
+    document.getElementById("newCategoryBox").style.display = "none";
 
     alert("Kategori berhasil ditambahkan ✅");
 }
@@ -104,29 +114,79 @@ async function loadProducts(){
             *,
             categories(name)
         `)
-        .order("created_at",{ascending:false});
+        .order("created_at", { ascending: false });
 
     if(error){
-        tbody.innerHTML=`<tr><td colspan="10">Error load data</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="10">Error load data</td></tr>`;
         return;
     }
 
-    if(!data || data.length===0){
-        tbody.innerHTML=`<tr><td colspan="10">Belum ada produk</td></tr>`;
+    if(!data || data.length === 0){
+        tbody.innerHTML = `<tr><td colspan="10">Belum ada produk</td></tr>`;
         return;
     }
 
-    tbody.innerHTML="";
+    tbody.innerHTML = "";
 
-    data.forEach((row,i)=>{
+    data.forEach((row, i)=>{
 
-        tbody.innerHTML+=`
+        tbody.innerHTML += `
         <tr>
-            <td>${i+1}</td>
+            <td>${i + 1}</td>
             <td>
-                ${row.image_url 
-                    ? `<img src="${row.image_url}" 
-                       style="width:50px;height:50px;object-fit:cover;border-radius:6px;">`
+                ${
+                    row.image_url
+                    ? `
+                        <div
+                            style="
+                                position:relative;
+                                width:60px;
+                                cursor:pointer;
+                            "
+                            onclick='openImageModal(
+                                ${JSON.stringify(
+                                    Array.isArray(row.image_urls) &&
+                                    row.image_urls.length
+                                        ? row.image_urls
+                                        : [row.image_url]
+                                )}
+                            )'
+                        >
+
+                            <img
+                                src="${row.image_url}"
+                                style="
+                                    width:60px;
+                                    height:60px;
+                                    object-fit:cover;
+                                    border-radius:8px;
+                                "
+                            >
+
+                            ${
+                                Array.isArray(row.image_urls) &&
+                                row.image_urls.length > 1
+                                ? `
+                                    <span
+                                        style="
+                                            position:absolute;
+                                            bottom:3px;
+                                            right:3px;
+                                            background:rgba(0,0,0,.7);
+                                            color:white;
+                                            padding:2px 5px;
+                                            border-radius:5px;
+                                            font-size:10px;
+                                        "
+                                    >
+                                        📷 ${row.image_urls.length}
+                                    </span>
+                                `
+                                : ""
+                            }
+
+                        </div>
+                    `
                     : "-"
                 }
             </td>
@@ -145,7 +205,6 @@ async function loadProducts(){
                     <i class="fa-solid fa-trash"></i>
                 </button>
             </td>
-
         </tr>
         `;
     });
@@ -173,6 +232,245 @@ async function loadCategories(){
 }
 
 
+/* ================= GAMBAR PRODUK (PREVIEW) ================= */
+function renderImagePreviews(){
+
+    const container = document.getElementById("imagePreviewContainer");
+
+    if(!container) return;
+
+    container.innerHTML = "";
+
+    const images = [];
+
+    // Gambar lama
+    existingImageUrls.forEach((url, index) => {
+
+        if(!removedExistingImages.includes(index)){
+            images.push({
+                type: "existing",
+                url,
+                index
+            });
+        }
+    });
+
+    // Gambar baru
+    selectedImageFiles.forEach((file, index) => {
+
+        images.push({
+            type: "new",
+            url: URL.createObjectURL(file),
+            index
+        });
+    });
+
+    if(images.length === 0){
+        return;
+    }
+
+    images.slice(0, MAX_PRODUCT_IMAGES).forEach((image, index) => {
+
+        const item = document.createElement("div");
+
+        item.className =
+            "image-preview-item" +
+            (index === 0 ? " image-preview-main" : "");
+
+        item.innerHTML = `
+            <img 
+                src="${image.url}"
+                alt="Gambar ${index + 1}"
+            >
+
+            ${
+                index === 0
+                ? `<div class="image-preview-label">
+                     Gambar Utama
+                   </div>`
+                : ""
+            }
+
+            <button
+                type="button"
+                class="image-preview-remove"
+                title="Hapus gambar">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        `;
+
+        item.querySelector("img")
+            .addEventListener("click", () => {
+
+                openImageModal(
+                    images.map(img => img.url),
+                    index
+                );
+            });
+
+        item.querySelector(".image-preview-remove")
+            .addEventListener("click", (e) => {
+
+                e.stopPropagation();
+
+                removePreviewImage(image);
+            });
+
+        container.appendChild(item);
+    });
+}
+
+
+/* ================= HAPUS GAMBAR (PREVIEW) ================= */
+function removePreviewImage(image){
+
+    if(image.type === "existing"){
+
+        if(!removedExistingImages.includes(image.index)){
+            removedExistingImages.push(image.index);
+        }
+
+    }else{
+
+        selectedImageFiles.splice(image.index, 1);
+    }
+
+    renderImagePreviews();
+}
+
+
+/* ================= MODAL GAMBAR ================= */
+function openImageModal(images, index = 0){
+
+    if(!images || images.length === 0) return;
+
+    currentModalImages = images;
+    currentModalIndex = index;
+
+    const modal = document.getElementById("imageModal");
+    const image = document.getElementById("imageModalMain");
+    const counter = document.getElementById("imageModalCounter");
+
+    image.src = currentModalImages[currentModalIndex];
+
+    counter.textContent =
+        `${currentModalIndex + 1} / ${currentModalImages.length}`;
+
+    modal.classList.add("active");
+
+    updateModalNavigation();
+}
+
+
+function updateModalNavigation(){
+
+    const prev = document.getElementById("imageModalPrev");
+    const next = document.getElementById("imageModalNext");
+
+    const total = currentModalImages.length;
+
+    if(total <= 1){
+        prev.style.display = "none";
+        next.style.display = "none";
+    }else{
+        prev.style.display = "flex";
+        next.style.display = "flex";
+    }
+}
+
+
+function closeImageModal(){
+
+    const modal = document.getElementById("imageModal");
+    modal.classList.remove("active");
+
+    const image = document.getElementById("imageModalMain");
+    image.src = "";
+}
+
+
+function showPreviousImage(){
+
+    if(currentModalImages.length <= 1) return;
+
+    currentModalIndex--;
+
+    if(currentModalIndex < 0){
+        currentModalIndex = currentModalImages.length - 1;
+    }
+
+    updateModalImage();
+}
+
+
+function showNextImage(){
+
+    if(currentModalImages.length <= 1) return;
+
+    currentModalIndex++;
+
+    if(currentModalIndex >= currentModalImages.length){
+        currentModalIndex = 0;
+    }
+
+    updateModalImage();
+}
+
+
+function updateModalImage(){
+
+    const image = document.getElementById("imageModalMain");
+    const counter = document.getElementById("imageModalCounter");
+
+    image.src = currentModalImages[currentModalIndex];
+
+    counter.textContent =
+        `${currentModalIndex + 1} / ${currentModalImages.length}`;
+}
+
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    document.getElementById("imageModalClose")
+        ?.addEventListener("click", closeImageModal);
+
+    document.getElementById("imageModalPrev")
+        ?.addEventListener("click", showPreviousImage);
+
+    document.getElementById("imageModalNext")
+        ?.addEventListener("click", showNextImage);
+
+    document.getElementById("imageModal")
+        ?.addEventListener("click", function(e){
+
+            if(e.target === this){
+                closeImageModal();
+            }
+        });
+
+    document.addEventListener("keydown", function(e){
+
+        const modal = document.getElementById("imageModal");
+
+        if(!modal?.classList.contains("active")){
+            return;
+        }
+
+        if(e.key === "Escape"){
+            closeImageModal();
+        }
+
+        if(e.key === "ArrowLeft"){
+            showPreviousImage();
+        }
+
+        if(e.key === "ArrowRight"){
+            showNextImage();
+        }
+    });
+});
+
+
 /* ================= SAVE PRODUCT ================= */
 async function saveProduct(){
 
@@ -185,34 +483,74 @@ async function saveProduct(){
     const stock = parseInt(document.getElementById("productStock").value) || 0;
     const desc = document.getElementById("productDesc").value;
     const isActive = document.getElementById("productActive").checked;
-    const file = document.getElementById("productImage").files[0];
 
     if(!name || !price){
         alert("Nama dan harga wajib diisi");
         return;
     }
 
-    let imageUrl = null;
+    /* =====================================================
+       UPLOAD GAMBAR PRODUK BARU
+    ===================================================== */
 
-    if(file){
+    const newImageUrls = [];
 
-        const fileName = Date.now()+"_"+file.name;
+    if(selectedImageFiles.length > 0){
 
-        const { error:uploadError } = await client.storage
-            .from("produk-images")
-            .upload(fileName,file);
+        for(const file of selectedImageFiles){
 
-        if(uploadError){
-            alert("Gagal upload gambar");
-            return;
+            const safeName =
+                file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+
+            const fileName =
+                Date.now() +
+                "_" +
+                Math.random().toString(36).substring(2, 8) +
+                "_" +
+                safeName;
+
+            const { error: uploadError } =
+                await client.storage
+                    .from("produk-images")
+                    .upload(fileName, file);
+
+            if(uploadError){
+                console.error(uploadError);
+                alert("Gagal upload gambar: " + uploadError.message);
+                return;
+            }
+
+            const { data } =
+                client.storage
+                    .from("produk-images")
+                    .getPublicUrl(fileName);
+
+            if(data?.publicUrl){
+                newImageUrls.push(data.publicUrl);
+            }
         }
-
-        const { data } = client.storage
-            .from("produk-images")
-            .getPublicUrl(fileName);
-
-        imageUrl = data.publicUrl;
     }
+
+    /* =====================================================
+       GABUNGKAN GAMBAR LAMA + BARU
+    ===================================================== */
+
+    const remainingExistingImages =
+        existingImageUrls.filter(
+            (_, index) => !removedExistingImages.includes(index)
+        );
+
+    let allImages = [
+        ...remainingExistingImages,
+        ...newImageUrls
+    ];
+
+    /* Maksimal 10 */
+    allImages = allImages.slice(0, MAX_PRODUCT_IMAGES);
+
+    /* =====================================================
+       PAYLOAD
+    ===================================================== */
 
     const payload = {
         name,
@@ -222,38 +560,37 @@ async function saveProduct(){
         promo_price: promoPrice,
         stock,
         description: desc,
-        is_active: isActive
+        is_active: isActive,
+        image_urls: allImages,
+        /* Kompatibilitas dengan sistem lama: image_url = gambar pertama */
+        image_url: allImages.length > 0 ? allImages[0] : null
     };
 
-    if(imageUrl){
-        payload.image_url = imageUrl;
+    if(!id){
+
+        const { error } = await client
+            .from("products")
+            .insert(payload);
+
+        if(error){
+            console.error("Gagal menambahkan produk:", error);
+            alert("Gagal menambahkan produk: " + error.message);
+            return;
+        }
+
+    }else{
+
+        const { error } = await client
+            .from("products")
+            .update(payload)
+            .eq("id", id);
+
+        if(error){
+            console.error("Gagal mengubah produk:", error);
+            alert("Gagal mengubah produk: " + error.message);
+            return;
+        }
     }
-
-   if(!id){
-    const { error } = await client
-        .from("products")
-        .insert(payload);
-
-    if(error){
-        console.error("Gagal menambahkan produk:", error);
-        alert("Gagal menambahkan produk: " + error.message);
-        return;
-    }
-
-}else{
-
-    const { error } = await client
-        .from("products")
-        .update(payload)
-        .eq("id", id);
-
-    if(error){
-        console.error("Gagal mengubah produk:", error);
-        alert("Gagal mengubah produk: " + error.message);
-        return;
-    }
-
-}
 
     resetForm();
     loadProducts();
@@ -266,7 +603,7 @@ async function editProduct(id){
     const { data } = await client
         .from("products")
         .select("*")
-        .eq("id",id)
+        .eq("id", id)
         .single();
 
     document.getElementById("productId").value = data.id;
@@ -279,13 +616,29 @@ async function editProduct(id){
     document.getElementById("productDesc").value = data.description;
     document.getElementById("productActive").checked = data.is_active;
 
-    const preview = document.getElementById("imagePreview");
-    if(data.image_url){
-        preview.src = data.image_url;
-        preview.style.display = "block";
-    }else{
-        preview.style.display = "none";
+    /* =====================================================
+       LOAD GAMBAR PRODUK
+    ===================================================== */
+
+    existingImageUrls = Array.isArray(data.image_urls)
+        ? data.image_urls.filter(Boolean)
+        : [];
+
+    /*
+       Kompatibilitas produk lama:
+       jika image_urls kosong tetapi image_url ada,
+       gunakan image_url sebagai gambar pertama.
+    */
+    if(existingImageUrls.length === 0 && data.image_url){
+        existingImageUrls = [data.image_url];
     }
+
+    selectedImageFiles = [];
+    removedExistingImages = [];
+
+    document.getElementById("productImage").value = "";
+
+    renderImagePreviews();
 }
 
 
@@ -294,7 +647,17 @@ async function deleteProduct(id){
 
     if(!confirm("Hapus produk ini?")) return;
 
-    await supabase.from("products").delete().eq("id",id);
+    const { error } = await client
+        .from("products")
+        .delete()
+        .eq("id", id);
+
+    if(error){
+        console.error("Gagal menghapus produk:", error);
+        alert("Gagal menghapus produk: " + error.message);
+        return;
+    }
+
     loadProducts();
 }
 
@@ -302,20 +665,28 @@ async function deleteProduct(id){
 /* ================= RESET ================= */
 function resetForm(){
 
-    document.getElementById("productId").value="";
-    document.getElementById("productName").value="";
-    document.getElementById("productCategory").value="";
-    document.getElementById("productPrice").value="";
-    document.getElementById("productCost").value="";
-    document.getElementById("productPromo").value="";
-    document.getElementById("productStock").value="";
-    document.getElementById("productDesc").value="";
-    document.getElementById("productImage").value="";
-    document.getElementById("productActive").checked=true;
+    document.getElementById("productId").value = "";
+    document.getElementById("productName").value = "";
+    document.getElementById("productCategory").value = "";
+    document.getElementById("productPrice").value = "";
+    document.getElementById("productCost").value = "";
+    document.getElementById("productPromo").value = "";
+    document.getElementById("productStock").value = "";
+    document.getElementById("productDesc").value = "";
+    document.getElementById("productImage").value = "";
+    document.getElementById("productActive").checked = true;
 
-    const preview = document.getElementById("imagePreview");
-    preview.style.display="none";
+    selectedImageFiles = [];
+    existingImageUrls = [];
+    removedExistingImages = [];
+
+    const container = document.getElementById("imagePreviewContainer");
+
+    if(container){
+        container.innerHTML = "";
+    }
 }
+
 
 /* ================= IMPORT PRODUK MASSAL ================= */
 async function importProducts(){
@@ -341,16 +712,16 @@ async function importProducts(){
     const headers = rows[0].split(",").map(h => h.trim());
 
     const requiredColumns = [
-    "name",
-    "category",
-    "price",
-    "cost",
-    "promo_price",
-    "stock",
-    "description",
-    "is_active",
-    "image_url"
-];
+        "name",
+        "category",
+        "price",
+        "cost",
+        "promo_price",
+        "stock",
+        "description",
+        "is_active",
+        "image_url"
+    ];
 
     for(const col of requiredColumns){
         if(!headers.includes(col)){
@@ -361,12 +732,12 @@ async function importProducts(){
 
     const productsToInsert = [];
 
-    for(let i=1;i<rows.length;i++){
+    for(let i = 1; i < rows.length; i++){
 
         const values = rows[i].split(",").map(v => v.trim());
 
         let rowData = {};
-        headers.forEach((h,index)=>{
+        headers.forEach((h, index)=>{
             rowData[h] = values[index] || "";
         });
 
@@ -375,7 +746,7 @@ async function importProducts(){
 
         if(rowData.category){
 
-            const { data:exist } = await client
+            const { data: exist } = await client
                 .from("categories")
                 .select("id")
                 .ilike("name", rowData.category)
@@ -384,7 +755,7 @@ async function importProducts(){
             if(exist){
                 categoryId = exist.id;
             }else{
-                const { data:newCat } = await client
+                const { data: newCat } = await client
                     .from("categories")
                     .insert({ name: rowData.category })
                     .select()
@@ -395,17 +766,16 @@ async function importProducts(){
         }
 
         productsToInsert.push({
-        name: rowData.name,
-        category_id: categoryId,
-        price: parseInt(rowData.price) || 0,
-        cost_price: parseInt(rowData.cost) || 0,
-        promo_price: parseInt(rowData.promo_price) || 0,
-        stock: parseInt(rowData.stock) || 0,
-        description: rowData.description || "",
-        image_url: rowData.image_url || null,
-        is_active: rowData.is_active?.toLowerCase() === "true"
-    });
-
+            name: rowData.name,
+            category_id: categoryId,
+            price: parseInt(rowData.price) || 0,
+            cost_price: parseInt(rowData.cost) || 0,
+            promo_price: parseInt(rowData.promo_price) || 0,
+            stock: parseInt(rowData.stock) || 0,
+            description: rowData.description || "",
+            image_url: rowData.image_url || null,
+            is_active: rowData.is_active?.toLowerCase() === "true"
+        });
     }
 
     const { error } = await client
@@ -418,41 +788,41 @@ async function importProducts(){
         return;
     }
 
-    resultBox.innerHTML = "✅ Import berhasil ("+productsToInsert.length+" produk)";
+    resultBox.innerHTML = "✅ Import berhasil (" + productsToInsert.length + " produk)";
     fileInput.value = "";
     loadProducts();
 }
 
+
 /* ================= MOBILE NAV PREMIUM ================= */
 document.addEventListener("DOMContentLoaded", function(){
 
-  const toggle = document.getElementById("menuToggle");
-  const nav = document.querySelector(".top-nav");
-  const overlay = document.getElementById("navOverlay");
+    const toggle = document.getElementById("menuToggle");
+    const nav = document.querySelector(".top-nav");
+    const overlay = document.getElementById("navOverlay");
 
-  if(!toggle || !nav || !overlay) return;
+    if(!toggle || !nav || !overlay) return;
 
-  function openNav(){
-    nav.classList.add("active");
-    overlay.classList.add("active");
-    document.body.classList.add("nav-open");
-  }
+    function openNav(){
+        nav.classList.add("active");
+        overlay.classList.add("active");
+        document.body.classList.add("nav-open");
+    }
 
-  function closeNav(){
-    nav.classList.remove("active");
-    overlay.classList.remove("active");
-    document.body.classList.remove("nav-open");
-  }
+    function closeNav(){
+        nav.classList.remove("active");
+        overlay.classList.remove("active");
+        document.body.classList.remove("nav-open");
+    }
 
-  toggle.addEventListener("click", function(e){
-    e.stopPropagation();
-    nav.classList.contains("active") ? closeNav() : openNav();
-  });
+    toggle.addEventListener("click", function(e){
+        e.stopPropagation();
+        nav.classList.contains("active") ? closeNav() : openNav();
+    });
 
-  overlay.addEventListener("click", closeNav);
+    overlay.addEventListener("click", closeNav);
 
-  document.querySelectorAll(".nav-btn").forEach(btn=>{
-    btn.addEventListener("click", closeNav);
-  });
-
+    document.querySelectorAll(".nav-btn").forEach(btn=>{
+        btn.addEventListener("click", closeNav);
+    });
 });
