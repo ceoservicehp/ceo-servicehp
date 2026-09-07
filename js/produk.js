@@ -207,7 +207,7 @@ async function saveProduct(){
             return;
         }
 
-        const { data } = supabase.storage
+        const { data } = client.storage
             .from("produk-images")
             .getPublicUrl(fileName);
 
@@ -229,11 +229,31 @@ async function saveProduct(){
         payload.image_url = imageUrl;
     }
 
-    if(!id){
-        await supabase.from("products").insert(payload);
-    }else{
-        await supabase.from("products").update(payload).eq("id",id);
+   if(!id){
+    const { error } = await client
+        .from("products")
+        .insert(payload);
+
+    if(error){
+        console.error("Gagal menambahkan produk:", error);
+        alert("Gagal menambahkan produk: " + error.message);
+        return;
     }
+
+}else{
+
+    const { error } = await client
+        .from("products")
+        .update(payload)
+        .eq("id", id);
+
+    if(error){
+        console.error("Gagal mengubah produk:", error);
+        alert("Gagal mengubah produk: " + error.message);
+        return;
+    }
+
+}
 
     resetForm();
     loadProducts();
