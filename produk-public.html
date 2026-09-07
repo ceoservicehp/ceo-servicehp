@@ -8,7 +8,7 @@
 
     <meta
         name="description"
-        content="Temukan sparepart, aksesoris, dan produk pilihan dari CEO Part & Service."
+        content="Temukan smartphone dan produk pilihan dari CEO Part & Service."
     >
 
     <link rel="icon" href="images/logo.png">
@@ -113,14 +113,14 @@
 
         <h1>
             Temukan
-            <span>Produk & Sparepart</span>
+            <span>Smartphone & Produk</span>
             Pilihan
         </h1>
 
         <p>
-            Temukan berbagai sparepart, aksesoris, dan produk pilihan
-            untuk kebutuhan smartphone, laptop, dan perangkat elektronik
-            lainnya dari CEO Part & Service.
+            Temukan smartphone dan produk pilihan dengan varian RAM, storage,
+            warna, harga, promo, dan stok yang selalu terhubung dengan
+            katalog CEO Part & Service.
         </p>
 
         <a href="#produkSection" class="hero-button">
@@ -153,8 +153,8 @@
             <h2>Produk Kami</h2>
 
             <p>
-                Pilih produk yang kamu butuhkan dan lakukan pemesanan
-                langsung melalui WhatsApp.
+                Pilih produk, tentukan varian dan warna, lalu lanjutkan pemesanan
+                dengan stok dan harga yang sesuai pilihanmu.
             </p>
 
         </div>
@@ -392,6 +392,58 @@
                 -
             </div>
 
+            <!-- VARIANT SELECTOR -->
+
+            <div
+                class="variant-area"
+                id="variantArea"
+                hidden
+            >
+
+                <div class="variant-section">
+                    <div class="variant-label-row">
+                        <span class="variant-label">
+                            Pilih Varian
+                        </span>
+                        <small id="variantHint">
+                            Pilih kapasitas yang tersedia
+                        </small>
+                    </div>
+
+                    <div
+                        class="variant-options"
+                        id="variantSpecOptions"
+                    ></div>
+                </div>
+
+                <div
+                    class="variant-section"
+                    id="variantColorSection"
+                    hidden
+                >
+                    <div class="variant-label-row">
+                        <span class="variant-label">
+                            Pilih Warna
+                        </span>
+                        <small id="variantColorHint">
+                            Pilih warna yang tersedia
+                        </small>
+                    </div>
+
+                    <div
+                        class="variant-options color-options"
+                        id="variantColorOptions"
+                    ></div>
+                </div>
+
+                <div
+                    class="selected-variant-summary"
+                    id="selectedVariantSummary"
+                    hidden
+                ></div>
+
+            </div>
+
 
             <!-- QUANTITY -->
 
@@ -455,8 +507,8 @@
                 class="whatsapp-order-btn"
                 id="whatsappOrderBtn"
             >
-                <i class="fa-brands fa-whatsapp"></i>
-                Pesan via WhatsApp
+                <i class="fa-solid fa-cart-shopping"></i>
+                Pilih Varian
             </button>
 
         </div>
@@ -532,4 +584,3 @@
 
 </body>
 </html>
-
