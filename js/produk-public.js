@@ -7,17 +7,17 @@
 
 const client = window.supabaseClient;
 
-
-/* =========================================================
-   CONFIG
-========================================================= */
-
-// GANTI dengan nomor WhatsApp CEO.
-// Format internasional tanpa + dan tanpa spasi.
-//
-// Contoh:
-// 628123456789
-//
+/*
+ * GANTI DENGAN NOMOR WHATSAPP CEO
+ *
+ * Format:
+ * 628xxxxxxxxxx
+ *
+ * Jangan menggunakan:
+ * +62
+ * spasi
+ * tanda -
+ */
 const WHATSAPP_NUMBER = "628xxxxxxxxxx";
 
 
@@ -31,39 +31,8 @@ let filteredProducts = [];
 let selectedProduct = null;
 let selectedPrice = 0;
 
-
-/* =========================================================
-   ELEMENTS
-========================================================= */
-
-let productGrid;
-let productLoading;
-let productEmpty;
-
-let searchProduct;
-let categoryFilter;
-let sortProduct;
-
-let productModal;
-let modalOverlay;
-let modalClose;
-
-let modalImage;
-let modalCategory;
-let modalName;
-let modalPrice;
-let modalStock;
-let modalDescription;
-
-let productQty;
-let qtyMinus;
-let qtyPlus;
-
-let modalTotal;
-let whatsappOrderBtn;
-
-let mobileMenuBtn;
-let mainNav;
+let selectedProductImages = [];
+let selectedImageIndex = 0;
 
 
 /* =========================================================
@@ -93,11 +62,14 @@ function escapeHTML(value) {
 
 function getProductPrice(product) {
 
-    const promo = Number(product.promo_price || 0);
+    const price = Number(product?.price || 0);
 
-    const price = Number(product.price || 0);
+    const promo = Number(product?.promo_price || 0);
 
-    if (promo > 0 && promo < price) {
+    if (
+        promo > 0 &&
+        promo < price
+    ) {
         return promo;
     }
 
@@ -108,29 +80,74 @@ function getProductPrice(product) {
 
 function hasPromo(product) {
 
-    const promo = Number(product.promo_price || 0);
+    const price = Number(product?.price || 0);
+    const promo = Number(product?.promo_price || 0);
 
-    const price = Number(product.price || 0);
-
-    return promo > 0 && promo < price;
+    return (
+        promo > 0 &&
+        promo < price
+    );
 
 }
 
 
 function getCategoryName(product) {
 
-    return product.categories?.name || "Umum";
+    return (
+        product?.categories?.name ||
+        "Umum"
+    );
 
 }
 
 
-function getImage(product) {
+function getProductImages(product) {
 
-    if (product.image_url) {
-        return product.image_url;
+    let images = [];
+
+    if (
+        Array.isArray(product?.image_urls)
+    ) {
+
+        images = product.image_urls
+            .filter(Boolean)
+            .map(url => String(url).trim())
+            .filter(Boolean);
+
     }
 
-    return "images/logo.png";
+    /*
+     * Compatibility dengan produk lama
+     * yang hanya memiliki image_url.
+     */
+    if (
+        images.length === 0 &&
+        product?.image_url
+    ) {
+
+        images = [
+            String(product.image_url).trim()
+        ];
+
+    }
+
+    /*
+     * Fallback jika produk tidak memiliki gambar.
+     */
+    if (images.length === 0) {
+
+        images = [
+            "images/logo.png"
+        ];
+
+    }
+
+    /*
+     * Hilangkan URL duplikat.
+     */
+    return [
+        ...new Set(images)
+    ];
 
 }
 
@@ -142,8 +159,8 @@ function getStockStatus(stock) {
     if (value <= 0) {
 
         return {
-            text: "Stok habis",
-            empty: true
+            text: "Stok Habis",
+            className: "empty"
         };
 
     }
@@ -151,65 +168,41 @@ function getStockStatus(stock) {
     if (value <= 3) {
 
         return {
-            text: `Tersisa ${value}`,
-            empty: false
+            text: `Stok ${value}`,
+            className: "low"
         };
 
     }
 
     return {
         text: `Stok ${value}`,
-        empty: false
+        className: ""
     };
 
 }
 
 
 /* =========================================================
-   INIT
+   INITIALIZATION
 ========================================================= */
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener(
+    "DOMContentLoaded",
+    init
+);
 
-    productGrid = document.getElementById("productGrid");
-    productLoading = document.getElementById("productLoading");
-    productEmpty = document.getElementById("productEmpty");
 
-    searchProduct = document.getElementById("searchProduct");
-    categoryFilter = document.getElementById("categoryFilter");
-    sortProduct = document.getElementById("sortProduct");
-
-    productModal = document.getElementById("productModal");
-    modalOverlay = document.getElementById("modalOverlay");
-    modalClose = document.getElementById("modalClose");
-
-    modalImage = document.getElementById("modalImage");
-    modalCategory = document.getElementById("modalCategory");
-    modalName = document.getElementById("modalName");
-    modalPrice = document.getElementById("modalPrice");
-    modalStock = document.getElementById("modalStock");
-    modalDescription = document.getElementById("modalDescription");
-
-    productQty = document.getElementById("productQty");
-    qtyMinus = document.getElementById("qtyMinus");
-    qtyPlus = document.getElementById("qtyPlus");
-
-    modalTotal = document.getElementById("modalTotal");
-    whatsappOrderBtn = document.getElementById("whatsappOrderBtn");
-
-    mobileMenuBtn = document.getElementById("mobileMenuBtn");
-    mainNav = document.getElementById("mainNav");
-
+async function init() {
 
     setupEvents();
 
-    loadCategories();
-
-    loadProducts();
-
     setFooterYear();
 
-});
+    await loadCategories();
+
+    await loadProducts();
+
+}
 
 
 /* =========================================================
@@ -218,76 +211,253 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function setupEvents() {
 
-    searchProduct?.addEventListener(
-        "input",
-        applyFilters
-    );
+    const searchInput =
+        document.getElementById("searchProduct");
+
+    const categoryFilter =
+        document.getElementById("categoryFilter");
+
+    const sortProduct =
+        document.getElementById("sortProduct");
 
 
-    categoryFilter?.addEventListener(
-        "change",
-        applyFilters
-    );
+    if (searchInput) {
+
+        searchInput.addEventListener(
+            "input",
+            applyFilters
+        );
+
+    }
 
 
-    sortProduct?.addEventListener(
-        "change",
-        applyFilters
-    );
+    if (categoryFilter) {
+
+        categoryFilter.addEventListener(
+            "change",
+            applyFilters
+        );
+
+    }
 
 
-    modalClose?.addEventListener(
-        "click",
-        closeProductModal
-    );
+    if (sortProduct) {
+
+        sortProduct.addEventListener(
+            "change",
+            applyFilters
+        );
+
+    }
 
 
-    modalOverlay?.addEventListener(
-        "click",
-        closeProductModal
-    );
+    /* ============================
+       MODAL
+    ============================ */
+
+    document
+        .getElementById("modalClose")
+        ?.addEventListener(
+            "click",
+            closeProductModal
+        );
 
 
-    qtyMinus?.addEventListener(
-        "click",
-        decreaseQuantity
-    );
+    document
+        .getElementById("modalOverlay")
+        ?.addEventListener(
+            "click",
+            closeProductModal
+        );
 
 
-    qtyPlus?.addEventListener(
-        "click",
-        increaseQuantity
-    );
+    /* ============================
+       QUANTITY
+    ============================ */
+
+    document
+        .getElementById("qtyMinus")
+        ?.addEventListener(
+            "click",
+            decreaseQuantity
+        );
 
 
-    productQty?.addEventListener(
-        "input",
-        validateQuantity
-    );
+    document
+        .getElementById("qtyPlus")
+        ?.addEventListener(
+            "click",
+            increaseQuantity
+        );
 
 
-    whatsappOrderBtn?.addEventListener(
-        "click",
-        orderViaWhatsApp
-    );
+    document
+        .getElementById("productQty")
+        ?.addEventListener(
+            "input",
+            handleQuantityInput
+        );
+
+
+    /* ============================
+       WHATSAPP
+    ============================ */
+
+    document
+        .getElementById("whatsappOrderBtn")
+        ?.addEventListener(
+            "click",
+            orderViaWhatsApp
+        );
+
+
+    /* ============================
+       IMAGE GALLERY
+    ============================ */
+
+    document
+        .getElementById("modalImagePrev")
+        ?.addEventListener(
+            "click",
+            showPreviousImage
+        );
+
+
+    document
+        .getElementById("modalImageNext")
+        ?.addEventListener(
+            "click",
+            showNextImage
+        );
+
+
+    /* ============================
+       MOBILE MENU
+    ============================ */
+
+    const mobileMenuBtn =
+        document.getElementById("mobileMenuBtn");
+
+    const mainNav =
+        document.getElementById("mainNav");
 
 
     mobileMenuBtn?.addEventListener(
         "click",
-        toggleMobileMenu
+        () => {
+
+            const isOpen =
+                mainNav.classList.toggle("show");
+
+            mobileMenuBtn.setAttribute(
+                "aria-expanded",
+                String(isOpen)
+            );
+
+            const icon =
+                mobileMenuBtn.querySelector("i");
+
+            if (icon) {
+
+                icon.className =
+                    isOpen
+                        ? "fa-solid fa-xmark"
+                        : "fa-solid fa-bars";
+
+            }
+
+        }
     );
 
+
+    /*
+     * Tutup menu ketika klik link.
+     */
+    mainNav?.querySelectorAll("a")
+        .forEach(link => {
+
+            link.addEventListener(
+                "click",
+                () => {
+
+                    mainNav.classList.remove("show");
+
+                    mobileMenuBtn?.setAttribute(
+                        "aria-expanded",
+                        "false"
+                    );
+
+                    const icon =
+                        mobileMenuBtn?.querySelector("i");
+
+                    if (icon) {
+
+                        icon.className =
+                            "fa-solid fa-bars";
+
+                    }
+
+                }
+            );
+
+        });
+
+
+    /* ============================
+       KEYBOARD
+    ============================ */
 
     document.addEventListener(
         "keydown",
         event => {
 
             if (event.key === "Escape") {
+
                 closeProductModal();
+
+            }
+
+            if (
+                document
+                    .getElementById("productModal")
+                    ?.classList.contains("show")
+            ) {
+
+                if (event.key === "ArrowLeft") {
+
+                    showPreviousImage();
+
+                }
+
+                if (event.key === "ArrowRight") {
+
+                    showNextImage();
+
+                }
+
             }
 
         }
     );
+
+}
+
+
+/* =========================================================
+   FOOTER YEAR
+========================================================= */
+
+function setFooterYear() {
+
+    const footerYear =
+        document.getElementById("footerYear");
+
+    if (footerYear) {
+
+        footerYear.textContent =
+            new Date().getFullYear();
+
+    }
 
 }
 
@@ -298,7 +468,34 @@ function setupEvents() {
 
 async function loadProducts() {
 
-    showLoading(true);
+    const loading =
+        document.getElementById("productLoading");
+
+    const grid =
+        document.getElementById("productGrid");
+
+    const empty =
+        document.getElementById("productEmpty");
+
+
+    if (loading) {
+
+        loading.style.display = "flex";
+
+    }
+
+    if (grid) {
+
+        grid.innerHTML = "";
+
+    }
+
+    if (empty) {
+
+        empty.classList.remove("show");
+
+    }
+
 
     const {
         data,
@@ -315,48 +512,32 @@ async function loadProducts() {
         });
 
 
-    if (error) {
+    if (loading) {
 
-        console.error(
-            "Gagal mengambil produk:",
-            error
-        );
+        loading.style.display = "none";
 
-        showLoading(false);
-
-        productGrid.innerHTML = `
-            <div style="
-                grid-column: 1 / -1;
-                text-align:center;
-                padding:50px 20px;
-                color:#d93434;
-            ">
-                <i
-                    class="fa-solid fa-triangle-exclamation"
-                    style="font-size:30px;margin-bottom:12px;"
-                ></i>
-
-                <p>
-                    Produk gagal dimuat.
-                </p>
-
-                <small>
-                    Silakan coba beberapa saat lagi.
-                </small>
-            </div>
-        `;
-
-        return;
     }
 
 
-    allProducts = data || [];
+    if (error) {
 
-    filteredProducts = [...allProducts];
+        console.error(
+            "Gagal memuat produk:",
+            error
+        );
 
-    showLoading(false);
+        showProductError();
 
-    populateCategories();
+        return;
+
+    }
+
+
+    allProducts =
+        Array.isArray(data)
+            ? data
+            : [];
+
 
     applyFilters();
 
@@ -369,6 +550,13 @@ async function loadProducts() {
 
 async function loadCategories() {
 
+    const select =
+        document.getElementById("categoryFilter");
+
+
+    if (!select) return;
+
+
     const {
         data,
         error
@@ -376,22 +564,25 @@ async function loadCategories() {
         .from("categories")
         .select("*")
         .eq("is_active", true)
-        .order("name");
+        .order("name", {
+            ascending: true
+        });
 
 
     if (error) {
 
         console.error(
-            "Gagal mengambil kategori:",
+            "Gagal memuat kategori:",
             error
         );
 
         return;
+
     }
 
 
-    categoryFilter.innerHTML = `
-        <option value="all">
+    select.innerHTML = `
+        <option value="">
             Semua Kategori
         </option>
     `;
@@ -399,53 +590,16 @@ async function loadCategories() {
 
     (data || []).forEach(category => {
 
-        const option = document.createElement("option");
+        const option =
+            document.createElement("option");
 
-        option.value = category.id;
+        option.value =
+            category.id;
 
-        option.textContent = category.name;
+        option.textContent =
+            category.name;
 
-        categoryFilter.appendChild(option);
-
-    });
-
-}
-
-
-/* =========================================================
-   POPULATE CATEGORY
-========================================================= */
-
-function populateCategories() {
-
-    if (!categoryFilter) return;
-
-
-    const existingValues = new Set(
-        [...categoryFilter.options]
-            .map(option => option.value)
-    );
-
-
-    allProducts.forEach(product => {
-
-        if (!product.category_id) return;
-
-        if (existingValues.has(product.category_id)) {
-            return;
-        }
-
-        const name = getCategoryName(product);
-
-        const option = document.createElement("option");
-
-        option.value = product.category_id;
-
-        option.textContent = name;
-
-        categoryFilter.appendChild(option);
-
-        existingValues.add(product.category_id);
+        select.appendChild(option);
 
     });
 
@@ -453,54 +607,130 @@ function populateCategories() {
 
 
 /* =========================================================
-   FILTER
+   FILTER + SORT
 ========================================================= */
 
 function applyFilters() {
 
+    const searchInput =
+        document.getElementById("searchProduct");
+
+    const categoryFilter =
+        document.getElementById("categoryFilter");
+
+    const sortProduct =
+        document.getElementById("sortProduct");
+
+
     const keyword =
-        String(searchProduct?.value || "")
-            .trim()
-            .toLowerCase();
+        String(
+            searchInput?.value || ""
+        )
+        .trim()
+        .toLowerCase();
 
 
-    const category =
-        categoryFilter?.value || "all";
+    const categoryId =
+        String(
+            categoryFilter?.value || ""
+        );
 
 
-    filteredProducts = allProducts.filter(product => {
-
-        const name =
-            String(product.name || "")
-                .toLowerCase();
-
-        const description =
-            String(product.description || "")
-                .toLowerCase();
-
-        const categoryName =
-            getCategoryName(product)
-                .toLowerCase();
+    const sortValue =
+        sortProduct?.value ||
+        "newest";
 
 
-        const matchesSearch =
-            !keyword ||
-            name.includes(keyword) ||
-            description.includes(keyword) ||
-            categoryName.includes(keyword);
+    filteredProducts =
+        allProducts.filter(product => {
+
+            const name =
+                String(
+                    product?.name || ""
+                ).toLowerCase();
 
 
-        const matchesCategory =
-            category === "all" ||
-            String(product.category_id) === String(category);
+            const description =
+                String(
+                    product?.description || ""
+                ).toLowerCase();
 
 
-        return matchesSearch && matchesCategory;
+            const categoryName =
+                getCategoryName(product)
+                    .toLowerCase();
 
-    });
+
+            const matchSearch =
+                !keyword ||
+                name.includes(keyword) ||
+                description.includes(keyword) ||
+                categoryName.includes(keyword);
 
 
-    applySort();
+            const matchCategory =
+                !categoryId ||
+                String(product?.category_id || "") ===
+                categoryId;
+
+
+            return (
+                matchSearch &&
+                matchCategory
+            );
+
+        });
+
+
+    /* ============================
+       SORT
+    ============================ */
+
+    filteredProducts.sort(
+        (a, b) => {
+
+            if (sortValue === "name-asc") {
+
+                return String(a?.name || "")
+                    .localeCompare(
+                        String(b?.name || ""),
+                        "id"
+                    );
+
+            }
+
+
+            if (sortValue === "price-low") {
+
+                return (
+                    getProductPrice(a) -
+                    getProductPrice(b)
+                );
+
+            }
+
+
+            if (sortValue === "price-high") {
+
+                return (
+                    getProductPrice(b) -
+                    getProductPrice(a)
+                );
+
+            }
+
+
+            /*
+             * newest
+             */
+            return (
+                new Date(b?.created_at || 0) -
+                new Date(a?.created_at || 0)
+            );
+
+        }
+    );
+
 
     renderProducts();
 
@@ -508,104 +738,53 @@ function applyFilters() {
 
 
 /* =========================================================
-   SORT
+   RENDER PRODUCTS
 ========================================================= */
 
-function applySort() {
+function renderProducts() {
 
-    const sort =
-        sortProduct?.value || "newest";
+    const grid =
+        document.getElementById("productGrid");
+
+    const empty =
+        document.getElementById("productEmpty");
 
 
-    if (sort === "name-asc") {
+    if (!grid) return;
 
-        filteredProducts.sort(
-            (a, b) =>
-                String(a.name || "")
-                    .localeCompare(
-                        String(b.name || ""),
-                        "id"
-                    )
-        );
+
+    grid.innerHTML = "";
+
+
+    if (
+        filteredProducts.length === 0
+    ) {
+
+        empty?.classList.add("show");
 
         return;
+
     }
 
 
-    if (sort === "price-low") {
-
-        filteredProducts.sort(
-            (a, b) =>
-                getProductPrice(a) -
-                getProductPrice(b)
-        );
-
-        return;
-    }
+    empty?.classList.remove("show");
 
 
-    if (sort === "price-high") {
+    filteredProducts.forEach(
+        product => {
 
-        filteredProducts.sort(
-            (a, b) =>
-                getProductPrice(b) -
-                getProductPrice(a)
-        );
+            grid.appendChild(
+                createProductCard(product)
+            );
 
-        return;
-    }
-
-
-    // newest
-    filteredProducts.sort(
-        (a, b) =>
-            new Date(b.created_at || 0) -
-            new Date(a.created_at || 0)
+        }
     );
 
 }
 
 
 /* =========================================================
-   RENDER
-========================================================= */
-
-function renderProducts() {
-
-    productGrid.innerHTML = "";
-
-    productEmpty.classList.remove("show");
-
-
-    if (!filteredProducts.length) {
-
-        productEmpty.classList.add("show");
-
-        return;
-    }
-
-
-    const fragment =
-        document.createDocumentFragment();
-
-
-    filteredProducts.forEach(product => {
-
-        const card =
-            createProductCard(product);
-
-        fragment.appendChild(card);
-
-    });
-
-
-    productGrid.appendChild(fragment);
-
-}
-
-
-/* =========================================================
-   CREATE CARD
+   PRODUCT CARD
 ========================================================= */
 
 function createProductCard(product) {
@@ -613,30 +792,44 @@ function createProductCard(product) {
     const card =
         document.createElement("article");
 
-    card.className = "product-card";
+    card.className =
+        "product-card";
 
 
-    const stock =
-        Number(product.stock || 0);
+    const images =
+        getProductImages(product);
 
-    const stockStatus =
-        getStockStatus(stock);
+    const mainImage =
+        images[0];
 
-    const promo =
-        hasPromo(product);
 
     const price =
         getProductPrice(product);
 
 
+    const originalPrice =
+        Number(product?.price || 0);
+
+
+    const promo =
+        hasPromo(product);
+
+
+    const stock =
+        Number(product?.stock || 0);
+
+
+    const stockStatus =
+        getStockStatus(stock);
+
+
     const category =
-        escapeHTML(getCategoryName(product));
+        getCategoryName(product);
+
 
     const name =
-        escapeHTML(product.name);
-
-    const image =
-        escapeHTML(getImage(product));
+        product?.name ||
+        "Produk";
 
 
     card.innerHTML = `
@@ -644,10 +837,9 @@ function createProductCard(product) {
         <div class="product-image">
 
             <img
-                src="${image}"
-                alt="${name}"
+                src="${escapeHTML(mainImage)}"
+                alt="${escapeHTML(name)}"
                 loading="lazy"
-                onerror="this.src='images/logo.png'"
             >
 
             ${
@@ -661,12 +853,22 @@ function createProductCard(product) {
             }
 
             <span
-                class="stock-badge ${
-                    stockStatus.empty ? "empty" : ""
-                }"
+                class="stock-badge ${stockStatus.className}"
             >
                 ${escapeHTML(stockStatus.text)}
             </span>
+
+
+            ${
+                images.length > 1
+                    ? `
+                        <span class="product-image-count">
+                            <i class="fa-solid fa-images"></i>
+                            ${images.length}
+                        </span>
+                    `
+                    : ""
+            }
 
         </div>
 
@@ -674,12 +876,13 @@ function createProductCard(product) {
         <div class="product-info">
 
             <span class="product-category">
-                ${category}
+                ${escapeHTML(category)}
             </span>
 
-            <h3 class="product-name">
-                ${name}
-            </h3>
+            <div class="product-name">
+                ${escapeHTML(name)}
+            </div>
+
 
             <div class="product-price">
 
@@ -691,7 +894,7 @@ function createProductCard(product) {
                             </span>
 
                             <span class="old">
-                                ${rupiah(product.price)}
+                                ${rupiah(originalPrice)}
                             </span>
                         `
                         : `
@@ -704,40 +907,61 @@ function createProductCard(product) {
             </div>
 
 
-            <button
-                type="button"
-                class="product-action ${
-                    stock <= 0 ? "disabled" : ""
-                }"
-                data-product-id="${escapeHTML(product.id)}"
-                ${stock <= 0 ? "disabled" : ""}
-            >
-
-                <i class="fa-solid fa-eye"></i>
-
-                ${
-                    stock <= 0
-                        ? "Stok Habis"
-                        : "Lihat Produk"
-                }
-
-            </button>
+            ${
+                stock > 0
+                    ? `
+                        <button
+                            type="button"
+                            class="product-action"
+                        >
+                            <i class="fa-solid fa-eye"></i>
+                            Lihat Produk
+                        </button>
+                    `
+                    : `
+                        <button
+                            type="button"
+                            class="product-action disabled"
+                            disabled
+                        >
+                            <i class="fa-solid fa-ban"></i>
+                            Stok Habis
+                        </button>
+                    `
+            }
 
         </div>
 
     `;
 
 
-    const button =
-        card.querySelector(".product-action");
-
-
+    /*
+     * Hanya produk dengan stok yang bisa dibuka
+     * untuk pemesanan.
+     */
     if (stock > 0) {
 
-        button.addEventListener(
+        const button =
+            card.querySelector(
+                ".product-action"
+            );
+
+
+        button?.addEventListener(
             "click",
             () => openProductModal(product)
         );
+
+
+        /*
+         * Klik gambar juga membuka detail.
+         */
+        card
+            .querySelector(".product-image")
+            ?.addEventListener(
+                "click",
+                () => openProductModal(product)
+            );
 
     }
 
@@ -748,26 +972,67 @@ function createProductCard(product) {
 
 
 /* =========================================================
-   MODAL
+   OPEN PRODUCT MODAL
 ========================================================= */
 
 function openProductModal(product) {
 
-    selectedProduct = product;
+    if (!product) return;
+
+
+    selectedProduct =
+        product;
+
 
     selectedPrice =
         getProductPrice(product);
 
 
+    selectedProductImages =
+        getProductImages(product);
+
+
+    selectedImageIndex =
+        0;
+
+
     const stock =
-        Number(product.stock || 0);
+        Number(product?.stock || 0);
 
 
-    modalImage.src =
-        getImage(product);
+    const modal =
+        document.getElementById("productModal");
 
-    modalImage.alt =
-        product.name || "Produk";
+
+    const modalCategory =
+        document.getElementById("modalCategory");
+
+
+    const modalName =
+        document.getElementById("modalName");
+
+
+    const modalPrice =
+        document.getElementById("modalPrice");
+
+
+    const modalStock =
+        document.getElementById("modalStock");
+
+
+    const modalDescription =
+        document.getElementById("modalDescription");
+
+
+    const quantity =
+        document.getElementById("productQty");
+
+
+    const whatsappButton =
+        document.getElementById("whatsappOrderBtn");
+
+
+    if (!modal) return;
 
 
     modalCategory.textContent =
@@ -775,58 +1040,110 @@ function openProductModal(product) {
 
 
     modalName.textContent =
-        product.name || "Produk";
+        product?.name ||
+        "Produk";
 
 
-    modalPrice.textContent =
-        rupiah(selectedPrice);
+    /*
+     * Harga publik selalu harga jual/promo.
+     * cost_price tidak pernah digunakan.
+     */
+    modalPrice.innerHTML =
+        hasPromo(product)
+            ? `
+                <span class="promo">
+                    ${rupiah(selectedPrice)}
+                </span>
+
+                <span class="old">
+                    ${rupiah(product.price)}
+                </span>
+            `
+            : `
+                <span class="normal">
+                    ${rupiah(selectedPrice)}
+                </span>
+            `;
 
 
-    modalDescription.textContent =
-        product.description ||
-        "Tidak ada deskripsi produk.";
-
-
-    if (stock <= 0) {
-
-        modalStock.textContent =
-            "Stok habis";
-
-        modalStock.classList.add("empty");
-
-        whatsappOrderBtn.disabled = true;
-
-    } else {
+    if (stock > 0) {
 
         modalStock.textContent =
             `Stok tersedia: ${stock}`;
 
-        modalStock.classList.remove("empty");
+        modalStock.classList.remove(
+            "empty"
+        );
 
-        whatsappOrderBtn.disabled = false;
+    } else {
+
+        modalStock.textContent =
+            "Stok habis";
+
+        modalStock.classList.add(
+            "empty"
+        );
 
     }
 
 
-    productQty.value = 1;
+    modalDescription.textContent =
+        product?.description ||
+        "Tidak ada deskripsi produk.";
 
-    productQty.min = 1;
 
-    productQty.max = Math.max(stock, 1);
+    /*
+     * Quantity
+     */
+    quantity.value =
+        stock > 0
+            ? 1
+            : 0;
 
+    quantity.min =
+        stock > 0
+            ? 1
+            : 0;
+
+    quantity.max =
+        stock;
+
+
+    /*
+     * WhatsApp
+     */
+    whatsappButton.disabled =
+        stock <= 0;
+
+
+    /*
+     * Quantity controls
+     */
+    document.getElementById(
+        "qtyMinus"
+    ).disabled = stock <= 0;
+
+
+    document.getElementById(
+        "qtyPlus"
+    ).disabled = stock <= 0;
+
+
+    renderModalImage();
 
     updateModalTotal();
 
 
-    productModal.classList.add("show");
+    modal.classList.add("show");
 
-    productModal.setAttribute(
+    modal.setAttribute(
         "aria-hidden",
         "false"
     );
 
 
-    document.body.style.overflow = "hidden";
+    document.body.style.overflow =
+        "hidden";
 
 }
 
@@ -837,16 +1154,270 @@ function openProductModal(product) {
 
 function closeProductModal() {
 
-    productModal.classList.remove("show");
+    const modal =
+        document.getElementById("productModal");
 
-    productModal.setAttribute(
+
+    if (!modal) return;
+
+
+    modal.classList.remove("show");
+
+    modal.setAttribute(
         "aria-hidden",
         "true"
     );
 
-    document.body.style.overflow = "";
 
-    selectedProduct = null;
+    document.body.style.overflow =
+        "";
+
+
+    selectedProduct =
+        null;
+
+
+    selectedProductImages =
+        [];
+
+
+    selectedImageIndex =
+        0;
+
+}
+
+
+/* =========================================================
+   MODAL IMAGE
+========================================================= */
+
+function renderModalImage() {
+
+    const image =
+        document.getElementById("modalImage");
+
+    const counter =
+        document.getElementById(
+            "modalImageCounter"
+        );
+
+    const prev =
+        document.getElementById(
+            "modalImagePrev"
+        );
+
+    const next =
+        document.getElementById(
+            "modalImageNext"
+        );
+
+    const thumbnails =
+        document.getElementById(
+            "modalThumbnails"
+        );
+
+
+    if (!image) return;
+
+
+    const images =
+        selectedProductImages.length
+            ? selectedProductImages
+            : ["images/logo.png"];
+
+
+    const current =
+        images[selectedImageIndex] ||
+        images[0];
+
+
+    image.src =
+        current;
+
+
+    image.alt =
+        selectedProduct?.name ||
+        "Produk";
+
+
+    if (counter) {
+
+        counter.textContent =
+            `${selectedImageIndex + 1} / ${images.length}`;
+
+    }
+
+
+    /*
+     * Tombol navigasi hanya tampil
+     * jika gambar lebih dari satu.
+     */
+    const hasMultiple =
+        images.length > 1;
+
+
+    if (prev) {
+
+        prev.style.display =
+            hasMultiple
+                ? "flex"
+                : "none";
+
+    }
+
+
+    if (next) {
+
+        next.style.display =
+            hasMultiple
+                ? "flex"
+                : "none";
+
+    }
+
+
+    /*
+     * Thumbnails
+     */
+    if (thumbnails) {
+
+        thumbnails.innerHTML = "";
+
+
+        if (images.length <= 1) {
+
+            thumbnails.style.display =
+                "none";
+
+        } else {
+
+            thumbnails.style.display =
+                "flex";
+
+
+            images.forEach(
+                (url, index) => {
+
+                    const button =
+                        document.createElement(
+                            "button"
+                        );
+
+
+                    button.type =
+                        "button";
+
+
+                    button.className =
+                        "modal-thumbnail";
+
+
+                    if (
+                        index ===
+                        selectedImageIndex
+                    ) {
+
+                        button.classList.add(
+                            "active"
+                        );
+
+                    }
+
+
+                    button.innerHTML = `
+
+                        <img
+                            src="${escapeHTML(url)}"
+                            alt="Gambar ${index + 1}"
+                        >
+
+                    `;
+
+
+                    button.addEventListener(
+                        "click",
+                        () => {
+
+                            selectedImageIndex =
+                                index;
+
+                            renderModalImage();
+
+                        }
+                    );
+
+
+                    thumbnails.appendChild(
+                        button
+                    );
+
+                }
+            );
+
+        }
+
+    }
+
+}
+
+
+/* =========================================================
+   PREVIOUS IMAGE
+========================================================= */
+
+function showPreviousImage() {
+
+    if (
+        selectedProductImages.length <= 1
+    ) {
+        return;
+    }
+
+
+    selectedImageIndex--;
+
+    if (
+        selectedImageIndex < 0
+    ) {
+
+        selectedImageIndex =
+            selectedProductImages.length - 1;
+
+    }
+
+
+    renderModalImage();
+
+}
+
+
+/* =========================================================
+   NEXT IMAGE
+========================================================= */
+
+function showNextImage() {
+
+    if (
+        selectedProductImages.length <= 1
+    ) {
+        return;
+    }
+
+
+    selectedImageIndex++;
+
+
+    if (
+        selectedImageIndex >=
+        selectedProductImages.length
+    ) {
+
+        selectedImageIndex = 0;
+
+    }
+
+
+    renderModalImage();
 
 }
 
@@ -855,23 +1426,44 @@ function closeProductModal() {
    QUANTITY
 ========================================================= */
 
+function getCurrentQuantity() {
+
+    const input =
+        document.getElementById(
+            "productQty"
+        );
+
+
+    return Math.max(
+        1,
+        Number(input?.value || 1)
+    );
+
+}
+
+
 function decreaseQuantity() {
 
     if (!selectedProduct) return;
 
 
-    let qty =
-        Number(productQty.value || 1);
+    const input =
+        document.getElementById(
+            "productQty"
+        );
 
 
-    qty--;
+    const current =
+        Number(input.value || 1);
 
-    if (qty < 1) {
-        qty = 1;
+
+    if (current > 1) {
+
+        input.value =
+            current - 1;
+
     }
 
-
-    productQty.value = qty;
 
     updateModalTotal();
 
@@ -883,63 +1475,82 @@ function increaseQuantity() {
     if (!selectedProduct) return;
 
 
+    const input =
+        document.getElementById(
+            "productQty"
+        );
+
+
     const stock =
-        Number(selectedProduct.stock || 0);
+        Number(
+            selectedProduct?.stock || 0
+        );
 
 
-    let qty =
-        Number(productQty.value || 1);
+    const current =
+        Number(input.value || 1);
 
 
-    qty++;
+    if (
+        current < stock
+    ) {
 
+        input.value =
+            current + 1;
 
-    if (qty > stock) {
-        qty = stock;
     }
 
-
-    if (qty < 1) {
-        qty = 1;
-    }
-
-
-    productQty.value = qty;
 
     updateModalTotal();
 
 }
 
 
-function validateQuantity() {
+function handleQuantityInput() {
 
     if (!selectedProduct) return;
 
 
+    const input =
+        document.getElementById(
+            "productQty"
+        );
+
+
     const stock =
-        Number(selectedProduct.stock || 0);
+        Number(
+            selectedProduct?.stock || 0
+        );
 
 
-    let qty =
-        parseInt(productQty.value, 10);
+    let quantity =
+        Number(input.value || 1);
 
 
-    if (!Number.isFinite(qty)) {
-        qty = 1;
+    if (stock <= 0) {
+
+        quantity = 0;
+
+    } else {
+
+        if (quantity < 1) {
+
+            quantity = 1;
+
+        }
+
+        if (quantity > stock) {
+
+            quantity = stock;
+
+        }
+
     }
 
 
-    if (qty < 1) {
-        qty = 1;
-    }
+    input.value =
+        quantity;
 
-
-    if (qty > stock) {
-        qty = stock;
-    }
-
-
-    productQty.value = qty;
 
     updateModalTotal();
 
@@ -952,25 +1563,44 @@ function validateQuantity() {
 
 function updateModalTotal() {
 
-    if (!selectedProduct) return;
-
-
-    const qty =
-        Number(productQty.value || 1);
-
-
     const total =
-        selectedPrice * qty;
+        document.getElementById(
+            "modalTotal"
+        );
 
 
-    modalTotal.textContent =
-        rupiah(total);
+    if (!total) return;
+
+
+    if (!selectedProduct) {
+
+        total.textContent =
+            "Rp 0";
+
+        return;
+
+    }
+
+
+    const quantity =
+        Number(
+            document.getElementById(
+                "productQty"
+            )?.value || 0
+        );
+
+
+    total.textContent =
+        rupiah(
+            selectedPrice *
+            quantity
+        );
 
 }
 
 
 /* =========================================================
-   WHATSAPP
+   WHATSAPP ORDER
 ========================================================= */
 
 function orderViaWhatsApp() {
@@ -979,36 +1609,24 @@ function orderViaWhatsApp() {
 
 
     const stock =
-        Number(selectedProduct.stock || 0);
+        Number(
+            selectedProduct?.stock || 0
+        );
 
 
     if (stock <= 0) {
 
-        alert(
-            "Maaf, produk ini sedang tidak tersedia."
-        );
-
         return;
+
     }
 
 
-    const qty =
-        Number(productQty.value || 1);
-
-
-    if (qty < 1 || qty > stock) {
-
-        alert(
-            "Jumlah pembelian tidak valid."
-        );
-
-        return;
-    }
-
-
+    /*
+     * Pastikan nomor WhatsApp sudah diganti.
+     */
     if (
         !WHATSAPP_NUMBER ||
-        WHATSAPP_NUMBER.includes("xxxxxxxx")
+        WHATSAPP_NUMBER.includes("x")
     ) {
 
         alert(
@@ -1016,39 +1634,46 @@ function orderViaWhatsApp() {
         );
 
         return;
+
     }
 
 
-    const price =
-        selectedPrice;
+    const quantity =
+        getCurrentQuantity();
+
+
+    const productName =
+        selectedProduct?.name ||
+        "Produk";
+
+
+    const category =
+        getCategoryName(
+            selectedProduct
+        );
+
 
     const total =
-        price * qty;
+        selectedPrice *
+        quantity;
 
 
-    const promo =
-        hasPromo(selectedProduct);
+    const promoText =
+        hasPromo(selectedProduct)
+            ? " (Harga Promo)"
+            : "";
 
 
     const message =
-
-`Halo CEO Part & Service 👋
+        `Halo CEO Part & Service 👋
 
 Saya ingin memesan produk:
 
-📦 *${selectedProduct.name}*
-
-🏷️ Kategori:
-${getCategoryName(selectedProduct)}
-
-💰 Harga:
-${rupiah(price)}${promo ? " (Harga Promo)" : ""}
-
-🔢 Jumlah:
-${qty}
-
-💵 Total:
-${rupiah(total)}
+📦 Produk: ${productName}
+🏷️ Kategori: ${category}
+💰 Harga: ${rupiah(selectedPrice)}${promoText}
+🔢 Jumlah: ${quantity}
+💵 Total: ${rupiah(total)}
 
 Mohon informasi ketersediaan dan proses pemesanannya.
 
@@ -1056,7 +1681,9 @@ Terima kasih 🙏`;
 
 
     const url =
-        `https://wa.me/${WHATSAPP_NUMBER}?text=` +
+        "https://wa.me/" +
+        WHATSAPP_NUMBER +
+        "?text=" +
         encodeURIComponent(message);
 
 
@@ -1070,44 +1697,68 @@ Terima kasih 🙏`;
 
 
 /* =========================================================
-   MOBILE MENU
+   ERROR STATE
 ========================================================= */
 
-function toggleMobileMenu() {
+function showProductError() {
 
-    mainNav?.classList.toggle("show");
-
-}
-
-
-/* =========================================================
-   LOADING
-========================================================= */
-
-function showLoading(show) {
-
-    if (!productLoading) return;
+    const grid =
+        document.getElementById(
+            "productGrid"
+        );
 
 
-    productLoading.style.display =
-        show ? "flex" : "none";
-
-}
-
-
-/* =========================================================
-   FOOTER YEAR
-========================================================= */
-
-function setFooterYear() {
-
-    const year =
-        document.getElementById("footerYear");
+    const empty =
+        document.getElementById(
+            "productEmpty"
+        );
 
 
-    if (year) {
-        year.textContent =
-            new Date().getFullYear();
+    if (grid) {
+
+        grid.innerHTML = `
+
+            <div class="product-error">
+
+                <div class="empty-icon">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+
+                <h3>
+                    Produk gagal dimuat
+                </h3>
+
+                <p>
+                    Terjadi masalah saat mengambil
+                    data produk. Silakan coba lagi.
+                </p>
+
+                <button
+                    type="button"
+                    class="product-action"
+                    id="retryProductBtn"
+                >
+                    <i class="fa-solid fa-rotate-right"></i>
+                    Coba Lagi
+                </button>
+
+            </div>
+
+        `;
+
     }
+
+
+    empty?.classList.remove("show");
+
+
+    document
+        .getElementById(
+            "retryProductBtn"
+        )
+        ?.addEventListener(
+            "click",
+            loadProducts
+        );
 
 }
