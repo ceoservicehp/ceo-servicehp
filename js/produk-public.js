@@ -34,6 +34,9 @@ let selectedPrice = 0;
 let selectedProductImages = [];
 let selectedImageIndex = 0;
 
+let selectedVariant = null;
+let selectedVariantSpecKey = "";
+
 
 /* =========================================================
    HELPERS
@@ -60,16 +63,12 @@ function escapeHTML(value) {
 }
 
 
-function getProductPrice(product) {
+function getVariantPrice(variant) {
 
-    const price = Number(product?.price || 0);
+    const price = Number(variant?.price || 0);
+    const promo = Number(variant?.promo_price || 0);
 
-    const promo = Number(product?.promo_price || 0);
-
-    if (
-        promo > 0 &&
-        promo < price
-    ) {
+    if (promo > 0 && promo < price) {
         return promo;
     }
 
@@ -78,16 +77,114 @@ function getProductPrice(product) {
 }
 
 
-function hasPromo(product) {
+function getActiveVariants(product) {
+
+    if (!Array.isArray(product?.variants)) {
+        return [];
+    }
+
+    return product.variants.filter(variant =>
+        variant && variant.is_active !== false
+    );
+
+}
+
+
+function getProductPrice(product) {
+
+    const variants = getActiveVariants(product);
+
+    if (variants.length > 0) {
+
+        const prices = variants
+            .map(getVariantPrice)
+            .filter(price => price > 0);
+
+        if (prices.length > 0) {
+            return Math.min(...prices);
+        }
+    }
 
     const price = Number(product?.price || 0);
     const promo = Number(product?.promo_price || 0);
 
-    return (
-        promo > 0 &&
-        promo < price
-    );
+    if (promo > 0 && promo < price) {
+        return promo;
+    }
 
+    return price;
+
+}
+
+
+function getProductOriginalPrice(product) {
+
+    const variants = getActiveVariants(product);
+
+    if (variants.length > 0) {
+
+        const cheapest = variants
+            .filter(v => getVariantPrice(v) > 0)
+            .sort((a, b) => getVariantPrice(a) - getVariantPrice(b))[0];
+
+        return Number(cheapest?.price || 0);
+    }
+
+    return Number(product?.price || 0);
+}
+
+
+function hasPromo(product) {
+
+    const variants = getActiveVariants(product);
+
+    if (variants.length > 0) {
+        return variants.some(variant => {
+            const price = Number(variant?.price || 0);
+            const promo = Number(variant?.promo_price || 0);
+            return promo > 0 && promo < price;
+        });
+    }
+
+    const price = Number(product?.price || 0);
+    const promo = Number(product?.promo_price || 0);
+
+    return promo > 0 && promo < price;
+}
+
+
+function getProductStock(product) {
+
+    const variants = getActiveVariants(product);
+
+    if (variants.length > 0) {
+        return variants.reduce(
+            (sum, variant) => sum + Number(variant?.stock || 0),
+            0
+        );
+    }
+
+    return Number(product?.stock || 0);
+}
+
+
+function getVariantSpecLabel(variant) {
+
+    const parts = [
+        String(variant?.ram || "").trim(),
+        String(variant?.storage || "").trim()
+    ].filter(Boolean);
+
+    if (parts.length > 0) {
+        return parts.join(" / ");
+    }
+
+    return String(variant?.variant_name || "Varian").trim() || "Varian";
+}
+
+
+function getVariantSpecKey(variant) {
+    return getVariantSpecLabel(variant).toLowerCase();
 }
 
 
@@ -478,28 +575,14 @@ async function loadProducts() {
         document.getElementById("productEmpty");
 
 
-    if (loading) {
-
-        loading.style.display = "flex";
-
-    }
-
-    if (grid) {
-
-        grid.innerHTML = "";
-
-    }
-
-    if (empty) {
-
-        empty.classList.remove("show");
-
-    }
+    if (loading) loading.style.display = "flex";
+    if (grid) grid.innerHTML = "";
+    if (empty) empty.classList.remove("show");
 
 
     const {
-        data,
-        error
+        data: products,
+        error: productError
     } = await client
         .from("products")
         .select(`
@@ -512,36 +595,82 @@ async function loadProducts() {
         });
 
 
-    if (loading) {
+    if (productError) {
 
-        loading.style.display = "none";
-
-    }
-
-
-    if (error) {
+        if (loading) loading.style.display = "none";
 
         console.error(
             "Gagal memuat produk:",
-            error
+            productError
         );
 
         showProductError();
-
         return;
-
     }
 
 
-    allProducts =
-        Array.isArray(data)
-            ? data
-            : [];
+    /*
+     * Ambil semua varian aktif sekaligus agar card, harga,
+     * stok dan modal menggunakan data product_variants.
+     */
+    const {
+        data: variants,
+        error: variantError
+    } = await client
+        .from("product_variants")
+        .select(`
+            id,
+            product_id,
+            variant_name,
+            ram,
+            storage,
+            color,
+            price,
+            promo_price,
+            stock,
+            is_active,
+            created_at,
+            updated_at
+        `)
+        .eq("is_active", true)
+        .order("created_at", {
+            ascending: true
+        });
 
+
+    if (variantError) {
+        console.warn(
+            "Varian publik gagal dimuat. Pastikan policy SELECT untuk anon tersedia:",
+            variantError
+        );
+    }
+
+
+    const variantMap = new Map();
+
+    (variants || []).forEach(variant => {
+
+        const key = String(variant.product_id);
+
+        if (!variantMap.has(key)) {
+            variantMap.set(key, []);
+        }
+
+        variantMap.get(key).push(variant);
+    });
+
+
+    allProducts = (products || []).map(product => ({
+        ...product,
+        variants: variantMap.get(String(product.id)) || []
+    }));
+
+
+    if (loading) loading.style.display = "none";
 
     applyFilters();
-
 }
+
 
 
 /* =========================================================
@@ -808,7 +937,7 @@ function createProductCard(product) {
 
 
     const originalPrice =
-        Number(product?.price || 0);
+        getProductOriginalPrice(product);
 
 
     const promo =
@@ -816,7 +945,7 @@ function createProductCard(product) {
 
 
     const stock =
-        Number(product?.stock || 0);
+        getProductStock(product);
 
 
     const stockStatus =
@@ -879,6 +1008,12 @@ function createProductCard(product) {
                 ${escapeHTML(category)}
             </span>
 
+            ${
+                getActiveVariants(product).length > 0
+                    ? `<span class="product-variant-count">${getActiveVariants(product).length} pilihan varian</span>`
+                    : ""
+            }
+
             <div class="product-name">
                 ${escapeHTML(name)}
             </div>
@@ -890,7 +1025,7 @@ function createProductCard(product) {
                     promo
                         ? `
                             <span class="promo">
-                                ${rupiah(price)}
+                                ${getActiveVariants(product).length > 1 ? "Mulai " : ""}${rupiah(price)}
                             </span>
 
                             <span class="old">
@@ -899,7 +1034,7 @@ function createProductCard(product) {
                         `
                         : `
                             <span class="normal">
-                                ${rupiah(price)}
+                                ${getActiveVariants(product).length > 1 ? "Mulai " : ""}${rupiah(price)}
                             </span>
                         `
                 }
@@ -979,173 +1114,347 @@ function openProductModal(product) {
 
     if (!product) return;
 
+    selectedProduct = product;
+    selectedVariant = null;
+    selectedVariantSpecKey = "";
 
-    selectedProduct =
-        product;
+    selectedPrice = getProductPrice(product);
+    selectedProductImages = getProductImages(product);
+    selectedImageIndex = 0;
 
-
-    selectedPrice =
-        getProductPrice(product);
-
-
-    selectedProductImages =
-        getProductImages(product);
-
-
-    selectedImageIndex =
-        0;
-
-
-    const stock =
-        Number(product?.stock || 0);
-
-
-    const modal =
-        document.getElementById("productModal");
-
-
-    const modalCategory =
-        document.getElementById("modalCategory");
-
-
-    const modalName =
-        document.getElementById("modalName");
-
-
-    const modalPrice =
-        document.getElementById("modalPrice");
-
-
-    const modalStock =
-        document.getElementById("modalStock");
-
-
-    const modalDescription =
-        document.getElementById("modalDescription");
-
-
-    const quantity =
-        document.getElementById("productQty");
-
-
-    const whatsappButton =
-        document.getElementById("whatsappOrderBtn");
-
+    const modal = document.getElementById("productModal");
+    const modalCategory = document.getElementById("modalCategory");
+    const modalName = document.getElementById("modalName");
+    const modalDescription = document.getElementById("modalDescription");
 
     if (!modal) return;
 
-
-    modalCategory.textContent =
-        getCategoryName(product);
-
-
-    modalName.textContent =
-        product?.name ||
-        "Produk";
-
-
-    /*
-     * Harga publik selalu harga jual/promo.
-     * cost_price tidak pernah digunakan.
-     */
-    modalPrice.innerHTML =
-        hasPromo(product)
-            ? `
-                <span class="promo">
-                    ${rupiah(selectedPrice)}
-                </span>
-
-                <span class="old">
-                    ${rupiah(product.price)}
-                </span>
-            `
-            : `
-                <span class="normal">
-                    ${rupiah(selectedPrice)}
-                </span>
-            `;
-
-
-    if (stock > 0) {
-
-        modalStock.textContent =
-            `Stok tersedia: ${stock}`;
-
-        modalStock.classList.remove(
-            "empty"
-        );
-
-    } else {
-
-        modalStock.textContent =
-            "Stok habis";
-
-        modalStock.classList.add(
-            "empty"
-        );
-
+    if (modalCategory) {
+        modalCategory.textContent = getCategoryName(product);
     }
 
+    if (modalName) {
+        modalName.textContent = product?.name || "Produk";
+    }
 
-    modalDescription.textContent =
-        product?.description ||
-        "Tidak ada deskripsi produk.";
+    if (modalDescription) {
+        modalDescription.textContent =
+            product?.description ||
+            "Tidak ada deskripsi produk.";
+    }
 
-
-    /*
-     * Quantity
-     */
-    quantity.value =
-        stock > 0
-            ? 1
-            : 0;
-
-    quantity.min =
-        stock > 0
-            ? 1
-            : 0;
-
-    quantity.max =
-        stock;
-
-
-    /*
-     * WhatsApp
-     */
-    whatsappButton.disabled =
-        stock <= 0;
-
-
-    /*
-     * Quantity controls
-     */
-    document.getElementById(
-        "qtyMinus"
-    ).disabled = stock <= 0;
-
-
-    document.getElementById(
-        "qtyPlus"
-    ).disabled = stock <= 0;
-
-
+    renderVariantSelector();
     renderModalImage();
-
     updateModalTotal();
 
-
     modal.classList.add("show");
+    modal.setAttribute("aria-hidden", "false");
+    document.body.style.overflow = "hidden";
+}
 
-    modal.setAttribute(
-        "aria-hidden",
-        "false"
+
+function renderVariantSelector() {
+
+    const variants = getActiveVariants(selectedProduct);
+
+    const area = document.getElementById("variantArea");
+    const specOptions = document.getElementById("variantSpecOptions");
+    const colorSection = document.getElementById("variantColorSection");
+    const colorOptions = document.getElementById("variantColorOptions");
+    const summary = document.getElementById("selectedVariantSummary");
+
+    if (!area || !specOptions || !colorSection || !colorOptions) {
+        applyProductFallbackSelection();
+        return;
+    }
+
+    specOptions.innerHTML = "";
+    colorOptions.innerHTML = "";
+    colorSection.hidden = true;
+
+    if (summary) {
+        summary.hidden = true;
+        summary.innerHTML = "";
+    }
+
+    if (variants.length === 0) {
+        area.hidden = true;
+        applyProductFallbackSelection();
+        return;
+    }
+
+    area.hidden = false;
+
+    const groups = new Map();
+
+    variants.forEach(variant => {
+        const key = getVariantSpecKey(variant);
+        if (!groups.has(key)) {
+            groups.set(key, {
+                label: getVariantSpecLabel(variant),
+                variants: []
+            });
+        }
+        groups.get(key).variants.push(variant);
+    });
+
+    groups.forEach((group, key) => {
+
+        const availableStock = group.variants.reduce(
+            (sum, variant) => sum + Number(variant.stock || 0),
+            0
+        );
+
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "variant-option";
+        button.dataset.specKey = key;
+        button.disabled = availableStock <= 0;
+
+        button.innerHTML = `
+            <strong>${escapeHTML(group.label)}</strong>
+            <small>${availableStock > 0 ? `Stok ${availableStock}` : "Habis"}</small>
+        `;
+
+        button.addEventListener("click", () => {
+            selectVariantSpec(key, group.variants);
+        });
+
+        specOptions.appendChild(button);
+    });
+
+    const availableVariants = variants.filter(v => Number(v.stock || 0) > 0);
+
+    if (availableVariants.length === 1) {
+        const onlyVariant = availableVariants[0];
+        selectVariantSpec(
+            getVariantSpecKey(onlyVariant),
+            variants.filter(v =>
+                getVariantSpecKey(v) === getVariantSpecKey(onlyVariant)
+            ),
+            onlyVariant.id
+        );
+    } else {
+        setVariantWaitingState();
+    }
+}
+
+
+function selectVariantSpec(specKey, variants, preferredVariantId = null) {
+
+    selectedVariantSpecKey = specKey;
+    selectedVariant = null;
+
+    document
+        .querySelectorAll("#variantSpecOptions .variant-option")
+        .forEach(button => {
+            button.classList.toggle(
+                "selected",
+                button.dataset.specKey === specKey
+            );
+        });
+
+    const colorSection = document.getElementById("variantColorSection");
+    const colorOptions = document.getElementById("variantColorOptions");
+
+    if (!colorSection || !colorOptions) return;
+
+    colorOptions.innerHTML = "";
+    colorSection.hidden = false;
+
+    const activeVariants = variants.filter(v => v.is_active !== false);
+
+    activeVariants.forEach(variant => {
+
+        const color = String(variant.color || "Standar").trim() || "Standar";
+        const stock = Number(variant.stock || 0);
+
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "variant-option color-option";
+        button.dataset.variantId = String(variant.id);
+        button.disabled = stock <= 0;
+
+        button.innerHTML = `
+            <span class="color-dot" aria-hidden="true"></span>
+            <span>
+                <strong>${escapeHTML(color)}</strong>
+                <small>${stock > 0 ? `Stok ${stock}` : "Habis"}</small>
+            </span>
+        `;
+
+        button.addEventListener("click", () => {
+            chooseVariant(variant);
+        });
+
+        colorOptions.appendChild(button);
+    });
+
+    const available = activeVariants.filter(v => Number(v.stock || 0) > 0);
+
+    if (preferredVariantId !== null) {
+        const preferred = available.find(v => String(v.id) === String(preferredVariantId));
+        if (preferred) {
+            chooseVariant(preferred);
+            return;
+        }
+    }
+
+    if (available.length === 1) {
+        chooseVariant(available[0]);
+    } else {
+        setVariantWaitingState("Pilih warna untuk melihat harga dan stok.");
+    }
+}
+
+
+function chooseVariant(variant) {
+
+    selectedVariant = variant;
+    selectedPrice = getVariantPrice(variant);
+
+    document
+        .querySelectorAll("#variantColorOptions .variant-option")
+        .forEach(button => {
+            button.classList.toggle(
+                "selected",
+                button.dataset.variantId === String(variant.id)
+            );
+        });
+
+    const summary = document.getElementById("selectedVariantSummary");
+
+    if (summary) {
+        summary.hidden = false;
+        summary.innerHTML = `
+            <i class="fa-solid fa-circle-check"></i>
+            <div>
+                <strong>${escapeHTML(getVariantSpecLabel(variant))}</strong>
+                <span>${escapeHTML(String(variant.color || "Standar"))}</span>
+            </div>
+        `;
+    }
+
+    updateSelectionUI();
+}
+
+
+function applyProductFallbackSelection() {
+
+    selectedVariant = null;
+    selectedPrice = getProductPrice(selectedProduct);
+    updateSelectionUI(true);
+}
+
+
+function setVariantWaitingState(message = "Pilih varian untuk melihat harga dan stok.") {
+
+    const modalPrice = document.getElementById("modalPrice");
+    const modalStock = document.getElementById("modalStock");
+    const quantity = document.getElementById("productQty");
+    const orderButton = document.getElementById("whatsappOrderBtn");
+    const minus = document.getElementById("qtyMinus");
+    const plus = document.getElementById("qtyPlus");
+
+    if (modalPrice) {
+        modalPrice.innerHTML = `<span class="normal">Pilih varian</span>`;
+    }
+
+    if (modalStock) {
+        modalStock.textContent = message;
+        modalStock.classList.add("empty");
+    }
+
+    if (quantity) {
+        quantity.value = 0;
+        quantity.min = 0;
+        quantity.max = 0;
+        quantity.disabled = true;
+    }
+
+    if (minus) minus.disabled = true;
+    if (plus) plus.disabled = true;
+
+    if (orderButton) {
+        orderButton.disabled = true;
+        orderButton.innerHTML = `
+            <i class="fa-solid fa-layer-group"></i>
+            Pilih Varian
+        `;
+    }
+
+    updateModalTotal();
+}
+
+
+function updateSelectionUI(isFallback = false) {
+
+    const modalPrice = document.getElementById("modalPrice");
+    const modalStock = document.getElementById("modalStock");
+    const quantity = document.getElementById("productQty");
+    const orderButton = document.getElementById("whatsappOrderBtn");
+    const minus = document.getElementById("qtyMinus");
+    const plus = document.getElementById("qtyPlus");
+
+    const source = selectedVariant || selectedProduct;
+    const stock = Number(
+        selectedVariant
+            ? selectedVariant.stock || 0
+            : selectedProduct?.stock || 0
     );
 
+    const normalPrice = Number(source?.price || 0);
+    const promoPrice = Number(source?.promo_price || 0);
+    const promo = promoPrice > 0 && promoPrice < normalPrice;
 
-    document.body.style.overflow =
-        "hidden";
+    if (modalPrice) {
+        modalPrice.innerHTML = promo
+            ? `
+                <span class="promo">${rupiah(selectedPrice)}</span>
+                <span class="old">${rupiah(normalPrice)}</span>
+            `
+            : `<span class="normal">${rupiah(selectedPrice)}</span>`;
+    }
 
+    if (modalStock) {
+        modalStock.textContent =
+            stock > 0
+                ? `Stok tersedia: ${stock}`
+                : "Stok habis";
+        modalStock.classList.toggle("empty", stock <= 0);
+    }
+
+    if (quantity) {
+        quantity.disabled = stock <= 0;
+        quantity.value = stock > 0 ? 1 : 0;
+        quantity.min = stock > 0 ? 1 : 0;
+        quantity.max = stock;
+    }
+
+    if (minus) minus.disabled = stock <= 0;
+    if (plus) plus.disabled = stock <= 0;
+
+    if (orderButton) {
+        orderButton.disabled = stock <= 0;
+        orderButton.innerHTML = stock > 0
+            ? `
+                <i class="fa-brands fa-whatsapp"></i>
+                Pesan via WhatsApp
+            `
+            : `
+                <i class="fa-solid fa-ban"></i>
+                Stok Habis
+            `;
+    }
+
+    if (isFallback) {
+        const area = document.getElementById("variantArea");
+        if (area) area.hidden = true;
+    }
+
+    updateModalTotal();
 }
+
 
 
 /* =========================================================
@@ -1183,6 +1492,9 @@ function closeProductModal() {
 
     selectedImageIndex =
         0;
+
+    selectedVariant = null;
+    selectedVariantSpecKey = "";
 
 }
 
@@ -1483,7 +1795,9 @@ function increaseQuantity() {
 
     const stock =
         Number(
-            selectedProduct?.stock || 0
+            selectedVariant
+                ? selectedVariant.stock || 0
+                : selectedProduct?.stock || 0
         );
 
 
@@ -1519,7 +1833,9 @@ function handleQuantityInput() {
 
     const stock =
         Number(
-            selectedProduct?.stock || 0
+            selectedVariant
+                ? selectedVariant.stock || 0
+                : selectedProduct?.stock || 0
         );
 
 
@@ -1607,62 +1923,39 @@ function orderViaWhatsApp() {
 
     if (!selectedProduct) return;
 
+    const variants = getActiveVariants(selectedProduct);
 
-    const stock =
-        Number(
-            selectedProduct?.stock || 0
-        );
-
-
-    if (stock <= 0) {
-
+    if (variants.length > 0 && !selectedVariant) {
+        alert("Silakan pilih varian dan warna terlebih dahulu.");
         return;
-
     }
 
+    const stock = Number(
+        selectedVariant
+            ? selectedVariant.stock || 0
+            : selectedProduct?.stock || 0
+    );
 
-    /*
-     * Pastikan nomor WhatsApp sudah diganti.
-     */
-    if (
-        !WHATSAPP_NUMBER ||
-        WHATSAPP_NUMBER.includes("x")
-    ) {
+    if (stock <= 0) return;
 
-        alert(
-            "Nomor WhatsApp toko belum dikonfigurasi."
-        );
-
+    if (!WHATSAPP_NUMBER || WHATSAPP_NUMBER.includes("x")) {
+        alert("Nomor WhatsApp toko belum dikonfigurasi.");
         return;
-
     }
 
+    const quantity = getCurrentQuantity();
+    const productName = selectedProduct?.name || "Produk";
+    const category = getCategoryName(selectedProduct);
+    const total = selectedPrice * quantity;
 
-    const quantity =
-        getCurrentQuantity();
+    const source = selectedVariant || selectedProduct;
+    const normalPrice = Number(source?.price || 0);
+    const promoPrice = Number(source?.promo_price || 0);
+    const isPromo = promoPrice > 0 && promoPrice < normalPrice;
 
-
-    const productName =
-        selectedProduct?.name ||
-        "Produk";
-
-
-    const category =
-        getCategoryName(
-            selectedProduct
-        );
-
-
-    const total =
-        selectedPrice *
-        quantity;
-
-
-    const promoText =
-        hasPromo(selectedProduct)
-            ? " (Harga Promo)"
-            : "";
-
+    const variantText = selectedVariant
+        ? `\n📱 Varian: ${getVariantSpecLabel(selectedVariant)}\n🎨 Warna: ${selectedVariant.color || "Standar"}`
+        : "";
 
     const message =
         `Halo CEO Part & Service 👋
@@ -1670,8 +1963,8 @@ function orderViaWhatsApp() {
 Saya ingin memesan produk:
 
 📦 Produk: ${productName}
-🏷️ Kategori: ${category}
-💰 Harga: ${rupiah(selectedPrice)}${promoText}
+🏷️ Kategori: ${category}${variantText}
+💰 Harga: ${rupiah(selectedPrice)}${isPromo ? " (Harga Promo)" : ""}
 🔢 Jumlah: ${quantity}
 💵 Total: ${rupiah(total)}
 
@@ -1679,21 +1972,19 @@ Mohon informasi ketersediaan dan proses pemesanannya.
 
 Terima kasih 🙏`;
 
-
     const url =
         "https://wa.me/" +
         WHATSAPP_NUMBER +
         "?text=" +
         encodeURIComponent(message);
 
-
     window.open(
         url,
         "_blank",
         "noopener,noreferrer"
     );
-
 }
+
 
 
 /* =========================================================
