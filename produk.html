@@ -699,6 +699,256 @@
 
 
 <!-- =========================================================
+     MODAL KELOLA VARIAN PRODUK
+========================================================= -->
+<div
+    id="variantModal"
+    class="variant-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="variantModalTitle"
+    aria-hidden="true"
+>
+
+    <div class="variant-modal-panel">
+
+        <div class="variant-modal-header">
+
+            <div>
+                <span class="section-label">
+                    VARIAN PRODUK
+                </span>
+
+                <h2 id="variantModalTitle">
+                    Kelola Varian
+                </h2>
+
+                <p class="variant-product-label" id="variantProductLabel">
+                    -
+                </p>
+            </div>
+
+            <button
+                type="button"
+                class="variant-modal-close"
+                id="variantModalClose"
+                aria-label="Tutup kelola varian"
+            >
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+        </div>
+
+        <div class="variant-modal-body">
+
+            <section class="variant-form-card">
+
+                <div class="variant-form-heading">
+                    <div>
+                        <h3 id="variantFormTitle">Tambah Varian</h3>
+                        <p>
+                            Isi RAM, storage, warna, harga, promo, dan stok untuk varian HP.
+                        </p>
+                    </div>
+
+                    <span class="variant-mode-badge" id="variantModeBadge">
+                        <i class="fa-solid fa-plus"></i>
+                        Varian Baru
+                    </span>
+                </div>
+
+                <input type="hidden" id="variantId">
+                <input type="hidden" id="variantProductId">
+
+                <div class="variant-grid">
+
+                    <div class="variant-field variant-field-wide">
+                        <label for="variantName">Nama Varian</label>
+                        <input
+                            type="text"
+                            id="variantName"
+                            maxlength="150"
+                            placeholder="Contoh: 8GB / 256GB / Midnight Black"
+                            autocomplete="off"
+                        >
+                        <small>
+                            Boleh dikosongkan. Sistem akan membuat nama dari RAM, storage, dan warna.
+                        </small>
+                    </div>
+
+                    <div class="variant-field">
+                        <label for="variantRam">RAM</label>
+                        <input
+                            type="text"
+                            id="variantRam"
+                            maxlength="50"
+                            placeholder="Contoh: 8GB"
+                            autocomplete="off"
+                        >
+                    </div>
+
+                    <div class="variant-field">
+                        <label for="variantStorage">Storage</label>
+                        <input
+                            type="text"
+                            id="variantStorage"
+                            maxlength="50"
+                            placeholder="Contoh: 256GB"
+                            autocomplete="off"
+                        >
+                    </div>
+
+                    <div class="variant-field">
+                        <label for="variantColor">Warna</label>
+                        <input
+                            type="text"
+                            id="variantColor"
+                            maxlength="100"
+                            placeholder="Contoh: Midnight Black"
+                            autocomplete="off"
+                        >
+                    </div>
+
+                    <div class="variant-field">
+                        <label for="variantPrice">Harga Jual <span>*</span></label>
+                        <div class="variant-money-input">
+                            <span>Rp</span>
+                            <input
+                                type="number"
+                                id="variantPrice"
+                                min="0"
+                                step="100"
+                                inputmode="numeric"
+                                placeholder="2999000"
+                            >
+                        </div>
+                    </div>
+
+                    <div class="variant-field">
+                        <label for="variantPromoPrice">Harga Promo</label>
+                        <div class="variant-money-input">
+                            <span>Rp</span>
+                            <input
+                                type="number"
+                                id="variantPromoPrice"
+                                min="0"
+                                step="100"
+                                inputmode="numeric"
+                                placeholder="2799000"
+                            >
+                        </div>
+                    </div>
+
+                    <div class="variant-field">
+                        <label for="variantStock">Stok <span>*</span></label>
+                        <input
+                            type="number"
+                            id="variantStock"
+                            min="0"
+                            step="1"
+                            inputmode="numeric"
+                            placeholder="0"
+                        >
+                    </div>
+
+                </div>
+
+                <div class="variant-active-box">
+                    <div>
+                        <strong>Varian Aktif</strong>
+                        <small>Varian aktif nantinya dapat dipilih pelanggan di katalog publik.</small>
+                    </div>
+
+                    <label class="switch">
+                        <input type="checkbox" id="variantActive" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div class="variant-form-actions">
+                    <button
+                        type="button"
+                        class="btn-secondary"
+                        id="cancelVariantEditBtn"
+                        hidden
+                    >
+                        <i class="fa-solid fa-xmark"></i>
+                        Batal Edit
+                    </button>
+
+                    <button
+                        type="button"
+                        class="btn-primary"
+                        id="saveVariantBtn"
+                    >
+                        <i class="fa-solid fa-floppy-disk"></i>
+                        <span>Simpan Varian</span>
+                    </button>
+                </div>
+
+            </section>
+
+            <section class="variant-list-card">
+
+                <div class="variant-list-header">
+                    <div>
+                        <h3>Daftar Varian</h3>
+                        <p>Stok produk induk akan mengikuti total stok seluruh varian produk ini.</p>
+                    </div>
+
+                    <div class="variant-list-tools">
+                        <span class="variant-count-badge" id="variantCountBadge">
+                            0 Varian
+                        </span>
+
+                        <button
+                            type="button"
+                            class="btn-refresh"
+                            id="refreshVariantsBtn"
+                        >
+                            <i class="fa-solid fa-rotate"></i>
+                            Refresh
+                        </button>
+                    </div>
+                </div>
+
+                <div class="variant-table-wrapper">
+                    <table class="variant-table">
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>Nama Varian</th>
+                                <th>RAM</th>
+                                <th>Storage</th>
+                                <th>Warna</th>
+                                <th>Harga</th>
+                                <th>Promo</th>
+                                <th>Stok</th>
+                                <th>Status</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="variantTableBody">
+                            <tr>
+                                <td colspan="10" class="variant-empty">
+                                    Pilih produk untuk memuat varian.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </section>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
      MODAL PREVIEW GAMBAR
 ========================================================= -->
 <div
