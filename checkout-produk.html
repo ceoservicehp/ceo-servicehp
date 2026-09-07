@@ -40,41 +40,17 @@
     <div class="checkout-heading">
         <span class="eyebrow"><i class="fa-solid fa-bag-shopping"></i> CHECKOUT PRODUK</span>
         <h1>Selesaikan Pesanan Anda</h1>
-        <p>Periksa produk, tentukan lokasi dan pengiriman, lalu lengkapi data pembeli.</p>
+        <p>Periksa produk, lengkapi data pembeli, lalu pilih metode pengiriman. Maps akan muncul jika pengiriman membutuhkan titik lokasi.</p>
     </div>
 
     <div id="checkoutAlert" class="checkout-alert" hidden></div>
 
     <div class="checkout-layout">
         <div class="checkout-main">
-            <section class="checkout-card" id="locationSection">
-                <div class="card-heading">
-                    <span class="step-number">1</span>
-                    <div>
-                        <h2><i class="fa-solid fa-location-dot"></i> Titik Lokasi</h2>
-                        <p>Klik peta atau gunakan lokasi perangkat. Lokasi wajib untuk Kurir Instan dan COD.</p>
-                    </div>
-                </div>
-
-                <div class="location-actions">
-                    <button type="button" class="secondary-btn" id="useMyLocationBtn">
-                        <i class="fa-solid fa-crosshairs"></i> Gunakan Lokasi Saya
-                    </button>
-                    <button type="button" class="ghost-btn" id="clearLocationBtn">
-                        <i class="fa-solid fa-rotate-left"></i> Hapus Titik
-                    </button>
-                </div>
-
-                <div id="checkoutMap" class="checkout-map"></div>
-                <div class="location-info" id="locationInfo">
-                    <i class="fa-solid fa-circle-info"></i>
-                    Belum ada titik lokasi dipilih.
-                </div>
-            </section>
 
             <section class="checkout-card">
                 <div class="card-heading">
-                    <span class="step-number">2</span>
+                    <span class="step-number">1</span>
                     <div>
                         <h2><i class="fa-solid fa-user"></i> Data Pembeli</h2>
                         <p>Gunakan nomor WhatsApp aktif agar admin dapat menghubungi Anda.</p>
@@ -142,9 +118,35 @@
                 </div>
             </section>
 
-            <section class="checkout-card">
+
+            <section class="checkout-card" id="locationSection" hidden>
                 <div class="card-heading">
                     <span class="step-number">4</span>
+                    <div>
+                        <h2><i class="fa-solid fa-location-dot"></i> Titik Lokasi</h2>
+                        <p>Klik peta atau gunakan lokasi perangkat. Titik lokasi wajib untuk Kurir Instan, Kirim Paket, dan COD.</p>
+                    </div>
+                </div>
+
+                <div class="location-actions">
+                    <button type="button" class="secondary-btn" id="useMyLocationBtn">
+                        <i class="fa-solid fa-crosshairs"></i> Gunakan Lokasi Saya
+                    </button>
+                    <button type="button" class="ghost-btn" id="clearLocationBtn">
+                        <i class="fa-solid fa-rotate-left"></i> Hapus Titik
+                    </button>
+                </div>
+
+                <div id="checkoutMap" class="checkout-map"></div>
+                <div class="location-info" id="locationInfo">
+                    <i class="fa-solid fa-circle-info"></i>
+                    Belum ada titik lokasi dipilih.
+                </div>
+            </section>
+
+            <section class="checkout-card">
+                <div class="card-heading">
+                    <span class="step-number">5</span>
                     <div>
                         <h2><i class="fa-solid fa-wallet"></i> Pembayaran</h2>
                         <p>Metode pembayaran otomatis menyesuaikan metode pengiriman.</p>
@@ -156,7 +158,7 @@
 
             <section class="checkout-card">
                 <div class="card-heading">
-                    <span class="step-number">5</span>
+                    <span class="step-number">6</span>
                     <div>
                         <h2><i class="fa-solid fa-note-sticky"></i> Catatan</h2>
                         <p>Opsional. Tambahkan informasi yang perlu diketahui admin.</p>
