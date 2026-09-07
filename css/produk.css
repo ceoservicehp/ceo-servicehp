@@ -2168,6 +2168,17 @@ tbody tr:last-child td{
 }
 
 
+.btn-variant{
+
+    background:
+        linear-gradient(
+            135deg,
+            #6f42c1,
+            #8a63d2
+        );
+}
+
+
 .btn-delete{
 
     background:
@@ -3069,3 +3080,400 @@ footer small{
         min-height:56px;
     }
 }
+
+
+/* =========================================================
+   PRODUCT VARIANT MODAL
+========================================================= */
+
+.variant-modal{
+    position:fixed;
+    inset:0;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    background:rgba(4,15,18,.82);
+    backdrop-filter:blur(7px);
+    z-index:100000;
+}
+
+.variant-modal.active{
+    display:flex;
+    animation:modalFade .2s ease;
+}
+
+.variant-modal-panel{
+    width:min(1180px, 96vw);
+    max-height:94vh;
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+    background:#fff;
+    border:1px solid rgba(255,255,255,.4);
+    border-radius:20px;
+    box-shadow:0 25px 80px rgba(0,0,0,.28);
+}
+
+.variant-modal-header{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:20px;
+    padding:22px 24px;
+    background:linear-gradient(135deg,#f8fcfd,#eff8f9);
+    border-bottom:1px solid #e0eaec;
+}
+
+.variant-modal-header h2{
+    margin:6px 0 3px;
+    color:var(--primary);
+    font-size:22px;
+}
+
+.variant-product-label{
+    color:var(--muted);
+    font-size:13px;
+    font-weight:700;
+}
+
+.variant-modal-close{
+    flex:0 0 42px;
+    width:42px;
+    height:42px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#516166;
+    background:#fff;
+    border:1px solid var(--border);
+    border-radius:50%;
+    cursor:pointer;
+    font-size:17px;
+    transition:.2s;
+}
+
+.variant-modal-close:hover{
+    color:white;
+    background:var(--danger);
+    border-color:var(--danger);
+    transform:rotate(4deg);
+}
+
+.variant-modal-body{
+    overflow-y:auto;
+    padding:22px;
+}
+
+.variant-form-card,
+.variant-list-card{
+    padding:20px;
+    background:#fff;
+    border:1px solid #e1e9eb;
+    border-radius:15px;
+}
+
+.variant-list-card{
+    margin-top:18px;
+}
+
+.variant-form-heading,
+.variant-list-header{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:18px;
+    margin-bottom:18px;
+}
+
+.variant-form-heading h3,
+.variant-list-header h3{
+    color:#2e3e43;
+    font-size:17px;
+}
+
+.variant-form-heading p,
+.variant-list-header p{
+    margin-top:4px;
+    color:var(--muted);
+    font-size:11px;
+}
+
+.variant-mode-badge,
+.variant-count-badge{
+    flex-shrink:0;
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    padding:7px 11px;
+    color:var(--primary);
+    background:rgba(0,194,199,.09);
+    border-radius:20px;
+    font-size:10px;
+    font-weight:800;
+}
+
+.variant-grid{
+    display:grid;
+    grid-template-columns:repeat(3, minmax(0,1fr));
+    gap:14px;
+}
+
+.variant-field-wide{
+    grid-column:1 / -1;
+}
+
+.variant-field label{
+    display:block;
+    margin-bottom:7px;
+    color:#34454b;
+    font-size:12px;
+    font-weight:750;
+}
+
+.variant-field label span{
+    color:var(--danger);
+}
+
+.variant-field > input,
+.variant-money-input input{
+    width:100%;
+    min-height:44px;
+    padding:10px 12px;
+    color:var(--text);
+    background:#fff;
+    border:1px solid var(--border);
+    border-radius:10px;
+    outline:none;
+    font-size:13px;
+    transition:.2s;
+}
+
+.variant-field > input:focus,
+.variant-money-input input:focus{
+    border-color:var(--secondary);
+    box-shadow:0 0 0 4px rgba(0,194,199,.1);
+}
+
+.variant-field small{
+    display:block;
+    margin-top:5px;
+    color:#8a9599;
+    font-size:10px;
+}
+
+.variant-money-input{
+    position:relative;
+}
+
+.variant-money-input > span{
+    position:absolute;
+    left:12px;
+    top:50%;
+    transform:translateY(-50%);
+    color:#718086;
+    font-size:11px;
+    font-weight:700;
+    z-index:1;
+}
+
+.variant-money-input input{
+    padding-left:38px;
+}
+
+.variant-active-box{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:15px;
+    margin-top:16px;
+    padding:13px 14px;
+    background:#f7fbfb;
+    border:1px solid #deebed;
+    border-radius:12px;
+}
+
+.variant-active-box strong,
+.variant-active-box small{
+    display:block;
+}
+
+.variant-active-box strong{
+    font-size:12px;
+}
+
+.variant-active-box small{
+    margin-top:2px;
+    color:#7e8b8f;
+    font-size:10px;
+}
+
+.variant-form-actions{
+    display:flex;
+    justify-content:flex-end;
+    gap:10px;
+    margin-top:18px;
+}
+
+.variant-list-tools{
+    display:flex;
+    align-items:center;
+    gap:8px;
+}
+
+.variant-table-wrapper{
+    width:100%;
+    overflow-x:auto;
+    border:1px solid #e4eaec;
+    border-radius:12px;
+}
+
+.variant-table{
+    min-width:1050px;
+}
+
+.variant-table th,
+.variant-table td{
+    white-space:nowrap;
+}
+
+.variant-name-cell{
+    color:#26393f;
+    font-size:12px;
+}
+
+.variant-action-buttons{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+}
+
+.variant-action-buttons button{
+    width:32px;
+    height:32px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:white;
+    border-radius:8px;
+    cursor:pointer;
+    transition:.2s;
+}
+
+.variant-action-buttons button:hover{
+    transform:translateY(-2px);
+    box-shadow:0 5px 12px rgba(0,0,0,.12);
+}
+
+.variant-edit-btn{
+    background:linear-gradient(135deg,#00c2c7,#1f6f78);
+}
+
+.variant-delete-btn{
+    background:linear-gradient(135deg,#c0392b,#e74c3c);
+}
+
+.variant-loading,
+.variant-error,
+.variant-empty{
+    padding:30px 15px !important;
+    text-align:center;
+    color:#829095;
+}
+
+.variant-error{
+    color:#a42632;
+}
+
+.variant-empty-content{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:4px;
+}
+
+.variant-empty-content i{
+    margin-bottom:4px;
+    color:#a7b8bc;
+    font-size:25px;
+}
+
+.variant-empty-content strong{
+    color:#5e6c71;
+    font-size:12px;
+}
+
+.variant-empty-content span{
+    color:#98a4a8;
+    font-size:10px;
+}
+
+@media(max-width:768px){
+    .variant-modal{
+        padding:10px;
+    }
+
+    .variant-modal-panel{
+        width:100%;
+        max-height:96vh;
+        border-radius:15px;
+    }
+
+    .variant-modal-header,
+    .variant-modal-body{
+        padding:16px;
+    }
+
+    .variant-modal-header h2{
+        font-size:18px;
+    }
+
+    .variant-grid{
+        grid-template-columns:1fr 1fr;
+    }
+
+    .variant-field-wide{
+        grid-column:1 / -1;
+    }
+
+    .variant-form-heading,
+    .variant-list-header{
+        flex-direction:column;
+    }
+
+    .variant-list-tools{
+        width:100%;
+        justify-content:space-between;
+    }
+}
+
+@media(max-width:520px){
+    .variant-grid{
+        grid-template-columns:1fr;
+    }
+
+    .variant-field-wide{
+        grid-column:auto;
+    }
+
+    .variant-form-card,
+    .variant-list-card{
+        padding:14px;
+    }
+
+    .variant-form-actions{
+        flex-direction:column-reverse;
+    }
+
+    .variant-form-actions button{
+        width:100%;
+        justify-content:center;
+    }
+
+    .variant-active-box{
+        align-items:flex-start;
+    }
+}
+
