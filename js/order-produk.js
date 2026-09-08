@@ -263,15 +263,60 @@ async function openDetail(id){
         </section>
       </div>
 
-      <section class="summary summary-refined">
-        <div class="summary-heading"><div><span class="section-label">RINGKASAN BIAYA</span><h3>Total Pesanan</h3></div><i class="fa-solid fa-file-invoice-dollar"></i></div>
-        <div class="summary-lines">
-          <div><span>Subtotal Produk</span><b>${rupiah(o.subtotal)}</b></div>
-          <div><span>Diskon</span><b>- ${rupiah(o.discount)}</b></div>
-          <div><span>Ongkir</span><b>${rupiah(o.shipping_fee)}</b></div>
-          <div class="grand"><span>Total</span><b>${rupiah(o.total)}</b></div>
-          <div><span>Sudah Dibayar</span><b class="text-success">${rupiah(o.amount_paid)}</b></div>
-          <div class="remaining-line"><span>Sisa Pembayaran</span><b class="${Number(o.remaining_amount || 0) > 0 ? 'text-danger' : 'text-success'}">${rupiah(o.remaining_amount)}</b></div>
+      <section class="cost-summary-card">
+        <div class="cost-summary-header">
+          <div>
+            <span class="section-label"><i class="fa-solid fa-receipt"></i> RINGKASAN PEMBAYARAN</span>
+            <h3>Rincian Biaya Pesanan</h3>
+            <p>Rincian nilai produk, ongkir, pembayaran masuk, dan sisa tagihan.</p>
+          </div>
+          <div class="cost-payment-badge ${Number(o.remaining_amount || 0) > 0 ? 'unpaid' : 'paid'}">
+            <i class="fa-solid ${Number(o.remaining_amount || 0) > 0 ? 'fa-clock' : 'fa-circle-check'}"></i>
+            <span>${Number(o.remaining_amount || 0) > 0 ? 'Belum Lunas' : 'Lunas'}</span>
+          </div>
+        </div>
+
+        <div class="cost-summary-grid">
+          <div class="cost-breakdown">
+            <div class="cost-breakdown-title">Rincian Pesanan</div>
+            <div class="cost-row">
+              <span><i class="fa-solid fa-box"></i> Subtotal Produk</span>
+              <strong>${rupiah(o.subtotal)}</strong>
+            </div>
+            <div class="cost-row">
+              <span><i class="fa-solid fa-tag"></i> Diskon</span>
+              <strong class="${Number(o.discount || 0) > 0 ? 'discount-value' : ''}">${Number(o.discount || 0) > 0 ? `- ${rupiah(o.discount)}` : rupiah(0)}</strong>
+            </div>
+            <div class="cost-row">
+              <span><i class="fa-solid fa-truck-fast"></i> Ongkir</span>
+              <strong>${rupiah(o.shipping_fee)}</strong>
+            </div>
+            <div class="cost-calculation">
+              <span>Subtotal - Diskon + Ongkir</span>
+              <strong>${rupiah(o.total)}</strong>
+            </div>
+          </div>
+
+          <div class="grand-total-panel">
+            <div class="grand-total-top">
+              <span>Total Pesanan</span>
+              <strong>${rupiah(o.total)}</strong>
+            </div>
+            <div class="payment-progress-list">
+              <div>
+                <span>Sudah Dibayar</span>
+                <strong class="text-success">${rupiah(o.amount_paid)}</strong>
+              </div>
+              <div class="payment-remaining ${Number(o.remaining_amount || 0) > 0 ? 'has-balance' : 'is-paid'}">
+                <span>Sisa Pembayaran</span>
+                <strong>${rupiah(o.remaining_amount)}</strong>
+              </div>
+            </div>
+            <div class="payment-method-note">
+              <i class="fa-solid fa-wallet"></i>
+              <span>Metode: <b>${esc(label(o.payment_method))}</b></span>
+            </div>
+          </div>
         </div>
       </section>
 
