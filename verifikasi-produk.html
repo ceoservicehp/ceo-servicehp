@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verifikasi Invoice Produk - CEO Part & Service</title>
+  <link rel="stylesheet" href="css/verifikasi-produk.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+  <main class="verify-shell">
+    <section class="verify-card">
+      <div class="brand-head">
+        <img src="images/logo.png" alt="CEO Part & Service" class="logo">
+        <div>
+          <h1>CEO PART & SERVICE</h1>
+          <p>Cellular Engineering Officer</p>
+        </div>
+      </div>
+
+      <div id="loadingState" class="state-box">
+        <div class="spinner"></div>
+        <h2>Memverifikasi invoice...</h2>
+        <p>Mohon tunggu sebentar.</p>
+      </div>
+
+      <div id="invalidState" class="state-box hidden">
+        <div class="state-icon invalid"><i class="fa-solid fa-circle-xmark"></i></div>
+        <h2>Invoice Tidak Terverifikasi</h2>
+        <p id="invalidMessage">Data invoice tidak ditemukan atau tautan verifikasi tidak valid.</p>
+        <a href="index.html" class="btn secondary"><i class="fa-solid fa-house"></i> Kembali ke Beranda</a>
+      </div>
+
+      <div id="validState" class="hidden">
+        <div class="verified-banner">
+          <div class="state-icon valid"><i class="fa-solid fa-shield-check"></i></div>
+          <div>
+            <span>INVOICE TERVERIFIKASI</span>
+            <h2>Dokumen resmi CEO Part & Service</h2>
+            <p>Data berikut cocok dengan catatan transaksi penjualan produk kami.</p>
+          </div>
+        </div>
+
+        <div class="invoice-title-row">
+          <div>
+            <span class="eyebrow">Nomor Invoice</span>
+            <strong id="invoiceNumber">-</strong>
+          </div>
+          <div class="right">
+            <span class="eyebrow">Tanggal</span>
+            <strong id="invoiceDate">-</strong>
+          </div>
+        </div>
+
+        <div class="grid two">
+          <section class="info-card">
+            <h3><i class="fa-solid fa-user"></i> Data Pembeli</h3>
+            <div class="row"><span>Nama</span><b id="customerName">-</b></div>
+            <div class="row"><span>No. WhatsApp</span><b id="customerPhone">-</b></div>
+            <div class="row"><span>Metode Bayar</span><b id="paymentMethod">-</b></div>
+          </section>
+          <section class="info-card">
+            <h3><i class="fa-solid fa-receipt"></i> Status Transaksi</h3>
+            <div class="row"><span>Status Pesanan</span><b id="orderStatus">-</b></div>
+            <div class="row"><span>Status Pembayaran</span><b id="paymentStatus" class="status-pill">-</b></div>
+            <div class="row"><span>Total</span><b id="grandTotal">-</b></div>
+          </section>
+        </div>
+
+        <section class="info-card products-card">
+          <h3><i class="fa-solid fa-mobile-screen-button"></i> Produk pada Invoice</h3>
+          <div id="productList" class="product-list"></div>
+        </section>
+
+        <section id="unitSection" class="info-card hidden">
+          <h3><i class="fa-solid fa-barcode"></i> Identitas Unit</h3>
+          <p class="privacy-note">Untuk keamanan, nomor IMEI/serial ditampilkan sebagian. Cocokkan digit akhir dengan unit/invoice Anda.</p>
+          <div id="unitList" class="unit-list"></div>
+        </section>
+
+        <div class="verify-footer">
+          <i class="fa-solid fa-lock"></i>
+          <p>Halaman ini hanya menampilkan data terbatas untuk verifikasi keaslian invoice. Alamat, bukti pembayaran, dan data sensitif lainnya tidak ditampilkan.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/verifikasi-produk.js" defer></script>
+</body>
+</html>
