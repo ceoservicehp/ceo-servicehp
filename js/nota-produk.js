@@ -1,46 +1,396 @@
 "use strict";
+
 const client = window.supabaseClient;
-const $ = id => document.getElementById(id);
-const rupiah = n => "Rp " + Number(n || 0).toLocaleString("id-ID");
-const esc = v => String(v ?? "").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
-const label = v => String(v || "-").replaceAll("_"," ").replace(/\b\w/g,c=>c.toUpperCase());
-const fmtDate = v => v ? new Date(v).toLocaleString("id-ID",{dateStyle:"long",timeStyle:"short"}) : "-";
-let currentOrder = null;
+let currentData = null;
+let currentShipment = null;
+let currentPayment = null;
+
+function $(id){ return document.getElementById(id); }
+function rupiah(n){ return "Rp " + Number(n || 0).toLocaleString("id-ID"); }
+function getId(){ return new URLSearchParams(window.location.search).get("id"); }
+function esc(value){
+  return String(value ?? "").replace(/[&<>"']/g, m => ({
+    "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#039;"
+  }[m]));
+}
+function label(value){
+  if(!value) return "-";
+  return String(value).replaceAll("_", " ").replace(/\b\w/g, c => c.toUpperCase());
+}
+function formatDate(value){
+  if(!value) return "-";
+  const date = new Date(value);
+  if(Number.isNaN(date.getTime())) return "-";
+  return date.toLocaleString("id-ID", {
+    day:"2-digit", month:"long", year:"numeric", hour:"2-digit", minute:"2-digit"
+  });
+}
+function latest(arr){
+  return [...(arr || [])].sort((a,b) => new Date(b.created_at || 0) - new Date(a.created_at || 0))[0] || null;
+}
+function shippingName(order, shipment){
+  if(order.shipping_method === "pickup") return "Ambil di Toko";
+  if(order.payment_method === "cod") return "COD";
+  const courier = String(shipment?.courier || "").trim();
+  if(/gojek|grab|gosend|grabexpress|instant/i.test(courier)) return courier ? `Kurir Instan (${courier})` : "Kurir Instan";
+  return courier ? `Kirim Paket (${courier})` : "Pengiriman";
+}
+function setText(id, value){ const el = $(id); if(el) el.textContent = value ?? "-"; }
 
 async function init(){
-  const id = Number(new URLSearchParams(location.search).get("id"));
+  const id = Number(getId());
   if(!id){ showError("ID order tidak valid."); return; }
-  const {data,error}=await client.from("orders").select(`*,order_items(*,order_item_units(*)),order_payments(*),order_shipments(*)`).eq("id",id).single();
-  if(error || !data){ console.error(error); showError("Nota tidak dapat dimuat. Pastikan Anda login sebagai admin."); return; }
-  currentOrder=data; render(data); $("pdfBtn").onclick=downloadPDF;
+
+  const { data, error } = await client
+    .from("orders")
+    .select(`
+      *,
+      order_items(*,order_item_units(*)),
+      order_payments(*),
+      order_shipments(*)
+    `)
+    .eq("id", id)
+    .single();
+
+  if(error || !data){
+    console.error("Gagal load invoice produk:", error);
+    showError("Invoice tidak dapat dimuat. Pastikan data order tersedia dan Anda memiliki akses.");
+    return;
+  }
+
+  currentData = data;
+  currentShipment = latest(data.order_shipments);
+  currentPayment = latest(data.order_payments);
+
+  renderInvoice(data);
+  await loadSignature();
+  renderQR();
 }
-function latest(arr){return [...(arr||[])].sort((a,b)=>new Date(b.created_at)-new Date(a.created_at))[0]||null}
-function shippingName(o,s){ if(o.shipping_method==="pickup") return "Ambil di Toko"; if(o.payment_method==="cod") return "COD"; const c=String(s?.courier||""); if(/gojek|grab|gosend|grabexpress/i.test(c)) return "Kurir Instan"; return c ? `Pengiriman · ${c}` : "Pengiriman"; }
-function render(o){
- const items=o.order_items||[], ship=latest(o.order_shipments), pay=latest(o.order_payments);
- const allUnits=items.flatMap(i=>(i.order_item_units||[]));
- $("loading").hidden=true; $("invoiceContent").hidden=false;
- $("invoiceContent").innerHTML=`
- <header class="inv-head"><div class="brand"><img src="images/logo.png" alt="CEO"><div><h1>CEO PART & SERVICE</h1><p>CELLULAR ENGINEERING OFFICER<br>Nota Penjualan Handphone</p></div></div><div class="inv-meta"><h2>INVOICE</h2><strong>${esc(o.order_number||`ORDER-${o.id}`)}</strong><span>${fmtDate(o.created_at)}</span><div class="status-line"><span class="badge ${o.payment_status==='lunas'?'ok':'warn'}">${esc(label(o.payment_status))}</span><span class="badge">${esc(label(o.order_status))}</span></div></div></header>
- <section class="section"><div class="section-title">DATA PEMBELI</div><div class="info-grid"><div class="info-box"><span>Nama / WhatsApp</span><strong>${esc(o.customer_name)}\n${esc(o.customer_whatsapp)}</strong></div><div class="info-box"><span>Pengiriman</span><strong>${esc(shippingName(o,ship))}\n${esc(ship?.tracking_number?`Resi: ${ship.tracking_number}`:'')}</strong></div><div class="info-box"><span>Alamat</span><strong>${esc(o.customer_address||'-')}</strong></div><div class="info-box"><span>Pembayaran</span><strong>${esc(label(o.payment_method))} · ${esc(label(o.payment_status))}</strong></div></div></section>
- <section class="section"><div class="section-title">RINCIAN PRODUK</div><div class="items-wrap"><table class="items"><thead><tr><th>Produk / Unit</th><th>Varian</th><th class="num">Qty</th><th class="num">Harga</th><th class="num">Subtotal</th></tr></thead><tbody>${items.map(i=>`<tr><td><strong>${esc(i.product_name)}</strong>${(i.order_item_units||[]).length?`<div class="unit-list">${i.order_item_units.map((u,x)=>`Unit ${x+1}: IMEI ${esc(u.imei1)}${u.imei2?` · IMEI 2 ${esc(u.imei2)}`:''}${u.serial_number?` · SN ${esc(u.serial_number)}`:''}`).join('<br>')}</div>`:'<div class="unit-list">IMEI belum ditetapkan</div>'}</td><td>${esc(i.variant_name||'-')}<br><span class="unit-list">${esc(i.color||'-')} · RAM ${esc(i.ram||'-')} · ${esc(i.storage||'-')}</span></td><td class="num">${Number(i.quantity||0)}</td><td class="num">${rupiah(i.unit_price)}</td><td class="num"><strong>${rupiah(i.subtotal)}</strong></td></tr>`).join('')}</tbody></table></div></section>
- <div class="summary"><div class="sum-row"><span>Subtotal Produk</span><strong>${rupiah(o.subtotal)}</strong></div><div class="sum-row"><span>Diskon</span><strong>- ${rupiah(o.discount)}</strong></div><div class="sum-row"><span>Ongkir</span><strong>${rupiah(o.shipping_fee)}</strong></div><div class="sum-row total"><span>Total Pesanan</span><strong>${rupiah(o.total)}</strong></div><div class="sum-row paid"><span>Sudah Dibayar</span><strong>${rupiah(o.amount_paid)}</strong></div><div class="sum-row remaining"><span>Sisa Pembayaran</span><strong>${rupiah(o.remaining_amount)}</strong></div></div>
- ${allUnits.length < items.reduce((n,i)=>n+Number(i.quantity||0),0) ? '<div class="notice">Catatan admin: sebagian unit/IMEI belum ditetapkan. Nota dapat dicetak ulang setelah penetapan unit selesai.</div>' : ''}
- <footer class="foot"><div><strong>CEO Part & Service</strong><br>Dokumen dibuat dari sistem penjualan CEO.</div><div>Invoice: ${esc(o.order_number||o.id)}<br>Status pembayaran: ${esc(label(o.payment_status))}</div></footer>`;
+
+function renderInvoice(data){
+  const shipment = currentShipment;
+  const items = data.order_items || [];
+
+  setText("inv-number", data.order_number || `CEO-ORD-${String(data.id).padStart(6,"0")}`);
+  setText("inv-date", formatDate(data.created_at));
+
+  setText("c-name", data.customer_name || "-");
+  setText("c-phone", data.customer_whatsapp || "-");
+  setText("c-email", data.customer_email || "-");
+  setText("c-address", data.customer_address || "-");
+  setText("c-shipping", shippingName(data, shipment));
+  setText("c-payment-method", label(data.payment_method));
+
+  setText("order-status", label(data.order_status));
+  setText("order-created", formatDate(data.created_at));
+  setText("shipping-status", label(shipment?.shipping_status || (data.shipping_method === "pickup" ? "ambil_di_toko" : "belum_dikirim")));
+  setText("shipping-courier", data.shipping_method === "pickup" ? "-" : (shipment?.courier || "-") );
+  setText("shipping-tracking", shipment?.tracking_number || "-");
+
+  const paymentStatusEl = $("payment-status");
+  const paymentStatus = String(data.payment_status || "belum_bayar").toLowerCase();
+  paymentStatusEl.textContent = label(paymentStatus);
+  paymentStatusEl.classList.remove("paid", "unpaid", "partial");
+  if(paymentStatus === "lunas") paymentStatusEl.classList.add("paid");
+  else if(paymentStatus === "dp" || paymentStatus === "sebagian") paymentStatusEl.classList.add("partial");
+  else paymentStatusEl.classList.add("unpaid");
+
+  renderItems(items);
+  renderSummary(data);
+  renderUnits(items);
+  renderPaymentState(data);
+
+  $("invoice-loading").style.display = "none";
+  $("invoice-content").style.display = "block";
 }
-function showError(msg){$("loading").textContent=msg; $("pdfBtn").disabled=true}
+
+function renderItems(items){
+  const body = $("invoice-items");
+  body.innerHTML = "";
+
+  if(!items.length){
+    body.innerHTML = `<tr><td colspan="5" class="empty-cell">Tidak ada detail produk.</td></tr>`;
+    return;
+  }
+
+  body.innerHTML = items.map(item => {
+    const variantBits = [item.variant_name, item.ram ? `RAM ${item.ram}` : "", item.storage, item.color]
+      .filter(Boolean);
+    const units = item.order_item_units || [];
+    const unitHtml = units.length
+      ? units.map((u,index) => `
+          <div class="unit-line">
+            <b>Unit ${index + 1}</b><br>
+            IMEI 1: ${esc(u.imei1 || "-")}
+            ${u.imei2 ? `<br>IMEI 2: ${esc(u.imei2)}` : ""}
+            ${u.serial_number ? `<br>SN: ${esc(u.serial_number)}` : ""}
+          </div>`).join("")
+      : `<span class="muted-text">IMEI belum ditetapkan</span>`;
+
+    return `
+      <tr>
+        <td>
+          <strong>${esc(item.product_name || "Produk")}</strong>
+          <div class="variant-text">${esc(variantBits.join(" · ") || "-")}</div>
+        </td>
+        <td>${unitHtml}</td>
+        <td>${Number(item.quantity || 0)}</td>
+        <td>${rupiah(item.unit_price)}</td>
+        <td><strong>${rupiah(item.subtotal)}</strong></td>
+      </tr>
+    `;
+  }).join("");
+}
+
+function renderSummary(data){
+  const subtotal = Number(data.subtotal || 0);
+  const discount = Number(data.discount || 0);
+  const shipping = Number(data.shipping_fee || 0);
+  const total = Number(data.total || Math.max(subtotal - discount, 0) + shipping);
+  const paid = Number(data.amount_paid || 0);
+  const remaining = Number(data.remaining_amount ?? Math.max(total - paid, 0));
+
+  setText("sub-total", rupiah(subtotal));
+  setText("discount-total", discount > 0 ? `- ${rupiah(discount)}` : rupiah(0));
+  setText("shipping-total", rupiah(shipping));
+  setText("paid-total", rupiah(paid));
+  setText("grand-total", rupiah(total));
+
+  const remainingRow = $("row-remaining");
+  const remainingEl = $("remaining-total");
+  if(remaining > 0){
+    remainingRow.style.display = "flex";
+    remainingRow.querySelector("span").textContent = "Kurang Bayar";
+    remainingEl.textContent = "- " + rupiah(remaining);
+  }else if(paid > total){
+    remainingRow.style.display = "flex";
+    remainingRow.querySelector("span").textContent = "Kembalian";
+    remainingEl.textContent = rupiah(paid - total);
+  }else{
+    remainingRow.style.display = "none";
+  }
+
+  if(discount === 0) $("row-discount").style.display = "none";
+  if(shipping === 0 && data.shipping_method === "pickup") $("row-shipping").style.display = "none";
+  if(paid === 0) $("row-paid").style.display = "none";
+}
+
+function renderUnits(items){
+  const units = [];
+  let expected = 0;
+
+  items.forEach(item => {
+    expected += Number(item.quantity || 0);
+    (item.order_item_units || []).forEach((unit,index) => {
+      units.push({ item, unit, index });
+    });
+  });
+
+  const box = $("unitInfoBox");
+  const content = $("unitInfoContent");
+
+  if(!expected){
+    box.style.display = "none";
+    return;
+  }
+
+  box.style.display = "block";
+
+  const rows = units.map(({item,unit,index}) => `
+    <div class="unit-card">
+      <div>
+        <strong>${esc(item.product_name || "Produk")} — Unit ${index + 1}</strong>
+        <span>${esc(item.variant_name || "-")}${item.color ? ` · ${esc(item.color)}` : ""}</span>
+      </div>
+      <div class="unit-code">
+        <span>IMEI 1 <b>${esc(unit.imei1 || "-")}</b></span>
+        ${unit.imei2 ? `<span>IMEI 2 <b>${esc(unit.imei2)}</b></span>` : ""}
+        ${unit.serial_number ? `<span>Serial <b>${esc(unit.serial_number)}</b></span>` : ""}
+      </div>
+    </div>
+  `).join("");
+
+  const missing = Math.max(expected - units.length, 0);
+  content.innerHTML = `
+    ${rows || `<p class="muted-text">IMEI / unit fisik belum ditetapkan oleh admin.</p>`}
+    ${missing > 0 ? `<div class="unit-warning"><i class="fa-solid fa-triangle-exclamation"></i> ${missing} unit belum memiliki data IMEI/serial.</div>` : ""}
+  `;
+}
+
+function renderPaymentState(data){
+  const paymentStatus = String(data.payment_status || "belum_bayar").toLowerCase();
+  const isPaid = paymentStatus === "lunas";
+  const isTransfer = String(data.payment_method || "").toLowerCase() === "transfer";
+
+  const pdfBtn = $("downloadPdfBtn");
+  const rekeningBtn = $("rekeningBtn");
+
+  pdfBtn.style.display = isPaid ? "inline-flex" : "none";
+  rekeningBtn.style.display = (!isPaid && isTransfer) ? "inline-flex" : "none";
+
+  const wm = $("watermark");
+  const stamp = $("digital-stamp");
+  wm.className = "watermark";
+  stamp.className = "digital-stamp";
+
+  if(isPaid){
+    wm.textContent = "LUNAS";
+    wm.classList.add("wm-paid");
+    stamp.textContent = "✔ LUNAS";
+    stamp.classList.add("stamp-paid");
+  }else if(paymentStatus === "sebagian" || paymentStatus === "dp"){
+    wm.textContent = "SEBAGIAN";
+    wm.classList.add("wm-partial");
+    stamp.textContent = "PEMBAYARAN SEBAGIAN";
+    stamp.classList.add("stamp-partial");
+  }else{
+    wm.textContent = "BELUM LUNAS";
+    wm.classList.add("wm-unpaid");
+    stamp.textContent = "BELUM LUNAS";
+    stamp.classList.add("stamp-unpaid");
+  }
+}
+
+function renderQR(){
+  const qr = $("qr");
+  if(!qr || !window.QRCode) return;
+  qr.innerHTML = "";
+  const invoiceUrl = `${window.location.origin}/nota-produk.html?id=${encodeURIComponent(currentData.id)}`;
+  QRCode.toCanvas(document.createElement("canvas"), invoiceUrl, { width: 130, margin: 1 }, (err, canvas) => {
+    if(!err) qr.appendChild(canvas);
+  });
+}
+
+async function loadSignature(){
+  const sigBox = $("ttdImg");
+  const nameEl = $("ttdName");
+  if(!sigBox || !nameEl) return;
+
+  // Gunakan admin yang terakhir memverifikasi pembayaran bila tersedia.
+  const paidPayments = [...(currentData?.order_payments || [])]
+    .filter(p => p.payment_status === "paid" && p.created_by)
+    .sort((a,b) => new Date(b.paid_at || b.created_at || 0) - new Date(a.paid_at || a.created_at || 0));
+
+  const adminId = paidPayments[0]?.created_by || null;
+  if(!adminId) return;
+
+  const { data, error } = await client
+    .from("profiles")
+    .select("signature_url, full_name")
+    .eq("id", adminId)
+    .maybeSingle();
+
+  if(error || !data){
+    console.log("Signature invoice produk:", error?.message || "Profile tidak ditemukan");
+    return;
+  }
+
+  if(data.full_name) nameEl.textContent = data.full_name;
+  if(!data.signature_url) return;
+
+  let imageUrl = data.signature_url;
+  if(!imageUrl.startsWith("http")){
+    const { data: publicUrlData } = client.storage.from("signature_url").getPublicUrl(imageUrl);
+    imageUrl = publicUrlData?.publicUrl || "";
+  }
+
+  if(imageUrl){
+    sigBox.style.backgroundImage = `url("${imageUrl}")`;
+    sigBox.style.backgroundSize = "contain";
+    sigBox.style.backgroundRepeat = "no-repeat";
+    sigBox.style.backgroundPosition = "center";
+  }
+}
+
+function showError(message){
+  const loading = $("invoice-loading");
+  loading.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i> ${esc(message)}`;
+  loading.classList.add("error");
+}
+
+function showRekening(){
+  const rekening = "5855369360";
+  const html = `
+    <div id="rekeningModal" class="rekening-modal">
+      <div class="rekening-box">
+        <h3>Informasi Pembayaran</h3>
+        <p class="bank-name">BANK BCA</p>
+        <div class="rekening-number">${rekening}</div>
+        <p>a.n <strong>IKMAL FALAHI</strong></p>
+        <button class="copy-btn" onclick="copyRekening('${rekening}')">
+          <i class="fa-solid fa-copy"></i> Copy Nomor Rekening
+        </button>
+        <button class="close-btn" onclick="closeRekeningModal()">Tutup</button>
+      </div>
+    </div>`;
+  document.body.insertAdjacentHTML("beforeend", html);
+}
+
+function copyRekening(rekening){
+  navigator.clipboard.writeText(rekening).then(() => alert("Nomor rekening berhasil disalin"));
+}
+
+function closeRekeningModal(){
+  $("rekeningModal")?.remove();
+}
+
 async function downloadPDF(){
- if(!currentOrder) return;
- const {jsPDF}=window.jspdf; const o=currentOrder, items=o.order_items||[], ship=latest(o.order_shipments);
- const doc=new jsPDF({unit:"mm",format:"a4"}); let y=18;
- doc.setFont("helvetica","bold");doc.setFontSize(16);doc.text("CEO PART & SERVICE",14,y);doc.setFontSize(10);doc.setFont("helvetica","normal");doc.text("Nota Penjualan Handphone",14,y+6);
- doc.setFont("helvetica","bold");doc.setFontSize(13);doc.text("INVOICE",196,y,{align:"right"});doc.setFontSize(9);doc.text(String(o.order_number||`ORDER-${o.id}`),196,y+6,{align:"right"});
- y+=18; doc.setDrawColor(31,111,120);doc.setLineWidth(.8);doc.line(14,y,196,y); y+=8;
- doc.setFontSize(9);doc.setFont("helvetica","normal");doc.text(`Pembeli: ${o.customer_name||'-'}`,14,y);doc.text(`WhatsApp: ${o.customer_whatsapp||'-'}`,14,y+5);doc.text(`Pengiriman: ${shippingName(o,ship)}`,110,y);doc.text(`Pembayaran: ${label(o.payment_method)} / ${label(o.payment_status)}`,110,y+5); y+=14;
- const rows=[]; items.forEach(i=>{ const units=(i.order_item_units||[]).map((u,x)=>`Unit ${x+1}: IMEI ${u.imei1}${u.imei2?` / ${u.imei2}`:''}${u.serial_number?` / SN ${u.serial_number}`:''}`).join("\n") || "IMEI belum ditetapkan"; rows.push([`${i.product_name}\n${units}`,`${i.variant_name||'-'}\n${i.color||'-'} · RAM ${i.ram||'-'} · ${i.storage||'-'}`,String(i.quantity||0),rupiah(i.unit_price),rupiah(i.subtotal)]); });
- doc.autoTable({startY:y,head:[["Produk / Unit","Varian","Qty","Harga","Subtotal"]],body:rows,styles:{fontSize:7,cellPadding:2.2},headStyles:{fillColor:[31,111,120]},columnStyles:{2:{halign:"right"},3:{halign:"right"},4:{halign:"right"}}});
- y=doc.lastAutoTable.finalY+7; const x=112; doc.setFontSize(9); [["Subtotal",o.subtotal],["Diskon",-Number(o.discount||0)],["Ongkir",o.shipping_fee],["TOTAL",o.total],["Sudah Dibayar",o.amount_paid],["Sisa",o.remaining_amount]].forEach(([k,v],idx)=>{doc.setFont("helvetica",idx===3?"bold":"normal");doc.text(String(k),x,y);doc.text(rupiah(v),196,y,{align:"right"});y+=5;});
- doc.setFontSize(7);doc.setTextColor(100);doc.text(`Dibuat ${new Date().toLocaleString('id-ID')} · CEO Part & Service`,14,287);
- doc.save(`${o.order_number||`order-${o.id}`}.pdf`);
+  if(!currentData) return;
+
+  const invoice = $("invoice-area");
+  const pdfBtn = $("downloadPdfBtn");
+  const originalText = pdfBtn.innerHTML;
+
+  try{
+    pdfBtn.disabled = true;
+    pdfBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Membuat PDF...`;
+
+    document.body.classList.add("pdf-body");
+    await new Promise(resolve => setTimeout(resolve, 120));
+
+    const canvas = await html2canvas(invoice, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: "#ffffff",
+      logging: false
+    });
+
+    const imgData = canvas.toDataURL("image/jpeg", 0.96);
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF("p", "mm", "a4");
+    const pageWidth = 210;
+    const pageHeight = 297;
+    const margin = 6;
+    const usableWidth = pageWidth - (margin * 2);
+    const imgHeight = canvas.height * usableWidth / canvas.width;
+
+    let heightLeft = imgHeight;
+    let position = margin;
+    pdf.addImage(imgData, "JPEG", margin, position, usableWidth, imgHeight);
+    heightLeft -= (pageHeight - margin * 2);
+
+    while(heightLeft > 0){
+      pdf.addPage();
+      position = margin - (imgHeight - heightLeft);
+      pdf.addImage(imgData, "JPEG", margin, position, usableWidth, imgHeight);
+      heightLeft -= (pageHeight - margin * 2);
+    }
+
+    const fileName = `${currentData.order_number || `CEO-ORD-${currentData.id}`}.pdf`;
+    pdf.save(fileName);
+  }catch(error){
+    console.error("Gagal membuat PDF:", error);
+    alert("Gagal membuat PDF invoice. Silakan coba kembali.");
+  }finally{
+    document.body.classList.remove("pdf-body");
+    pdfBtn.disabled = false;
+    pdfBtn.innerHTML = originalText;
+  }
 }
-document.addEventListener("DOMContentLoaded",init);
+
+window.showRekening = showRekening;
+window.copyRekening = copyRekening;
+window.closeRekeningModal = closeRekeningModal;
+window.downloadPDF = downloadPDF;
+
+document.addEventListener("DOMContentLoaded", init);
