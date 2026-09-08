@@ -121,7 +121,7 @@ async function loadOrders(){
   $("orderTableBody").innerHTML = '<tr><td colspan="9" class="empty"><i class="fa-solid fa-spinner fa-spin"></i> Memuat order...</td></tr>';
   const { data, error } = await client
     .from("orders")
-    .select(`*,order_items(*),order_payments(*),order_shipments(*)`)
+    .select(`*,order_items(*,order_item_units(*)),order_payments(*),order_shipments(*)`)
     .order("created_at", { ascending:false });
 
   if(error){
@@ -460,6 +460,20 @@ async function openDetail(id){
         </section>
       </div>
 
+      <section class="imei-management-card">
+        <div class="cost-summary-header">
+          <div>
+            <span class="section-label"><i class="fa-solid fa-barcode"></i> UNIT FISIK / IMEI</span>
+            <h3>Penetapan Unit Handphone</h3>
+            <p>IMEI tidak diisi pelanggan. Admin menetapkan unit fisik yang benar-benar diserahkan atau dikirim.</p>
+          </div>
+          <div class="unit-count-badge"><i class="fa-solid fa-mobile-screen"></i> ${items.reduce((n,i)=>n+(i.order_item_units||[]).length,0)} / ${totalQty} unit</div>
+        </div>
+        <div class="imei-products">
+          ${items.map(i => buildUnitManager(i)).join("") || '<div class="notice">Item tidak ditemukan.</div>'}
+        </div>
+      </section>
+
       <section class="cost-summary-card">
         <div class="cost-summary-header">
           <div>
@@ -537,10 +551,73 @@ async function openDetail(id){
     if($("viewProofTopBtn")) $("viewProofTopBtn").onclick = proofHandler;
   }
 
+  bindUnitActions(o);
   bindAdminActions(o, pay, ship);
   $("detailModal").classList.add("show");
   $("detailModal").setAttribute("aria-hidden", "false");
   document.body.classList.add("modal-open");
+}
+
+function buildUnitManager(item){
+  const qty = Number(item.quantity || 0);
+  const units = [...(item.order_item_units || [])].sort((a,b)=>Number(a.id)-Number(b.id));
+  const slots = Array.from({length: qty}, (_,idx) => units[idx] || null);
+  return `<article class="imei-product-block">
+    <div class="imei-product-head">
+      <div><strong>${esc(item.product_name || '-')}</strong><span>${esc(item.variant_name || 'Varian standar')} · ${esc(item.color || '-')} · RAM ${esc(item.ram || '-')} · ${esc(item.storage || '-')}</span></div>
+      <span class="unit-progress ${units.length >= qty && qty > 0 ? 'complete' : ''}">${Math.min(units.length,qty)}/${qty} terisi</span>
+    </div>
+    <div class="unit-slots">
+      ${slots.map((u,idx)=>`<div class="unit-slot ${u ? 'filled' : ''}" data-item-id="${item.id}" data-unit-id="${u?.id || ''}">
+        <div class="unit-slot-title"><span>Unit ${idx+1}</span>${u ? '<span class="unit-ready"><i class="fa-solid fa-circle-check"></i> Tersimpan</span>' : '<span class="unit-empty">Belum ditetapkan</span>'}</div>
+        <div class="unit-fields">
+          <label>IMEI 1<input class="unit-imei1" inputmode="numeric" maxlength="20" value="${esc(u?.imei1 || '')}" placeholder="Contoh: 356789..." /></label>
+          <label>IMEI 2 <small>(opsional)</small><input class="unit-imei2" inputmode="numeric" maxlength="20" value="${esc(u?.imei2 || '')}" placeholder="Dual SIM bila ada" /></label>
+          <label>Serial Number <small>(opsional)</small><input class="unit-serial" value="${esc(u?.serial_number || '')}" placeholder="SN perangkat" /></label>
+        </div>
+        <label class="unit-note-label">Catatan unit <small>(opsional)</small><input class="unit-note" value="${esc(u?.note || '')}" placeholder="Warna fisik, kondisi segel, dll." /></label>
+        <div class="unit-slot-actions">
+          <button class="btn primary save-unit-btn"><i class="fa-solid fa-floppy-disk"></i> ${u ? 'Perbarui Unit' : 'Simpan Unit'}</button>
+          ${u ? '<button class="btn danger delete-unit-btn"><i class="fa-solid fa-trash"></i> Hapus</button>' : ''}
+        </div>
+      </div>`).join('')}
+    </div>
+  </article>`;
+}
+
+function normalizeDeviceCode(value){ return String(value || '').trim().replace(/\s+/g,''); }
+
+function bindUnitActions(order){
+  document.querySelectorAll('.save-unit-btn').forEach(btn => btn.onclick = async () => {
+    const slot = btn.closest('.unit-slot');
+    const itemId = Number(slot.dataset.itemId);
+    const unitId = slot.dataset.unitId ? Number(slot.dataset.unitId) : null;
+    const imei1 = normalizeDeviceCode(slot.querySelector('.unit-imei1')?.value);
+    const imei2 = normalizeDeviceCode(slot.querySelector('.unit-imei2')?.value);
+    const serial = normalizeDeviceCode(slot.querySelector('.unit-serial')?.value);
+    const note = slot.querySelector('.unit-note')?.value.trim() || null;
+    if(!imei1) return alert('IMEI 1 wajib diisi untuk menetapkan unit HP.');
+    if(!/^\d{14,17}$/.test(imei1)) return alert('IMEI 1 harus berupa 14–17 digit angka.');
+    if(imei2 && !/^\d{14,17}$/.test(imei2)) return alert('IMEI 2 harus berupa 14–17 digit angka.');
+    if(imei2 && imei1 === imei2) return alert('IMEI 1 dan IMEI 2 tidak boleh sama.');
+    setBusy(btn,true,'Menyimpan...');
+    const { error } = await client.rpc('admin_save_product_order_unit', {
+      p_order_item_id:itemId, p_unit_id:unitId, p_imei1:imei1, p_imei2:imei2 || null,
+      p_serial_number:serial || null, p_note:note
+    });
+    if(error){ console.error(error); alert('Gagal menyimpan unit: ' + error.message); setBusy(btn,false); return; }
+    alert('Unit / IMEI berhasil disimpan ✅');
+    await reloadAndReopen(order.id);
+  });
+  document.querySelectorAll('.delete-unit-btn').forEach(btn => btn.onclick = async () => {
+    const slot = btn.closest('.unit-slot');
+    const unitId = Number(slot.dataset.unitId);
+    if(!unitId || !confirm('Hapus penetapan IMEI/unit ini?')) return;
+    setBusy(btn,true,'Menghapus...');
+    const { error } = await client.rpc('admin_delete_product_order_unit',{p_unit_id:unitId});
+    if(error){ console.error(error); alert('Gagal menghapus unit: ' + error.message); setBusy(btn,false); return; }
+    await reloadAndReopen(order.id);
+  });
 }
 
 function buildPaymentAction(o, pay){
