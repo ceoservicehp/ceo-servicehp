@@ -4,31 +4,23 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Invoice Produk HP - CEO Part & Service</title>
-
-<link rel="icon" href="images/logo.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/nota-produk.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body>
 
 <div class="invoice" id="invoice-area">
-
   <div id="watermark" class="watermark"></div>
   <div id="digital-stamp" class="digital-stamp"></div>
 
   <div id="invoice-loading" class="invoice-loading">
-    <i class="fa-solid fa-spinner fa-spin"></i>
-    Memuat invoice produk...
+    <i class="fa-solid fa-spinner fa-spin"></i> Memuat invoice produk...
   </div>
 
   <div id="invoice-content" style="display:none;">
-    <!-- HEADER -->
     <div class="invoice-header">
       <div class="brand">
         <div class="brand-top">
@@ -37,64 +29,53 @@
             <h1>CEO PART & SERVICE</h1>
             <p>Cellular Engineering Officer</p>
             <small>ITC Roxy Mas LT.1 No.123 B</small>
-            <small class="address">
-              Jl. KH. Hasyim Ashari No.125, RW.8, Cideng, Kecamatan Gambir, Jakarta Pusat, Daerah Khusus Ibukota Jakarta 10150
-            </small>
+            <small class="address">Jl. KH. Hasyim Ashari No.125, RW.8, Cideng, Kecamatan Gambir, Jakarta Pusat, Daerah Khusus Ibukota Jakarta 10150</small>
           </div>
         </div>
       </div>
-
       <div class="invoice-meta">
-        <div>
-          <span>Invoice</span>
-          <b id="inv-number"></b>
-        </div>
-        <div>
-          <span>Tanggal</span>
-          <b id="inv-date"></b>
-        </div>
+        <div><span>Invoice</span><b id="inv-number"></b></div>
+        <div><span>Tanggal</span><b id="inv-date"></b></div>
       </div>
     </div>
 
-    <!-- CUSTOMER & ORDER INFO -->
     <div class="info-wrapper">
       <div class="box">
-        <h3><i class="fa-solid fa-user"></i> Data Pembeli</h3>
+        <h3><i class="fa-solid fa-user"></i> Data Pelanggan</h3>
         <div class="info-row"><span>Nama</span><b id="c-name"></b></div>
-        <div class="info-row"><span>No. WhatsApp</span><b id="c-phone"></b></div>
+        <div class="info-row"><span>No HP</span><b id="c-phone"></b></div>
         <div class="info-row"><span>Email</span><b id="c-email"></b></div>
-        <div class="info-row address-row"><span>Alamat</span><b id="c-address"></b></div>
+        <div class="info-row"><span>Alamat</span><b id="c-address"></b></div>
         <div class="info-row"><span>Pengiriman</span><b id="c-shipping"></b></div>
         <div class="info-row"><span>Metode Bayar</span><b id="c-payment-method"></b></div>
+        <div class="problem-section" id="note-section" style="display:none;">
+          <div class="problem-title"><i class="fa-solid fa-note-sticky"></i> Catatan Pembeli</div>
+          <div class="problem-content"><p id="c-note">-</p></div>
+        </div>
       </div>
 
       <div class="box">
-        <h3><i class="fa-solid fa-box"></i> Informasi Pesanan</h3>
-        <div class="info-row"><span>Status Pesanan</span><b id="order-status"></b></div>
-        <div class="info-row"><span>Tanggal Pesanan</span><b id="order-created"></b></div>
-        <div class="info-row"><span>Status Pengiriman</span><b id="shipping-status"></b></div>
+        <h3><i class="fa-solid fa-cart-shopping"></i> Informasi Pesanan</h3>
+        <div class="info-row"><span>Status</span><b id="order-status"></b></div>
+        <div class="info-row"><span>Tgl Pesanan</span><b id="order-created"></b></div>
         <div class="info-row"><span>Kurir / Ekspedisi</span><b id="shipping-courier"></b></div>
-        <div class="info-row"><span>No. Resi</span><b id="shipping-tracking"></b></div>
-        <div class="info-row">
-          <span>Status Bayar</span>
-          <b id="payment-status" class="status-badge"></b>
-        </div>
+        <div class="info-row"><span>No Resi</span><b id="shipping-tracking"></b></div>
+        <div class="info-row"><span>Status Kirim</span><b id="shipping-status"></b></div>
+        <div class="info-row"><span>Status Bayar</span><b id="payment-status" class="status-badge"></b></div>
       </div>
     </div>
 
-    <!-- PRODUCT ITEMS -->
-    <div class="box product-box">
-      <h3><i class="fa-solid fa-mobile-screen-button"></i> Detail Produk Handphone</h3>
-
+    <div class="box">
+      <h3><i class="fa-solid fa-mobile-screen-button"></i> Detail Produk HP</h3>
       <div class="table-wrap">
-        <table class="product-table">
+        <table class="sparepart-table product-table">
           <thead>
             <tr>
               <th>Produk / Varian</th>
               <th>IMEI / Serial</th>
               <th>Qty</th>
               <th>Harga</th>
-              <th>Subtotal</th>
+              <th>Total</th>
             </tr>
           </thead>
           <tbody id="invoice-items"></tbody>
@@ -102,102 +83,60 @@
       </div>
     </div>
 
-    <!-- SUMMARY -->
     <div class="summary box">
       <div class="info-row" id="row-subtotal"><span>Subtotal Produk</span><b id="sub-total"></b></div>
       <div class="info-row" id="row-discount"><span>Diskon</span><b id="discount-total"></b></div>
       <div class="info-row" id="row-shipping"><span>Ongkir</span><b id="shipping-total"></b></div>
       <div class="info-row" id="row-paid"><span>Dibayar</span><b id="paid-total"></b></div>
       <div class="info-row" id="row-remaining"><span>Kurang Bayar</span><b id="remaining-total"></b></div>
-
-      <div class="grand-total">
-        <span>Total Pesanan</span>
-        <b id="grand-total"></b>
-      </div>
+      <div class="grand-total"><span>Total</span><b id="grand-total"></b></div>
     </div>
 
-    <!-- UNIT / IMEI INFO -->
-    <div class="box unit-info" id="unitInfoBox" style="display:none;">
-      <h3><i class="fa-solid fa-barcode"></i> Informasi Unit / IMEI</h3>
-      <div id="unitInfoContent"></div>
-    </div>
-
-    <!-- WARRANTY -->
     <div class="box warranty-box">
-      <h3><i class="fa-solid fa-shield-halved"></i> Syarat & Ketentuan Produk / Garansi</h3>
-
-      <p>
-        Garansi produk mengikuti ketentuan merek, distributor, atau penjual yang berlaku pada unit yang tercantum di invoice ini.
-        Invoice dan kecocokan IMEI/serial menjadi bagian penting dalam proses pengecekan garansi.
-      </p>
-
+      <h3><i class="fa-solid fa-shield-halved"></i> Syarat & Ketentuan Garansi Produk</h3>
+      <p>Garansi produk mengikuti ketentuan merek, distributor, atau toko yang berlaku pada unit yang tercantum di invoice ini.</p>
       <ul>
-        <li>IMEI/serial unit harus sesuai dengan data pada invoice dan unit fisik yang diterima.</li>
+        <li>IMEI / serial unit harus sesuai dengan invoice dan unit fisik yang diterima.</li>
         <li>Garansi tidak mencakup kerusakan fisik akibat jatuh, benturan, tekanan, atau kesalahan penggunaan.</li>
-        <li>Kerusakan akibat air/cairan, modifikasi, pembongkaran, atau perbaikan pihak lain dapat menggugurkan garansi sesuai kebijakan yang berlaku.</li>
-        <li>Kelengkapan, segel, dan kondisi unit akan menjadi bagian dari pemeriksaan bila terjadi klaim.</li>
-        <li>Masa dan cakupan garansi dapat berbeda menurut merek, distributor, dan jenis unit.</li>
+        <li>Kerusakan akibat air/cairan, modifikasi, pembongkaran, atau perbaikan pihak lain dapat menggugurkan garansi.</li>
+        <li>Kelengkapan, segel, dan kondisi unit akan menjadi bagian pemeriksaan klaim.</li>
+        <li>Masa dan cakupan garansi mengikuti merek/distributor/unit yang dibeli.</li>
       </ul>
-
-      <p style="margin-top:10px;">
-        Simpan invoice ini sebagai bukti transaksi pembelian di CEO Part & Service.
-      </p>
+      <p style="margin-top:10px;">Simpan invoice ini sebagai bukti pembelian resmi di CEO Part & Service.</p>
     </div>
 
-    <!-- FOOTER -->
     <div class="bottom-section">
       <div class="qr-section">
-        <p class="qr-label">Scan Invoice</p>
+        <p class="qr-label">Scan untuk Verifikasi</p>
         <div id="qr"></div>
-        <small class="qr-note">QR mengarah ke invoice digital ini.</small>
+        <small>Validasi invoice produk</small>
       </div>
-
       <div class="signature">
         <p>Hormat Kami,</p>
         <div id="ttdImg" class="signature-img"></div>
-        <small>
-          <b id="ttdName">CEO - PART & SERVICE</b><br>
-          Cellular Engineering Officer
-        </small>
+        <small><b id="ttdName">CEO - PART & SERVICE</b><br>Cellular Engineering Officer</small>
       </div>
     </div>
 
-    <!-- SOCIAL -->
     <div class="social-links">
-      <a href="https://www.instagram.com/ceo_servicehp?igsh=MTNwMWJkcDQyb3dpcA==" target="_blank" rel="noopener"><i class="fa-brands fa-instagram"></i></a>
-      <a href="https://www.tiktok.com/@ceo_servicehp?_r=1&_t=ZS-95r6MR04yLF" target="_blank" rel="noopener"><i class="fa-brands fa-tiktok"></i></a>
+      <a href="https://www.instagram.com/ceo_servicehp?igsh=MTNwMWJkcDQyb3dpcA==" target="_blank"><i class="fa-brands fa-instagram"></i></a>
+      <a href="https://www.tiktok.com/@ceo_servicehp?_r=1&_t=ZS-95r6MR04yLF" target="_blank"><i class="fa-brands fa-tiktok"></i></a>
     </div>
 
-    <!-- ACTIONS -->
     <div class="actions">
-      <a href="order-produk.html" class="btn-back">
-        <i class="fa-solid fa-arrow-left"></i> Kembali
-      </a>
-
-      <button id="rekeningBtn" class="btn-pay" onclick="showRekening()" style="display:none;">
-        <i class="fa-solid fa-building-columns"></i>
-        Lihat Rekening
-      </button>
-
-      <button id="downloadPdfBtn" onclick="downloadPDF()" class="btn-print" style="display:none;">
-        <i class="fa-solid fa-file-pdf"></i>
-        Download PDF
-      </button>
+      <button id="rekeningBtn" class="btn-pay" onclick="showRekening()" style="display:none;"><i class="fa-solid fa-building-columns"></i> Lihat Rekening</button>
+      <button id="downloadPdfBtn" onclick="downloadPDF()" class="btn-print" style="display:none;"><i class="fa-solid fa-file-pdf"></i> Download PDF</button>
     </div>
   </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/supabase.js"></script>
-<script src="js/auth.js"></script>
-<script src="js/role_guard.js"></script>
+<script src="js/invoice-produk-pdf.js"></script>
 <script src="js/nota-produk.js" defer></script>
 
 <div class="floating-wa">
-  <a href="https://wa.me/628138892098?text=Halo%20CEO%20Part%20and%20Service,%20saya%20ingin%20bertanya%20tentang%20pembelian%20produk%20HP" target="_blank" rel="noopener" aria-label="WhatsApp CEO">
-    <i class="fa-brands fa-whatsapp"></i>
-  </a>
+  <a href="https://wa.me/628138892098?text=Halo%20CEO%20Part%20and%20Service,%20saya%20ingin%20bertanya%20tentang%20pembelian%20produk%20HP" target="_blank"><i class="fa-brands fa-whatsapp"></i></a>
 </div>
-
 </body>
 </html>
