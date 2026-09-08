@@ -587,23 +587,37 @@ function buildShippingAction(o, ship){
   </div>`;
 }
 
+function autoShippingStatus(orderStatus){
+  return ({
+    menunggu_diproses:"belum_dikirim",
+    dikemas:"dikemas",
+    dikirim:"dikirim",
+    dalam_perjalanan:"dalam_perjalanan",
+    selesai:"terkirim",
+    dibatalkan:"gagal",
+    gagal_dikirim:"gagal"
+  })[orderStatus] || "belum_dikirim";
+}
+
 function buildStatusAction(o, ship){
+  const currentAuto = autoShippingStatus(o.order_status);
   return `<div class="action-card workflow-action-card" data-workflow-step="3">
     <span class="action-step-label">TAHAP 3 & 4</span>
     <h4><i class="fa-solid fa-route"></i> Proses & Pengiriman</h4>
-    <label>Status order</label>
+    <label>Status pesanan</label>
     <select id="adminOrderStatus">
       ${["menunggu_diproses","dikemas","dikirim","dalam_perjalanan","selesai","dibatalkan","gagal_dikirim"].map(v=>`<option value="${v}" ${o.order_status===v?"selected":""}>${esc(label(v))}</option>`).join("")}
     </select>
-    <label>Status pengiriman</label>
-    <select id="adminShippingStatus">
-      ${["belum_dikirim","dikemas","dikirim","dalam_perjalanan","terkirim","gagal"].map(v=>`<option value="${v}" ${(ship?.shipping_status||"belum_dikirim")===v?"selected":""}>${esc(label(v))}</option>`).join("")}
-    </select>
-    <label>Nomor resi</label>
-    <input id="trackingNumber" value="${esc(ship?.tracking_number || "")}" placeholder="Opsional">
+    <div class="auto-status-box">
+      <span><i class="fa-solid fa-wand-magic-sparkles"></i> Status pengiriman otomatis</span>
+      <strong id="autoShippingStatusPreview">${esc(label(currentAuto))}</strong>
+    </div>
+    <label>Nomor resi / kode pengiriman</label>
+    <input id="trackingNumber" value="${esc(ship?.tracking_number || "")}" placeholder="Opsional — isi jika tersedia">
     <label>Catatan admin</label>
     <textarea id="adminNote" rows="2" placeholder="Opsional">${esc(o.admin_note || "")}</textarea>
-    <button class="btn primary full" id="saveStatusBtn"><i class="fa-solid fa-floppy-disk"></i> Simpan Status</button>
+    <button class="btn primary full" id="saveStatusBtn"><i class="fa-solid fa-floppy-disk"></i> Simpan & Sinkronkan Status</button>
+    <small class="helper">Cukup pilih status pesanan. Status pengiriman akan mengikuti otomatis agar tidak terjadi kombinasi status yang berbeda.</small>
   </div>`;
 }
 
@@ -628,6 +642,16 @@ function bindAdminActions(o, pay, ship){
   const rejectBtn = $("rejectPaymentBtn");
   const shippingBtn = $("saveShippingBtn");
   const statusBtn = $("saveStatusBtn");
+  const orderStatusSelect = $("adminOrderStatus");
+
+  if(orderStatusSelect){
+    const refreshAutoStatus = () => {
+      const preview = $("autoShippingStatusPreview");
+      if(preview) preview.textContent = label(autoShippingStatus(orderStatusSelect.value));
+    };
+    orderStatusSelect.addEventListener("change", refreshAutoStatus);
+    refreshAutoStatus();
+  }
 
   if(approveBtn) approveBtn.onclick = async () => {
     const amount = numericValue("paymentAmount");
@@ -679,10 +703,14 @@ function bindAdminActions(o, pay, ship){
 
   if(statusBtn) statusBtn.onclick = async () => {
     const orderStatus = $("adminOrderStatus").value;
-    const shippingStatus = $("adminShippingStatus").value;
+    const shippingStatus = autoShippingStatus(orderStatus);
     const tracking = $("trackingNumber").value.trim() || null;
     const courier = $("shippingCourier")?.value.trim() || ship?.courier || null;
     const adminNote = $("adminNote").value.trim() || null;
+
+    if(orderStatus === "selesai" && !confirm(`Tandai ${o.order_number} sebagai SELESAI? Status pengiriman juga akan menjadi Terkirim.`)) return;
+    if(orderStatus === "dibatalkan" && !confirm(`Batalkan ${o.order_number}? Status pengiriman akan ditutup sebagai Gagal.`)) return;
+
     setBusy(statusBtn, true, "Menyimpan...");
     const { error } = await client.rpc("admin_update_product_order_status", {
       p_order_id:o.id,
@@ -693,7 +721,7 @@ function bindAdminActions(o, pay, ship){
       p_admin_note:adminNote
     });
     if(error){ console.error(error); alert("Gagal menyimpan status: " + error.message); setBusy(statusBtn,false); return; }
-    alert("Status order berhasil diperbarui ✅");
+    alert(`Status berhasil diperbarui ✅\nPesanan: ${label(orderStatus)}\nPengiriman: ${label(shippingStatus)}`);
     await reloadAndReopen(o.id);
   };
 }
