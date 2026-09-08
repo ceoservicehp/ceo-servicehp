@@ -383,3 +383,120 @@ body.modal-open{overflow:hidden}
   .grand-total-top{padding:15px}
   .grand-total-top strong{font-size:21px}
 }
+
+/* =========================================================
+   DASHBOARD ORDER — TABLE & PRIORITY
+========================================================= */
+.stat-filter-card{
+  position:relative;
+  cursor:pointer;
+  transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease;
+}
+.stat-filter-card:hover{
+  transform:translateY(-2px);
+  border-color:rgba(0,194,199,.34);
+  box-shadow:0 12px 30px rgba(20,55,60,.09);
+}
+.stat-filter-card.active{
+  border-color:rgba(31,111,120,.45);
+  box-shadow:0 0 0 3px rgba(31,111,120,.08),0 12px 30px rgba(20,55,60,.08);
+}
+.stat-filter-card.active::after{
+  content:"";
+  position:absolute;
+  left:16px;
+  right:16px;
+  bottom:-1px;
+  height:3px;
+  border-radius:99px 99px 0 0;
+  background:linear-gradient(90deg,var(--primary),var(--secondary));
+}
+
+.table-card table{min-width:1180px}
+.table-card th{white-space:nowrap}
+.order-row{transition:background .18s ease}
+.order-row:hover{background:#fbfefe}
+.order-number-cell,.buyer-cell,.product-cell,.total-cell{display:flex;flex-direction:column;gap:4px}
+.order-number-cell strong{color:var(--primary);font-size:12px}
+.order-number-cell small,.buyer-cell small,.product-cell small,.total-cell small{color:var(--muted);font-size:9px}
+.buyer-cell strong,.product-cell strong{font-size:11px;color:#26383d}
+.product-cell{min-width:165px}
+.more-items{display:inline-flex;align-self:flex-start;margin-top:2px;padding:3px 6px;border-radius:999px;background:#f0f5f6;color:#64777b;font-size:8px;font-weight:700}
+.shipping-pill{display:inline-flex;align-items:center;gap:5px}
+.paid-text{color:var(--success)!important;font-weight:800}
+
+.priority-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  white-space:nowrap;
+  padding:6px 8px;
+  border-radius:999px;
+  font-size:9px;
+  font-weight:800;
+  border:1px solid transparent;
+}
+.priority-badge.danger{background:#fff0ef;color:#b63a35;border-color:#f4d2d0}
+.priority-badge.warning{background:#fff7e6;color:#8b6200;border-color:#f2dfb4}
+.priority-badge.info{background:#eaf6fd;color:#126b94;border-color:#cce6f4}
+.priority-badge.purple{background:#f1edff;color:#6848a8;border-color:#ded3fa}
+.priority-badge.success{background:#e9f8ef;color:#10713d;border-color:#caead7}
+.priority-badge.muted,.priority-badge.neutral{background:#f0f3f4;color:#68777b;border-color:#e1e7e8}
+.priority-row-danger td:first-child{box-shadow:inset 3px 0 0 #df5c55}
+.priority-row-warning td:first-child{box-shadow:inset 3px 0 0 #e1a12f}
+.priority-row-info td:first-child{box-shadow:inset 3px 0 0 #3e9ac0}
+.priority-row-purple td:first-child{box-shadow:inset 3px 0 0 #8062c5}
+.priority-row-success td:first-child{box-shadow:inset 3px 0 0 #38a263}
+
+.table-detail-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap}
+
+.pagination-modern{
+  justify-content:space-between;
+  gap:14px;
+  flex-wrap:wrap;
+}
+.page-size-wrap{display:flex;align-items:center;gap:7px;color:var(--muted);font-size:10px}
+.page-size-wrap select{
+  height:35px;
+  min-width:67px;
+  border:1px solid var(--border);
+  border-radius:9px;
+  padding:0 9px;
+  background:#fff;
+  color:var(--text);
+  font-size:10px;
+  outline:none;
+}
+.page-nav{display:flex;align-items:center;gap:7px}
+.page-arrow{width:35px;height:35px;padding:0!important;display:grid;place-items:center}
+.page-numbers{display:flex;align-items:center;gap:5px}
+.page-number{
+  width:34px;
+  height:34px;
+  border:1px solid var(--border);
+  border-radius:9px;
+  background:#fff;
+  color:#52666a;
+  font-size:10px;
+  font-weight:800;
+  cursor:pointer;
+  transition:.18s ease;
+}
+.page-number:hover{border-color:#b9dfe2;color:var(--primary);background:#f5fbfb}
+.page-number.active{border-color:var(--primary);background:var(--primary);color:#fff;box-shadow:0 5px 13px rgba(31,111,120,.16)}
+.page-ellipsis{padding:0 2px;color:#92a0a4;font-size:11px}
+.page-info-text{min-width:120px!important;text-align:right!important;font-size:10px!important}
+
+@media(max-width:760px){
+  .pagination-modern{flex-direction:column;align-items:stretch}
+  .page-size-wrap{justify-content:center}
+  .page-nav{justify-content:center;order:2}
+  .page-info-text{order:3;text-align:center!important;min-width:0!important}
+  .page-number{width:32px;height:32px}
+}
+@media(max-width:480px){
+  .page-numbers{gap:3px}
+  .page-number{width:30px;height:30px;border-radius:8px}
+  .page-arrow{width:32px;height:32px}
+  .table-detail-btn span{display:none}
+}
