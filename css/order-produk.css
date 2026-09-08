@@ -635,3 +635,36 @@ body.modal-open{overflow:hidden}
   .workflow-step{padding:10px}
   .workflow-recommendation{margin:0 12px 12px;align-items:flex-start}
 }
+
+/* ===== Status otomatis order -> shipment ===== */
+.auto-status-box{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin:10px 0 14px;
+  padding:12px 14px;
+  border:1px dashed rgba(31,111,120,.28);
+  background:rgba(0,194,199,.06);
+  border-radius:12px;
+}
+.auto-status-box span{font-size:12px;color:var(--muted);font-weight:700;}
+.auto-status-box strong{font-size:13px;color:var(--primary-dark);text-align:right;}
+@media(max-width:620px){
+  .auto-status-box{align-items:flex-start;flex-direction:column;gap:5px;}
+  .auto-status-box strong{text-align:left;}
+}
+
+/* ===== Unit fisik / IMEI ===== */
+.imei-management-card{margin-top:18px;background:#fff;border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow);overflow:hidden}
+.unit-count-badge{display:inline-flex;align-items:center;gap:7px;padding:8px 11px;border-radius:999px;background:#eef8f9;color:var(--primary-dark);font-size:11px;font-weight:900;white-space:nowrap}
+.imei-products{padding:0 16px 16px;display:grid;gap:12px}
+.imei-product-block{border:1px solid #e4edef;border-radius:14px;overflow:hidden;background:#fbfdfd}
+.imei-product-head{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:12px 14px;background:#f5fafb;border-bottom:1px solid #e4edef}
+.imei-product-head>div{display:flex;flex-direction:column;gap:3px}.imei-product-head strong{font-size:13px;color:#203b40}.imei-product-head span{font-size:10px;color:var(--muted)}
+.unit-progress{padding:5px 8px;border-radius:999px;background:#fff3dd;color:#95630b;font-size:9px!important;font-weight:900;white-space:nowrap}.unit-progress.complete{background:#e7f7ed;color:#197447}
+.unit-slots{padding:12px;display:grid;gap:10px}.unit-slot{padding:12px;border:1px dashed #cfdcdf;border-radius:12px;background:#fff}.unit-slot.filled{border-style:solid;border-color:#cfe7d8;background:#fcfffd}
+.unit-slot-title{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px;font-size:11px;font-weight:900;color:#29484e}.unit-ready{color:#1b7d4b;font-size:9px}.unit-empty{color:#9a7a35;font-size:9px}
+.unit-fields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}.unit-slot label{display:flex;flex-direction:column;gap:5px;font-size:9px;font-weight:800;color:#65787d}.unit-slot label small{font-weight:600;color:#9aa7aa}.unit-slot input{width:100%;height:38px;border:1px solid #dce6e8;border-radius:9px;padding:0 10px;font:inherit;color:var(--text);background:#fff}.unit-slot input:focus{outline:none;border-color:var(--secondary);box-shadow:0 0 0 3px rgba(0,194,199,.10)}
+.unit-note-label{margin-top:9px}.unit-slot-actions{display:flex;gap:8px;margin-top:10px}.unit-slot-actions .btn{min-height:36px}
+@media(max-width:720px){.imei-product-head{align-items:flex-start;flex-direction:column}.unit-fields{grid-template-columns:1fr}.unit-slot-actions{flex-direction:column}.unit-slot-actions .btn{width:100%}.unit-count-badge{align-self:flex-start}}
