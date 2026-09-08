@@ -73,7 +73,7 @@ function renderPaymentState(data){
   else{ wm.textContent="BELUM LUNAS"; wm.classList.add("wm-unpaid"); stamp.textContent="BELUM LUNAS"; stamp.classList.add("stamp-unpaid"); }
 }
 
-function renderQR(){ const qr=$("qr"); if(!qr||!window.QRCode) return; qr.innerHTML=""; const url=`${window.location.origin}/nota-produk.html?id=${encodeURIComponent(currentData.id)}`; QRCode.toCanvas(document.createElement("canvas"),url,{width:130,margin:1},(err,c)=>{if(!err) qr.appendChild(c);}); }
+function renderQR(){ const qr=$("qr"); if(!qr||!window.QRCode) return; qr.innerHTML=""; const invoiceNo = currentData.order_number || `ORD-${String(currentData.id).padStart(5,"0")}`; const url=`${window.location.origin}/verifikasi-produk.html?id=${encodeURIComponent(currentData.id)}&no=${encodeURIComponent(invoiceNo)}`; QRCode.toCanvas(document.createElement("canvas"),url,{width:130,margin:1},(err,c)=>{if(!err) qr.appendChild(c);}); }
 
 async function loadSignature(){
   const paid=[...(currentData?.order_payments||[])].filter(p=>p.payment_status==="paid"&&p.created_by).sort((a,b)=>new Date(b.paid_at||b.created_at||0)-new Date(a.paid_at||a.created_at||0));
