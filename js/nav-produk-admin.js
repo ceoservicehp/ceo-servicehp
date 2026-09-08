@@ -2,86 +2,66 @@
 
 (() => {
   const ITEMS = [
-    { href: "produk.html", label: "Kelola Produk", icon: "fa-box-open", keys: ["produk.html"] },
-    { href: "order-produk.html", label: "Order HP", icon: "fa-cart-shopping", keys: ["order-produk.html"] },
-    { href: "keuangan-produk.html", label: "Keuangan HP", icon: "fa-chart-line", keys: ["keuangan-produk.html"] },
-    { href: "histori-imei.html", label: "Histori & IMEI", icon: "fa-mobile-screen-button", keys: ["histori-imei.html"] },
-    { href: "garansi-produk.html", label: "Garansi Produk", icon: "fa-shield-halved", keys: ["garansi-produk.html"] },
-    { href: "klaim-garansi-produk.html", label: "Klaim Garansi", icon: "fa-screwdriver-wrench", keys: ["klaim-garansi-produk.html"] }
+    { href: "produk.html", label: "Produk", icon: "fa-box-open" },
+    { href: "order-produk.html", label: "Order HP", icon: "fa-cart-shopping" },
+    { href: "keuangan-produk.html", label: "Keuangan", icon: "fa-chart-line" },
+    { href: "histori-imei.html", label: "Histori IMEI", icon: "fa-mobile-screen-button" },
+    { href: "garansi-produk.html", label: "Garansi", icon: "fa-shield-halved" },
+    { href: "klaim-garansi-produk.html", label: "Klaim", icon: "fa-screwdriver-wrench" }
   ];
 
-  function currentFile(){
-    const path = (location.pathname || "").split("/").pop();
-    return (path || "produk.html").toLowerCase();
-  }
+  const currentFile = () => ((location.pathname || "").split("/").pop() || "produk.html").toLowerCase();
 
-  function isActive(item){
-    const file = currentFile();
-    return item.keys.some(k => file === k.toLowerCase());
-  }
+  function init() {
+    if (document.getElementById("ceoProductAdminHeader")) return;
+    document.body.classList.add("ceo-product-admin-topnav");
 
-  function closeNav(){
-    document.body.classList.remove("ceo-product-nav-open");
-    document.getElementById("ceoProductNavToggle")?.setAttribute("aria-expanded","false");
-  }
-
-  function init(){
-    if(document.getElementById("ceoProductAdminNav")) return;
-
-    document.body.classList.add("ceo-product-admin-nav");
-
-    const aside = document.createElement("aside");
-    aside.id = "ceoProductAdminNav";
-    aside.setAttribute("aria-label", "Navigasi Penjualan HP");
-
-    const links = ITEMS.map(item => `
-      <a class="ceo-product-nav-link${isActive(item) ? " active" : ""}" href="${item.href}"${isActive(item) ? ' aria-current="page"' : ""}>
-        <i class="fa-solid ${item.icon}"></i><span>${item.label}</span>
-      </a>`).join("");
-
-    aside.innerHTML = `
-      <div class="ceo-product-nav-brand">
-        <a href="produk.html">
-          <img class="ceo-product-nav-logo" src="images/logo.png" alt="CEO" onerror="this.style.display='none'">
-          <div><strong>CEO PART & SERVICE</strong><span>PENJUALAN HANDPHONE</span></div>
+    const header = document.createElement("header");
+    header.id = "ceoProductAdminHeader";
+    header.className = "ceo-product-public-header";
+    header.innerHTML = `
+      <div class="ceo-product-header-inner">
+        <a class="ceo-product-brand" href="produk.html" aria-label="CEO Penjualan HP">
+          <img src="images/logo.png" alt="Logo CEO Part & Service" onerror="this.style.display='none'">
+          <div class="ceo-product-brand-text">
+            <strong>CEO PART & SERVICE</strong>
+            <span>ADMIN PENJUALAN HP</span>
+          </div>
         </a>
-      </div>
-      <div class="ceo-product-nav-section">
-        <div class="ceo-product-nav-label">Menu Produk HP</div>
-        <nav class="ceo-product-nav-list">${links}</nav>
-      </div>
-      <div class="ceo-product-nav-spacer"></div>
-      <div class="ceo-product-nav-footer">
-        <a class="ceo-product-nav-link" href="index.html"><i class="fa-solid fa-arrow-left"></i><span>Kembali ke Beranda</span></a>
-        <div class="ceo-product-nav-version">Cellular Engineering Officer</div>
+        <button class="ceo-product-mobile-menu-btn" id="ceoProductMenuBtn" type="button" aria-label="Buka menu" aria-expanded="false">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        <nav class="ceo-product-main-nav" id="ceoProductMainNav" aria-label="Navigasi penjualan HP">
+          ${ITEMS.map(item => {
+            const active = currentFile() === item.href.toLowerCase();
+            return `<a href="${item.href}" class="${active ? "active" : ""}" ${active ? 'aria-current="page"' : ''}><i class="fa-solid ${item.icon}"></i><span>${item.label}</span></a>`;
+          }).join("")}
+        </nav>
       </div>`;
 
-    const toggle = document.createElement("button");
-    toggle.id = "ceoProductNavToggle";
-    toggle.type = "button";
-    toggle.setAttribute("aria-label", "Buka menu penjualan HP");
-    toggle.setAttribute("aria-expanded", "false");
-    toggle.innerHTML = '<i class="fa-solid fa-bars"></i>';
+    document.body.prepend(header);
 
-    const overlay = document.createElement("div");
-    overlay.id = "ceoProductNavOverlay";
+    const btn = document.getElementById("ceoProductMenuBtn");
+    const nav = document.getElementById("ceoProductMainNav");
+    const close = () => {
+      nav.classList.remove("show");
+      btn.setAttribute("aria-expanded", "false");
+      btn.innerHTML = '<i class="fa-solid fa-bars"></i>';
+    };
 
-    document.body.prepend(overlay);
-    document.body.prepend(toggle);
-    document.body.prepend(aside);
-
-    toggle.addEventListener("click", () => {
-      const open = document.body.classList.toggle("ceo-product-nav-open");
-      toggle.setAttribute("aria-expanded", String(open));
-      toggle.innerHTML = open ? '<i class="fa-solid fa-xmark"></i>' : '<i class="fa-solid fa-bars"></i>';
+    btn.addEventListener("click", () => {
+      const open = nav.classList.toggle("show");
+      btn.setAttribute("aria-expanded", String(open));
+      btn.innerHTML = open ? '<i class="fa-solid fa-xmark"></i>' : '<i class="fa-solid fa-bars"></i>';
     });
-    overlay.addEventListener("click", closeNav);
-    aside.querySelectorAll("a").forEach(a => a.addEventListener("click", () => {
-      if(window.innerWidth <= 980) closeNav();
-    }));
-    document.addEventListener("keydown", e => { if(e.key === "Escape") closeNav(); });
+    nav.querySelectorAll("a").forEach(a => a.addEventListener("click", close));
+    document.addEventListener("click", e => {
+      if (window.innerWidth <= 760 && nav.classList.contains("show") && !header.contains(e.target)) close();
+    });
+    document.addEventListener("keydown", e => { if (e.key === "Escape") close(); });
+    window.addEventListener("resize", () => { if (window.innerWidth > 760) close(); });
   }
 
-  if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
   else init();
 })();
