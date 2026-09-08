@@ -266,6 +266,84 @@ function renderPageNumbers(totalPages){
   });
 }
 
+function getWorkflowState(o, pay, ship){
+  const isPickup = o.shipping_method === "pickup";
+  const proofPending = !!(pay?.proof_url && pay.payment_status === "pending");
+  const paymentComplete = o.payment_status === "lunas";
+  const paymentReviewed = pay?.payment_status === "paid" || paymentComplete;
+  const shippingReady = isPickup || Number(o.shipping_fee || 0) > 0;
+  const orderProcessing = ["dikemas","dikirim","dalam_perjalanan","selesai"].includes(o.order_status);
+  const shipped = ["dikirim","dalam_perjalanan","selesai"].includes(o.order_status) || ["dikirim","dalam_perjalanan","terkirim"].includes(ship?.shipping_status);
+  const finished = o.order_status === "selesai" || ship?.shipping_status === "terkirim";
+
+  let currentStep = 1;
+  let recommendation = "Periksa dan verifikasi pembayaran pelanggan.";
+  let recommendationIcon = "fa-money-check-dollar";
+
+  if(paymentReviewed || paymentComplete){
+    currentStep = 2;
+    recommendation = isPickup ? "Pembayaran sudah siap. Lanjutkan proses pesanan." : "Tentukan ongkir final dan kurir sebelum memproses pesanan.";
+    recommendationIcon = isPickup ? "fa-box-open" : "fa-truck-fast";
+  }
+  if((paymentReviewed || paymentComplete) && shippingReady){
+    currentStep = 3;
+    recommendation = "Pesanan siap diproses. Ubah status menjadi Dikemas saat unit mulai disiapkan.";
+    recommendationIcon = "fa-box";
+  }
+  if(orderProcessing){
+    currentStep = 4;
+    recommendation = isPickup ? "Pastikan barang diserahkan ke pelanggan lalu tandai pesanan Selesai." : "Lengkapi kurir/resi dan perbarui status pengiriman sampai Selesai.";
+    recommendationIcon = "fa-route";
+  }
+  if(shipped){
+    currentStep = 4;
+    recommendation = "Pantau pengiriman. Setelah barang diterima, ubah status menjadi Selesai / Terkirim.";
+    recommendationIcon = "fa-location-dot";
+  }
+  if(finished){
+    currentStep = 5;
+    recommendation = "Pesanan telah selesai. Tidak ada tindakan utama yang diperlukan.";
+    recommendationIcon = "fa-circle-check";
+  }
+
+  return {isPickup, proofPending, paymentComplete, paymentReviewed, shippingReady, orderProcessing, shipped, finished, currentStep, recommendation, recommendationIcon};
+}
+
+function buildWorkflowPanel(o, pay, ship){
+  const w = getWorkflowState(o, pay, ship);
+  const steps = [
+    {n:1, icon:"fa-credit-card", title:"Pembayaran", text:w.paymentReviewed || w.paymentComplete ? "Terverifikasi" : (w.proofPending ? "Perlu verifikasi" : "Menunggu pembayaran")},
+    {n:2, icon:w.isPickup ? "fa-store" : "fa-truck-fast", title:w.isPickup ? "Ambil di Toko" : "Ongkir & Kurir", text:w.isPickup ? "Tidak perlu ongkir" : (w.shippingReady ? "Sudah ditentukan" : "Belum ditentukan")},
+    {n:3, icon:"fa-box", title:"Proses Pesanan", text:w.orderProcessing ? "Sedang diproses" : "Belum diproses"},
+    {n:4, icon:"fa-route", title:w.isPickup ? "Serah Terima" : "Pengiriman", text:w.finished ? "Selesai" : (w.shipped ? "Dalam proses" : "Belum dikirim")}
+  ];
+
+  return `<div class="workflow-wrap">
+    <div class="workflow-head">
+      <div>
+        <span class="section-label"><i class="fa-solid fa-diagram-project"></i> ALUR KERJA ADMIN</span>
+        <h3>Proses Pesanan</h3>
+        <p>Ikuti urutan berikut agar pembayaran, ongkir, proses, dan pengiriman tidak terlewat.</p>
+      </div>
+      <span class="workflow-current ${w.finished ? 'done' : ''}">${w.finished ? 'Selesai' : `Tahap ${Math.min(w.currentStep,4)} dari 4`}</span>
+    </div>
+    <div class="workflow-steps">
+      ${steps.map(step => {
+        const done = w.finished || step.n < w.currentStep || (step.n===1 && (w.paymentReviewed||w.paymentComplete)) || (step.n===2 && w.shippingReady) || (step.n===3 && w.orderProcessing) || (step.n===4 && w.finished);
+        const active = !w.finished && step.n === Math.min(w.currentStep,4);
+        return `<div class="workflow-step ${done ? 'done' : ''} ${active ? 'active' : ''}">
+          <div class="workflow-step-number">${done ? '<i class="fa-solid fa-check"></i>' : step.n}</div>
+          <div class="workflow-step-copy"><strong><i class="fa-solid ${step.icon}"></i> ${step.title}</strong><span>${step.text}</span></div>
+        </div>`;
+      }).join('')}
+    </div>
+    <div class="workflow-recommendation ${w.finished ? 'done' : ''}">
+      <span class="workflow-recommendation-icon"><i class="fa-solid ${w.recommendationIcon}"></i></span>
+      <div><small>${w.finished ? 'STATUS' : 'TINDAKAN BERIKUTNYA'}</small><strong>${w.recommendation}</strong></div>
+    </div>
+  </div>`;
+}
+
 async function openDetail(id){
   const o = orders.find(x => Number(x.id) === Number(id));
   if(!o) return;
@@ -284,6 +362,7 @@ async function openDetail(id){
   const paymentAction = buildPaymentAction(o, pay);
   const shippingAction = buildShippingAction(o, ship);
   const statusAction = buildStatusAction(o, ship);
+  const workflowPanel = buildWorkflowPanel(o, pay, ship);
   const proofPending = !!(pay?.proof_url && pay.payment_status === "pending");
 
   const totalQty = items.reduce((sum, i) => sum + Number(i.quantity || 0), 0);
@@ -438,9 +517,11 @@ async function openDetail(id){
         </div>
       </section>
 
+      ${workflowPanel}
+
       <section class="admin-box admin-box-refined">
         <div class="admin-heading">
-          <div><span class="section-label"><i class="fa-solid fa-shield-halved"></i> PANEL ADMIN</span><h3>Tindakan Admin</h3><p>Verifikasi pembayaran, atur ongkir dan kurir, lalu perbarui status pesanan.</p></div>
+          <div><span class="section-label"><i class="fa-solid fa-shield-halved"></i> PANEL ADMIN</span><h3>Tindakan Admin</h3><p>Gunakan panel di bawah sesuai tahap aktif pada Alur Kerja Admin di atas.</p></div>
         </div>
         <div class="admin-actions-grid">
           ${paymentAction}
@@ -463,18 +544,19 @@ async function openDetail(id){
 }
 
 function buildPaymentAction(o, pay){
-  if(!pay) return `<div class="action-card"><h4>Pembayaran</h4><div class="notice">Data pembayaran belum ditemukan.</div></div>`;
+  if(!pay) return `<div class="action-card workflow-action-card" data-workflow-step="1"><span class="action-step-label">TAHAP 1</span><h4>Pembayaran</h4><div class="notice">Data pembayaran belum ditemukan.</div></div>`;
 
   if(pay.payment_status === "paid"){
-    return `<div class="action-card"><h4><i class="fa-solid fa-circle-check"></i> Pembayaran Terverifikasi</h4><p>Nominal pembayaran ini: <b>${rupiah(pay.amount)}</b><br>Waktu: ${fmtDate(pay.paid_at)}</p></div>`;
+    return `<div class="action-card workflow-action-card completed-action" data-workflow-step="1"><span class="action-step-label">TAHAP 1 · SELESAI</span><h4><i class="fa-solid fa-circle-check"></i> Pembayaran Terverifikasi</h4><p>Nominal pembayaran ini: <b>${rupiah(pay.amount)}</b><br>Waktu: ${fmtDate(pay.paid_at)}</p></div>`;
   }
 
   if(pay.payment_status === "rejected"){
-    return `<div class="action-card"><h4><i class="fa-solid fa-circle-xmark"></i> Pembayaran Ditolak</h4><p>${esc(pay.note || "Bukti/pembayaran ditolak.")}</p></div>`;
+    return `<div class="action-card workflow-action-card" data-workflow-step="1"><span class="action-step-label">TAHAP 1</span><h4><i class="fa-solid fa-circle-xmark"></i> Pembayaran Ditolak</h4><p>${esc(pay.note || "Bukti/pembayaran ditolak.")}</p></div>`;
   }
 
   const canApproveTransfer = o.payment_method !== "transfer" || !!pay.proof_url;
-  return `<div class="action-card">
+  return `<div class="action-card workflow-action-card" data-workflow-step="1">
+    <span class="action-step-label">TAHAP 1</span>
     <h4><i class="fa-solid fa-money-check-dollar"></i> Verifikasi Pembayaran</h4>
     <label>Nominal yang diterima</label>
     <input id="paymentAmount" inputmode="numeric" value="${Number(o.remaining_amount || o.total || 0)}">
@@ -490,10 +572,11 @@ function buildPaymentAction(o, pay){
 
 function buildShippingAction(o, ship){
   if(o.shipping_method === "pickup"){
-    return `<div class="action-card"><h4><i class="fa-solid fa-store"></i> Ambil di Toko</h4><p>Ongkir tetap <b>Rp 0</b>. Tidak perlu konfirmasi ongkir.</p></div>`;
+    return `<div class="action-card workflow-action-card completed-action" data-workflow-step="2"><span class="action-step-label">TAHAP 2 · TIDAK DIPERLUKAN</span><h4><i class="fa-solid fa-store"></i> Ambil di Toko</h4><p>Ongkir tetap <b>Rp 0</b>. Tidak perlu konfirmasi ongkir.</p></div>`;
   }
 
-  return `<div class="action-card">
+  return `<div class="action-card workflow-action-card" data-workflow-step="2">
+    <span class="action-step-label">TAHAP 2</span>
     <h4><i class="fa-solid fa-truck-fast"></i> Ongkir & Kurir</h4>
     <label>Nama kurir / ekspedisi</label>
     <input id="shippingCourier" value="${esc(ship?.courier || "")}" placeholder="Gojek, Grab, JNE, J&T, dll.">
@@ -505,8 +588,9 @@ function buildShippingAction(o, ship){
 }
 
 function buildStatusAction(o, ship){
-  return `<div class="action-card">
-    <h4><i class="fa-solid fa-route"></i> Status Order</h4>
+  return `<div class="action-card workflow-action-card" data-workflow-step="3">
+    <span class="action-step-label">TAHAP 3 & 4</span>
+    <h4><i class="fa-solid fa-route"></i> Proses & Pengiriman</h4>
     <label>Status order</label>
     <select id="adminOrderStatus">
       ${["menunggu_diproses","dikemas","dikirim","dalam_perjalanan","selesai","dibatalkan","gagal_dikirim"].map(v=>`<option value="${v}" ${o.order_status===v?"selected":""}>${esc(label(v))}</option>`).join("")}
