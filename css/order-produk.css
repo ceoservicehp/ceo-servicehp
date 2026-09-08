@@ -500,3 +500,138 @@ body.modal-open{overflow:hidden}
   .page-arrow{width:32px;height:32px}
   .table-detail-btn span{display:none}
 }
+
+/* =========================================================
+   ALUR KERJA ADMIN
+========================================================= */
+.workflow-wrap{
+  margin-top:14px;
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:17px;
+  overflow:hidden;
+  box-shadow:0 4px 16px rgba(20,55,60,.045);
+}
+.workflow-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:18px;
+  padding:17px 18px 14px;
+  background:linear-gradient(135deg,#f8fcfc,#fff);
+  border-bottom:1px solid var(--border);
+}
+.workflow-head h3{margin:4px 0 2px;font-size:17px;color:var(--text)}
+.workflow-head p{margin:0;color:var(--muted);font-size:11px}
+.workflow-current{
+  flex:0 0 auto;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:94px;
+  padding:8px 11px;
+  border-radius:999px;
+  background:#eef8f9;
+  color:var(--primary);
+  border:1px solid #d7ecee;
+  font-size:10px;
+  font-weight:800;
+}
+.workflow-current.done{background:#e8f8ef;color:#10713d;border-color:#c9ead6}
+.workflow-steps{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:0;
+  padding:16px 16px 12px;
+}
+.workflow-step{
+  position:relative;
+  display:flex;
+  align-items:flex-start;
+  gap:9px;
+  min-width:0;
+  padding:10px 12px;
+  border-radius:12px;
+  color:#75858a;
+}
+.workflow-step:not(:last-child)::after{
+  content:"";
+  position:absolute;
+  top:24px;
+  right:-8px;
+  width:16px;
+  height:1px;
+  background:#dfe8ea;
+}
+.workflow-step-number{
+  width:28px;
+  height:28px;
+  flex:0 0 28px;
+  display:grid;
+  place-items:center;
+  border-radius:50%;
+  background:#edf2f3;
+  color:#728388;
+  font-size:10px;
+  font-weight:900;
+}
+.workflow-step-copy{min-width:0;display:flex;flex-direction:column;gap:2px}
+.workflow-step-copy strong{display:flex;align-items:center;gap:5px;color:#53666a;font-size:10px;line-height:1.3}
+.workflow-step-copy span{color:#8a989c;font-size:9px;line-height:1.35}
+.workflow-step.active{background:#f1fbfb;box-shadow:inset 0 0 0 1px #d6eef0}
+.workflow-step.active .workflow-step-number{background:linear-gradient(135deg,var(--primary),var(--secondary));color:#fff;box-shadow:0 5px 12px rgba(31,111,120,.18)}
+.workflow-step.active .workflow-step-copy strong{color:var(--primary)}
+.workflow-step.done .workflow-step-number{background:#e6f7ed;color:#147543}
+.workflow-step.done .workflow-step-copy strong{color:#216a46}
+.workflow-step.done .workflow-step-copy span{color:#6b8f7b}
+.workflow-recommendation{
+  display:flex;
+  align-items:center;
+  gap:11px;
+  margin:0 16px 16px;
+  padding:12px 13px;
+  border-radius:12px;
+  background:linear-gradient(135deg,#eef8f9,#f9fdfd);
+  border:1px solid #d6ecee;
+}
+.workflow-recommendation.done{background:#edf9f1;border-color:#d4ecdc}
+.workflow-recommendation-icon{
+  width:34px;
+  height:34px;
+  flex:0 0 34px;
+  display:grid;
+  place-items:center;
+  border-radius:10px;
+  background:var(--primary);
+  color:#fff;
+}
+.workflow-recommendation.done .workflow-recommendation-icon{background:#238657}
+.workflow-recommendation div{display:flex;flex-direction:column;gap:2px;min-width:0}
+.workflow-recommendation small{font-size:8px;letter-spacing:.65px;font-weight:900;color:#799095}
+.workflow-recommendation strong{font-size:11px;color:#28494e;line-height:1.45}
+.action-step-label{
+  display:inline-flex;
+  margin-bottom:8px;
+  padding:4px 7px;
+  border-radius:999px;
+  background:#eef8f9;
+  color:var(--primary);
+  font-size:8px;
+  font-weight:900;
+  letter-spacing:.55px;
+}
+.workflow-action-card{position:relative}
+.workflow-action-card.completed-action{background:#fbfefc;border-color:#d9ecdf}
+.workflow-action-card.completed-action .action-step-label{background:#e7f7ed;color:#197447}
+
+@media(max-width:900px){
+  .workflow-steps{grid-template-columns:1fr 1fr;gap:8px}
+  .workflow-step:not(:last-child)::after{display:none}
+}
+@media(max-width:560px){
+  .workflow-head{flex-direction:column;gap:9px;padding:14px}
+  .workflow-current{align-self:flex-start}
+  .workflow-steps{grid-template-columns:1fr;padding:12px;gap:7px}
+  .workflow-step{padding:10px}
+  .workflow-recommendation{margin:0 12px 12px;align-items:flex-start}
+}
