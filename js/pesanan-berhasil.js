@@ -41,12 +41,12 @@ document.addEventListener("DOMContentLoaded",()=>{
  const pay=document.getElementById("paymentPanel");
  if(data.payment_method==="transfer"){
    const bank=data.bank||{};
-   if(data.shipping_fee_pending){
-     pay.innerHTML=`<h2><i class="fa-solid fa-building-columns"></i> Transfer Bank</h2><div class="bank"><span>${esc(bank.name||"BCA")}</span><strong id="bankNumber">${esc(bank.account||"5855369360")}</strong><small>a.n. ${esc(bank.account_name||"Ikmal Falahi")}</small><button id="copyBankBtn"><i class="fa-regular fa-copy"></i> Salin Nomor Rekening</button></div><div class="warning"><i class="fa-solid fa-triangle-exclamation"></i> <b>Jangan transfer dulu.</b> Tunggu admin mengonfirmasi ongkir dan total final. Upload bukti transfer akan tersedia setelah total final dikonfirmasi.</div><div class="status">Status Pembayaran <b>BELUM BAYAR</b></div>`;
-   } else {
-     pay.innerHTML=`<h2><i class="fa-solid fa-building-columns"></i> Transfer Bank</h2><div class="bank"><span>${esc(bank.name||"BCA")}</span><strong id="bankNumber">${esc(bank.account||"5855369360")}</strong><small>a.n. ${esc(bank.account_name||"Ikmal Falahi")}</small><button id="copyBankBtn"><i class="fa-regular fa-copy"></i> Salin Nomor Rekening</button></div><div class="notice"><i class="fa-solid fa-circle-info"></i> Silakan transfer <b>${rupiah(data.total)}</b>, lalu upload bukti pembayaran di bawah ini.</div><div class="status">Status Pembayaran <b id="paymentStatusText">BELUM BAYAR</b></div>${proofUploaderHTML()}`;
-     setupProofUpload();
-   }
+   const paymentInstruction = data.shipping_fee_pending
+     ? `<div class="notice"><i class="fa-solid fa-circle-info"></i> Pesanan sudah berhasil dibuat. Silakan transfer pembayaran produk sebesar <b>${rupiah(data.subtotal)}</b> sekarang, lalu upload bukti di bawah ini. Ongkir akan ditambahkan admin setelah tarif kurir/ekspedisi dikonfirmasi. Jika ada sisa setelah ongkir ditetapkan, status pembayaran otomatis menjadi <b>Sebagian</b> sampai sisa dilunasi.</div>`
+     : `<div class="notice"><i class="fa-solid fa-circle-info"></i> Silakan transfer <b>${rupiah(data.total)}</b>, lalu upload bukti pembayaran di bawah ini.</div>`;
+
+   pay.innerHTML=`<h2><i class="fa-solid fa-building-columns"></i> Transfer Bank</h2><div class="bank"><span>${esc(bank.name||"BCA")}</span><strong id="bankNumber">${esc(bank.account||"5855369360")}</strong><small>a.n. ${esc(bank.account_name||"Ikmal Falahi")}</small><button id="copyBankBtn"><i class="fa-regular fa-copy"></i> Salin Nomor Rekening</button></div>${paymentInstruction}<div class="status">Status Pembayaran <b id="paymentStatusText">BELUM BAYAR</b></div>${proofUploaderHTML()}`;
+   setupProofUpload();
    document.getElementById("copyBankBtn")?.addEventListener("click",()=>copyText(bank.account||"5855369360","Nomor rekening"));
  } else if(data.payment_method==="cash"){
    pay.innerHTML='<h2><i class="fa-solid fa-money-bill-wave"></i> Cash / Tunai</h2><div class="notice">Pembayaran dilakukan saat mengambil unit di toko.</div><div class="status">Status Pembayaran <b>BELUM BAYAR</b></div>';
@@ -84,7 +84,6 @@ async function uploadProof(){
  const result=document.getElementById("proofResult");
  const file=input?.files?.[0];
  if(!currentOrder||!file||!client) return;
- if(currentOrder.shipping_fee_pending){alert("Total pesanan belum final. Tunggu konfirmasi ongkir dari admin.");return}
  const original=button.innerHTML;
  button.disabled=true; button.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Mengirim...';
  try{
