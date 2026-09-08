@@ -1,112 +1,96 @@
-/* =========================================================
-   CEO PART & SERVICE — NAVIGASI ADMIN PENJUALAN HP
-   Shared navigation: produk, order, keuangan, IMEI, garansi, klaim
-========================================================= */
+/* CEO PART & SERVICE — NAVIGASI ADMIN PRODUK HP
+   Mengikuti gaya header produk-public.css */
 :root{
-  --ceo-nav-w: 248px;
-  --ceo-nav-primary:#1f6f78;
-  --ceo-nav-accent:#00c2c7;
-  --ceo-nav-text:#17333a;
-  --ceo-nav-muted:#789098;
-  --ceo-nav-border:#e5eef0;
-  --ceo-nav-bg:#ffffff;
-  --ceo-nav-soft:#f4fafb;
+  --ceo-product-primary:#1f6f78;
+  --ceo-product-primary-dark:#15545c;
+  --ceo-product-secondary:#00c2c7;
+  --ceo-product-text:#172126;
+  --ceo-product-muted:#6b777d;
+  --ceo-product-border:#e4eaec;
+  --ceo-product-shadow:0 12px 35px rgba(21,62,70,.10);
 }
 
-body.ceo-product-admin-nav{
-  padding-left:var(--ceo-nav-w) !important;
-}
+/* Header lama digantikan oleh header bersama khusus area penjualan HP. */
+body.ceo-product-admin-topnav > header.site-header,
+body.ceo-product-admin-topnav > header.topbar,
+body.ceo-product-admin-topnav > header:not(#ceoProductAdminHeader){display:none !important;}
+body.ceo-product-admin-topnav > nav.top-nav,
+body.ceo-product-admin-topnav > .nav-overlay{display:none !important;}
+body.ceo-product-admin-topnav{padding-left:0 !important;padding-top:0 !important;}
 
-#ceoProductAdminNav{
-  position:fixed;
-  inset:0 auto 0 0;
-  width:var(--ceo-nav-w);
-  z-index:99980;
-  background:var(--ceo-nav-bg);
-  border-right:1px solid var(--ceo-nav-border);
-  box-shadow:10px 0 35px rgba(25,65,73,.08);
-  font-family:Inter,Poppins,system-ui,-apple-system,"Segoe UI",sans-serif;
+.ceo-product-public-header{
+  position:sticky;
+  top:0;
+  z-index:99990;
+  width:100%;
+  background:rgba(255,255,255,.94);
+  -webkit-backdrop-filter:blur(15px);
+  backdrop-filter:blur(15px);
+  border-bottom:1px solid rgba(228,234,236,.9);
+  font-family:"Inter",sans-serif;
+}
+.ceo-product-header-inner{
+  width:min(1200px,calc(100% - 32px));
+  min-height:76px;
+  margin:auto;
   display:flex;
-  flex-direction:column;
-  color:var(--ceo-nav-text);
+  align-items:center;
+  justify-content:space-between;
+  gap:25px;
 }
-
-.ceo-product-nav-brand{
-  padding:22px 18px 18px;
-  border-bottom:1px solid var(--ceo-nav-border);
-  background:linear-gradient(145deg,#fff 0%,#f3fbfc 100%);
-}
-.ceo-product-nav-brand a{display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit}
-.ceo-product-nav-logo{width:44px;height:44px;object-fit:contain;flex:0 0 auto}
-.ceo-product-nav-brand strong{display:block;font-size:14px;line-height:1.25;color:var(--ceo-nav-primary);font-weight:800;letter-spacing:.02em}
-.ceo-product-nav-brand span{display:block;margin-top:4px;font-size:9px;color:var(--ceo-nav-muted);font-weight:700;letter-spacing:.12em}
-
-.ceo-product-nav-section{padding:17px 12px 8px}
-.ceo-product-nav-label{padding:0 10px 9px;font-size:10px;font-weight:800;letter-spacing:.14em;color:#93a7ad;text-transform:uppercase}
-.ceo-product-nav-list{display:flex;flex-direction:column;gap:5px}
-.ceo-product-nav-link{
-  position:relative;
+.ceo-product-brand{
   display:flex;
   align-items:center;
   gap:11px;
-  min-height:43px;
-  padding:10px 12px;
-  border-radius:12px;
+  color:inherit;
   text-decoration:none;
-  color:#526970;
-  font-size:13px;
-  font-weight:700;
-  transition:.2s ease;
+  flex:0 0 auto;
 }
-.ceo-product-nav-link i{width:20px;text-align:center;font-size:15px;color:#6c8d94}
-.ceo-product-nav-link:hover{background:var(--ceo-nav-soft);color:var(--ceo-nav-primary);transform:translateX(2px)}
-.ceo-product-nav-link:hover i{color:var(--ceo-nav-accent)}
-.ceo-product-nav-link.active{
-  color:var(--ceo-nav-primary);
-  background:linear-gradient(90deg,rgba(31,111,120,.12),rgba(0,194,199,.08));
-  box-shadow:inset 0 0 0 1px rgba(31,111,120,.09);
+.ceo-product-brand img{width:48px;height:48px;object-fit:contain;display:block;}
+.ceo-product-brand-text{display:flex;flex-direction:column;line-height:1.2;}
+.ceo-product-brand-text strong{font-size:14px;font-weight:800;letter-spacing:.3px;color:var(--ceo-product-text);}
+.ceo-product-brand-text span{margin-top:3px;font-size:9px;color:var(--ceo-product-primary);font-weight:700;letter-spacing:.6px;}
+
+.ceo-product-main-nav{display:flex;align-items:center;gap:5px;}
+.ceo-product-main-nav a{
+  display:flex;align-items:center;gap:7px;padding:10px 12px;border-radius:10px;
+  color:#536067;text-decoration:none;font-size:12px;font-weight:600;white-space:nowrap;
+  transition:.25s ease;
 }
-.ceo-product-nav-link.active:before{
-  content:"";position:absolute;left:-12px;top:8px;bottom:8px;width:4px;border-radius:0 5px 5px 0;
-  background:linear-gradient(180deg,var(--ceo-nav-primary),var(--ceo-nav-accent));
+.ceo-product-main-nav a:hover{background:#eef8f9;color:var(--ceo-product-primary);}
+.ceo-product-main-nav a.active{
+  background:var(--ceo-product-primary);color:#fff;
+  box-shadow:0 7px 18px rgba(31,111,120,.20);
 }
-.ceo-product-nav-link.active i{color:var(--ceo-nav-primary)}
-
-.ceo-product-nav-spacer{flex:1}
-.ceo-product-nav-footer{padding:12px;border-top:1px solid var(--ceo-nav-border)}
-.ceo-product-nav-footer .ceo-product-nav-link{font-size:12px}
-.ceo-product-nav-version{text-align:center;font-size:9px;color:#a6b6ba;margin:9px 0 1px}
-
-#ceoProductNavToggle{
-  display:none;
-  position:fixed;
-  left:14px;top:14px;
-  z-index:99992;
-  width:44px;height:44px;
-  border:0;border-radius:13px;
-  color:#fff;
-  background:linear-gradient(135deg,var(--ceo-nav-primary),var(--ceo-nav-accent));
-  box-shadow:0 8px 22px rgba(31,111,120,.28);
-  cursor:pointer;
-  font-size:18px;
-}
-#ceoProductNavOverlay{display:none;position:fixed;inset:0;background:rgba(5,24,29,.48);backdrop-filter:blur(2px);z-index:99970}
-
-/* Header halaman lama tetap boleh tampil, tetapi tombol hamburger/nav lama disembunyikan
-   agar hanya ada satu navigasi utama di area penjualan HP. */
-body.ceo-product-admin-nav .menu-toggle{display:none !important}
-body.ceo-product-admin-nav nav.top-nav{display:none !important}
-body.ceo-product-admin-nav .nav-overlay{display:none !important}
-
-@media(max-width:980px){
-  body.ceo-product-admin-nav{padding-left:0 !important;padding-top:60px !important}
-  #ceoProductAdminNav{transform:translateX(-105%);transition:transform .24s ease;width:min(286px,86vw);box-shadow:16px 0 44px rgba(8,35,40,.2)}
-  body.ceo-product-nav-open #ceoProductAdminNav{transform:translateX(0)}
-  #ceoProductNavToggle{display:grid;place-items:center}
-  body.ceo-product-nav-open #ceoProductNavOverlay{display:block}
+.ceo-product-main-nav a i{font-size:12px;}
+.ceo-product-mobile-menu-btn{
+  display:none;border:0;background:transparent;font-size:22px;color:var(--ceo-product-primary);cursor:pointer;
 }
 
-@media(max-width:520px){
-  #ceoProductNavToggle{left:10px;top:10px;width:42px;height:42px}
-  body.ceo-product-admin-nav{padding-top:56px !important}
+@media(max-width:1050px) and (min-width:761px){
+  .ceo-product-header-inner{gap:14px;}
+  .ceo-product-main-nav{gap:2px;}
+  .ceo-product-main-nav a{padding:9px 8px;font-size:11px;}
+  .ceo-product-main-nav a i{display:none;}
+  .ceo-product-brand-text strong{font-size:13px;}
+}
+
+@media(max-width:760px){
+  .ceo-product-header-inner{min-height:68px;position:relative;}
+  .ceo-product-mobile-menu-btn{display:block;}
+  .ceo-product-main-nav{
+    position:absolute;left:0;right:0;top:73px;display:none;flex-direction:column;align-items:stretch;
+    padding:8px;background:#fff;border:1px solid var(--ceo-product-border);border-radius:14px;
+    box-shadow:var(--ceo-product-shadow);
+  }
+  .ceo-product-main-nav.show{display:flex;}
+  .ceo-product-main-nav a{padding:12px;font-size:13px;}
+  .ceo-product-main-nav a i{display:inline-block;width:18px;text-align:center;}
+  .ceo-product-brand-text span{display:none;}
+}
+
+@media(max-width:430px){
+  .ceo-product-header-inner{width:min(100% - 22px,1200px);}
+  .ceo-product-brand img{width:43px;height:43px;}
+  .ceo-product-brand-text strong{font-size:12px;}
 }
