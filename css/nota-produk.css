@@ -966,3 +966,11 @@ body.pdf-body .invoice{
 @media print{
   .btn-back{display:none !important;}
 }
+
+/* ===== Penyesuaian khusus invoice produk HP, tetap mengikuti nota service ===== */
+.invoice-loading{padding:70px 20px;text-align:center;color:#1f6f78;font-weight:600}.invoice-loading.error{color:#dc3545}
+.table-wrap{width:100%;overflow-x:auto}.product-table th:nth-child(2){min-width:180px}.product-table td:nth-child(2){text-align:left}.product-table td:nth-child(3){text-align:center}.product-table td:nth-child(4),.product-table td:nth-child(5){text-align:right}
+.variant-text{font-size:12px;color:#6b7280;margin-top:4px;line-height:1.45}.unit-line{font-size:11.5px;line-height:1.45;padding:5px 0;border-bottom:1px dashed #e5e7eb}.unit-line:last-child{border-bottom:0}.muted-text{color:#9ca3af;font-size:12px}
+.status-badge.partial{background:#f59e0b}.wm-paid{color:rgba(0,150,0,.12)}.wm-unpaid{color:rgba(200,0,0,.12)}.wm-partial{color:rgba(245,158,11,.12)}.stamp-partial{color:#f59e0b}.stamp-paid{color:var(--success)}.stamp-unpaid{color:var(--danger)}
+.qr-section small{display:block;margin-top:5px;color:#777;font-size:11px}.btn-print,.btn-pay{display:inline-flex;align-items:center;justify-content:center;gap:8px}
+@media(max-width:768px){.product-table{min-width:760px}.info-row{gap:12px}.info-row b{text-align:right;max-width:58%;word-break:break-word}}
