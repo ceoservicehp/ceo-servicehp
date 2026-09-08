@@ -1,7 +1,8 @@
 "use strict";
 
 const client = window.supabaseClient;
-const PAGE_SIZE = 10;
+let pageSize = 10;
+let activeStatFilter = "all";
 let orders = [];
 let filtered = [];
 let page = 1;
@@ -39,6 +40,34 @@ function shippingLabel(order, shipment){
   return ({pickup:"Ambil di Toko", instant:"Kurir Instan", package:"Kirim Paket", cod:"COD", delivery:"Pengiriman"})[t];
 }
 
+
+function getOrderPriority(order){
+  const pay = latest(order.order_payments);
+  const ship = latest(order.order_shipments);
+  const shippingType = inferShippingType(order, ship);
+  const proofPending = !!(pay?.proof_url && pay.payment_status === "pending");
+
+  if(proofPending){
+    return { key:"proof", label:"Perlu Verifikasi", className:"danger", icon:"fa-receipt" };
+  }
+  if(order.shipping_method === "delivery" && Number(order.shipping_fee || 0) <= 0 && shippingType !== "cod"){
+    return { key:"shipping_fee", label:"Tentukan Ongkir", className:"warning", icon:"fa-truck-fast" };
+  }
+  if(order.payment_status === "lunas" && order.order_status === "menunggu_diproses"){
+    return { key:"process", label:"Siap Diproses", className:"info", icon:"fa-circle-play" };
+  }
+  if(["dikemas","dikirim","dalam_perjalanan"].includes(order.order_status) && (ship?.shipping_status || "belum_dikirim") !== "terkirim"){
+    return { key:"ship", label:"Perlu Dikirim", className:"purple", icon:"fa-box" };
+  }
+  if(order.order_status === "selesai"){
+    return { key:"done", label:"Selesai", className:"success", icon:"fa-circle-check" };
+  }
+  if(order.order_status === "dibatalkan" || order.order_status === "gagal_dikirim"){
+    return { key:"problem", label:"Perlu Dicek", className:"muted", icon:"fa-triangle-exclamation" };
+  }
+  return { key:"normal", label:"Pantau", className:"neutral", icon:"fa-eye" };
+}
+
 function paymentBadge(status){
   if(status === "lunas") return "ok";
   if(status === "sebagian" || status === "dp") return "info";
@@ -65,7 +94,23 @@ function setup(){
     $(id).addEventListener(id === "searchInput" ? "input" : "change", () => { page = 1; applyFilters(); });
   });
   $("prevPage").onclick = () => { if(page > 1){ page--; render(); } };
-  $("nextPage").onclick = () => { if(page < Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))){ page++; render(); } };
+  $("nextPage").onclick = () => { if(page < Math.max(1, Math.ceil(filtered.length / pageSize))){ page++; render(); } };
+  $("pageSizeSelect")?.addEventListener("change", e => {
+    pageSize = Number(e.target.value) || 10;
+    page = 1;
+    render();
+  });
+
+  document.querySelectorAll(".stat-filter-card").forEach(card => {
+    const activate = () => {
+      activeStatFilter = card.dataset.statFilter || "all";
+      page = 1;
+      document.querySelectorAll(".stat-filter-card").forEach(c => c.classList.toggle("active", c === card));
+      applyFilters();
+    };
+    card.addEventListener("click", activate);
+    card.addEventListener("keydown", e => { if(e.key === "Enter" || e.key === " "){ e.preventDefault(); activate(); } });
+  });
   $("closeModal").onclick = closeModal;
   $("detailModal").onclick = e => { if(e.target === $("detailModal")) closeModal(); };
   $("menuToggle").onclick = () => { $("topNav").classList.toggle("open"); $("navOverlay").classList.toggle("show"); };
@@ -73,7 +118,7 @@ function setup(){
 }
 
 async function loadOrders(){
-  $("orderTableBody").innerHTML = '<tr><td colspan="8" class="empty"><i class="fa-solid fa-spinner fa-spin"></i> Memuat order...</td></tr>';
+  $("orderTableBody").innerHTML = '<tr><td colspan="9" class="empty"><i class="fa-solid fa-spinner fa-spin"></i> Memuat order...</td></tr>';
   const { data, error } = await client
     .from("orders")
     .select(`*,order_items(*),order_payments(*),order_shipments(*)`)
@@ -81,7 +126,7 @@ async function loadOrders(){
 
   if(error){
     console.error(error);
-    $("orderTableBody").innerHTML = `<tr><td colspan="8" class="empty error">Gagal memuat order: ${esc(error.message)}<br><small>Pastikan SQL Admin Order Tahap 2 sudah dijalankan.</small></td></tr>`;
+    $("orderTableBody").innerHTML = `<tr><td colspan="9" class="empty error">Gagal memuat order: ${esc(error.message)}<br><small>Pastikan SQL Admin Order Tahap 2 sudah dijalankan.</small></td></tr>`;
     return;
   }
   orders = data || [];
@@ -100,10 +145,17 @@ function applyFilters(){
     const hay = `${o.order_number || ""} ${o.customer_name || ""} ${o.customer_whatsapp || ""} ${itemText}`.toLowerCase();
     const ship = latest(o.order_shipments);
     const shippingType = inferShippingType(o, ship);
+    const proofPending = (o.order_payments || []).some(p => p.proof_url && p.payment_status === "pending");
+    const statMatch = activeStatFilter === "all" ||
+      (activeStatFilter === "waiting" && o.order_status === "menunggu_diproses") ||
+      (activeStatFilter === "proof" && proofPending) ||
+      (activeStatFilter === "unpaid" && o.payment_status !== "lunas");
+
     return (!q || hay.includes(q)) &&
       (pf === "all" || o.payment_status === pf) &&
       (sf === "all" || shippingType === sf) &&
-      (st === "all" || o.order_status === st);
+      (st === "all" || o.order_status === st) &&
+      statMatch;
   });
   render();
 }
@@ -116,36 +168,102 @@ function updateStats(){
 }
 
 function render(){
-  const pages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const pages = Math.max(1, Math.ceil(filtered.length / pageSize));
   if(page > pages) page = pages;
-  const rows = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
-  $("pageInfo").textContent = `${page} / ${pages}`;
+  const startIndex = (page - 1) * pageSize;
+  const rows = filtered.slice(startIndex, startIndex + pageSize);
+
+  const from = filtered.length ? startIndex + 1 : 0;
+  const to = Math.min(startIndex + pageSize, filtered.length);
+  $("pageInfo").textContent = filtered.length ? `${from}-${to} dari ${filtered.length} order` : "0 order";
   $("prevPage").disabled = page <= 1;
   $("nextPage").disabled = page >= pages;
+  renderPageNumbers(pages);
 
   if(!rows.length){
-    $("orderTableBody").innerHTML = '<tr><td colspan="8" class="empty">Tidak ada order yang sesuai.</td></tr>';
+    $("orderTableBody").innerHTML = '<tr><td colspan="9" class="empty">Tidak ada order yang sesuai.</td></tr>';
     return;
   }
 
   $("orderTableBody").innerHTML = rows.map(o => {
-    const item = (o.order_items || [])[0] || {};
+    const items = o.order_items || [];
+    const item = items[0] || {};
     const pay = latest(o.order_payments);
     const ship = latest(o.order_shipments);
     const proofPending = !!(pay?.proof_url && pay.payment_status === "pending");
-    return `<tr>
-      <td><strong>${esc(o.order_number || `#${o.id}`)}</strong><small>${fmtDate(o.created_at)}</small></td>
-      <td><strong>${esc(o.customer_name)}</strong><small>${esc(o.customer_whatsapp)}</small></td>
-      <td>${esc(item.product_name || "-")}<small>${esc(item.variant_name || "")}${item.quantity ? ` ×${item.quantity}` : ""}</small></td>
-      <td><span class="pill">${esc(shippingLabel(o, ship))}</span>${ship?.courier ? `<small>${esc(ship.courier)}</small>` : ""}</td>
-      <td><span class="pill ${paymentBadge(o.payment_status)}">${esc(label(o.payment_status))}</span>${proofPending ? '<small class="proof"><i class="fa-solid fa-receipt"></i> Perlu verifikasi</small>' : ""}</td>
-      <td><strong>${rupiah(o.total)}</strong>${o.remaining_amount > 0 ? `<small>Sisa ${rupiah(o.remaining_amount)}</small>` : ""}</td>
+    const priority = getOrderPriority(o);
+    const extraItems = Math.max(0, items.length - 1);
+    const variantParts = [item.variant_name, item.color].filter(Boolean).join(" · ");
+
+    return `<tr class="order-row priority-row-${priority.className}">
+      <td>
+        <div class="order-number-cell">
+          <strong>${esc(o.order_number || `#${o.id}`)}</strong>
+          <small><i class="fa-regular fa-clock"></i> ${fmtDate(o.created_at)}</small>
+        </div>
+      </td>
+      <td>
+        <div class="buyer-cell">
+          <strong>${esc(o.customer_name)}</strong>
+          <small><i class="fa-brands fa-whatsapp"></i> ${esc(o.customer_whatsapp)}</small>
+        </div>
+      </td>
+      <td>
+        <div class="product-cell">
+          <strong>${esc(item.product_name || "-")}</strong>
+          <small>${esc(variantParts || item.variant_name || "-")}${item.quantity ? ` · ${item.quantity} unit` : ""}</small>
+          ${extraItems ? `<span class="more-items">+${extraItems} produk lain</span>` : ""}
+        </div>
+      </td>
+      <td>
+        <span class="pill shipping-pill"><i class="fa-solid fa-truck"></i> ${esc(shippingLabel(o, ship))}</span>
+        ${ship?.courier ? `<small>${esc(ship.courier)}</small>` : ""}
+      </td>
+      <td>
+        <span class="pill ${paymentBadge(o.payment_status)}">${esc(label(o.payment_status))}</span>
+        ${proofPending ? '<small class="proof"><i class="fa-solid fa-receipt"></i> Bukti masuk</small>' : ""}
+      </td>
+      <td>
+        <div class="total-cell">
+          <strong>${rupiah(o.total)}</strong>
+          ${Number(o.remaining_amount || 0) > 0 ? `<small>Sisa ${rupiah(o.remaining_amount)}</small>` : '<small class="paid-text">Lunas</small>'}
+        </div>
+      </td>
+      <td>
+        <span class="priority-badge ${priority.className}"><i class="fa-solid ${priority.icon}"></i> ${priority.label}</span>
+      </td>
       <td><span class="pill ${orderBadge(o.order_status)}">${esc(label(o.order_status))}</span></td>
-      <td><button class="btn primary detail-btn" data-id="${o.id}"><i class="fa-solid fa-eye"></i> Detail</button></td>
+      <td><button class="btn primary detail-btn table-detail-btn" data-id="${o.id}" title="Buka detail order"><i class="fa-solid fa-eye"></i><span>Detail</span></button></td>
     </tr>`;
   }).join("");
 
   document.querySelectorAll(".detail-btn").forEach(b => b.onclick = () => openDetail(Number(b.dataset.id)));
+}
+
+function renderPageNumbers(totalPages){
+  const container = $("pageNumbers");
+  if(!container) return;
+  const maxVisible = 5;
+  let start = Math.max(1, page - Math.floor(maxVisible / 2));
+  let end = Math.min(totalPages, start + maxVisible - 1);
+  start = Math.max(1, end - maxVisible + 1);
+
+  const parts = [];
+  if(start > 1){
+    parts.push(`<button class="page-number" data-page="1">1</button>`);
+    if(start > 2) parts.push('<span class="page-ellipsis">…</span>');
+  }
+  for(let n=start; n<=end; n++){
+    parts.push(`<button class="page-number ${n === page ? "active" : ""}" data-page="${n}" ${n === page ? 'aria-current="page"' : ""}>${n}</button>`);
+  }
+  if(end < totalPages){
+    if(end < totalPages - 1) parts.push('<span class="page-ellipsis">…</span>');
+    parts.push(`<button class="page-number" data-page="${totalPages}">${totalPages}</button>`);
+  }
+  container.innerHTML = parts.join("");
+  container.querySelectorAll(".page-number").forEach(btn => {
+    btn.onclick = () => { page = Number(btn.dataset.page); render(); };
+  });
 }
 
 async function openDetail(id){
