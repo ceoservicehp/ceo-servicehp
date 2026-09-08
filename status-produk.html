@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cek Status Pesanan HP — CEO Part & Service</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="css/status-produk.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase.js"></script>
+<script defer src="js/status-produk.js"></script>
+</head>
+<body>
+<header class="site-header">
+  <a href="index.html" class="brand">
+    <img src="images/logo.png" alt="CEO Part & Service">
+    <div><strong>CEO PART & SERVICE</strong><span>CELLULAR ENGINEERING OFFICER</span></div>
+  </a>
+  <a href="produk-public.html" class="store-link"><i class="fa-solid fa-store"></i> Produk</a>
+</header>
+
+<main class="page-shell">
+  <section class="hero-card">
+    <div class="hero-icon"><i class="fa-solid fa-box-open"></i></div>
+    <p class="eyebrow">TRACKING PESANAN</p>
+    <h1>Cek Status Pesanan HP</h1>
+    <p>Masukkan nomor pesanan dan WhatsApp yang digunakan saat checkout.</p>
+
+    <form id="statusForm" class="search-form" autocomplete="off">
+      <label>
+        <span>Nomor Pesanan</span>
+        <div class="input-wrap"><i class="fa-solid fa-receipt"></i><input id="orderNumberInput" type="text" placeholder="Contoh: ORD-2026-0001" required></div>
+      </label>
+      <label>
+        <span>Nomor WhatsApp</span>
+        <div class="input-wrap"><i class="fa-brands fa-whatsapp"></i><input id="whatsappInput" type="tel" inputmode="numeric" placeholder="08xxxxxxxxxx" required></div>
+      </label>
+      <button id="searchBtn" type="submit"><i class="fa-solid fa-magnifying-glass"></i> Cek Status Pesanan</button>
+    </form>
+    <div id="messageBox" class="message-box" hidden></div>
+  </section>
+
+  <section id="resultSection" class="result-section" hidden>
+    <div class="order-head card">
+      <div>
+        <p class="mini-label">Nomor Pesanan</p>
+        <h2 id="resultOrderNumber">-</h2>
+        <p id="resultDate" class="muted">-</p>
+      </div>
+      <div id="orderStatusBadge" class="status-badge">-</div>
+    </div>
+
+    <div class="progress-card card">
+      <div class="section-title"><i class="fa-solid fa-route"></i><div><h3>Perjalanan Pesanan</h3><p>Status akan diperbarui oleh admin.</p></div></div>
+      <div id="progressSteps" class="progress-steps"></div>
+      <div id="nextAction" class="next-action"></div>
+    </div>
+
+    <div class="info-grid">
+      <article class="card info-card">
+        <div class="section-title"><i class="fa-solid fa-user"></i><h3>Data Pembeli</h3></div>
+        <div class="info-row"><span>Nama</span><b id="customerName">-</b></div>
+        <div class="info-row"><span>WhatsApp</span><b id="customerWhatsapp">-</b></div>
+        <div class="info-row"><span>Alamat</span><b id="customerAddress">-</b></div>
+      </article>
+
+      <article class="card info-card">
+        <div class="section-title"><i class="fa-solid fa-truck-fast"></i><h3>Pengiriman</h3></div>
+        <div class="info-row"><span>Metode</span><b id="shippingMethod">-</b></div>
+        <div class="info-row"><span>Kurir</span><b id="courier">-</b></div>
+        <div class="info-row"><span>Resi / Kode</span><b id="trackingNumber">-</b></div>
+        <div class="info-row"><span>Status Kirim</span><b id="shippingStatus">-</b></div>
+      </article>
+    </div>
+
+    <article class="card product-card">
+      <div class="section-title"><i class="fa-solid fa-mobile-screen-button"></i><div><h3>Produk Dipesan</h3><p>Ringkasan item pada pesanan ini.</p></div></div>
+      <div id="itemsList" class="items-list"></div>
+    </article>
+
+    <div class="info-grid">
+      <article class="card payment-card">
+        <div class="section-title"><i class="fa-solid fa-wallet"></i><h3>Pembayaran</h3></div>
+        <div class="info-row"><span>Metode</span><b id="paymentMethod">-</b></div>
+        <div class="info-row"><span>Status</span><b id="paymentStatus">-</b></div>
+        <div class="info-row"><span>Bukti Transfer</span><b id="proofStatus">-</b></div>
+        <div id="paymentHint" class="inline-hint"></div>
+      </article>
+
+      <article class="card total-card">
+        <div class="section-title"><i class="fa-solid fa-calculator"></i><h3>Ringkasan Biaya</h3></div>
+        <div class="info-row"><span>Subtotal</span><b id="subtotal">-</b></div>
+        <div class="info-row"><span>Diskon</span><b id="discount">-</b></div>
+        <div class="info-row"><span>Ongkir</span><b id="shippingFee">-</b></div>
+        <div class="info-row"><span>Dibayar</span><b id="amountPaid">-</b></div>
+        <div class="info-row"><span>Sisa</span><b id="remainingAmount">-</b></div>
+        <div class="grand-row"><span>Total</span><strong id="grandTotal">-</strong></div>
+      </article>
+    </div>
+
+    <div class="result-actions">
+      <a id="invoiceBtn" class="primary-action" href="#" hidden><i class="fa-solid fa-file-invoice"></i> Lihat Invoice</a>
+      <a id="contactAdminBtn" class="wa-action" href="#" target="_blank"><i class="fa-brands fa-whatsapp"></i> Hubungi Admin</a>
+      <button id="newSearchBtn" class="secondary-action" type="button"><i class="fa-solid fa-rotate"></i> Cek Pesanan Lain</button>
+    </div>
+  </section>
+</main>
+</body>
+</html>
