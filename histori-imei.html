@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Histori Penjualan & IMEI — CEO Part & Service</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="css/histori-imei.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/role_guard.js"></script>
+  <script defer src="js/histori-imei.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <img src="images/logo.png" alt="CEO" />
+      <div>
+        <h1>HISTORI PENJUALAN & IMEI</h1>
+        <p>CEO Part & Service · Cellular Engineering Officer</p>
+      </div>
+    </div>
+    <a class="back-btn" href="order-produk.html"><i class="fa-solid fa-arrow-left"></i> Order Produk</a>
+  </header>
+
+  <main class="page-wrap">
+    <section class="hero-card">
+      <div>
+        <span class="eyebrow"><i class="fa-solid fa-mobile-screen-button"></i> Database unit terjual</span>
+        <h2>Cari riwayat HP berdasarkan IMEI, serial, pembeli, WhatsApp, atau nomor order.</h2>
+        <p>Gunakan halaman ini untuk pengecekan unit fisik, penelusuran transaksi, invoice, dan persiapan garansi produk.</p>
+      </div>
+      <div class="hero-icon"><i class="fa-solid fa-magnifying-glass-chart"></i></div>
+    </section>
+
+    <section class="stats-grid">
+      <article class="stat-card"><span>Unit Terdata</span><strong id="statUnits">0</strong><small>Unit dengan IMEI / serial</small></article>
+      <article class="stat-card"><span>IMEI Terdaftar</span><strong id="statImei">0</strong><small>IMEI 1 + IMEI 2 terisi</small></article>
+      <article class="stat-card"><span>Order Selesai</span><strong id="statDone">0</strong><small>Dari hasil pencarian</small></article>
+      <article class="stat-card"><span>Nilai Penjualan</span><strong id="statSales">Rp 0</strong><small>Dari hasil pencarian</small></article>
+    </section>
+
+    <section class="panel search-panel">
+      <div class="panel-head">
+        <div>
+          <h3><i class="fa-solid fa-magnifying-glass"></i> Pencarian Unit</h3>
+          <p>Ketik sebagian atau seluruh data yang ingin dicari.</p>
+        </div>
+      </div>
+      <div class="search-row">
+        <div class="search-box">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input id="searchInput" type="search" autocomplete="off" placeholder="Contoh: 356789..., INV/ORD..., Risti, 0812..., SN123..." />
+          <button id="clearBtn" class="icon-btn" type="button" title="Bersihkan"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <select id="statusFilter" aria-label="Filter status order">
+          <option value="">Semua status</option>
+          <option value="menunggu_diproses">Menunggu Diproses</option>
+          <option value="dikemas">Dikemas</option>
+          <option value="dikirim">Dikirim</option>
+          <option value="dalam_perjalanan">Dalam Perjalanan</option>
+          <option value="selesai">Selesai</option>
+          <option value="dibatalkan">Dibatalkan</option>
+          <option value="gagal_dikirim">Gagal Dikirim</option>
+        </select>
+        <button id="searchBtn" class="primary-btn" type="button"><i class="fa-solid fa-search"></i> Cari</button>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head result-head">
+        <div>
+          <h3><i class="fa-solid fa-clock-rotate-left"></i> Riwayat Unit</h3>
+          <p id="resultInfo">Menampilkan unit terbaru.</p>
+        </div>
+        <select id="pageSize" aria-label="Jumlah data per halaman">
+          <option value="10">10 / halaman</option>
+          <option value="20" selected>20 / halaman</option>
+          <option value="50">50 / halaman</option>
+          <option value="100">100 / halaman</option>
+        </select>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>No</th>
+              <th>Order</th>
+              <th>Pembeli</th>
+              <th>Produk / Varian</th>
+              <th>IMEI / Serial</th>
+              <th>Tgl Jual</th>
+              <th>Harga Jual</th>
+              <th>Status</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+        <div id="emptyState" class="empty hidden">
+          <i class="fa-regular fa-folder-open"></i>
+          <strong>Data tidak ditemukan</strong>
+          <span>Coba gunakan kata kunci lain.</span>
+        </div>
+      </div>
+
+      <div class="pagination-bar">
+        <button id="prevBtn" class="page-btn"><i class="fa-solid fa-chevron-left"></i> Prev</button>
+        <div id="pageNumbers" class="page-numbers"></div>
+        <button id="nextBtn" class="page-btn">Next <i class="fa-solid fa-chevron-right"></i></button>
+      </div>
+    </section>
+  </main>
+
+  <div id="detailModal" class="modal hidden" aria-hidden="true">
+    <div class="modal-backdrop" data-close-modal></div>
+    <div class="modal-card">
+      <button class="modal-close" data-close-modal><i class="fa-solid fa-xmark"></i></button>
+      <div class="modal-head">
+        <span class="eyebrow">Detail unit terjual</span>
+        <h3 id="modalTitle">Detail Unit</h3>
+        <p id="modalSub">-</p>
+      </div>
+      <div id="modalContent" class="detail-grid"></div>
+      <div class="modal-actions">
+        <a id="invoiceBtn" class="secondary-btn" href="#" target="_blank"><i class="fa-solid fa-file-invoice"></i> Buka Invoice</a>
+        <a id="orderBtn" class="primary-btn" href="order-produk.html"><i class="fa-solid fa-box"></i> Buka Order Produk</a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
