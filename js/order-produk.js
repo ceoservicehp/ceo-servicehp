@@ -151,12 +151,14 @@ function render(){
 async function openDetail(id){
   const o = orders.find(x => Number(x.id) === Number(id));
   if(!o) return;
+
   currentOrderId = o.id;
   $("detailOrderNumber").textContent = o.order_number || `Order #${o.id}`;
 
   const items = o.order_items || [];
   const pay = latest(o.order_payments);
   const ship = latest(o.order_shipments);
+  const shippingType = inferShippingType(o, ship);
   const mapLink = (o.latitude != null && o.longitude != null)
     ? `https://www.google.com/maps?q=${encodeURIComponent(o.latitude)},${encodeURIComponent(o.longitude)}`
     : null;
@@ -164,55 +166,137 @@ async function openDetail(id){
   const paymentAction = buildPaymentAction(o, pay);
   const shippingAction = buildShippingAction(o, ship);
   const statusAction = buildStatusAction(o, ship);
+  const proofPending = !!(pay?.proof_url && pay.payment_status === "pending");
+
+  const totalQty = items.reduce((sum, i) => sum + Number(i.quantity || 0), 0);
 
   $("detailContent").innerHTML = `
-    <div class="detail-grid">
-      <section>
-        <h3><i class="fa-solid fa-user"></i> Pembeli</h3>
-        <p><b>${esc(o.customer_name)}</b><br>${esc(o.customer_whatsapp)}<br>${esc(o.customer_email || "-")}<br>${esc(o.customer_address || "-")}</p>
-        ${mapLink ? `<a class="btn" target="_blank" rel="noopener" href="${mapLink}"><i class="fa-solid fa-location-dot"></i> Buka Titik Lokasi</a>` : ""}
-        ${o.customer_note ? `<div class="note-box"><b>Catatan pelanggan</b><br>${esc(o.customer_note)}</div>` : ""}
+    <div class="detail-body">
+      <section class="order-overview">
+        <div class="overview-main">
+          <span class="overview-label">Status Pesanan</span>
+          <div class="overview-title-row">
+            <span class="pill ${orderBadge(o.order_status)} overview-pill">${esc(label(o.order_status))}</span>
+            <span class="overview-date"><i class="fa-regular fa-clock"></i> ${fmtDate(o.created_at)}</span>
+          </div>
+          <p>${items.length} jenis produk · ${totalQty} unit · ${esc(shippingLabel(o, ship))}</p>
+        </div>
+        <div class="overview-total">
+          <span>Total Pesanan</span>
+          <strong>${rupiah(o.total)}</strong>
+          <small class="${Number(o.remaining_amount || 0) > 0 ? 'text-danger' : 'text-success'}">
+            ${Number(o.remaining_amount || 0) > 0 ? `Sisa ${rupiah(o.remaining_amount)}` : 'Pembayaran lunas'}
+          </small>
+        </div>
       </section>
 
-      <section>
-        <h3><i class="fa-solid fa-mobile-screen"></i> Produk</h3>
-        ${items.map(i => `<div class="item"><b>${esc(i.product_name)}</b><span>${esc(i.variant_name || "-")} · ${esc(i.color || "-")} · RAM ${esc(i.ram || "-")} · ${esc(i.storage || "-")}</span><span>${i.quantity} × ${rupiah(i.unit_price)} = <b>${rupiah(i.subtotal)}</b></span></div>`).join("") || '<div class="notice">Item tidak ditemukan.</div>'}
-      </section>
+      ${proofPending ? `
+      <div class="attention-banner">
+        <div class="attention-icon"><i class="fa-solid fa-receipt"></i></div>
+        <div>
+          <strong>Bukti pembayaran menunggu verifikasi</strong>
+          <span>Periksa bukti transfer pelanggan sebelum menyetujui pembayaran.</span>
+        </div>
+        <button class="btn primary" id="viewProofTopBtn"><i class="fa-solid fa-eye"></i> Lihat Bukti</button>
+      </div>` : ''}
 
-      <section>
-        <h3><i class="fa-solid fa-truck"></i> Pengiriman</h3>
-        <p>Jenis: <b>${esc(shippingLabel(o, ship))}</b><br>Metode DB: ${esc(label(o.shipping_method))}<br>Kurir: ${esc(ship?.courier || "-")}<br>Resi: ${esc(ship?.tracking_number || "-")}<br>Status: <b>${esc(label(ship?.shipping_status || "belum_dikirim"))}</b><br>Ongkir: <b>${rupiah(o.shipping_fee)}</b></p>
-      </section>
+      <div class="detail-grid refined-grid">
+        <section class="info-card">
+          <div class="card-title"><span class="card-icon"><i class="fa-solid fa-user"></i></span><div><h3>Data Pembeli</h3><small>Informasi pelanggan</small></div></div>
+          <div class="info-list">
+            <div class="info-row"><span>Nama</span><strong>${esc(o.customer_name || '-')}</strong></div>
+            <div class="info-row"><span>WhatsApp</span><strong>${esc(o.customer_whatsapp || '-')}</strong></div>
+            <div class="info-row"><span>Email</span><strong>${esc(o.customer_email || '-')}</strong></div>
+            <div class="info-row info-row-block"><span>Alamat</span><strong>${esc(o.customer_address || '-')}</strong></div>
+          </div>
+          <div class="card-actions compact-actions">
+            ${o.customer_whatsapp ? `<a class="btn soft" target="_blank" rel="noopener" href="https://wa.me/${esc(String(o.customer_whatsapp).replace(/[^0-9]/g,''))}"><i class="fa-brands fa-whatsapp"></i> WhatsApp</a>` : ''}
+            ${mapLink ? `<a class="btn soft" target="_blank" rel="noopener" href="${mapLink}"><i class="fa-solid fa-location-dot"></i> Lokasi</a>` : ''}
+          </div>
+          ${o.customer_note ? `<div class="note-box"><b><i class="fa-regular fa-note-sticky"></i> Catatan pelanggan</b><br>${esc(o.customer_note)}</div>` : ''}
+        </section>
 
-      <section>
-        <h3><i class="fa-solid fa-credit-card"></i> Pembayaran</h3>
-        <p>Metode: <b>${esc(label(o.payment_method))}</b><br>Status Order: <b>${esc(label(o.payment_status))}</b><br>Status Bukti: <b>${esc(label(pay?.payment_status || "pending"))}</b><br>Dibayar: ${rupiah(o.amount_paid)}<br>Sisa: ${rupiah(o.remaining_amount)}</p>
-        ${pay?.proof_url ? `<button class="btn primary" id="viewProofBtn"><i class="fa-solid fa-receipt"></i> Lihat Bukti Transfer</button>` : '<div class="notice">Belum ada bukti transfer.</div>'}
-      </section>
-    </div>
+        <section class="info-card">
+          <div class="card-title"><span class="card-icon"><i class="fa-solid fa-truck-fast"></i></span><div><h3>Pengiriman</h3><small>Metode dan progres pengiriman</small></div></div>
+          <div class="info-list">
+            <div class="info-row"><span>Jenis</span><strong>${esc(shippingLabel(o, ship))}</strong></div>
+            <div class="info-row"><span>Kurir / Ekspedisi</span><strong>${esc(ship?.courier || '-')}</strong></div>
+            <div class="info-row"><span>Nomor Resi</span><strong>${esc(ship?.tracking_number || '-')}</strong></div>
+            <div class="info-row"><span>Status</span><span class="pill ${ship?.shipping_status === 'terkirim' ? 'ok' : ship?.shipping_status === 'gagal' ? 'danger' : 'info'}">${esc(label(ship?.shipping_status || 'belum_dikirim'))}</span></div>
+            <div class="info-row"><span>Ongkir</span><strong>${rupiah(o.shipping_fee)}</strong></div>
+          </div>
+          ${shippingType !== 'pickup' && !ship?.tracking_number ? `<div class="mini-hint"><i class="fa-solid fa-circle-info"></i> Resi dapat ditambahkan dari bagian Tindakan Admin.</div>` : ''}
+        </section>
 
-    <section class="summary">
-      <div><span>Subtotal</span><b>${rupiah(o.subtotal)}</b></div>
-      <div><span>Diskon</span><b>- ${rupiah(o.discount)}</b></div>
-      <div><span>Ongkir</span><b>${rupiah(o.shipping_fee)}</b></div>
-      <div class="grand"><span>Total</span><b>${rupiah(o.total)}</b></div>
-      <div><span>Dibayar</span><b>${rupiah(o.amount_paid)}</b></div>
-      <div><span>Sisa</span><b>${rupiah(o.remaining_amount)}</b></div>
-    </section>
+        <section class="info-card product-info-card">
+          <div class="card-title"><span class="card-icon"><i class="fa-solid fa-mobile-screen-button"></i></span><div><h3>Produk Dipesan</h3><small>${items.length} jenis produk · ${totalQty} unit</small></div></div>
+          <div class="ordered-items">
+            ${items.map((i, idx) => `
+              <article class="ordered-item">
+                <div class="item-number">${idx + 1}</div>
+                <div class="item-main">
+                  <strong>${esc(i.product_name || '-')}</strong>
+                  <span>${esc(i.variant_name || 'Varian standar')}</span>
+                  <small>${esc(i.color || '-')} · RAM ${esc(i.ram || '-')} · Storage ${esc(i.storage || '-')}</small>
+                </div>
+                <div class="item-price">
+                  <small>${Number(i.quantity || 0)} × ${rupiah(i.unit_price)}</small>
+                  <strong>${rupiah(i.subtotal)}</strong>
+                </div>
+              </article>`).join("") || '<div class="notice">Item tidak ditemukan.</div>'}
+          </div>
+        </section>
 
-    <section class="admin-box">
-      <h3><i class="fa-solid fa-screwdriver-wrench"></i> Tindakan Admin</h3>
-      <div class="admin-actions-grid">
-        ${paymentAction}
-        ${shippingAction}
-        ${statusAction}
+        <section class="info-card payment-info-card">
+          <div class="card-title"><span class="card-icon"><i class="fa-solid fa-credit-card"></i></span><div><h3>Pembayaran</h3><small>Status dan bukti pembayaran</small></div></div>
+          <div class="payment-status-box ${paymentBadge(o.payment_status)}-box">
+            <div><span>Status Pembayaran</span><strong>${esc(label(o.payment_status))}</strong></div>
+            <i class="fa-solid ${o.payment_status === 'lunas' ? 'fa-circle-check' : 'fa-hourglass-half'}"></i>
+          </div>
+          <div class="info-list">
+            <div class="info-row"><span>Metode</span><strong>${esc(label(o.payment_method))}</strong></div>
+            <div class="info-row"><span>Status Transaksi</span><strong>${esc(label(pay?.payment_status || 'pending'))}</strong></div>
+            <div class="info-row"><span>Sudah Dibayar</span><strong>${rupiah(o.amount_paid)}</strong></div>
+            <div class="info-row"><span>Sisa</span><strong class="${Number(o.remaining_amount || 0) > 0 ? 'text-danger' : 'text-success'}">${rupiah(o.remaining_amount)}</strong></div>
+          </div>
+          ${pay?.proof_url ? `<button class="btn primary full proof-button" id="viewProofBtn"><i class="fa-solid fa-receipt"></i> Lihat Bukti Pembayaran</button>` : '<div class="notice"><i class="fa-regular fa-image"></i> Belum ada bukti pembayaran.</div>'}
+        </section>
       </div>
-    </section>`;
 
-  if(pay?.proof_url) $("viewProofBtn").onclick = () => viewProof(pay.proof_url);
+      <section class="summary summary-refined">
+        <div class="summary-heading"><div><span class="section-label">RINGKASAN BIAYA</span><h3>Total Pesanan</h3></div><i class="fa-solid fa-file-invoice-dollar"></i></div>
+        <div class="summary-lines">
+          <div><span>Subtotal Produk</span><b>${rupiah(o.subtotal)}</b></div>
+          <div><span>Diskon</span><b>- ${rupiah(o.discount)}</b></div>
+          <div><span>Ongkir</span><b>${rupiah(o.shipping_fee)}</b></div>
+          <div class="grand"><span>Total</span><b>${rupiah(o.total)}</b></div>
+          <div><span>Sudah Dibayar</span><b class="text-success">${rupiah(o.amount_paid)}</b></div>
+          <div class="remaining-line"><span>Sisa Pembayaran</span><b class="${Number(o.remaining_amount || 0) > 0 ? 'text-danger' : 'text-success'}">${rupiah(o.remaining_amount)}</b></div>
+        </div>
+      </section>
+
+      <section class="admin-box admin-box-refined">
+        <div class="admin-heading">
+          <div><span class="section-label"><i class="fa-solid fa-shield-halved"></i> PANEL ADMIN</span><h3>Tindakan Admin</h3><p>Verifikasi pembayaran, atur ongkir dan kurir, lalu perbarui status pesanan.</p></div>
+        </div>
+        <div class="admin-actions-grid">
+          ${paymentAction}
+          ${shippingAction}
+          ${statusAction}
+        </div>
+      </section>
+    </div>`;
+
+  if(pay?.proof_url){
+    const proofHandler = () => viewProof(pay.proof_url);
+    if($("viewProofBtn")) $("viewProofBtn").onclick = proofHandler;
+    if($("viewProofTopBtn")) $("viewProofTopBtn").onclick = proofHandler;
+  }
+
   bindAdminActions(o, pay, ship);
   $("detailModal").classList.add("show");
   $("detailModal").setAttribute("aria-hidden", "false");
+  document.body.classList.add("modal-open");
 }
 
 function buildPaymentAction(o, pay){
@@ -383,4 +467,5 @@ function closeModal(){
   currentOrderId = null;
   $("detailModal").classList.remove("show");
   $("detailModal").setAttribute("aria-hidden", "true");
+  document.body.classList.remove("modal-open");
 }
