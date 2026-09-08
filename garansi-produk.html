@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Garansi Produk HP — CEO Part & Service</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="css/garansi-produk.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/role_guard.js"></script>
+  <script defer src="js/garansi-produk.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <img src="images/logo.png" alt="CEO" onerror="this.style.display='none'">
+      <div><h1>GARANSI PRODUK HP</h1><span>CEO PART & SERVICE</span></div>
+    </div>
+    <a class="back" href="histori-imei.html"><i class="fa-solid fa-arrow-left"></i> Histori IMEI</a>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <div>
+        <span class="eyebrow">Unit fisik & garansi</span>
+        <h2>Kelola garansi berdasarkan IMEI</h2>
+        <p>Cari unit yang sudah terjual, tentukan masa garansi, lalu pantau status aktif atau habis.</p>
+      </div>
+      <a href="cek-garansi-produk.html" target="_blank" class="public-link"><i class="fa-solid fa-shield-halved"></i> Halaman Cek Garansi</a>
+    </section>
+
+    <section class="stats">
+      <article><span>Unit Ditemukan</span><strong id="statTotal">0</strong></article>
+      <article><span>Garansi Aktif</span><strong id="statAktif">0</strong></article>
+      <article><span>Belum Diatur</span><strong id="statBelum">0</strong></article>
+      <article><span>Garansi Habis</span><strong id="statHabis">0</strong></article>
+    </section>
+
+    <section class="panel">
+      <div class="filters">
+        <label class="search"><i class="fa-solid fa-magnifying-glass"></i><input id="searchInput" placeholder="Cari IMEI, serial, order, pembeli, WhatsApp, produk..." /></label>
+        <select id="statusFilter">
+          <option value="all">Semua Status</option>
+          <option value="aktif">Aktif</option>
+          <option value="belum_mulai">Belum Mulai</option>
+          <option value="habis">Habis</option>
+          <option value="belum_diatur">Belum Diatur</option>
+          <option value="nonaktif">Nonaktif</option>
+        </select>
+        <select id="pageSize"><option>10</option><option>20</option><option>50</option><option>100</option></select>
+        <button id="refreshBtn" class="btn secondary"><i class="fa-solid fa-rotate"></i></button>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Unit</th><th>Pembeli</th><th>Produk</th><th>IMEI / Serial</th><th>Garansi</th><th>Status</th><th>Aksi</th></tr></thead>
+          <tbody id="tableBody"><tr><td colspan="7" class="empty">Memuat data...</td></tr></tbody>
+        </table>
+      </div>
+      <div class="pagination"><button id="prevBtn">Prev</button><span id="pageInfo">Halaman 1</span><button id="nextBtn">Next</button></div>
+    </section>
+  </main>
+
+  <div id="modal" class="modal hidden">
+    <div class="modal-card">
+      <button class="close" id="closeModal">&times;</button>
+      <h3>Atur Garansi Unit</h3>
+      <div id="unitSummary" class="unit-summary"></div>
+      <form id="warrantyForm">
+        <input type="hidden" id="unitId">
+        <div class="grid2">
+          <label>Tanggal Mulai<input type="date" id="warrantyStart" required></label>
+          <label>Tanggal Berakhir<input type="date" id="warrantyEnd" required></label>
+        </div>
+        <div class="grid2">
+          <label>Jenis Garansi<select id="warrantyType"><option>Garansi Toko</option><option>Garansi Distributor</option><option>Garansi Resmi</option><option>Garansi Personal</option></select></label>
+          <label class="toggle-label"><input type="checkbox" id="warrantyActive" checked> Garansi diaktifkan</label>
+        </div>
+        <label>Catatan<textarea id="warrantyNote" rows="3" placeholder="Contoh: Garansi mesin 30 hari, tidak termasuk LCD dan human error."></textarea></label>
+        <div class="quick-days"><span>Durasi cepat:</span><button type="button" data-days="7">7 hari</button><button type="button" data-days="14">14 hari</button><button type="button" data-days="30">30 hari</button><button type="button" data-days="90">90 hari</button><button type="button" data-days="365">1 tahun</button></div>
+        <button class="btn primary full" type="submit"><i class="fa-solid fa-floppy-disk"></i> Simpan Garansi</button>
+      </form>
+    </div>
+  </div>
+</body>
+</html>
