@@ -245,3 +245,141 @@ body.modal-open{overflow:hidden}
 @media(max-width:520px){
   .order-overview{flex-direction:column}.overview-title-row{align-items:flex-start}.compact-actions .btn{flex:1;text-align:center}.info-row{gap:10px}.info-row>span:first-child{flex-basis:88px}.ordered-item{padding:10px}.card-title{align-items:flex-start}.detail-body{padding:10px}
 }
+
+
+/* =========================================================
+   RINGKASAN PEMBAYARAN — STRUCTURED
+========================================================= */
+.cost-summary-card{
+  margin-top:14px;
+  overflow:hidden;
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:17px;
+  box-shadow:0 4px 16px rgba(20,55,60,.045);
+}
+.cost-summary-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:20px;
+  padding:17px 18px;
+  border-bottom:1px solid var(--border);
+  background:linear-gradient(135deg,#f8fcfc,#ffffff);
+}
+.cost-summary-header h3{margin:4px 0 2px;font-size:17px;color:var(--text)}
+.cost-summary-header p{margin:0;color:var(--muted);font-size:11px}
+.cost-payment-badge{
+  flex:0 0 auto;
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  padding:8px 11px;
+  border-radius:999px;
+  font-size:11px;
+  font-weight:800;
+}
+.cost-payment-badge.paid{background:#e8f8ef;color:#10713d}
+.cost-payment-badge.unpaid{background:#fff4df;color:#8a6200}
+.cost-summary-grid{
+  display:grid;
+  grid-template-columns:minmax(0,1.15fr) minmax(300px,.85fr);
+  gap:16px;
+  padding:16px;
+}
+.cost-breakdown{
+  border:1px solid #e7edef;
+  border-radius:14px;
+  padding:14px 15px;
+  background:#fbfdfd;
+}
+.cost-breakdown-title{
+  padding-bottom:10px;
+  margin-bottom:2px;
+  border-bottom:1px solid #e8edef;
+  color:#40565a;
+  font-size:11px;
+  font-weight:800;
+  text-transform:uppercase;
+  letter-spacing:.55px;
+}
+.cost-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:18px;
+  padding:11px 0;
+  border-bottom:1px dashed #e4eaec;
+  font-size:12px;
+}
+.cost-row span{display:flex;align-items:center;gap:8px;color:var(--muted)}
+.cost-row span i{width:16px;text-align:center;color:#86a1a5}
+.cost-row strong{color:#25383c;font-size:12px}
+.cost-row .discount-value{color:#c74b45}
+.cost-calculation{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-end;
+  gap:15px;
+  margin-top:11px;
+  padding:11px 12px;
+  border-radius:10px;
+  background:#eef8f9;
+}
+.cost-calculation span{color:#678084;font-size:10px}
+.cost-calculation strong{color:var(--primary);font-size:14px}
+.grand-total-panel{
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+  border:1px solid #cfe4e6;
+  border-radius:14px;
+  background:#fff;
+}
+.grand-total-top{
+  padding:18px;
+  background:linear-gradient(135deg,#1f6f78,#00aeb5);
+  color:#fff;
+}
+.grand-total-top span{display:block;font-size:10px;font-weight:700;letter-spacing:.65px;text-transform:uppercase;opacity:.82}
+.grand-total-top strong{display:block;margin-top:5px;font-size:27px;line-height:1.1;letter-spacing:-.5px}
+.payment-progress-list{padding:5px 16px 0}
+.payment-progress-list>div{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:15px;
+  padding:12px 0;
+  border-bottom:1px solid #edf1f2;
+  font-size:12px;
+}
+.payment-progress-list span{color:var(--muted)}
+.payment-progress-list strong{font-size:13px}
+.payment-remaining.has-balance strong{color:var(--danger)}
+.payment-remaining.is-paid strong{color:var(--success)}
+.payment-method-note{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin:12px 15px 15px;
+  padding:10px 11px;
+  border-radius:10px;
+  background:#f4f8f8;
+  color:#637b7f;
+  font-size:10px;
+}
+.payment-method-note i{color:var(--primary)}
+
+@media(max-width:760px){
+  .cost-summary-header{align-items:flex-start}
+  .cost-summary-grid{grid-template-columns:1fr;padding:12px;gap:12px}
+  .grand-total-top strong{font-size:23px}
+}
+@media(max-width:520px){
+  .cost-summary-header{flex-direction:column;gap:10px;padding:14px}
+  .cost-payment-badge{align-self:flex-start}
+  .cost-row{gap:10px}
+  .cost-calculation{align-items:center}
+  .grand-total-top{padding:15px}
+  .grand-total-top strong{font-size:21px}
+}
