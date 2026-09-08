@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Keuangan Penjualan HP — CEO Part & Service</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="css/keuangan-produk.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script defer src="js/keuangan-produk.js"></script>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand-wrap">
+        <img src="images/logo.png" alt="CEO" class="brand-logo" onerror="this.style.display='none'">
+        <div>
+          <h1>Keuangan Penjualan HP</h1>
+          <p>CEO Part & Service · Cellular Engineering Officer</p>
+        </div>
+      </div>
+      <div class="top-actions">
+        <a href="order-produk.html" class="btn btn-soft"><i class="fa-solid fa-box"></i> Order HP</a>
+        <a href="keuangan.html" class="btn btn-soft"><i class="fa-solid fa-screwdriver-wrench"></i> Keuangan Service</a>
+      </div>
+    </header>
+
+    <main class="container">
+      <section class="hero-card">
+        <div>
+          <span class="eyebrow">LAPORAN TERPISAH</span>
+          <h2>Ringkasan Keuangan Penjualan Produk HP</h2>
+          <p>Omzet produk, modal, laba kotor, pembayaran masuk, piutang, dan ongkir dihitung terpisah dari transaksi service.</p>
+        </div>
+        <button id="btnExport" class="btn btn-primary"><i class="fa-solid fa-file-excel"></i> Export Excel</button>
+      </section>
+
+      <section class="filter-card">
+        <div class="quick-filters">
+          <button class="filter-btn active" data-range="today">Hari Ini</button>
+          <button class="filter-btn" data-range="week">Minggu Ini</button>
+          <button class="filter-btn" data-range="month">Bulan Ini</button>
+          <button class="filter-btn" data-range="all">Semua</button>
+        </div>
+        <div class="custom-filter">
+          <label>Dari <input type="date" id="startDate"></label>
+          <label>Sampai <input type="date" id="endDate"></label>
+          <button id="btnApplyDate" class="btn btn-dark"><i class="fa-solid fa-filter"></i> Terapkan</button>
+          <button id="btnReset" class="btn btn-soft">Reset</button>
+        </div>
+      </section>
+
+      <section class="summary-grid">
+        <article class="summary-card"><div class="icon"><i class="fa-solid fa-chart-line"></i></div><div><span>Omzet Produk</span><strong id="sumRevenue">Rp 0</strong><small>Nilai produk setelah diskon, tanpa ongkir</small></div></article>
+        <article class="summary-card"><div class="icon"><i class="fa-solid fa-boxes-stacked"></i></div><div><span>Modal Produk</span><strong id="sumCost">Rp 0</strong><small>cost_price × qty</small></div></article>
+        <article class="summary-card"><div class="icon"><i class="fa-solid fa-coins"></i></div><div><span>Laba Kotor</span><strong id="sumProfit">Rp 0</strong><small>Omzet produk − modal</small></div></article>
+        <article class="summary-card"><div class="icon"><i class="fa-solid fa-wallet"></i></div><div><span>Uang Masuk</span><strong id="sumPaid">Rp 0</strong><small>Total pembayaran berstatus paid</small></div></article>
+        <article class="summary-card"><div class="icon"><i class="fa-solid fa-clock"></i></div><div><span>Piutang</span><strong id="sumDebt">Rp 0</strong><small>Sisa tagihan order aktif</small></div></article>
+        <article class="summary-card"><div class="icon"><i class="fa-solid fa-truck-fast"></i></div><div><span>Ongkir Ditagihkan</span><strong id="sumShipping">Rp 0</strong><small>Tidak dimasukkan ke laba produk</small></div></article>
+      </section>
+
+      <section class="content-card">
+        <div class="tabs" role="tablist">
+          <button class="tab-btn active" data-tab="sales">Penjualan</button>
+          <button class="tab-btn" data-tab="payments">Pembayaran</button>
+          <button class="tab-btn" data-tab="debts">Piutang</button>
+        </div>
+
+        <div class="table-toolbar">
+          <div class="search-box"><i class="fa-solid fa-magnifying-glass"></i><input id="searchInput" type="search" placeholder="Cari no order, pembeli, produk..." /></div>
+          <select id="pageSize">
+            <option value="10">10 / halaman</option>
+            <option value="20">20 / halaman</option>
+            <option value="50">50 / halaman</option>
+            <option value="100">100 / halaman</option>
+          </select>
+        </div>
+
+        <div id="loadingState" class="state-box"><i class="fa-solid fa-spinner fa-spin"></i> Memuat data...</div>
+        <div id="errorState" class="state-box error hidden"></div>
+
+        <div class="table-wrap hidden" id="tableWrap">
+          <table>
+            <thead id="tableHead"></thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+        </div>
+
+        <div class="pagination hidden" id="pagination">
+          <button id="prevPage" class="page-btn">‹</button>
+          <div id="pageNumbers" class="page-numbers"></div>
+          <button id="nextPage" class="page-btn">›</button>
+          <span id="pageInfo"></span>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="modal hidden" id="detailModal" aria-hidden="true">
+    <div class="modal-backdrop" data-close-modal></div>
+    <div class="modal-panel">
+      <div class="modal-header">
+        <div><span class="eyebrow">DETAIL PENJUALAN</span><h3 id="modalTitle">Detail Order</h3></div>
+        <button class="icon-btn" data-close-modal><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+    </div>
+  </div>
+</body>
+</html>
