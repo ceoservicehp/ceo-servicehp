@@ -7,6 +7,8 @@ let orders = [];
 let filtered = [];
 let page = 1;
 let currentOrderId = null;
+let currentUserRole = null;
+let selectedOrderIds = new Set();
 
 const $ = id => document.getElementById(id);
 const rupiah = n => "Rp " + Number(n || 0).toLocaleString("id-ID");
@@ -179,22 +181,41 @@ function orderBadge(status){
   return "warn";
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   setup();
-  loadOrders();
+  await loadCurrentAdminRole();
+  await loadOrders();
   $("year").textContent = new Date().getFullYear();
 });
+
+async function loadCurrentAdminRole(){
+  try{
+    const { data:{ session } } = await client.auth.getSession();
+    if(!session) return;
+    const { data, error } = await client
+      .from("admin_users")
+      .select("role,is_active")
+      .eq("user_id", session.user.id)
+      .maybeSingle();
+    if(error) throw error;
+    currentUserRole = data?.is_active ? data.role : null;
+    document.body.classList.toggle("can-bulk-delete", currentUserRole === "superadmin");
+  }catch(err){
+    console.error("Gagal membaca role admin:", err);
+  }
+}
 
 function setup(){
   $("refreshBtn").onclick = loadOrders;
   ["searchInput","paymentFilter","shippingFilter","statusFilter"].forEach(id => {
-    $(id).addEventListener(id === "searchInput" ? "input" : "change", () => { page = 1; applyFilters(); });
+    $(id).addEventListener(id === "searchInput" ? "input" : "change", () => { page = 1; clearOrderSelection(); applyFilters(); });
   });
-  $("prevPage").onclick = () => { if(page > 1){ page--; render(); } };
-  $("nextPage").onclick = () => { if(page < Math.max(1, Math.ceil(filtered.length / pageSize))){ page++; render(); } };
+  $("prevPage").onclick = () => { if(page > 1){ page--; clearOrderSelection(); render(); } };
+  $("nextPage").onclick = () => { if(page < Math.max(1, Math.ceil(filtered.length / pageSize))){ page++; clearOrderSelection(); render(); } };
   $("pageSizeSelect")?.addEventListener("change", e => {
     pageSize = Number(e.target.value) || 10;
     page = 1;
+    clearOrderSelection();
     render();
   });
 
@@ -202,12 +223,23 @@ function setup(){
     const activate = () => {
       activeStatFilter = card.dataset.statFilter || "all";
       page = 1;
+      clearOrderSelection();
       document.querySelectorAll(".stat-filter-card").forEach(c => c.classList.toggle("active", c === card));
       applyFilters();
     };
     card.addEventListener("click", activate);
     card.addEventListener("keydown", e => { if(e.key === "Enter" || e.key === " "){ e.preventDefault(); activate(); } });
   });
+  $("checkAllOrders")?.addEventListener("change", e => {
+    document.querySelectorAll(".order-select").forEach(cb => {
+      cb.checked = e.target.checked;
+      const id = Number(cb.dataset.id);
+      if(e.target.checked) selectedOrderIds.add(id); else selectedOrderIds.delete(id);
+    });
+    updateBulkSelectionUI();
+  });
+  $("deleteSelectedOrders")?.addEventListener("click", deleteSelectedOrders);
+
   $("closeModal").onclick = closeModal;
   $("detailModal").onclick = e => { if(e.target === $("detailModal")) closeModal(); };
   $("menuToggle").onclick = () => { $("topNav").classList.toggle("open"); $("navOverlay").classList.toggle("show"); };
@@ -215,7 +247,7 @@ function setup(){
 }
 
 async function loadOrders(){
-  $("orderTableBody").innerHTML = '<tr><td colspan="9" class="empty"><i class="fa-solid fa-spinner fa-spin"></i> Memuat order...</td></tr>';
+  $("orderTableBody").innerHTML = '<tr><td colspan="10" class="empty"><i class="fa-solid fa-spinner fa-spin"></i> Memuat order...</td></tr>';
   const { data, error } = await client
     .from("orders")
     .select(`*,order_items(*,order_item_units(*)),order_payments(*),order_shipments(*)`)
@@ -223,7 +255,7 @@ async function loadOrders(){
 
   if(error){
     console.error(error);
-    $("orderTableBody").innerHTML = `<tr><td colspan="9" class="empty error">Gagal memuat order: ${esc(error.message)}<br><small>Pastikan SQL Admin Order Tahap 2 sudah dijalankan.</small></td></tr>`;
+    $("orderTableBody").innerHTML = `<tr><td colspan="10" class="empty error">Gagal memuat order: ${esc(error.message)}<br><small>Pastikan SQL Admin Order Tahap 2 sudah dijalankan.</small></td></tr>`;
     return;
   }
   orders = data || [];
@@ -279,7 +311,7 @@ function render(){
   renderPageNumbers(pages);
 
   if(!rows.length){
-    $("orderTableBody").innerHTML = '<tr><td colspan="9" class="empty">Tidak ada order yang sesuai.</td></tr>';
+    $("orderTableBody").innerHTML = '<tr><td colspan="10" class="empty">Tidak ada order yang sesuai.</td></tr>';
     return;
   }
 
@@ -294,6 +326,7 @@ function render(){
     const variantParts = [item.variant_name, item.color].filter(Boolean).join(" · ");
 
     return `<tr class="order-row priority-row-${priority.className}">
+      <td class="selection-col"><input type="checkbox" class="order-select" data-id="${o.id}" ${selectedOrderIds.has(Number(o.id)) ? "checked" : ""} aria-label="Pilih ${esc(o.order_number || `order ${o.id}`)}"></td>
       <td>
         <div class="order-number-cell">
           <strong>${esc(o.order_number || `#${o.id}`)}</strong>
@@ -336,6 +369,12 @@ function render(){
   }).join("");
 
   document.querySelectorAll(".detail-btn").forEach(b => b.onclick = () => openDetail(Number(b.dataset.id)));
+  document.querySelectorAll(".order-select").forEach(cb => cb.addEventListener("change", () => {
+    const id = Number(cb.dataset.id);
+    if(cb.checked) selectedOrderIds.add(id); else selectedOrderIds.delete(id);
+    updateBulkSelectionUI();
+  }));
+  updateBulkSelectionUI();
 }
 
 function renderPageNumbers(totalPages){
@@ -360,7 +399,7 @@ function renderPageNumbers(totalPages){
   }
   container.innerHTML = parts.join("");
   container.querySelectorAll(".page-number").forEach(btn => {
-    btn.onclick = () => { page = Number(btn.dataset.page); render(); };
+    btn.onclick = () => { page = Number(btn.dataset.page); clearOrderSelection(); render(); };
   });
 }
 
@@ -453,236 +492,215 @@ async function openDetail(id){
   const pay = latest(o.order_payments);
   const ship = latest(o.order_shipments);
   const shippingType = inferShippingType(o, ship);
+  const totalQty = items.reduce((sum, i) => sum + Number(i.quantity || 0), 0);
+  const assignedUnits = countAssignedUnits(o);
+  const paymentHistory = buildPaymentHistory(o);
   const mapLink = (o.latitude != null && o.longitude != null)
     ? `https://www.google.com/maps?q=${encodeURIComponent(o.latitude)},${encodeURIComponent(o.longitude)}`
     : null;
+  const wa = String(o.customer_whatsapp || '').replace(/[^0-9]/g,'');
+  const waText = encodeURIComponent(`Halo ${o.customer_name || ''}, update pesanan ${o.order_number || ''}: status ${label(o.order_status)}. Pembayaran: ${label(o.payment_status)}.${ship?.tracking_number ? ` Resi: ${ship.tracking_number}.` : ''} Terima kasih — CEO Part & Service.`);
 
-  const paymentAction = buildPaymentAction(o, pay);
-  const shippingAction = buildShippingAction(o, ship);
-  const statusAction = buildStatusAction(o, ship);
-  const workflowPanel = buildWorkflowPanel(o, pay, ship);
-  const readinessPanel = buildReadinessPanel(o);
-  const quickActions = buildQuickActions(o, ship);
-  const paymentHistory = buildPaymentHistory(o);
-  const activityTimeline = buildActivityTimeline(o);
-  const proofPending = !!(pay?.proof_url && pay.payment_status === "pending");
-
-  const totalQty = items.reduce((sum, i) => sum + Number(i.quantity || 0), 0);
+  const productHtml = items.map((i, idx) => {
+    const units = (i.order_item_units || []).slice().sort((a,b)=>Number(a.id)-Number(b.id));
+    const unitText = units.length
+      ? units.map((u,n)=>`<span class="unit-inline"><b>Unit ${n+1}</b> · IMEI ${esc(u.imei1 || '-')} ${u.imei2 ? `· IMEI 2 ${esc(u.imei2)}` : ''} ${u.serial_number ? `· SN ${esc(u.serial_number)}` : ''}</span>`).join('')
+      : '<span class="unit-inline empty-unit">IMEI belum ditetapkan</span>';
+    return `<article class="simple-product-row">
+      <div class="item-number">${idx+1}</div>
+      <div class="simple-product-main">
+        <strong>${esc(i.product_name || '-')}</strong>
+        <span>${esc([i.variant_name, i.color, i.ram ? `RAM ${i.ram}` : '', i.storage ? `Storage ${i.storage}` : ''].filter(Boolean).join(' · ') || 'Varian standar')}</span>
+        <div class="unit-inline-list">${unitText}</div>
+      </div>
+      <div class="simple-product-price"><small>${Number(i.quantity || 0)} × ${rupiah(i.unit_price)}</small><strong>${rupiah(i.subtotal)}</strong></div>
+    </article>`;
+  }).join('') || '<div class="notice">Item tidak ditemukan.</div>';
 
   $("detailContent").innerHTML = `
-    <div class="detail-body">
-      <section class="order-overview">
-        <div class="overview-main">
-          <span class="overview-label">Status Pesanan</span>
-          <div class="overview-title-row">
-            <span class="pill ${orderBadge(o.order_status)} overview-pill">${esc(label(o.order_status))}</span>
-            <span class="overview-date"><i class="fa-regular fa-clock"></i> ${fmtDate(o.created_at)}</span>
-          </div>
-          <p>${items.length} jenis produk · ${totalQty} unit · ${esc(shippingLabel(o, ship))}</p>
-        </div>
-        <div class="overview-total">
-          <span>Total Pesanan</span>
-          <strong>${rupiah(o.total)}</strong>
-          <small class="${Number(o.remaining_amount || 0) > 0 ? 'text-danger' : 'text-success'}">
-            ${Number(o.remaining_amount || 0) > 0 ? `Sisa ${rupiah(o.remaining_amount)}` : 'Pembayaran lunas'}
-          </small>
-        </div>
-      </section>
-
-      ${readinessPanel}
-      ${quickActions}
-
-      ${proofPending ? `
-      <div class="attention-banner">
-        <div class="attention-icon"><i class="fa-solid fa-receipt"></i></div>
+    <div class="detail-body simple-order-detail">
+      <section class="simple-order-head">
         <div>
-          <strong>Bukti pembayaran menunggu verifikasi</strong>
-          <span>Periksa bukti transfer pelanggan sebelum menyetujui pembayaran.</span>
+          <div class="simple-status-row">
+            <span class="pill ${orderBadge(o.order_status)}">${esc(label(o.order_status))}</span>
+            <span class="pill ${paymentBadge(o.payment_status)}">${esc(label(o.payment_status))}</span>
+          </div>
+          <p>${esc(o.customer_name || '-')} · ${fmtDate(o.created_at)} · ${items.length} produk / ${totalQty} unit</p>
         </div>
-        <button class="btn primary" id="viewProofTopBtn"><i class="fa-solid fa-eye"></i> Lihat Bukti</button>
-      </div>` : ''}
-
-      <div class="detail-grid refined-grid">
-        <section class="info-card">
-          <div class="card-title"><span class="card-icon"><i class="fa-solid fa-user"></i></span><div><h3>Data Pembeli</h3><small>Informasi pelanggan</small></div></div>
-          <div class="info-list">
-            <div class="info-row"><span>Nama</span><strong>${esc(o.customer_name || '-')}</strong></div>
-            <div class="info-row"><span>WhatsApp</span><strong>${esc(o.customer_whatsapp || '-')}</strong></div>
-            <div class="info-row"><span>Email</span><strong>${esc(o.customer_email || '-')}</strong></div>
-            <div class="info-row info-row-block"><span>Alamat</span><strong>${esc(o.customer_address || '-')}</strong></div>
-          </div>
-          <div class="card-actions compact-actions">
-            ${o.customer_whatsapp ? `<a class="btn soft" target="_blank" rel="noopener" href="https://wa.me/${esc(String(o.customer_whatsapp).replace(/[^0-9]/g,''))}"><i class="fa-brands fa-whatsapp"></i> WhatsApp</a>` : ''}
-            ${mapLink ? `<a class="btn soft" target="_blank" rel="noopener" href="${mapLink}"><i class="fa-solid fa-location-dot"></i> Lokasi</a>` : ''}
-          </div>
-          ${o.customer_note ? `<div class="note-box"><b><i class="fa-regular fa-note-sticky"></i> Catatan pelanggan</b><br>${esc(o.customer_note)}</div>` : ''}
-        </section>
-
-        <section class="info-card">
-          <div class="card-title"><span class="card-icon"><i class="fa-solid fa-truck-fast"></i></span><div><h3>Pengiriman</h3><small>Metode dan progres pengiriman</small></div></div>
-          <div class="info-list">
-            <div class="info-row"><span>Jenis</span><strong>${esc(shippingLabel(o, ship))}</strong></div>
-            <div class="info-row"><span>Kurir / Ekspedisi</span><strong>${esc(ship?.courier || '-')}</strong></div>
-            <div class="info-row"><span>Nomor Resi</span><strong>${esc(ship?.tracking_number || '-')}</strong></div>
-            <div class="info-row"><span>Status</span><span class="pill ${ship?.shipping_status === 'terkirim' ? 'ok' : ship?.shipping_status === 'gagal' ? 'danger' : 'info'}">${esc(label(ship?.shipping_status || 'belum_dikirim'))}</span></div>
-            <div class="info-row"><span>Ongkir</span><strong>${rupiah(o.shipping_fee)}</strong></div>
-          </div>
-          ${shippingType !== 'pickup' && !ship?.tracking_number ? `<div class="mini-hint"><i class="fa-solid fa-circle-info"></i> Resi dapat ditambahkan dari bagian Tindakan Admin.</div>` : ''}
-        </section>
-
-        <section class="info-card product-info-card">
-          <div class="card-title"><span class="card-icon"><i class="fa-solid fa-mobile-screen-button"></i></span><div><h3>Produk Dipesan</h3><small>${items.length} jenis produk · ${totalQty} unit</small></div></div>
-          <div class="ordered-items">
-            ${items.map((i, idx) => `
-              <article class="ordered-item">
-                <div class="item-number">${idx + 1}</div>
-                <div class="item-main">
-                  <strong>${esc(i.product_name || '-')}</strong>
-                  <span>${esc(i.variant_name || 'Varian standar')}</span>
-                  <small>${esc(i.color || '-')} · RAM ${esc(i.ram || '-')} · Storage ${esc(i.storage || '-')}</small>
-                </div>
-                <div class="item-price">
-                  <small>${Number(i.quantity || 0)} × ${rupiah(i.unit_price)}</small>
-                  <strong>${rupiah(i.subtotal)}</strong>
-                </div>
-              </article>`).join("") || '<div class="notice">Item tidak ditemukan.</div>'}
-          </div>
-        </section>
-
-        <section class="info-card payment-info-card">
-          <div class="card-title"><span class="card-icon"><i class="fa-solid fa-credit-card"></i></span><div><h3>Pembayaran</h3><small>Status dan bukti pembayaran</small></div></div>
-          <div class="payment-status-box ${paymentBadge(o.payment_status)}-box">
-            <div><span>Status Pembayaran</span><strong>${esc(label(o.payment_status))}</strong></div>
-            <i class="fa-solid ${o.payment_status === 'lunas' ? 'fa-circle-check' : 'fa-hourglass-half'}"></i>
-          </div>
-          <div class="info-list">
-            <div class="info-row"><span>Metode</span><strong>${esc(label(o.payment_method))}</strong></div>
-            <div class="info-row"><span>Status Transaksi</span><strong>${esc(label(pay?.payment_status || 'pending'))}</strong></div>
-            <div class="info-row"><span>Sudah Dibayar</span><strong>${rupiah(o.amount_paid)}</strong></div>
-            <div class="info-row"><span>Sisa</span><strong class="${Number(o.remaining_amount || 0) > 0 ? 'text-danger' : 'text-success'}">${rupiah(o.remaining_amount)}</strong></div>
-          </div>
-          ${pay?.proof_url ? `<button class="btn primary full proof-button" id="viewProofBtn"><i class="fa-solid fa-receipt"></i> Lihat Bukti Pembayaran</button>` : '<div class="notice"><i class="fa-regular fa-image"></i> Belum ada bukti pembayaran.</div>'}
-        </section>
-      </div>
-
-      <div class="detail-grid refined-grid secondary-detail-grid">
-        <section class="info-card payment-history-card">
-          <div class="card-title"><span class="card-icon"><i class="fa-solid fa-clock-rotate-left"></i></span><div><h3>Riwayat Pembayaran</h3><small>Semua transaksi pembayaran pada order ini</small></div></div>
-          ${paymentHistory}
-        </section>
-        <section class="info-card activity-card">
-          <div class="card-title"><span class="card-icon"><i class="fa-solid fa-timeline"></i></span><div><h3>Ringkasan Aktivitas</h3><small>Aktivitas utama yang dapat diturunkan dari data order</small></div></div>
-          ${activityTimeline}
-        </section>
-      </div>
-
-      <section class="imei-management-card">
-        <div class="cost-summary-header">
-          <div>
-            <span class="section-label"><i class="fa-solid fa-barcode"></i> UNIT FISIK / IMEI</span>
-            <h3>Penetapan Unit Handphone</h3>
-            <p>IMEI tidak diisi pelanggan. Admin menetapkan unit fisik yang benar-benar diserahkan atau dikirim.</p>
-          </div>
-          <div class="unit-count-badge"><i class="fa-solid fa-mobile-screen"></i> ${items.reduce((n,i)=>n+(i.order_item_units||[]).length,0)} / ${totalQty} unit</div>
-        </div>
-        <div class="imei-products">
-          ${items.map(i => buildUnitManager(i)).join("") || '<div class="notice">Item tidak ditemukan.</div>'}
-        </div>
+        <div class="simple-head-total"><span>Total</span><strong>${rupiah(o.total)}</strong></div>
       </section>
 
-      <section class="cost-summary-card">
-        <div class="cost-summary-header">
-          <div>
-            <span class="section-label"><i class="fa-solid fa-receipt"></i> RINGKASAN PEMBAYARAN</span>
-            <h3>Rincian Biaya Pesanan</h3>
-            <p>Rincian nilai produk, ongkir, pembayaran masuk, dan sisa tagihan.</p>
-          </div>
-          <div class="cost-payment-badge ${Number(o.remaining_amount || 0) > 0 ? 'unpaid' : 'paid'}">
-            <i class="fa-solid ${Number(o.remaining_amount || 0) > 0 ? 'fa-clock' : 'fa-circle-check'}"></i>
-            <span>${Number(o.remaining_amount || 0) > 0 ? 'Belum Lunas' : 'Lunas'}</span>
-          </div>
-        </div>
+      <div class="simple-quick-actions">
+        ${wa ? `<a class="btn success" target="_blank" rel="noopener" href="https://wa.me/${esc(wa)}?text=${waText}"><i class="fa-brands fa-whatsapp"></i> WhatsApp</a>` : ''}
+        ${o.payment_status === 'lunas' ? `<a class="btn primary" target="_blank" rel="noopener" href="nota-produk.html?id=${encodeURIComponent(o.id)}"><i class="fa-solid fa-file-invoice"></i> Invoice</a>` : `<button class="btn soft" disabled><i class="fa-solid fa-lock"></i> Invoice setelah Lunas</button>`}
+        <button class="btn soft quick-copy" data-copy="${esc(o.order_number || '')}"><i class="fa-regular fa-copy"></i> Salin Order</button>
+        ${mapLink ? `<a class="btn soft" target="_blank" rel="noopener" href="${mapLink}"><i class="fa-solid fa-location-dot"></i> Lokasi</a>` : ''}
+      </div>
 
-        <div class="cost-summary-grid">
-          <div class="cost-breakdown">
-            <div class="cost-breakdown-title">Rincian Pesanan</div>
-            <div class="cost-row">
-              <span><i class="fa-solid fa-box"></i> Subtotal Produk</span>
-              <strong>${rupiah(o.subtotal)}</strong>
-            </div>
-            <div class="cost-row">
-              <span><i class="fa-solid fa-tag"></i> Diskon</span>
-              <strong class="${Number(o.discount || 0) > 0 ? 'discount-value' : ''}">${Number(o.discount || 0) > 0 ? `- ${rupiah(o.discount)}` : rupiah(0)}</strong>
-            </div>
-            <div class="cost-row">
-              <span><i class="fa-solid fa-truck-fast"></i> Ongkir</span>
-              <strong>${rupiah(o.shipping_fee)}</strong>
-            </div>
-            <div class="cost-calculation">
-              <span>Subtotal - Diskon + Ongkir</span>
-              <strong>${rupiah(o.total)}</strong>
-            </div>
-          </div>
-
-          <div class="grand-total-panel">
-            <div class="grand-total-top">
-              <span>Total Pesanan</span>
-              <strong>${rupiah(o.total)}</strong>
-            </div>
-            <div class="payment-progress-list">
-              <div>
-                <span>Sudah Dibayar</span>
-                <strong class="text-success">${rupiah(o.amount_paid)}</strong>
-              </div>
-              <div class="payment-remaining ${Number(o.remaining_amount || 0) > 0 ? 'has-balance' : 'is-paid'}">
-                <span>Sisa Pembayaran</span>
-                <strong>${rupiah(o.remaining_amount)}</strong>
-              </div>
-            </div>
-            <div class="payment-method-note">
-              <i class="fa-solid fa-wallet"></i>
-              <span>Metode: <b>${esc(label(o.payment_method))}</b></span>
-            </div>
-          </div>
+      <section class="simple-section-card">
+        <div class="simple-section-title"><span class="card-icon"><i class="fa-solid fa-user"></i></span><div><h3>Data Pesanan</h3><small>Informasi pelanggan dan metode transaksi</small></div></div>
+        <div class="simple-info-grid">
+          <div><span>Nama</span><strong>${esc(o.customer_name || '-')}</strong></div>
+          <div><span>WhatsApp</span><strong>${esc(o.customer_whatsapp || '-')}</strong></div>
+          <div><span>Email</span><strong>${esc(o.customer_email || '-')}</strong></div>
+          <div><span>Pengiriman</span><strong>${esc(shippingLabel(o, ship))}</strong></div>
+          <div><span>Pembayaran</span><strong>${esc(label(o.payment_method))}</strong></div>
+          <div><span>Tanggal Order</span><strong>${fmtDate(o.created_at)}</strong></div>
+          <div class="span-2"><span>Alamat</span><strong>${esc(o.customer_address || '-')}</strong></div>
         </div>
+        ${o.customer_note ? `<div class="note-box"><b>Catatan pelanggan</b><br>${esc(o.customer_note)}</div>` : ''}
       </section>
 
-      ${workflowPanel}
+      <section class="simple-section-card">
+        <div class="simple-section-title"><span class="card-icon"><i class="fa-solid fa-mobile-screen-button"></i></span><div><h3>Produk yang Dibeli</h3><small>${totalQty} unit · IMEI terisi ${assignedUnits}/${totalQty}</small></div></div>
+        <div class="simple-products">${productHtml}</div>
+        <details class="simple-collapse imei-collapse">
+          <summary><span><i class="fa-solid fa-barcode"></i> Kelola IMEI / Unit Fisik</span><small>${assignedUnits}/${totalQty} unit terisi</small></summary>
+          <div class="collapse-body imei-products">${items.map(i => buildUnitManager(i)).join('') || '<div class="notice">Item tidak ditemukan.</div>'}</div>
+        </details>
+      </section>
 
-      <section class="admin-box admin-box-refined">
-        <div class="admin-heading">
-          <div><span class="section-label"><i class="fa-solid fa-shield-halved"></i> PANEL ADMIN</span><h3>Tindakan Admin</h3><p>Gunakan panel di bawah sesuai tahap aktif pada Alur Kerja Admin di atas.</p></div>
+      <section class="simple-section-card">
+        <div class="simple-section-title"><span class="card-icon"><i class="fa-solid fa-wallet"></i></span><div><h3>Pembayaran & Biaya</h3><small>Cek total, bukti, dan pembayaran masuk</small></div></div>
+        <div class="simple-money-grid">
+          <div><span>Subtotal Produk</span><strong>${rupiah(o.subtotal)}</strong></div>
+          <div><span>Diskon</span><strong>${Number(o.discount || 0) ? `- ${rupiah(o.discount)}` : rupiah(0)}</strong></div>
+          <div><span>Ongkir</span><strong>${rupiah(o.shipping_fee)}</strong></div>
+          <div class="money-total"><span>Total Pesanan</span><strong>${rupiah(o.total)}</strong></div>
+          <div><span>Sudah Dibayar</span><strong class="text-success">${rupiah(o.amount_paid)}</strong></div>
+          <div class="${Number(o.remaining_amount || 0) > 0 ? 'has-balance' : 'is-paid'}"><span>Sisa Tagihan</span><strong>${rupiah(o.remaining_amount)}</strong></div>
         </div>
-        <div class="admin-actions-grid">
-          ${paymentAction}
-          ${shippingAction}
-          ${statusAction}
+        ${buildSimplePaymentAction(o, pay)}
+        <details class="simple-collapse payment-history-collapse">
+          <summary><span><i class="fa-solid fa-clock-rotate-left"></i> Riwayat Pembayaran</span><small>${(o.order_payments || []).length} transaksi</small></summary>
+          <div class="collapse-body">${paymentHistory}</div>
+        </details>
+      </section>
+
+      ${shippingType !== 'pickup' ? `
+      <section class="simple-section-card">
+        <div class="simple-section-title"><span class="card-icon"><i class="fa-solid fa-truck-fast"></i></span><div><h3>Pengiriman</h3><small>${esc(shippingLabel(o, ship))}</small></div></div>
+        <div class="simple-form-grid">
+          <label>Kurir / Ekspedisi<input id="shippingCourier" value="${esc(ship?.courier || '')}" placeholder="Gojek, Grab, JNE, J&T, dll."></label>
+          <label>Ongkir Final<input id="shippingFee" inputmode="numeric" value="${Number(o.shipping_fee || 0)}"></label>
+          ${shippingType === 'package' || ship?.tracking_number ? `<label class="span-2">Nomor Resi / Kode Pengiriman<input id="trackingNumber" value="${esc(ship?.tracking_number || '')}" placeholder="Isi jika tersedia"></label>` : `<input type="hidden" id="trackingNumber" value="${esc(ship?.tracking_number || '')}">`}
         </div>
+      </section>` : `<input type="hidden" id="trackingNumber" value="${esc(ship?.tracking_number || '')}">`}
+
+      <section class="simple-section-card status-save-card">
+        <div class="simple-section-title"><span class="card-icon"><i class="fa-solid fa-route"></i></span><div><h3>Status Pesanan</h3><small>Cukup ubah yang diperlukan lalu simpan</small></div></div>
+        <div class="simple-form-grid">
+          <label>Status Pesanan<select id="adminOrderStatus">${["menunggu_diproses","dikemas","dikirim","dalam_perjalanan","selesai","dibatalkan","gagal_dikirim"].map(v=>`<option value="${v}" ${o.order_status===v?'selected':''}>${esc(label(v))}</option>`).join('')}</select></label>
+          <label>Status Pengiriman Otomatis<input id="autoShippingStatusPreview" value="${esc(label(autoShippingStatus(o.order_status)))}" readonly></label>
+          <label class="span-2">Catatan Admin<textarea id="adminNote" rows="3" placeholder="Opsional">${esc(o.admin_note || '')}</textarea></label>
+        </div>
+        <div class="single-save-row"><button class="btn primary save-order-changes" id="saveOrderChangesBtn"><i class="fa-solid fa-floppy-disk"></i> Simpan Perubahan</button></div>
       </section>
     </div>`;
 
   if(pay?.proof_url){
-    const proofHandler = () => viewProof(pay.proof_url);
-    if($("viewProofBtn")) $("viewProofBtn").onclick = proofHandler;
-    if($("viewProofTopBtn")) $("viewProofTopBtn").onclick = proofHandler;
+    document.querySelectorAll('.view-current-proof').forEach(btn => btn.onclick = () => viewProof(pay.proof_url));
   }
+  document.querySelectorAll('.payment-history-proof').forEach(btn => btn.addEventListener('click', () => viewProof(btn.dataset.proofPath)));
+  document.querySelectorAll('.quick-copy').forEach(btn => btn.addEventListener('click', async () => {
+    const value = btn.dataset.copy || '';
+    if(!value) return;
+    try{ await navigator.clipboard.writeText(value); const old=btn.innerHTML; btn.innerHTML='<i class="fa-solid fa-check"></i> Tersalin'; setTimeout(()=>btn.innerHTML=old,1200); }
+    catch{ prompt('Salin data berikut:', value); }
+  }));
 
-  document.querySelectorAll('.payment-history-proof').forEach(btn => {
-    btn.addEventListener('click', () => viewProof(btn.dataset.proofPath));
-  });
-  document.querySelectorAll('.quick-copy').forEach(btn => {
-    btn.addEventListener('click', async () => {
-      const value = btn.dataset.copy || '';
-      if(!value) return;
-      try { await navigator.clipboard.writeText(value); btn.innerHTML = '<i class="fa-solid fa-check"></i> Tersalin'; setTimeout(()=>btn.innerHTML='<i class="fa-regular fa-copy"></i> Salin',1200); }
-      catch { prompt('Salin data berikut:', value); }
-    });
-  });
   bindUnitActions(o);
-  bindAdminActions(o, pay, ship);
+  bindSimpleAdminActions(o, pay, ship, shippingType);
   $("detailModal").classList.add("show");
   $("detailModal").setAttribute("aria-hidden", "false");
   document.body.classList.add("modal-open");
+}
+
+function buildSimplePaymentAction(o, pay){
+  if(!pay){
+    return `<div class="simple-payment-action"><div class="notice">Data pembayaran belum ditemukan.</div></div>`;
+  }
+  if(pay.payment_status === 'paid'){
+    return `<div class="simple-payment-action payment-ok"><div><i class="fa-solid fa-circle-check"></i><span><b>Pembayaran terakhir terverifikasi</b><small>${rupiah(pay.amount)} · ${fmtDate(pay.paid_at || pay.created_at)}</small></span></div>${pay.proof_url ? '<button class="btn soft view-current-proof"><i class="fa-solid fa-image"></i> Lihat Bukti</button>' : ''}</div>`;
+  }
+  if(pay.payment_status === 'rejected'){
+    return `<div class="simple-payment-action payment-rejected"><div><i class="fa-solid fa-circle-xmark"></i><span><b>Pembayaran terakhir ditolak</b><small>${esc(pay.note || 'Bukti/pembayaran ditolak.')}</small></span></div>${pay.proof_url ? '<button class="btn soft view-current-proof"><i class="fa-solid fa-image"></i> Lihat Bukti</button>' : ''}</div>`;
+  }
+  const canApprove = o.payment_method !== 'transfer' || !!pay.proof_url;
+  return `<div class="simple-payment-review">
+    <div class="review-head"><div><b>Bukti pembayaran menunggu verifikasi</b><small>Periksa bukti dan nominal sebelum diterima.</small></div>${pay.proof_url ? '<button class="btn soft view-current-proof"><i class="fa-solid fa-eye"></i> Lihat Bukti</button>' : ''}</div>
+    <div class="review-fields">
+      <label>Nominal diterima<input id="paymentAmount" inputmode="numeric" value="${Number(pay.amount || o.remaining_amount || o.total || 0)}"></label>
+      <label>Catatan<input id="paymentNote" value="" placeholder="Opsional"></label>
+    </div>
+    <div class="review-actions"><button class="btn success" id="approvePaymentBtn" ${canApprove ? '' : 'disabled'}><i class="fa-solid fa-check"></i> Terima Pembayaran</button><button class="btn danger" id="rejectPaymentBtn"><i class="fa-solid fa-xmark"></i> Tolak</button></div>
+    ${!canApprove ? '<small class="helper">Transfer belum dapat disetujui karena bukti belum tersedia.</small>' : ''}
+  </div>`;
+}
+
+function bindSimpleAdminActions(o, pay, ship, shippingType){
+  const approveBtn = $("approvePaymentBtn");
+  const rejectBtn = $("rejectPaymentBtn");
+  const saveBtn = $("saveOrderChangesBtn");
+  const statusSelect = $("adminOrderStatus");
+
+  if(statusSelect){
+    statusSelect.addEventListener('change', () => {
+      const preview=$("autoShippingStatusPreview");
+      if(preview) preview.value = label(autoShippingStatus(statusSelect.value));
+    });
+  }
+
+  if(approveBtn) approveBtn.onclick = async () => {
+    const amount = numericValue('paymentAmount');
+    if(amount <= 0) return alert('Nominal pembayaran harus lebih dari 0.');
+    if(!confirm(`Terima pembayaran ${rupiah(amount)} untuk ${o.order_number}?`)) return;
+    setBusy(approveBtn,true,'Memproses...');
+    const { error } = await client.rpc('admin_review_product_payment',{p_order_id:o.id,p_payment_id:pay.id,p_action:'approve',p_amount:amount,p_note:$("paymentNote")?.value.trim() || null});
+    if(error){ console.error(error); alert('Gagal verifikasi pembayaran: '+error.message); setBusy(approveBtn,false); return; }
+    await reloadAndReopen(o.id);
+  };
+
+  if(rejectBtn) rejectBtn.onclick = async () => {
+    const note=$("paymentNote")?.value.trim() || 'Bukti/pembayaran ditolak admin.';
+    if(!confirm(`Tolak pembayaran untuk ${o.order_number}?`)) return;
+    setBusy(rejectBtn,true,'Memproses...');
+    const { error } = await client.rpc('admin_review_product_payment',{p_order_id:o.id,p_payment_id:pay.id,p_action:'reject',p_amount:null,p_note:note});
+    if(error){ console.error(error); alert('Gagal menolak pembayaran: '+error.message); setBusy(rejectBtn,false); return; }
+    await reloadAndReopen(o.id);
+  };
+
+  if(saveBtn) saveBtn.onclick = async () => {
+    const orderStatus = $("adminOrderStatus").value;
+    const readiness = getOperationalReadiness(o);
+    if(['dikirim','dalam_perjalanan','selesai'].includes(orderStatus) && !readiness.imeiReady){
+      alert(`Lengkapi IMEI / unit fisik terlebih dahulu. Saat ini ${readiness.assignedUnits} dari ${readiness.requiredUnits} unit sudah ditetapkan.`);
+      return;
+    }
+    if(orderStatus === 'selesai' && !confirm(`Tandai ${o.order_number} sebagai SELESAI?`)) return;
+    if(orderStatus === 'dibatalkan' && !confirm(`Batalkan ${o.order_number}?`)) return;
+
+    setBusy(saveBtn,true,'Menyimpan...');
+    let courier = ship?.courier || null;
+    let tracking = $("trackingNumber")?.value.trim() || null;
+    if(shippingType !== 'pickup'){
+      const fee = numericValue('shippingFee');
+      courier = $("shippingCourier")?.value.trim() || null;
+      const { error:shipError } = await client.rpc('admin_set_product_shipping_fee',{p_order_id:o.id,p_shipping_fee:fee,p_courier:courier});
+      if(shipError){ console.error(shipError); alert('Gagal menyimpan ongkir/kurir: '+shipError.message); setBusy(saveBtn,false); return; }
+    }
+    const { error } = await client.rpc('admin_update_product_order_status',{
+      p_order_id:o.id,
+      p_order_status:orderStatus,
+      p_shipping_status:autoShippingStatus(orderStatus),
+      p_tracking_number:tracking,
+      p_courier:courier,
+      p_admin_note:$("adminNote")?.value.trim() || null
+    });
+    if(error){ console.error(error); alert('Gagal menyimpan perubahan: '+error.message); setBusy(saveBtn,false); return; }
+    alert('Perubahan order berhasil disimpan ✅');
+    await reloadAndReopen(o.id);
+  };
 }
 
 function buildUnitManager(item){
@@ -935,6 +953,47 @@ function bindAdminActions(o, pay, ship){
   };
 }
 
+function updateBulkSelectionUI(){
+  const count = selectedOrderIds.size;
+  const countEl = $("selectedOrderCount");
+  const deleteBtn = $("deleteSelectedOrders");
+  const checkAll = $("checkAllOrders");
+  if(countEl) countEl.textContent = `${count} order dipilih`;
+  if(deleteBtn) deleteBtn.disabled = currentUserRole !== 'superadmin' || count === 0;
+  const visibleChecks = [...document.querySelectorAll('.order-select')];
+  if(checkAll){
+    checkAll.checked = visibleChecks.length > 0 && visibleChecks.every(cb=>cb.checked);
+    checkAll.indeterminate = visibleChecks.some(cb=>cb.checked) && !checkAll.checked;
+  }
+}
+
+function clearOrderSelection(){
+  selectedOrderIds.clear();
+  const checkAll=$("checkAllOrders");
+  if(checkAll){ checkAll.checked=false; checkAll.indeterminate=false; }
+  updateBulkSelectionUI();
+}
+
+async function deleteSelectedOrders(){
+  if(currentUserRole !== 'superadmin'){
+    alert('Hanya superadmin yang dapat menghapus order.');
+    return;
+  }
+  const ids=[...selectedOrderIds].filter(Number.isFinite);
+  if(!ids.length) return;
+  const names=orders.filter(o=>ids.includes(Number(o.id))).map(o=>o.order_number || `#${o.id}`).slice(0,5);
+  const extra=ids.length>5 ? `\n... dan ${ids.length-5} order lainnya` : '';
+  const ok=confirm(`Hapus permanen ${ids.length} order terpilih?\n\n${names.join('\n')}${extra}\n\nData item, pembayaran, pengiriman, IMEI, garansi, dan klaim yang terkait akan ikut dihapus. Tindakan ini tidak dapat dibatalkan.`);
+  if(!ok) return;
+  const btn=$("deleteSelectedOrders");
+  setBusy(btn,true,'Menghapus...');
+  const { data, error } = await client.rpc('admin_delete_product_orders',{p_order_ids:ids});
+  if(error){ console.error(error); alert('Gagal menghapus order: '+error.message+'\n\nPastikan SQL bulk-delete-order-produk.sql sudah dijalankan.'); setBusy(btn,false); return; }
+  alert(`${Number(data || ids.length)} order berhasil dihapus.`);
+  clearOrderSelection();
+  await loadOrders();
+}
+
 async function reloadAndReopen(orderId){
   closeModal();
   await loadOrders();
@@ -952,4 +1011,4 @@ function closeModal(){
   $("detailModal").classList.remove("show");
   $("detailModal").setAttribute("aria-hidden", "true");
   document.body.classList.remove("modal-open");
-}
+} 
