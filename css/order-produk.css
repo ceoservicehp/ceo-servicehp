@@ -668,3 +668,31 @@ body.modal-open{overflow:hidden}
 .unit-fields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}.unit-slot label{display:flex;flex-direction:column;gap:5px;font-size:9px;font-weight:800;color:#65787d}.unit-slot label small{font-weight:600;color:#9aa7aa}.unit-slot input{width:100%;height:38px;border:1px solid #dce6e8;border-radius:9px;padding:0 10px;font:inherit;color:var(--text);background:#fff}.unit-slot input:focus{outline:none;border-color:var(--secondary);box-shadow:0 0 0 3px rgba(0,194,199,.10)}
 .unit-note-label{margin-top:9px}.unit-slot-actions{display:flex;gap:8px;margin-top:10px}.unit-slot-actions .btn{min-height:36px}
 @media(max-width:720px){.imei-product-head{align-items:flex-start;flex-direction:column}.unit-fields{grid-template-columns:1fr}.unit-slot-actions{flex-direction:column}.unit-slot-actions .btn{width:100%}.unit-count-badge{align-self:flex-start}}
+
+/* =========================================================
+   PENYEMPURNAAN ORDER HP — CHECKLIST / HISTORY / QUICK ACTIONS
+   ========================================================= */
+.readiness-card,.quick-actions-card{
+  margin-top:18px;padding:22px;background:#fff;border:1px solid #e4eaec;border-radius:18px;box-shadow:0 4px 15px rgba(20,55,60,.04)
+}
+.readiness-head{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;margin-bottom:16px}
+.readiness-head h3,.quick-actions-card h3{margin:5px 0 2px;font-size:20px;color:#172126}
+.readiness-head p{margin:0;color:#6b777d;font-size:12px}
+.readiness-score{width:64px;height:64px;flex:0 0 64px;border-radius:18px;background:#fff8e9;color:#b56c00;display:flex;flex-direction:column;align-items:center;justify-content:center;border:1px solid #f0dfb5}
+.readiness-score.complete{background:#edf8f1;color:#159447;border-color:#cee8d7}
+.readiness-score strong{font-size:18px;line-height:1}.readiness-score span{font-size:10px;font-weight:800;margin-top:4px;text-transform:uppercase}
+.readiness-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+.readiness-item{display:flex;align-items:center;gap:9px;padding:12px;border-radius:12px;border:1px solid #e4eaec;background:#f9fbfb;min-width:0}
+.readiness-item>i{font-size:17px}.readiness-item.ok>i{color:#159447}.readiness-item.pending>i{color:#d88300}
+.readiness-item div{min-width:0}.readiness-item span,.readiness-item strong{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.readiness-item span{font-size:10px;color:#6b777d;font-weight:700}.readiness-item strong{font-size:11px;color:#172126;margin-top:1px}
+.quick-actions-card{display:flex;align-items:center;justify-content:space-between;gap:18px}
+.quick-actions-grid{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.quick-actions-grid .btn{white-space:nowrap}
+.secondary-detail-grid{margin-top:18px}
+.payment-history-list{display:flex;flex-direction:column;gap:9px;margin-top:12px}
+.payment-history-item{display:flex;align-items:center;gap:10px;padding:11px;border:1px solid #edf1f2;border-radius:12px;background:#fbfdfd}
+.payment-history-index{width:28px;height:28px;flex:0 0 28px;border-radius:9px;background:#eef8f9;color:#1f6f78;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px}
+.payment-history-main{min-width:0;flex:1}.payment-history-title{display:flex;align-items:center;gap:7px;flex-wrap:wrap}.payment-history-title strong{font-size:13px}.payment-history-main>span,.payment-history-main>small{display:block;margin-top:2px;font-size:10px;color:#6b777d;overflow-wrap:anywhere}
+.activity-timeline{position:relative;margin-top:12px}.activity-item{display:grid;grid-template-columns:34px 1fr;gap:9px;position:relative;padding:0 0 14px}.activity-item:not(:last-child)::before{content:"";position:absolute;left:16px;top:30px;bottom:0;width:1px;background:#dfe8ea}.activity-dot{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#eef8f9;color:#1f6f78;border:1px solid #d9ecee;z-index:1}.activity-item strong,.activity-item span,.activity-item small{display:block}.activity-item strong{font-size:12px}.activity-item span{font-size:10px;color:#536067;margin-top:1px}.activity-item small{font-size:9px;color:#8b979c;margin-top:3px}
+@media(max-width:1050px){.readiness-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:760px){.readiness-head,.quick-actions-card{flex-direction:column}.readiness-grid{grid-template-columns:1fr 1fr}.quick-actions-grid{width:100%;justify-content:stretch}.quick-actions-grid .btn{flex:1 1 calc(50% - 8px)}.payment-history-item{align-items:flex-start}.payment-history-proof{padding:8px!important}}
+@media(max-width:430px){.readiness-card,.quick-actions-card{padding:16px}.readiness-grid{grid-template-columns:1fr}.quick-actions-grid .btn{flex:1 1 100%}}
