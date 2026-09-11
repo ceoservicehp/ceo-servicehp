@@ -26,6 +26,103 @@ const label = v => LABELS[v] || String(v || "-").replaceAll("_", " ");
 
 function latest(arr){ return (arr || []).slice().sort((a,b)=>Number(b.id)-Number(a.id))[0] || null; }
 
+function sortNewest(arr){
+  return (arr || []).slice().sort((a,b) => {
+    const ad = new Date(a?.paid_at || a?.created_at || 0).getTime();
+    const bd = new Date(b?.paid_at || b?.created_at || 0).getTime();
+    if(ad !== bd) return bd - ad;
+    return Number(b?.id || 0) - Number(a?.id || 0);
+  });
+}
+
+function countAssignedUnits(order){
+  return (order?.order_items || []).reduce((sum,item)=>sum+(item?.order_item_units || []).length,0);
+}
+
+function countRequiredUnits(order){
+  return (order?.order_items || []).reduce((sum,item)=>sum+Number(item?.quantity || 0),0);
+}
+
+function getOperationalReadiness(order){
+  const ship = latest(order?.order_shipments);
+  const shippingType = inferShippingType(order, ship);
+  const requiredUnits = countRequiredUnits(order);
+  const assignedUnits = countAssignedUnits(order);
+  const imeiReady = requiredUnits === 0 || assignedUnits >= requiredUnits;
+  const paymentReady = order?.payment_status === 'lunas';
+  const shippingFeeReady = shippingType === 'pickup' || shippingType === 'cod' || Number(order?.shipping_fee || 0) > 0;
+  const courierReady = shippingType === 'pickup' || !!String(ship?.courier || '').trim();
+  const trackingReady = !['package'].includes(shippingType) || !!String(ship?.tracking_number || '').trim();
+  return {shippingType, requiredUnits, assignedUnits, imeiReady, paymentReady, shippingFeeReady, courierReady, trackingReady};
+}
+
+function buildReadinessPanel(order){
+  const r = getOperationalReadiness(order);
+  const checks = [
+    {ok:r.paymentReady, icon:'fa-wallet', label:'Pembayaran', text:r.paymentReady ? 'Lunas' : `Sisa ${rupiah(order.remaining_amount)}`},
+    {ok:r.shippingFeeReady, icon:'fa-truck-fast', label:'Ongkir', text:r.shippingFeeReady ? (r.shippingType==='pickup' ? 'Pickup / Rp 0' : rupiah(order.shipping_fee)) : 'Belum ditetapkan'},
+    {ok:r.imeiReady, icon:'fa-barcode', label:'IMEI / Unit', text:`${r.assignedUnits} / ${r.requiredUnits} unit`},
+    {ok:r.courierReady, icon:'fa-box', label:'Kurir', text:r.courierReady ? (latest(order.order_shipments)?.courier || (r.shippingType==='pickup'?'Ambil di Toko':'Siap')) : 'Belum diisi'},
+    {ok:r.trackingReady, icon:'fa-receipt', label:'Resi', text:r.trackingReady ? (latest(order.order_shipments)?.tracking_number || 'Tidak wajib') : 'Belum diisi'}
+  ];
+  const readyCount = checks.filter(x=>x.ok).length;
+  return `<section class="readiness-card">
+    <div class="readiness-head">
+      <div><span class="section-label"><i class="fa-solid fa-list-check"></i> CHECKLIST OPERASIONAL</span><h3>Kesiapan Pesanan</h3><p>Gunakan checklist ini sebelum pesanan dikirim atau diselesaikan.</p></div>
+      <div class="readiness-score ${readyCount===checks.length?'complete':''}"><strong>${readyCount}/${checks.length}</strong><span>siap</span></div>
+    </div>
+    <div class="readiness-grid">
+      ${checks.map(c=>`<div class="readiness-item ${c.ok?'ok':'pending'}"><i class="fa-solid ${c.ok?'fa-circle-check':'fa-circle-exclamation'}"></i><div><span>${esc(c.label)}</span><strong>${esc(c.text)}</strong></div></div>`).join('')}
+    </div>
+  </section>`;
+}
+
+function buildPaymentHistory(order){
+  const rows = sortNewest(order?.order_payments);
+  if(!rows.length) return '<div class="notice">Belum ada riwayat pembayaran.</div>';
+  return `<div class="payment-history-list">${rows.map((p,idx)=>`
+    <article class="payment-history-item">
+      <div class="payment-history-index">${idx+1}</div>
+      <div class="payment-history-main">
+        <div class="payment-history-title"><strong>${rupiah(p.amount)}</strong><span class="pill ${p.payment_status==='paid'?'ok':p.payment_status==='rejected'?'danger':'warn'}">${esc(label(p.payment_status))}</span></div>
+        <span>${esc(label(p.payment_method || order.payment_method))} · ${fmtDate(p.paid_at || p.created_at)}</span>
+        ${p.reference_number ? `<small>Referensi: ${esc(p.reference_number)}</small>` : ''}
+        ${p.note ? `<small>Catatan: ${esc(p.note)}</small>` : ''}
+      </div>
+      ${p.proof_url ? `<button class="btn soft payment-history-proof" data-proof-path="${esc(p.proof_url)}"><i class="fa-solid fa-image"></i> Bukti</button>` : ''}
+    </article>`).join('')}</div>`;
+}
+
+function buildActivityTimeline(order){
+  const events=[];
+  if(order?.created_at) events.push({date:order.created_at, icon:'fa-cart-plus', title:'Pesanan dibuat', text:order.order_number || `Order #${order.id}`});
+  (order?.order_payments || []).forEach(p=>{
+    if(p?.created_at) events.push({date:p.created_at, icon:'fa-receipt', title:'Pembayaran dicatat', text:`${rupiah(p.amount)} · ${label(p.payment_status)}`});
+    if(p?.paid_at && p.payment_status==='paid') events.push({date:p.paid_at, icon:'fa-circle-check', title:'Pembayaran disetujui', text:rupiah(p.amount)});
+  });
+  (order?.order_shipments || []).forEach(sh=>{
+    if(sh?.shipped_at) events.push({date:sh.shipped_at, icon:'fa-truck', title:'Pesanan dikirim', text:sh.courier || 'Pengiriman'});
+    if(sh?.delivered_at) events.push({date:sh.delivered_at, icon:'fa-house-circle-check', title:'Pesanan diterima', text:sh.tracking_number || 'Terkirim'});
+  });
+  if(order?.updated_at && order.updated_at !== order.created_at) events.push({date:order.updated_at, icon:'fa-rotate', title:'Status terakhir diperbarui', text:label(order.order_status)});
+  events.sort((a,b)=>new Date(b.date)-new Date(a.date));
+  return `<div class="activity-timeline">${events.slice(0,10).map(e=>`<div class="activity-item"><span class="activity-dot"><i class="fa-solid ${e.icon}"></i></span><div><strong>${esc(e.title)}</strong><span>${esc(e.text)}</span><small>${fmtDate(e.date)}</small></div></div>`).join('') || '<div class="notice">Belum ada aktivitas.</div>'}</div>`;
+}
+
+function buildQuickActions(order, ship){
+  const wa = String(order?.customer_whatsapp || '').replace(/[^0-9]/g,'');
+  const waText = encodeURIComponent(`Halo ${order?.customer_name || ''}, update pesanan ${order?.order_number || ''}: status ${label(order?.order_status)}. Pembayaran: ${label(order?.payment_status)}.${ship?.tracking_number ? ` Resi: ${ship.tracking_number}.` : ''} Terima kasih — CEO Part & Service.`);
+  return `<section class="quick-actions-card">
+    <div><span class="section-label"><i class="fa-solid fa-bolt"></i> AKSI CEPAT</span><h3>Shortcut Pesanan</h3></div>
+    <div class="quick-actions-grid">
+      <button class="btn soft quick-copy" data-copy="${esc(order?.order_number || '')}"><i class="fa-regular fa-copy"></i> Salin No. Order</button>
+      ${wa ? `<a class="btn success" target="_blank" rel="noopener" href="https://wa.me/${esc(wa)}?text=${waText}"><i class="fa-brands fa-whatsapp"></i> Update WhatsApp</a>` : ''}
+      ${order?.payment_status==='lunas' ? `<a class="btn primary" target="_blank" rel="noopener" href="nota-produk.html?id=${encodeURIComponent(order.id)}"><i class="fa-solid fa-file-invoice"></i> Buka Invoice</a>` : `<button class="btn soft" disabled><i class="fa-solid fa-lock"></i> Invoice setelah Lunas</button>`}
+      ${ship?.tracking_number ? `<button class="btn soft quick-copy" data-copy="${esc(ship.tracking_number)}"><i class="fa-regular fa-copy"></i> Salin Resi</button>` : ''}
+    </div>
+  </section>`;
+}
+
 function inferShippingType(order, shipment){
   if(order.shipping_method === "pickup") return "pickup";
   if(order.payment_method === "cod") return "cod";
@@ -141,8 +238,9 @@ function applyFilters(){
   const st = $("statusFilter").value;
 
   filtered = orders.filter(o => {
-    const itemText = (o.order_items || []).map(i => `${i.product_name} ${i.variant_name || ""} ${i.color || ""}`).join(" ");
-    const hay = `${o.order_number || ""} ${o.customer_name || ""} ${o.customer_whatsapp || ""} ${itemText}`.toLowerCase();
+    const itemText = (o.order_items || []).map(i => `${i.product_name} ${i.variant_name || ""} ${i.color || ""} ${(i.order_item_units || []).map(u=>`${u.imei1 || ""} ${u.imei2 || ""} ${u.serial_number || ""}`).join(" ")}`).join(" ");
+    const shipText = (o.order_shipments || []).map(sh => `${sh.courier || ""} ${sh.tracking_number || ""}`).join(" ");
+    const hay = `${o.order_number || ""} ${o.customer_name || ""} ${o.customer_whatsapp || ""} ${itemText} ${shipText}`.toLowerCase();
     const ship = latest(o.order_shipments);
     const shippingType = inferShippingType(o, ship);
     const proofPending = (o.order_payments || []).some(p => p.proof_url && p.payment_status === "pending");
@@ -363,6 +461,10 @@ async function openDetail(id){
   const shippingAction = buildShippingAction(o, ship);
   const statusAction = buildStatusAction(o, ship);
   const workflowPanel = buildWorkflowPanel(o, pay, ship);
+  const readinessPanel = buildReadinessPanel(o);
+  const quickActions = buildQuickActions(o, ship);
+  const paymentHistory = buildPaymentHistory(o);
+  const activityTimeline = buildActivityTimeline(o);
   const proofPending = !!(pay?.proof_url && pay.payment_status === "pending");
 
   const totalQty = items.reduce((sum, i) => sum + Number(i.quantity || 0), 0);
@@ -386,6 +488,9 @@ async function openDetail(id){
           </small>
         </div>
       </section>
+
+      ${readinessPanel}
+      ${quickActions}
 
       ${proofPending ? `
       <div class="attention-banner">
@@ -457,6 +562,17 @@ async function openDetail(id){
             <div class="info-row"><span>Sisa</span><strong class="${Number(o.remaining_amount || 0) > 0 ? 'text-danger' : 'text-success'}">${rupiah(o.remaining_amount)}</strong></div>
           </div>
           ${pay?.proof_url ? `<button class="btn primary full proof-button" id="viewProofBtn"><i class="fa-solid fa-receipt"></i> Lihat Bukti Pembayaran</button>` : '<div class="notice"><i class="fa-regular fa-image"></i> Belum ada bukti pembayaran.</div>'}
+        </section>
+      </div>
+
+      <div class="detail-grid refined-grid secondary-detail-grid">
+        <section class="info-card payment-history-card">
+          <div class="card-title"><span class="card-icon"><i class="fa-solid fa-clock-rotate-left"></i></span><div><h3>Riwayat Pembayaran</h3><small>Semua transaksi pembayaran pada order ini</small></div></div>
+          ${paymentHistory}
+        </section>
+        <section class="info-card activity-card">
+          <div class="card-title"><span class="card-icon"><i class="fa-solid fa-timeline"></i></span><div><h3>Ringkasan Aktivitas</h3><small>Aktivitas utama yang dapat diturunkan dari data order</small></div></div>
+          ${activityTimeline}
         </section>
       </div>
 
@@ -551,6 +667,17 @@ async function openDetail(id){
     if($("viewProofTopBtn")) $("viewProofTopBtn").onclick = proofHandler;
   }
 
+  document.querySelectorAll('.payment-history-proof').forEach(btn => {
+    btn.addEventListener('click', () => viewProof(btn.dataset.proofPath));
+  });
+  document.querySelectorAll('.quick-copy').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const value = btn.dataset.copy || '';
+      if(!value) return;
+      try { await navigator.clipboard.writeText(value); btn.innerHTML = '<i class="fa-solid fa-check"></i> Tersalin'; setTimeout(()=>btn.innerHTML='<i class="fa-regular fa-copy"></i> Salin',1200); }
+      catch { prompt('Salin data berikut:', value); }
+    });
+  });
   bindUnitActions(o);
   bindAdminActions(o, pay, ship);
   $("detailModal").classList.add("show");
@@ -780,6 +907,11 @@ function bindAdminActions(o, pay, ship){
 
   if(statusBtn) statusBtn.onclick = async () => {
     const orderStatus = $("adminOrderStatus").value;
+    const readiness = getOperationalReadiness(o);
+    if(["dikirim","dalam_perjalanan","selesai"].includes(orderStatus) && !readiness.imeiReady){
+      alert(`Lengkapi IMEI / unit fisik terlebih dahulu. Saat ini ${readiness.assignedUnits} dari ${readiness.requiredUnits} unit sudah ditetapkan.`);
+      return;
+    }
     const shippingStatus = autoShippingStatus(orderStatus);
     const tracking = $("trackingNumber").value.trim() || null;
     const courier = $("shippingCourier")?.value.trim() || ship?.courier || null;
