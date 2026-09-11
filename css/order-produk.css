@@ -810,3 +810,29 @@ body.can-bulk-delete .selection-tools{display:flex}
   .simple-money-grid{grid-template-columns:1fr}
   .simple-quick-actions .btn{flex-basis:100%}
 }
+
+/* =========================================================
+   TAGIHAN FLEXIBLE + MULTI GARANSI
+   ========================================================= */
+.detail-loading{padding:44px;text-align:center;color:#6b777d;font-weight:700}
+.billing-box{margin-top:14px;padding:14px;border:1px solid #dce8ea;border-radius:13px;background:#fbfdfd}
+.billing-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.billing-head>div{display:flex;flex-direction:column;gap:2px}.billing-head b{font-size:13px}.billing-head small{font-size:10px;color:#718087}
+.billing-check{display:flex!important;align-items:center;gap:9px;text-transform:none!important;letter-spacing:0!important;font-size:12px!important;color:#29474d!important;padding-top:22px}
+.billing-check input,.warranty-active-label input{width:17px!important;height:17px!important;margin:0!important;accent-color:#1f6f78}
+.billing-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:12px}
+.manual-payment-collapse{margin-top:12px}
+.warranty-unit-list{display:flex;flex-direction:column;gap:12px}
+.warranty-unit-card{border:1px solid #e1eaec;border-radius:13px;background:#fbfdfd;padding:13px}
+.warranty-unit-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-bottom:11px;border-bottom:1px solid #e7eef0}
+.warranty-unit-head>div{display:flex;flex-direction:column;gap:3px}.warranty-unit-head strong{font-size:12px;color:#172126}.warranty-unit-head span{font-size:10px;color:#6b777d}
+.warranty-list{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.warranty-empty{padding:12px;text-align:center;border:1px dashed #d7e3e5;border-radius:10px;color:#7a878c;font-size:11px}
+.warranty-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 11px;background:#fff;border:1px solid #e5edef;border-radius:10px}
+.warranty-row-main{min-width:0;display:flex;flex-direction:column;gap:3px}.warranty-row-title{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.warranty-row-title strong{font-size:12px}.warranty-row-main>span{font-size:10px;color:#597077}.warranty-row-main>small{font-size:9px;color:#849196;overflow-wrap:anywhere}
+.warranty-editor{margin-top:10px;padding:12px;border-radius:11px;background:#eef8f8;border:1px solid #d5e9eb}
+.warranty-editor[hidden]{display:none!important}.warranty-grid{align-items:end}
+.duration-inline{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:6px}.duration-inline input,.duration-inline select{margin-top:0!important}
+.warranty-active-label{display:flex!important;align-items:center;gap:8px;text-transform:none!important;letter-spacing:0!important;font-size:11px!important;padding-top:8px}
+.warranty-editor-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:12px;padding-top:10px;border-top:1px solid #d8e7e9}
+@media(max-width:760px){.billing-head,.warranty-unit-head,.warranty-row{align-items:stretch;flex-direction:column}.billing-actions,.warranty-editor-actions{justify-content:stretch}.billing-actions .btn,.warranty-editor-actions .btn,.warranty-unit-head .btn{width:100%;justify-content:center}.billing-check{padding-top:0}}
