@@ -120,15 +120,24 @@
   </section>
 
   <section class="card table-card">
+    <div class="bulk-order-actions selection-tools">
+      <div class="bulk-selection-info">
+        <label class="bulk-check-label"><input type="checkbox" id="checkAllOrders"> <span>Pilih semua di halaman ini</span></label>
+        <span id="selectedOrderCount">0 order dipilih</span>
+      </div>
+      <button id="deleteSelectedOrders" class="btn danger" type="button" disabled>
+        <i class="fa-solid fa-trash"></i> Hapus Terpilih
+      </button>
+    </div>
     <div class="table-scroll">
       <table>
         <thead>
           <tr>
-            <th>No Order</th><th>Pembeli</th><th>Produk</th><th>Pengiriman</th><th>Pembayaran</th><th>Total</th><th>Prioritas</th><th>Status</th><th>Aksi</th>
+            <th class="selection-col"><span class="sr-only">Pilih</span></th><th>No Order</th><th>Pembeli</th><th>Produk</th><th>Pengiriman</th><th>Pembayaran</th><th>Total</th><th>Prioritas</th><th>Status</th><th>Aksi</th>
           </tr>
         </thead>
         <tbody id="orderTableBody">
-          <tr><td colspan="9" class="empty">Memuat order...</td></tr>
+          <tr><td colspan="10" class="empty">Memuat order...</td></tr>
         </tbody>
       </table>
     </div>
