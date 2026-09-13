@@ -71,6 +71,7 @@ let allOrders=[];
 let currentSearch="";
 let currentFilter="all";
 let currentDateFilter = "";
+let currentStatFilter = "all";
 let selectedParts = [];
 
 /* ================= PAGINATION ================= */
@@ -302,6 +303,11 @@ async function loadOrders(){
     query = query
         .gte("created_at", currentDateFilter + "T00:00:00")
         .lte("created_at", currentDateFilter + "T23:59:59");
+    }
+
+    // Filter cepat dari card statistik
+    if(currentStatFilter !== "all"){
+        query = query.eq("status", currentStatFilter);
     }
     
     const {data,error,count} = await query.range(start,end);
@@ -1147,6 +1153,27 @@ const paid = parseRupiah(document.getElementById("edit-amount-paid").value);
   document.getElementById("edit-payment-status").value = status;
   document.getElementById("edit-due-date").value = dueDate || "-";
 }
+
+/* ================= CARD STATISTIK FILTER ================= */
+document.addEventListener("click", e => {
+    const card = e.target.closest(".stat-filter-card");
+    if(!card) return;
+
+    currentStatFilter = card.dataset.statusFilter || "all";
+    currentPage = 1;
+
+    document.querySelectorAll(".stat-filter-card")
+        .forEach(c => c.classList.toggle("active", c === card));
+
+    loadOrders();
+});
+
+document.addEventListener("keydown", e => {
+    const card = e.target.closest?.(".stat-filter-card");
+    if(!card || (e.key !== "Enter" && e.key !== " ")) return;
+    e.preventDefault();
+    card.click();
+});
 
 /* ================= TAB FILTER ================= */
 document.addEventListener("click",e=>{
