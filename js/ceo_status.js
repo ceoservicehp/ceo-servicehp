@@ -52,6 +52,39 @@ function statusClass(status){
   return "status-pending";
 }
 
+
+function getJenisPerbaikan(row){
+  // Dapur menyimpan "Jenis Perbaikan / Sparepart" ke kolom sparepart (JSON).
+  // Tetap dukung kolom jenis_perbaikan jika suatu saat tersedia.
+  const direct = String(row?.jenis_perbaikan || "").trim();
+  if(direct) return direct;
+
+  const raw = row?.sparepart;
+  if(!raw) return "Belum ada jenis perbaikan";
+
+  try{
+    const parts = Array.isArray(raw) ? raw : JSON.parse(raw);
+    if(!Array.isArray(parts) || parts.length === 0){
+      return "Belum ada jenis perbaikan";
+    }
+
+    const labels = parts
+      .map(part => {
+        const nama = String(part?.nama || part?.name || "").trim();
+        if(!nama) return "";
+        const qty = Math.max(1, Number(part?.qty || 1));
+        return qty > 1 ? `${nama} ×${qty}` : nama;
+      })
+      .filter(Boolean);
+
+    return labels.length ? labels.join(", ") : "Belum ada jenis perbaikan";
+  }catch(error){
+    // Data lama kadang dapat berupa teks biasa, bukan JSON.
+    const text = String(raw || "").trim();
+    return text || "Belum ada jenis perbaikan";
+  }
+}
+
 function formatSparepart(sparepartJSON){
   if(!sparepartJSON) return "Tidak ada";
 
@@ -263,7 +296,7 @@ document.addEventListener("click", event => {
     setText("d-brand", dataRow.brand || dataRow.tipe_model || "-");
     setText("d-problem", dataRow.problem || "-");
     setText("d-metode", dataRow.metode || "-");
-    setText("d-perbaikan", dataRow.jenis_perbaikan || "Informasi tidak tersedia");
+    setText("d-perbaikan", getJenisPerbaikan(dataRow));
     setText("d-status", String(dataRow.status || "-").toUpperCase());
     setText("d-tanggal", formatDate(dataRow.created_at, true));
 
