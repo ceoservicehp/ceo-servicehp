@@ -305,3 +305,15 @@ startSlider();
 observer.observe(reviewTrack,{childList:true});
 
 });
+
+/* ================= NAVBAR MODERN ================= */
+document.addEventListener("DOMContentLoaded",()=>{
+  const toggle=document.getElementById("menuToggle");
+  const nav=document.getElementById("topNav");
+  const overlay=document.getElementById("navOverlay");
+  if(!toggle||!nav||!overlay) return;
+  const close=()=>{nav.classList.remove("open");overlay.classList.remove("show");toggle.setAttribute("aria-expanded","false");};
+  toggle.addEventListener("click",()=>{const open=!nav.classList.contains("open");nav.classList.toggle("open",open);overlay.classList.toggle("show",open);toggle.setAttribute("aria-expanded",String(open));});
+  overlay.addEventListener("click",close);
+  nav.querySelectorAll("a").forEach(a=>a.addEventListener("click",close));
+});
