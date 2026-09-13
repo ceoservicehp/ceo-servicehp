@@ -63,19 +63,19 @@
 
   <div class="container">
     <section class="stats" id="serviceStats">
-      <article class="stat-card">
+      <article class="stat-card stat-filter-card active" data-status-filter="all" role="button" tabindex="0">
         <div class="stat-icon"><i class="fa-solid fa-screwdriver-wrench"></i></div>
         <div><span>Total Service</span><strong id="statServiceTotal">0</strong><small>Seluruh service terdata</small></div>
       </article>
-      <article class="stat-card">
+      <article class="stat-card stat-filter-card" data-status-filter="pending" role="button" tabindex="0">
         <div class="stat-icon waiting"><i class="fa-regular fa-clock"></i></div>
         <div><span>Pending</span><strong id="statServicePending">0</strong><small>Menunggu tindak lanjut</small></div>
       </article>
-      <article class="stat-card">
+      <article class="stat-card stat-filter-card" data-status-filter="proses" role="button" tabindex="0">
         <div class="stat-icon process-icon"><i class="fa-solid fa-gears"></i></div>
         <div><span>Sedang Proses</span><strong id="statServiceProcess">0</strong><small>Unit sedang dikerjakan</small></div>
       </article>
-      <article class="stat-card">
+      <article class="stat-card stat-filter-card" data-status-filter="selesai" role="button" tabindex="0">
         <div class="stat-icon done-icon"><i class="fa-solid fa-circle-check"></i></div>
         <div><span>Selesai</span><strong id="statServiceDone">0</strong><small>Service telah selesai</small></div>
       </article>
