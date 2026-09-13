@@ -3,189 +3,128 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dapur Admin — CEO Part & Service</title>
-
+<title>Dapur Service — CEO Part & Service</title>
+<meta name="description" content="Kelola service masuk, teknisi, pembayaran, dan kolaborasi UJANG CEO Part & Service.">
+<link rel="icon" href="images/logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/dapur.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="css/dapur.css">
 </head>
-
 <body>
+<div class="app-shell">
 
-<div class="wrapper">
-
-<!-- ================= HEADER ================= -->
-<header>
-  <div id="logo-container">
-    <img src="images/logo.png" width="55">
-
-    <div>
-      <h1>CEO - DAPUR ADMIN</h1>
-      <div class="tagline">CELLULAR ENGINEERING OFFICER</div>
-    </div>
+<header class="site-header">
+  <div class="header-inner">
+    <a href="index.html" class="brand" id="logo-container">
+      <img src="images/logo.png" alt="CEO Part & Service">
+      <div class="brand-text">
+        <strong>CEO PART & SERVICE</strong>
+        <span>DAPUR SERVICE</span>
+      </div>
+    </a>
+    <button class="menu-toggle" id="menuToggle" type="button" aria-label="Buka menu" aria-expanded="false"><i class="fa-solid fa-bars"></i></button>
+    <nav class="top-nav" aria-label="Navigasi admin">
+      <a href="index.html" class="nav-btn"><i class="fa-solid fa-house"></i><span>Beranda</span></a>
+      <a href="profile.html" class="nav-btn"><i class="fa-solid fa-user"></i><span>Profil</span></a>
+      <a href="dapur.html" class="nav-btn active"><i class="fa-solid fa-kitchen-set"></i><span>Dapur</span></a>
+      <a href="produk.html" class="nav-btn"><i class="fa-solid fa-box-open"></i><span>Produk</span></a>
+      <a href="keuangan.html" class="nav-btn"><i class="fa-solid fa-wallet"></i><span>Keuangan</span></a>
+      <a href="layanan.html" class="nav-btn"><i class="fa-solid fa-screwdriver-wrench"></i><span>Layanan</span></a>
+      <a href="ceo_status.html" class="nav-btn"><i class="fa-solid fa-chart-line"></i><span>Status</span></a>
+      <button id="logoutBtn" class="nav-btn logout-btn" type="button"><i class="fa-solid fa-right-from-bracket"></i><span>Logout</span></button>
+    </nav>
   </div>
-  
-  <button class="menu-toggle" id="menuToggle">
-  <i class="fa-solid fa-bars"></i>
-</button>
 </header>
-
-<!-- ================= NAVBAR ================= -->
-<nav class="top-nav">
-  <a href="index.html" class="nav-btn">
-    <i class="fa-solid fa-house"></i>
-    Beranda
-  </a>
-
-  <a href="profile.html" class="nav-btn">
-    <i class="fa-solid fa-user"></i>
-    Profil
-  </a>
- 
-  <a href="dapur.html" class="nav-btn active">
-    <i class="fa-solid fa-kitchen-set"></i>
-    Dapur
-  </a>
-
-  <a href="produk.html" class="nav-btn">
-    <i class="fa-solid fa-box-open"></i>
-    Produk
-  </a>
-
-  <a href="keuangan.html" class="nav-btn">
-    <i class="fa-solid fa-wallet"></i>
-    Keuangan
-  </a>
-
-  <a href="layanan.html" class="nav-btn">
-    <i class="fa-solid fa-screwdriver-wrench"></i>
-    Layanan
-  </a>
-
-  <a href="ceo_status.html" class="nav-btn">
-    <i class="fa-solid fa-chart-line"></i>
-    Status
-  </a>
-
-  <!-- 🔴 LOGOUT -->
-  <button id="logoutBtn" class="nav-btn logout-btn">
-    <i class="fa-solid fa-right-from-bracket"></i>
-    Logout
-  </button>
-</nav>
 <div class="nav-overlay" id="navOverlay"></div>
 
-<!-- MAIN -->
-<main class="container">
+<main>
+  <section class="dapur-hero">
+    <div class="dapur-hero-inner">
+      <div class="hero-copy">
+        <span class="hero-badge"><i class="fa-solid fa-screwdriver-wrench"></i> OPERASIONAL SERVICE</span>
+        <h1>Kelola <span>Service Masuk</span></h1>
+        <p>Pantau service, tentukan teknisi CEO atau UJANG, atur biaya, pembayaran, garansi, dan status pengerjaan dalam satu halaman.</p>
+      </div>
+      <div class="hero-side">
+        <div class="hero-status-card">
+          <div class="status-title"><i class="fa-solid fa-store"></i><span>Status Layanan</span></div>
+          <div id="admin-status" class="store-status">Memuat status layanan...</div>
+          <small id="tanggalOtomatis">Memuat tanggal...</small>
+          <div class="hero-status-actions buttons">
+            <button id="btnOpen" class="btn btn-open"><i class="fa-solid fa-circle-check"></i> Buka</button>
+            <button id="btnClose" class="btn btn-close"><i class="fa-solid fa-circle-xmark"></i> Tutup</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-<!-- STATUS BAR -->
-<section class="status-bar">
-<div>
-<div id="admin-status" class="store-status">
-Memuat status layanan...
-</div>
-<small id="tanggalOtomatis"></small>
-</div>
+  <div class="container">
+    <section class="content-card admin-content">
+      <div class="content-head">
+        <div>
+          <span class="eyebrow">DATA SERVICE</span>
+          <h2>Daftar Service Masuk</h2>
+          <p>Cari pelanggan, filter metode service, dan buka detail untuk mengelola pengerjaan.</p>
+        </div>
+        <div class="content-head-actions">
+          <button id="cetakTanggal" class="btn btn-soft"><i class="fa-solid fa-print"></i> Cetak Data</button>
+          <button id="hapusTerpilih" class="btn btn-danger-soft"><i class="fa-solid fa-trash"></i> Hapus Terpilih</button>
+        </div>
+      </div>
 
-<div class="buttons">
-<button id="btnOpen" class="btn btn-open">🟢 Buka</button>
-<button id="btnClose" class="btn btn-close">🔴 Tutup</button>
-</div>
-</section>
+      <div class="filter-card">
+        <div class="search-box search-wrap">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="searchNama" placeholder="Cari nama pelanggan..." autocomplete="off">
+        </div>
+        <label class="date-filter-wrap"><span>Tanggal Masuk</span><input type="date" id="filterTanggal" class="filter-date"></label>
+      </div>
 
-<!-- CONTENT -->
-<section class="admin-content">
+      <div class="order-tabs" role="tablist">
+        <button class="tab active" data-filter="all"><i class="fa-solid fa-layer-group"></i> Semua</button>
+        <button class="tab" data-filter="toko"><i class="fa-solid fa-store"></i> Datang ke Toko</button>
+        <button class="tab" data-filter="home"><i class="fa-solid fa-house-chimney-user"></i> Home Service</button>
+        <button class="tab" data-filter="paket"><i class="fa-solid fa-box"></i> Kirim Paket</button>
+      </div>
 
-<h2>Data Service Masuk</h2>
+      <div class="table-toolbar">
+        <div class="table-hint"><i class="fa-solid fa-circle-info"></i><span>Centang service untuk aksi massal. Klik Detail untuk membuka seluruh informasi service.</span></div>
+        <div class="page-size">Tampilkan
+          <select id="pageSize">
+            <option value="10">10 / halaman</option>
+            <option value="20">20 / halaman</option>
+            <option value="50">50 / halaman</option>
+            <option value="100">100 / halaman</option>
+          </select>
+        </div>
+      </div>
 
-<!-- SEARCH -->
-<div class="search-box">
-<input type="text" id="searchNama" placeholder="🔍 Cari nama pelanggan...">
-</div>
+      <div class="table-wrapper">
+        <table class="admin-table">
+          <thead><tr>
+            <th><input type="checkbox" id="checkAll" aria-label="Pilih semua"></th>
+            <th>No</th><th>Nama</th><th>Teknisi</th><th>Alamat</th><th>No HP</th><th>Tanggal</th><th>Status</th><th>Total</th><th>Aksi</th>
+          </tr></thead>
+          <tbody id="orderTable"><tr><td colspan="10" class="empty-row">Memuat data...</td></tr></tbody>
+        </table>
+      </div>
 
-<!-- BULK ACTION -->
-<div class="bulk-actions">
-
-<input type="date" id="filterTanggal" class="filter-date">
-
-<button id="hapusTerpilih" class="btn">
-<i class="fa-solid fa-trash"></i> Hapus Terpilih
-</button>
-
-<button id="cetakTanggal" class="btn btn-print">
-<i class="fa-solid fa-print"></i> Cetak Data
-</button>
-
-</div>
-
-<!-- TAB FILTER -->
-<div class="order-tabs">
-<button class="tab active" data-filter="all">Semua</button>
-<button class="tab" data-filter="toko">Datang ke Toko</button>
-<button class="tab" data-filter="home">Home Service</button>
-<button class="tab" data-filter="paket">Kirim Paket</button>
-</div>
-
-<!-- ================= PAGINATION ================= -->
-<div class="table-pagination">
-  
-  <div class="page-size">
-    Show:
-    <select id="pageSize">
-      <option value="10">10</option>
-      <option value="20">20</option>
-      <option value="50">50</option>
-      <option value="100">100</option>
-    </select>
+      <div class="table-pagination">
+        <span class="pagination-label">Navigasi halaman</span>
+        <div class="page-nav">
+          <button id="prevPage" type="button"><i class="fa-solid fa-chevron-left"></i><span> Prev</span></button>
+          <span id="pageNumbers"></span>
+          <button id="nextPage" type="button"><span>Next </span><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+      </div>
+    </section>
   </div>
-  
-  <div class="page-nav">
-    <button id="prevPage">← Prev</button>
-    
-    <span id="pageNumbers"></span>
-    
-    <button id="nextPage">Next →</button>
-  </div>
-</div>
-  
-<!-- TABLE -->
-<div class="table-wrapper">
-<table class="admin-table">
-
-<thead>
-<tr>
-<th><input type="checkbox" id="checkAll"></th>
-<th>No</th>
-<th>Nama</th>
-<th>Teknisi</th>
-<th>Alamat</th>
-<th>No HP</th>
-<th>Tanggal</th>
-<th>Status</th>
-<th>Total</th>
-<th>Aksi</th>
-</tr>
-</thead>
-
-<tbody id="orderTable">
-<tr>
-<td colspan="10">Memuat data...</td>
-</tr>
-</tbody>
-
-</table>
-</div>
-
-</section>
 </main>
 
-<!-- FOOTER -->
-<footer class="main-footer">
-© 2026 CEO Service HP — Admin Panel
-</footer>
-
+<footer class="main-footer">© 2026 CEO Part & Service — Dapur Service</footer>
 </div>
 <!-- MODAL DETAIL -->
 <div id="detailModal" class="modal">
