@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dapur Admin — CEO Part & Service</title>
 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/dapur.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
@@ -41,7 +44,7 @@
     Profil
   </a>
  
-  <a href="dapur.html" class="nav-btn">
+  <a href="dapur.html" class="nav-btn active">
     <i class="fa-solid fa-kitchen-set"></i>
     Dapur
   </a>
@@ -156,6 +159,7 @@ Memuat status layanan...
 <th><input type="checkbox" id="checkAll"></th>
 <th>No</th>
 <th>Nama</th>
+<th>Teknisi</th>
 <th>Alamat</th>
 <th>No HP</th>
 <th>Tanggal</th>
@@ -167,7 +171,7 @@ Memuat status layanan...
 
 <tbody id="orderTable">
 <tr>
-<td colspan="9">Memuat data...</td>
+<td colspan="10">Memuat data...</td>
 </tr>
 </tbody>
 
@@ -185,206 +189,142 @@ Memuat status layanan...
 </div>
 <!-- MODAL DETAIL -->
 <div id="detailModal" class="modal">
-  <div class="modal-box">
-    <span id="closeModal" class="modal-close">&times;</span>
-
-    <h3>Edit Data Service</h3>
+  <div class="modal-box service-modal-box">
+    <div class="modal-head">
+      <div>
+        <span class="eyebrow">SERVICE ORDER</span>
+        <h3>Edit Data Service</h3>
+        <p>Kelola perangkat, teknisi, biaya, pembayaran, dan status dalam satu tempat.</p>
+      </div>
+      <button type="button" id="closeModal" class="modal-close" aria-label="Tutup">&times;</button>
+    </div>
 
     <input type="hidden" id="edit-id">
 
-    <div class="form-grid">
+    <section class="form-section">
+      <div class="section-title">
+        <span class="section-icon"><i class="fa-solid fa-user"></i></span>
+        <div><h4>Pelanggan & Perangkat</h4><p>Informasi utama service dan perangkat pelanggan.</p></div>
+      </div>
+      <div class="form-grid">
+        <div><label>Nama</label><input type="text" id="edit-nama"></div>
+        <div><label>No HP</label><input type="text" id="edit-phone"></div>
+        <div class="span-2"><label>Alamat</label><input type="text" id="edit-alamat"></div>
+        <div><label>Kategori Perangkat</label><select id="edit-kategori-perangkat"><option value="">Pilih Kategori</option><option value="SMARTPHONE">SMARTPHONE</option><option value="LAPTOP">LAPTOP</option><option value="DRONE">DRONE</option></select></div>
+        <div><label>Tipe / Model Perangkat</label><input type="text" id="edit-tipe-model"></div>
+        <div class="span-2"><label>Keluhan</label><textarea id="edit-problem"></textarea></div>
+        <div><label>Metode Service</label><input type="text" id="edit-metode"></div>
+        <div><label>Koordinat</label><input type="text" id="edit-coord"></div>
+      </div>
+    </section>
 
-      <div>
-        <label>Nama</label>
-        <input type="text" id="edit-nama">
+    <section class="form-section collaboration-section">
+      <div class="section-title">
+        <span class="section-icon"><i class="fa-solid fa-handshake"></i></span>
+        <div><h4>Teknisi & Bagi Hasil</h4><p>Atur siapa yang mengerjakan dan sumber pelanggan. Perhitungan UJANG otomatis di luar modal sparepart.</p></div>
       </div>
-
-      <div>
-        <label>Alamat</label>
-        <input type="text" id="edit-alamat">
-      </div>
-      
-      <div>
-        <label>No HP</label>
-        <input type="text" id="edit-phone">
-      </div>
-
-      <div>
-        <label>Kategori Perangkat</label>
-        <select id="edit-kategori-perangkat">
-          <option value="">Pilih Kategori</option>
-          <option value="SMARTPHONE">SMARTPHONE</option>
-          <option value="LAPTOP">LAPTOP</option>
-          <option value="DRONE">DRONE</option>
-        </select>
-      </div>
-      
-      <div>
-        <label>Tipe/Model Perangkat</label>
-        <input type="text" id="edit-tipe-model">
-      </div>
-
-      <div>
-        <label>Keluhan</label>
-        <textarea id="edit-problem"></textarea>
-      </div>
-
-      <div>
-        <label>Metode Service</label>
-        <input type="text" id="edit-metode">
-      </div>
-
-      <div>
-        <label>Ekspedisi</label>
-        <input type="text" id="edit-ekspedisi">
-      </div>
-      
-      <div>
-        <label>Nomor Resi</label>
-        <input type="text" id="edit-resi">
-      </div>
-
-      <div>
-      <label>Jenis Perbaikan / Sparepart</label>
-    
-      <div id="sparepartContainer">
-    
-        <div class="sparepart-row">
-          <input type="text" class="sparepart-name" placeholder="Jenis Perbaikan / Sparepart">
-    
-          <input type="text" class="sparepart-price rupiah-input" placeholder="Harga">
-    
-          <button type="button" class="btn-remove-sparepart">
-            <i class="fa-solid fa-xmark"></i>
-          </button>
+      <div class="form-grid">
+        <div>
+          <label>Teknisi</label>
+          <select id="edit-teknisi">
+            <option value="CEO">CEO</option>
+            <option value="UJANG">UJANG</option>
+          </select>
         </div>
-    
+        <div>
+          <label>Sumber Pelanggan</label>
+          <select id="edit-sumber-pelanggan">
+            <option value="CEO">Pelanggan CEO</option>
+            <option value="UJANG">Pelanggan UJANG</option>
+          </select>
+          <small class="field-help" id="sumberHelp">Dipakai untuk menentukan persentase jika teknisi UJANG.</small>
+        </div>
+        <div>
+          <label>Modal Sparepart</label>
+          <div class="money-field"><span>Rp</span><input type="text" id="edit-modal-sparepart" class="rupiah-input" placeholder="0"></div>
+          <small class="field-help">Harga modal yang benar-benar dikeluarkan, bukan harga jual ke pelanggan.</small>
+        </div>
+        <div class="split-rule-box" id="splitRuleBox">
+          <span>Skema aktif</span>
+          <strong id="splitRuleText">Teknisi CEO • CEO 100%</strong>
+        </div>
       </div>
 
-      <button type="button" id="addSparepartBtn" class="btn btn-secondary">
-        + Tambah Jenis Perbaikan / Sparepart
-      </button>
-    
-      <!-- hidden untuk simpan ke database -->
-      <input type="hidden" id="edit-sparepart">
-    
+      <div class="split-preview">
+        <div><span>Dasar Bagi Hasil</span><strong id="preview-bagi-hasil">Rp 0</strong><small>Total service tanpa transport dikurangi modal sparepart</small></div>
+        <div><span>Bagian UJANG</span><strong id="preview-ujang">Rp 0</strong><small id="preview-ujang-pct">0%</small></div>
+        <div><span>Bagian CEO</span><strong id="preview-ceo">Rp 0</strong><small id="preview-ceo-pct">100%</small></div>
+      </div>
+      <div class="split-note"><i class="fa-solid fa-circle-info"></i><span>Jika teknisi <b>UJANG</b>: pelanggan UJANG = 65% UJANG / 35% CEO; pelanggan CEO = 50% UJANG / 50% CEO. Jika teknisi CEO, tidak ada pembagian dengan UJANG.</span></div>
+    </section>
+
+    <section class="form-section">
+      <div class="section-title">
+        <span class="section-icon"><i class="fa-solid fa-screwdriver-wrench"></i></span>
+        <div><h4>Perbaikan & Biaya</h4><p>Rincian pekerjaan, sparepart yang ditagihkan, transport, dan jasa.</p></div>
+      </div>
+      <div class="form-grid">
+        <div class="span-2">
+          <label>Jenis Perbaikan / Sparepart</label>
+          <div id="sparepartContainer"><div class="sparepart-row"><input type="text" class="sparepart-name" placeholder="Jenis Perbaikan / Sparepart"><input type="text" class="sparepart-price rupiah-input" placeholder="Harga"><button type="button" class="btn-remove-sparepart"><i class="fa-solid fa-xmark"></i></button></div></div>
+          <button type="button" id="addSparepartBtn" class="btn btn-secondary add-part-btn"><i class="fa-solid fa-plus"></i> Tambah Jenis Perbaikan / Sparepart</button>
+          <input type="hidden" id="edit-sparepart">
+        </div>
+        <div><label>Total Jenis Perbaikan / Sparepart</label><input type="text" id="edit-total-sparepart" class="rupiah-input" readonly></div>
+        <div><label>Biaya Transport</label><input type="text" id="edit-transport" class="rupiah-input"></div>
+        <div><label>Biaya Jasa</label><input type="text" id="edit-jasa" class="rupiah-input"></div>
+        <div><label>Total Tagihan</label><input type="text" id="edit-total" class="rupiah-input" readonly></div>
+      </div>
+    </section>
+
+    <section class="form-section">
+      <div class="section-title">
+        <span class="section-icon"><i class="fa-solid fa-truck"></i></span>
+        <div><h4>Pengiriman & Bukti</h4><p>Informasi ekspedisi serta bukti transaksi/service.</p></div>
+      </div>
+      <div class="form-grid">
+        <div><label>Ekspedisi</label><input type="text" id="edit-ekspedisi"></div>
+        <div><label>Nomor Resi</label><input type="text" id="edit-resi"></div>
+        <div><label>Bukti Transfer</label><div id="edit-bukti-transfer-preview" class="preview-box"></div></div>
+        <div><label>Upload Bukti Service Selesai</label><input type="file" id="edit-bukti-file" accept="image/*"></div>
+        <div class="span-2"><label>Preview Bukti Service Selesai</label><div id="edit-bukti-selesai-preview" class="preview-box"></div></div>
+      </div>
+    </section>
+
+    <section class="form-section">
+      <div class="section-title">
+        <span class="section-icon"><i class="fa-solid fa-wallet"></i></span>
+        <div><h4>Pembayaran & Garansi</h4><p>Atur pembayaran, tempo, sisa tagihan, dan masa garansi service.</p></div>
+      </div>
+      <div class="form-grid">
+        <div><label>Masa Garansi</label><input type="date" id="edit-garansi" class="input"></div>
+        <div class="checkbox-card"><label><input type="checkbox" id="edit-use-top"> Gunakan TOP (Tempo Pembayaran)</label></div>
+        <div><label>Lama Tempo (Hari)</label><input type="number" id="edit-top-days" min="0" placeholder="Contoh: 7"></div>
+        <div><label>Jumlah Dibayar</label><input type="text" id="edit-amount-paid" class="rupiah-input" placeholder="0"></div>
+        <div><label>Sisa Tagihan</label><input type="text" id="edit-remaining" class="rupiah-input" readonly></div>
+        <div><label>Status Pembayaran</label><input type="text" id="edit-payment-status" readonly></div>
+        <div><label>Jatuh Tempo</label><input type="text" id="edit-due-date" readonly></div>
+      </div>
+    </section>
+
+    <section class="form-section">
+      <div class="section-title">
+        <span class="section-icon"><i class="fa-solid fa-clipboard-check"></i></span>
+        <div><h4>Status Service</h4><p>Status dan waktu pengerjaan unit.</p></div>
+      </div>
+      <div class="form-grid">
+        <div><label>Status Service</label><select id="edit-status"><option value="pending">Pending</option><option value="proses">Proses</option><option value="selesai">Selesai</option><option value="batal">Batal</option></select></div>
+        <div><label>Tanggal Masuk</label><input type="text" id="edit-tanggal" readonly></div>
+        <div><label>Tanggal Selesai</label><input type="text" id="edit-tanggal-selesai" readonly></div>
+      </div>
+    </section>
+
+    <div class="modal-actions sticky-actions">
+      <button id="deleteEdit" class="btn btn-danger-soft"><i class="fa-solid fa-trash"></i> Hapus</button>
+      <div class="action-spacer"></div>
+      <button id="closeEdit" class="btn btn-secondary"><i class="fa-solid fa-xmark"></i> Tutup</button>
+      <button id="saveEdit" class="btn btn-save"><i class="fa-solid fa-floppy-disk"></i> Simpan Perubahan</button>
     </div>
-      
-      <div>
-        <label>Total Jenis Perbaikan / Sparepart</label>
-        <input type="text" id="edit-total-sparepart" class="rupiah-input" readonly>
-      </div>
-
-      <div>
-        <label>Biaya Transport</label>
-        <input type="text" id="edit-transport" class="rupiah-input">
-      </div>
-
-      <div>
-        <label>Biaya Jasa</label>
-        <input type="text" id="edit-jasa" class="rupiah-input">
-      </div>
-
-      <div>
-        <label>Total</label>
-        <input type="text" id="edit-total" class="rupiah-input">
-      </div>
-
-      <div>
-        <label>Status Service</label>
-        <select id="edit-status">
-          <option value="pending">Pending</option>
-          <option value="proses">Proses</option>
-          <option value="selesai">Selesai</option>
-          <option value="batal">Batal</option>
-        </select>
-      </div>
-
-      <div>
-        <label>Tanggal Masuk</label>
-        <input type="text" id="edit-tanggal" readonly>
-      </div>
-
-      <div>
-        <label>Tanggal Selesai</label>
-        <input type="text" id="edit-tanggal-selesai" readonly>
-      </div>
-
-      <div>
-        <label>Koordinat</label>
-        <input type="text" id="edit-coord">
-      </div>
-
-      <div>
-        <label>Bukti Transfer</label>
-        <div id="edit-bukti-transfer-preview"></div>
-      </div>
-      
-      <div>
-        <label>Upload Bukti Service Selesai</label>
-        <input type="file" id="edit-bukti-file" accept="image/*">
-      </div>
-      
-      <div>
-        <label>Preview Bukti Service Selesai</label>
-        <div id="edit-bukti-selesai-preview"></div>
-      </div>
-
-<!-- ================= SISTEM PEMBAYARAN ================= -->
-<div class="payment-section">
-  <div class="form-group">
-    <label>Masa Garansi</label>
-    <input type="date" id="edit-garansi" class="input">
-  </div>
-
-  <label>
-    <input type="checkbox" id="edit-use-top">
-    Gunakan TOP (Tempo Pembayaran)
-  </label>
-
-  <div>
-    <label>Lama Tempo (Hari)</label>
-    <input type="number" id="edit-top-days" min="0" placeholder="Contoh: 7">
-  </div>
-
-  <div>
-    <label>Jumlah Dibayar</label>
-    <input type="text" id="edit-amount-paid" class="rupiah-input" placeholder="0">
-  </div>
-
-  <div>
-    <label>Sisa Tagihan</label>
-    <input type="text" id="edit-remaining" class="rupiah-input" readonly>
-  </div>
-
-  <div>
-    <label>Status Pembayaran</label>
-    <input type="text" id="edit-payment-status" readonly>
-  </div>
-
-  <div>
-    <label>Jatuh Tempo</label>
-    <input type="text" id="edit-due-date" readonly>
-  </div>
-
-</div>
-
-    <div class="modal-actions">
-    
-      <button id="saveEdit" class="btn btn-open">
-        <i class="fa-solid fa-floppy-disk"></i> Simpan
-      </button>
-    
-      <button id="deleteEdit" class="btn btn-close">
-        <i class="fa-solid fa-trash"></i> Hapus
-      </button>
-    
-      <button id="closeEdit" class="btn btn-secondary">
-        <i class="fa-solid fa-xmark"></i> Tutup
-      </button>
-    
-    </div>
-
   </div>
 </div>
 
