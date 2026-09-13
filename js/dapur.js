@@ -248,13 +248,37 @@ function initRupiahInputs(){
 
 }
 
+/* ================= DASHBOARD STATS ================= */
+async function loadServiceStats(){
+  if(!client) return;
+  try{
+    const { data, error } = await client
+      .from("service_orders")
+      .select("status");
+
+    if(error) throw error;
+    const rows = data || [];
+    const setText = (id, value) => {
+      const el = document.getElementById(id);
+      if(el) el.textContent = value;
+    };
+
+    setText("statServiceTotal", rows.length);
+    setText("statServicePending", rows.filter(r => (r.status || "pending") === "pending").length);
+    setText("statServiceProcess", rows.filter(r => r.status === "proses").length);
+    setText("statServiceDone", rows.filter(r => r.status === "selesai").length);
+  }catch(err){
+    console.error("Gagal memuat statistik service:", err);
+  }
+}
+
 /* ================= LOAD DATA ================= */
 async function loadOrders(){
 
     const tbody=document.getElementById("orderTable");
     if(!tbody || !client) return;
 
-    tbody.innerHTML=`<tr><td colspan="9">Loading...</td></tr>`;
+    tbody.innerHTML=`<tr><td colspan="10" class="empty-row"><i class="fa-solid fa-spinner fa-spin"></i> Memuat service...</td></tr>`;
 
     /* hitung pagination */
 
@@ -283,7 +307,7 @@ async function loadOrders(){
     const {data,error,count} = await query.range(start,end);
 
     if(error){
-        tbody.innerHTML=`<tr><td colspan="9">Error load data</td></tr>`;
+        tbody.innerHTML=`<tr><td colspan="10" class="empty-row">Gagal memuat data service</td></tr>`;
         console.error(error);
         return;
     }
@@ -294,6 +318,7 @@ async function loadOrders(){
 
     renderTable();
     updatePagination();
+    loadServiceStats();
 }
 
 /* ================= UPDATE PAGINATION ================= */
@@ -395,7 +420,7 @@ function updatePagination(){
     const start = (currentPage - 1) * pageSize + 1;
     const end = Math.min(currentPage * pageSize, totalRows);
     
-    info.innerText = `Showing ${start}-${end} of ${totalRows} orders`;
+    info.innerText = totalRows ? `${start}-${end} dari ${totalRows} service` : "0 service";
     }
 }
 
@@ -479,7 +504,7 @@ function renderTable(){
     let rows = allOrders;
     
     if(rows.length===0){
-        tbody.innerHTML=`<tr><td colspan="10">Tidak ada data</td></tr>`;
+        tbody.innerHTML=`<tr><td colspan="10" class="empty-row">Tidak ada service yang sesuai.</td></tr>`;
         return;
     }
 
@@ -511,10 +536,10 @@ function renderTable(){
         tbody.innerHTML+=`
         <tr>
             <td><input type="checkbox" class="row-check" data-id="${row.id}"></td>
-            <td>${nomor}</td>
-            <td>${row.nama ?? "-"}</td>
-            <td><span class="technician-badge ${String(row.teknisi || "CEO").toLowerCase()}">${row.teknisi || "CEO"}</span></td>
-            <td>${row.alamat ?? "-"}</td>
+            <td><span class="row-number">${nomor}</span></td>
+            <td><div class="customer-cell"><strong>${row.nama ?? "-"}</strong><small>${row.kategori_perangkat || "Perangkat"}${row.tipe_model ? ` · ${row.tipe_model}` : ""}</small></div></td>
+            <td><span class="technician-badge ${String(row.teknisi || "CEO").toLowerCase()}"><i class="fa-solid fa-user-gear"></i> ${row.teknisi || "CEO"}</span></td>
+            <td><div class="address-cell">${row.alamat ?? "-"}</div></td>
             <td>
                 ${
                    row.phone
@@ -544,19 +569,17 @@ CEO Part & Service HP`
             <td>${tanggal}</td>
             <td>
                 <span class="status-badge ${statusClass}">
-                    ${row.status ?? "pending"}
+                    <i class="fa-solid fa-circle"></i> ${row.status ?? "pending"}
                 </span>
             </td>
-            <td style="font-weight:600; color:#009688;">
-                ${rupiah(totalKeseluruhan)}
-            </td>
+            <td><div class="total-cell"><strong>${rupiah(totalKeseluruhan)}</strong><small>${row.payment_status || "Belum Lunas"}</small></div></td>
             <td>
               <button class="detail-btn" data-id="${row.id}">
-                Detail
+                <i class="fa-solid fa-eye"></i> Detail
               </button>
             
               <a href="../nota.html?id=${row.id}" target="_blank" class="nota-btn">
-                Nota
+                <i class="fa-solid fa-file-invoice"></i> Nota
               </a>
             
                 <button class="wa-invoice-btn"
