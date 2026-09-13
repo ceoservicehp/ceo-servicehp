@@ -699,3 +699,206 @@ border-color:#3498db;
 opacity:0.5;
 cursor:not-allowed;
 }
+
+/* =========================================================
+   TAB UJANG — KOLABORASI TEKNISI
+========================================================= */
+.tab-ujang{
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+}
+.tab-ujang.active{
+  background:linear-gradient(135deg,#1f6f78,#00c2c7);
+  color:#fff;
+}
+
+.ujang-section{
+  margin-top:4px;
+}
+
+.ujang-summary-grid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:14px;
+  margin:0 0 18px;
+}
+
+.ujang-summary-card{
+  background:#fff;
+  border:1px solid #e4eaec;
+  border-radius:18px;
+  padding:18px;
+  box-shadow:0 10px 30px rgba(21,62,70,.07);
+  position:relative;
+  overflow:hidden;
+}
+
+.ujang-summary-card::before{
+  content:"";
+  position:absolute;
+  left:0;
+  top:0;
+  right:0;
+  height:4px;
+  background:linear-gradient(90deg,#1f6f78,#00c2c7);
+}
+
+.ujang-summary-card span{
+  display:block;
+  color:#6b777d;
+  font-size:12px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.6px;
+  margin-bottom:8px;
+}
+
+.ujang-summary-card strong{
+  display:block;
+  color:#172126;
+  font-size:22px;
+  line-height:1.2;
+  margin-bottom:6px;
+}
+
+.ujang-summary-card small{
+  color:#7b878c;
+  font-size:11px;
+}
+
+.ujang-summary-card.ujang-share strong{ color:#1f6f78; }
+.ujang-summary-card.ceo-share strong{ color:#0f766e; }
+
+.ujang-info-box{
+  display:flex;
+  gap:13px;
+  align-items:flex-start;
+  padding:15px 17px;
+  margin-bottom:18px;
+  border-radius:16px;
+  border:1px solid rgba(0,194,199,.22);
+  background:linear-gradient(135deg,rgba(31,111,120,.06),rgba(0,194,199,.07));
+  color:#334155;
+}
+
+.ujang-info-box > i{
+  color:#1f6f78;
+  margin-top:2px;
+  font-size:18px;
+}
+
+.ujang-info-box strong{
+  display:block;
+  color:#15545c;
+  margin-bottom:4px;
+}
+
+.ujang-info-box p{
+  margin:0;
+  font-size:12px;
+  line-height:1.55;
+}
+
+.ujang-table-wrap{
+  border-radius:18px;
+  border:1px solid #e4eaec;
+  background:#fff;
+  box-shadow:0 10px 30px rgba(21,62,70,.06);
+}
+
+.ujang-table{
+  min-width:1450px;
+  margin-top:0;
+}
+
+.ujang-table th{
+  white-space:nowrap;
+}
+
+.ujang-customer{
+  text-align:left !important;
+}
+
+.ujang-customer strong,
+.ujang-customer small{
+  display:block;
+}
+
+.ujang-customer small{
+  margin-top:3px;
+  color:#77858b;
+  font-size:11px;
+}
+
+.source-badge,
+.split-badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  white-space:nowrap;
+  border-radius:999px;
+  padding:6px 10px;
+  font-size:11px;
+  font-weight:800;
+}
+
+.source-ujang{
+  background:#e6fffb;
+  color:#0f766e;
+  border:1px solid #99f6e4;
+}
+
+.source-ceo{
+  background:#eef6f7;
+  color:#1f6f78;
+  border:1px solid #c9e1e4;
+}
+
+.split-badge{
+  background:#f3f7f8;
+  color:#334155;
+  border:1px solid #dbe5e7;
+}
+
+.share-base{
+  font-weight:800;
+  color:#334155;
+}
+
+.share-ujang{
+  font-weight:800;
+  color:#1f6f78;
+}
+
+.share-ceo{
+  font-weight:800;
+  color:#0f766e;
+}
+
+.empty-ujang{
+  padding:34px !important;
+  color:#7b878c;
+}
+
+@media(max-width:900px){
+  .ujang-summary-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+}
+
+@media(max-width:560px){
+  .ujang-summary-grid{
+    grid-template-columns:1fr;
+    gap:10px;
+  }
+  .ujang-summary-card{
+    padding:15px;
+  }
+  .ujang-summary-card strong{
+    font-size:20px;
+  }
+  .ujang-info-box{
+    padding:13px;
+  }
+}
