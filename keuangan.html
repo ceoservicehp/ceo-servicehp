@@ -143,6 +143,7 @@
     <button class="tab" data-tab="expense">Pengeluaran</button>
     <button class="tab" data-tab="debt">Piutang</button>
     <button class="tab" data-tab="laptop">Laptop</button>
+    <button class="tab tab-ujang" data-tab="ujang"><i class="fa-solid fa-user-gear"></i> UJANG</button>
   </div>
 
   <!-- ================= ACTION BAR ================= -->
@@ -283,6 +284,66 @@
   </table>
 
 </div>
+
+<!-- ================= UJANG / BAGI HASIL ================= -->
+<div id="ujangTableWrapper" class="ujang-section" style="display:none;">
+
+  <div class="ujang-summary-grid">
+    <div class="ujang-summary-card">
+      <span>Unit Selesai</span>
+      <strong id="ujangTotalUnit">0 Unit</strong>
+      <small>Service yang dikerjakan UJANG</small>
+    </div>
+    <div class="ujang-summary-card">
+      <span>Dasar Bagi Hasil</span>
+      <strong id="ujangTotalDasar">Rp 0</strong>
+      <small>Setelah modal sparepart & transport</small>
+    </div>
+    <div class="ujang-summary-card ujang-share">
+      <span>Hak UJANG</span>
+      <strong id="ujangTotalBagian">Rp 0</strong>
+      <small>Akumulasi 65% / 50%</small>
+    </div>
+    <div class="ujang-summary-card ceo-share">
+      <span>Hak CEO</span>
+      <strong id="ceoTotalBagian">Rp 0</strong>
+      <small>Akumulasi 35% / 50%</small>
+    </div>
+  </div>
+
+  <div class="ujang-info-box">
+    <i class="fa-solid fa-circle-info"></i>
+    <div>
+      <strong>Skema Kolaborasi UJANG</strong>
+      <p>Pelanggan UJANG: <b>65% UJANG / 35% CEO</b> &nbsp;•&nbsp; Pelanggan CEO: <b>50% UJANG / 50% CEO</b>. Pembagian dihitung dari nilai service setelah dikurangi transport dan modal sparepart.</p>
+    </div>
+  </div>
+
+  <div class="table-wrapper ujang-table-wrap">
+    <table class="admin-table ujang-table">
+      <thead>
+        <tr>
+          <th>No</th>
+          <th>Pelanggan</th>
+          <th>Perangkat</th>
+          <th>Sumber</th>
+          <th>Tgl Selesai</th>
+          <th>Total Tagihan</th>
+          <th>Transport</th>
+          <th>Modal Sparepart</th>
+          <th>Dasar Bagi Hasil</th>
+          <th>Skema</th>
+          <th>Bagian UJANG</th>
+          <th>Bagian CEO</th>
+        </tr>
+      </thead>
+      <tbody id="ujangTable">
+        <tr><td colspan="12">Memuat data UJANG...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
   
  <!-- ================= Laporan ================= -->
 <div id="reportSection" class="report-section" style="display:none;">
