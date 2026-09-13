@@ -3,11 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Laporan Keuangan — CEO Service HP</title>
-  
-<link rel="stylesheet" href="css/keuangan.css">
+<title>Keuangan Service — CEO Part & Service</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
+<link rel="stylesheet" href="css/keuangan.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/supabase.js"></script>
@@ -15,406 +16,226 @@
 <script src="js/role_guard.js"></script>
 <script defer src="js/keuangan.js"></script>
 </head>
-
 <body>
+<div class="app-shell">
 
-<div class="wrapper">
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand">
+        <img src="images/logo.png" alt="CEO Part & Service">
+        <div class="brand-text">
+          <strong>CEO PART & SERVICE</strong>
+          <span>KEUANGAN SERVICE</span>
+        </div>
+      </a>
 
-<!-- ================= HEADER ================= -->
-<header>
-  <div id="logo-container">
-    <img src="images/logo.png" width="55">
+      <button class="menu-toggle" id="menuToggle" aria-label="Buka menu">
+        <i class="fa-solid fa-bars"></i>
+      </button>
 
-    <div>
-      <h1>CEO - PART SERVICE</h1>
-      <div class="tagline">CELLULAR ENGINEER OFFICER</div>
+      <nav class="top-nav">
+        <a href="index.html" class="nav-btn"><i class="fa-solid fa-house"></i><span>Beranda</span></a>
+        <a href="profile.html" class="nav-btn"><i class="fa-solid fa-user"></i><span>Profil</span></a>
+        <a href="dapur.html" class="nav-btn"><i class="fa-solid fa-kitchen-set"></i><span>Dapur</span></a>
+        <a href="produk.html" class="nav-btn"><i class="fa-solid fa-box-open"></i><span>Produk</span></a>
+        <a href="keuangan.html" class="nav-btn active"><i class="fa-solid fa-wallet"></i><span>Keuangan</span></a>
+        <a href="layanan.html" class="nav-btn"><i class="fa-solid fa-screwdriver-wrench"></i><span>Layanan</span></a>
+        <a href="ceo_status.html" class="nav-btn"><i class="fa-solid fa-chart-line"></i><span>Status</span></a>
+        <button id="logoutBtn" class="nav-btn logout-btn"><i class="fa-solid fa-right-from-bracket"></i><span>Logout</span></button>
+      </nav>
+    </div>
+  </header>
+  <div class="nav-overlay" id="navOverlay"></div>
+
+  <main>
+    <section class="finance-hero">
+      <div class="finance-hero-inner">
+        <div>
+          <span class="hero-badge"><i class="fa-solid fa-chart-pie"></i> KEUANGAN SERVICE</span>
+          <h1>Ringkasan Keuangan <span>CEO Service</span></h1>
+          <p>Pantau pemasukan, pengeluaran, piutang, service laptop, dan pembagian hasil kolaborasi UJANG dalam satu halaman.</p>
+        </div>
+        <div class="hero-side">
+          <div class="hero-date"><i class="fa-regular fa-calendar"></i><span id="tanggalOtomatis">Memuat tanggal...</span></div>
+          <a href="dapur.html" class="btn btn-light"><i class="fa-solid fa-kitchen-set"></i> Buka Dapur</a>
+        </div>
+      </div>
+    </section>
+
+    <div class="container">
+      <section class="filter-card">
+        <div class="filter-title">
+          <div>
+            <span class="eyebrow">PERIODE LAPORAN</span>
+            <h2>Filter Data Keuangan</h2>
+          </div>
+          <i class="fa-solid fa-sliders"></i>
+        </div>
+
+        <div class="filter-layout">
+          <div class="quick-filter">
+            <button data-range="today"><i class="fa-regular fa-calendar-check"></i> Hari Ini</button>
+            <button data-range="week"><i class="fa-solid fa-calendar-week"></i> Minggu Ini</button>
+            <button data-range="month"><i class="fa-regular fa-calendar-days"></i> Bulan Ini</button>
+          </div>
+          <div class="custom-filter">
+            <label><span>Dari</span><input type="date" id="startDate"></label>
+            <label><span>Sampai</span><input type="date" id="endDate"></label>
+            <button id="applyFilter" class="btn btn-dark"><i class="fa-solid fa-filter"></i> Terapkan</button>
+            <button id="resetFilter" class="btn btn-soft"><i class="fa-solid fa-rotate-left"></i> Reset</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="summary-grid">
+        <article class="summary-card income-card">
+          <div class="summary-icon"><i class="fa-solid fa-arrow-trend-up"></i></div>
+          <div><span>Total Pemasukan</span><strong id="totalIncome">Rp 0</strong><small>Uang masuk dari service selesai</small></div>
+        </article>
+        <article class="summary-card expense-card">
+          <div class="summary-icon"><i class="fa-solid fa-arrow-trend-down"></i></div>
+          <div><span>Total Pengeluaran</span><strong id="totalExpense">Rp 0</strong><small>Akumulasi biaya operasional</small></div>
+        </article>
+        <article class="summary-card profit-card">
+          <div class="summary-icon"><i class="fa-solid fa-coins"></i></div>
+          <div><span>Laba Bersih</span><strong id="totalProfit">Rp 0</strong><small>Pemasukan dikurangi pengeluaran</small></div>
+        </article>
+        <article class="summary-card margin-card">
+          <div class="summary-icon"><i class="fa-solid fa-percent"></i></div>
+          <div><span>Margin</span><strong id="totalMargin">0%</strong><small>Persentase laba terhadap pemasukan</small></div>
+        </article>
+        <article class="summary-card debt-card">
+          <div class="summary-icon"><i class="fa-solid fa-clock-rotate-left"></i></div>
+          <div><span>Total Piutang</span><strong id="totalDebt">Rp 0</strong><small>Sisa pembayaran pelanggan</small></div>
+        </article>
+      </section>
+
+      <section class="content-card">
+        <div class="content-head">
+          <div>
+            <span class="eyebrow">DATA KEUANGAN</span>
+            <h2>Transaksi & Laporan</h2>
+          </div>
+          <div class="action-bar">
+            <button id="exportExcel" class="btn btn-success"><i class="fa-solid fa-file-excel"></i> Export Excel</button>
+            <button id="exportPDF" class="btn btn-dark"><i class="fa-solid fa-file-pdf"></i> Export PDF</button>
+            <button id="addExpenseBtn" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Tambah Pengeluaran</button>
+          </div>
+        </div>
+
+        <div class="tabs" role="tablist">
+          <button class="tab active" data-tab="income"><i class="fa-solid fa-arrow-trend-up"></i> Pemasukan</button>
+          <button class="tab" data-tab="expense"><i class="fa-solid fa-receipt"></i> Pengeluaran</button>
+          <button class="tab" data-tab="debt"><i class="fa-solid fa-hand-holding-dollar"></i> Piutang</button>
+          <button class="tab" data-tab="laptop"><i class="fa-solid fa-laptop"></i> Laptop</button>
+          <button class="tab tab-ujang" data-tab="ujang"><i class="fa-solid fa-user-gear"></i> UJANG</button>
+        </div>
+
+        <div class="table-toolbar">
+          <div class="table-hint"><i class="fa-solid fa-circle-info"></i><span>Gunakan tab di atas untuk berpindah jenis laporan.</span></div>
+          <div class="page-size">Tampilkan
+            <select id="pageSize">
+              <option value="10">10 / halaman</option>
+              <option value="20">20 / halaman</option>
+              <option value="50">50 / halaman</option>
+              <option value="100">100 / halaman</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="table-area">
+          <div id="incomeTableWrapper" class="table-wrapper">
+            <table class="admin-table"><thead><tr>
+              <th>No</th><th>Nama</th><th>Alamat</th><th>Metode</th><th>Tanggal Masuk</th><th>Status</th><th>Tanggal Selesai</th><th>Sparepart</th><th>Dibayar</th><th>Kembalian</th><th>Sisa</th><th>Total</th>
+            </tr></thead><tbody id="incomeTable"><tr><td colspan="12">Memuat data...</td></tr></tbody></table>
+          </div>
+
+          <div id="expenseTableWrapper" class="table-wrapper" style="display:none;">
+            <table class="admin-table"><thead><tr>
+              <th>No</th><th>Judul</th><th>Kategori</th><th>Penerima</th><th>Harga</th><th>Qty</th><th>Total</th><th>Catatan</th><th>Tanggal</th>
+            </tr></thead><tbody id="expenseTable"><tr><td colspan="9">Memuat data...</td></tr></tbody></table>
+          </div>
+
+          <div id="debtTableWrapper" class="table-wrapper" style="display:none;">
+            <table class="admin-table"><thead><tr>
+              <th>No</th><th>Nama</th><th>Alamat</th><th>Metode</th><th>Tanggal Masuk</th><th>Status</th><th>Jatuh Tempo</th><th>Sparepart</th><th>Dibayar</th><th>Sisa</th><th>Total</th>
+            </tr></thead><tbody id="debtTable"></tbody></table>
+          </div>
+
+          <div id="laptopTableWrapper" class="table-wrapper" style="display:none;">
+            <table class="admin-table"><thead><tr>
+              <th>No</th><th>Nama</th><th>No HP</th><th>Alamat</th><th>Kategori Perangkat</th><th>Tipe / Model</th><th>Tanggal Masuk</th><th>Status</th><th>Tanggal Selesai</th><th>Sparepart</th><th>Dibayar</th><th>Sisa</th><th>Total</th>
+            </tr></thead><tbody id="laptopTable"><tr><td colspan="13">Memuat data laptop...</td></tr></tbody></table>
+          </div>
+
+          <div id="ujangTableWrapper" class="ujang-section" style="display:none;">
+            <div class="ujang-heading">
+              <div><span class="eyebrow">KOLABORASI TEKNISI</span><h3>Rekap Pekerjaan UJANG</h3><p>Ringkasan pembagian hasil untuk unit yang dikerjakan UJANG.</p></div>
+              <div class="ujang-badge"><i class="fa-solid fa-handshake"></i> CEO × UJANG</div>
+            </div>
+
+            <div class="ujang-summary-grid">
+              <div class="ujang-summary-card"><div class="ujang-card-icon"><i class="fa-solid fa-mobile-screen-button"></i></div><div><span>Unit Selesai</span><strong id="ujangTotalUnit">0 Unit</strong><small>Service yang dikerjakan UJANG</small></div></div>
+              <div class="ujang-summary-card"><div class="ujang-card-icon"><i class="fa-solid fa-calculator"></i></div><div><span>Dasar Bagi Hasil</span><strong id="ujangTotalDasar">Rp 0</strong><small>Setelah modal sparepart & transport</small></div></div>
+              <div class="ujang-summary-card ujang-share"><div class="ujang-card-icon"><i class="fa-solid fa-user-gear"></i></div><div><span>Hak UJANG</span><strong id="ujangTotalBagian">Rp 0</strong><small>Akumulasi 65% / 50%</small></div></div>
+              <div class="ujang-summary-card ceo-share"><div class="ujang-card-icon"><i class="fa-solid fa-building"></i></div><div><span>Hak CEO</span><strong id="ceoTotalBagian">Rp 0</strong><small>Akumulasi 35% / 50%</small></div></div>
+            </div>
+
+            <div class="ujang-info-box"><i class="fa-solid fa-circle-info"></i><div><strong>Skema Kolaborasi UJANG</strong><p>Pelanggan UJANG: <b>65% UJANG / 35% CEO</b> &nbsp;•&nbsp; Pelanggan CEO: <b>50% UJANG / 50% CEO</b>. Pembagian dihitung dari nilai service setelah dikurangi transport dan modal sparepart.</p></div></div>
+
+            <div class="table-wrapper ujang-table-wrap">
+              <table class="admin-table ujang-table"><thead><tr>
+                <th>No</th><th>Pelanggan</th><th>Perangkat</th><th>Sumber</th><th>Tgl Selesai</th><th>Total Tagihan</th><th>Transport</th><th>Modal Sparepart</th><th>Dasar Bagi Hasil</th><th>Skema</th><th>Bagian UJANG</th><th>Bagian CEO</th>
+              </tr></thead><tbody id="ujangTable"><tr><td colspan="12">Memuat data UJANG...</td></tr></tbody></table>
+            </div>
+          </div>
+        </div>
+
+        <div class="table-pagination">
+          <div class="page-nav">
+            <button id="prevPage" aria-label="Halaman sebelumnya"><i class="fa-solid fa-chevron-left"></i></button>
+            <span id="pageNumbers"></span>
+            <button id="nextPage" aria-label="Halaman berikutnya"><i class="fa-solid fa-chevron-right"></i></button>
+          </div>
+        </div>
+      </section>
+
+      <div id="reportSection" class="report-section" style="display:none;">
+        <h2>Laporan Keuangan</h2><p id="reportPeriod"></p>
+        <div class="report-summary">
+          <div><strong>Total Pemasukan:</strong><span id="reportIncome">Rp 0</span></div>
+          <div><strong>Total Pengeluaran:</strong><span id="reportExpense">Rp 0</span></div>
+          <div><strong>Laba Bersih:</strong><span id="reportProfit">Rp 0</span></div>
+          <div><strong>Margin:</strong><span id="reportMargin">0%</span></div>
+        </div>
+        <h3>Breakdown Pengeluaran</h3><ul id="expenseBreakdown"></ul>
+      </div>
+    </div>
+  </main>
+
+  <div id="expenseModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-head">
+        <div><span class="eyebrow">PENGELUARAN</span><h3>Tambah Pengeluaran</h3></div>
+        <button type="button" id="closeModal" class="modal-close"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-form">
+        <label>Judul Pengeluaran<input type="text" id="expTitle" placeholder="Contoh: Pembelian alat service"></label>
+        <label>Kategori<select id="expCategory"></select></label>
+        <div id="honorUserWrapper" style="display:none;"><label>Pilih Penerima Honor<select id="honorUserSelect"></select></label></div>
+        <div class="category-manage"><button id="addCategoryBtn" class="btn-small">+ Kategori</button><button id="deleteCategoryBtn" class="btn-small danger">Hapus Kategori</button></div>
+        <div class="modal-grid">
+          <label>Harga Satuan<input type="number" id="expPrice" placeholder="0"></label>
+          <label>Jumlah<input type="number" id="expQty" placeholder="1"></label>
+        </div>
+        <label>Total<input type="number" id="expAmount" placeholder="Total" readonly></label>
+        <label>Catatan<textarea id="expNotes" placeholder="Catatan (opsional)"></textarea></label>
+      </div>
+      <div class="modal-actions"><button id="saveExpense" class="btn btn-success"><i class="fa-solid fa-floppy-disk"></i> Simpan</button><button type="button" class="btn btn-soft" onclick="document.getElementById('expenseModal').style.display='none'">Batal</button></div>
     </div>
   </div>
 
-  <button class="menu-toggle" id="menuToggle">
-  <i class="fa-solid fa-bars"></i>
-</button>
-</header>
-
-<!-- ================= NAVBAR ================= -->
-<nav class="top-nav">
-  <a href="index.html" class="nav-btn">
-    <i class="fa-solid fa-house"></i>
-    Beranda
-  </a>
-
-  <a href="profile.html" class="nav-btn">
-    <i class="fa-solid fa-user"></i>
-    Profil
-  </a>
- 
-  <a href="dapur.html" class="nav-btn">
-    <i class="fa-solid fa-kitchen-set"></i>
-    Dapur
-  </a>
-
-  <a href="produk.html" class="nav-btn">
-    <i class="fa-solid fa-box-open"></i>
-    Produk
-  </a>
-
-  <a href="keuangan.html" class="nav-btn">
-    <i class="fa-solid fa-wallet"></i>
-    Keuangan
-  </a>
-
-  <a href="layanan.html" class="nav-btn">
-    <i class="fa-solid fa-screwdriver-wrench"></i>
-    Layanan
-  </a>
-
-  <a href="ceo_status.html" class="nav-btn">
-    <i class="fa-solid fa-chart-line"></i>
-    Status
-  </a>
-
-  <!-- 🔴 LOGOUT -->
-  <button id="logoutBtn" class="nav-btn logout-btn">
-    <i class="fa-solid fa-right-from-bracket"></i>
-    Logout
-  </button>
-</nav>
-<div class="nav-overlay" id="navOverlay"></div>
-  
-<div class="container">
-
-  <!-- ================= SUMMARY ================= -->
-  <div class="summary-grid">
-
-    <div class="card highlight">
-      <h3>Total Pemasukan</h3>
-      <p id="totalIncome">Rp 0</p>
-    </div>
-
-    <div class="card expense">
-      <h3>Total Pengeluaran</h3>
-      <p id="totalExpense">Rp 0</p>
-    </div>
-
-    <div class="card profit">
-      <h3>Laba Bersih</h3>
-      <p id="totalProfit">Rp 0</p>
-    </div>
-    
-    <div class="card margin">
-      <h3>Margin</h3>
-      <p id="totalMargin">0%</p>
-    </div>
-
-    <div class="card debt">
-      <h3>TOTAL PIUTANG</h3>
-      <p id="totalDebt">Rp 0</p>
-    </div>  
-
-  </div>
-
-  <!-- ================= FILTER ================= -->
-  <div class="filter-box">
-
-    <div class="quick-filter">
-      <button data-range="today">Hari Ini</button>
-      <button data-range="week">Minggu Ini</button>
-      <button data-range="month">Bulan Ini</button>
-    </div>
-
-    <div class="date-group">
-      <label>Dari</label>
-      <input type="date" id="startDate">
-    </div>
-
-    <div class="date-group">
-      <label>Sampai</label>
-      <input type="date" id="endDate">
-    </div>
-
-    <button id="applyFilter" class="btn-primary">Terapkan</button>
-    <button id="resetFilter" class="btn-reset">Reset</button>
-
-  </div>
-
-  <!-- ================= TAB NAVIGATION ================= -->
-  <div class="tabs">
-    <button class="tab" data-tab="income">Pemasukan</button>
-    <button class="tab" data-tab="expense">Pengeluaran</button>
-    <button class="tab" data-tab="debt">Piutang</button>
-    <button class="tab" data-tab="laptop">Laptop</button>
-    <button class="tab tab-ujang" data-tab="ujang"><i class="fa-solid fa-user-gear"></i> UJANG</button>
-  </div>
-
-  <!-- ================= ACTION BAR ================= -->
-  <div class="action-bar">
-    <button id="exportExcel" class="btn-success">Export Excel</button>
-    <button id="exportPDF" class="btn-dark">Export PDF</button>
-    <button id="addExpenseBtn" class="btn-primary">+ Tambah Pengeluaran</button>
-  </div>
-
-<!-- ================= PAGINATION ATAS ================= -->
-<div class="table-pagination">
-  
-  <div class="page-size">
-    Show:
-    <select id="pageSize">
-      <option value="10">10</option>
-      <option value="20">20</option>
-      <option value="50">50</option>
-      <option value="100">100</option>
-    </select>
-  </div>
-  
-  <div class="page-nav">
-    <button id="prevPage">← Prev</button>
-    
-    <span id="pageNumbers"></span>
-    
-    <button id="nextPage">Next →</button>
-  </div>
+  <footer>© 2026 CEO Part & Service — Keuangan Service</footer>
 </div>
-  
-  <!-- ================= TABLE ================= -->
- <!-- INCOME TABLE -->
-<div id="incomeTableWrapper" class="table-wrapper">
-<table class="admin-table">
-<thead>
-<tr>
-<th>No</th>
-<th>Nama</th>
-<th>Alamat</th>
-<th>Metode</th>
-<th>Tanggal Masuk</th>
-<th>Status</th>
-<th>Tanggal Selesai</th>
-<th>Sparepart</th>
-<th>Dibayar</th>
-<th>Kembalian</th>
-<th>Sisa</th>
-<th>Total</th>
-</tr>
-</thead>
-<tbody id="incomeTable">
-<tr>
-<td colspan="12">Memuat data...</td>
-</tr>
-</tbody>
-</table>
-</div>
-
-<!-- EXPENSE TABLE -->
-<div id="expenseTableWrapper" class="table-wrapper" style="display:none;">
-<table class="admin-table">
-<thead>
-<tr>
-<th>No</th>
-<th>Judul</th>
-<th>Kategori</th>
-<th>Penerima</th>
-<th>Harga</th>
-<th>Qty</th>
-<th>Total</th>
-<th>Catatan</th>
-<th>Tanggal</th>
-</tr>
-</thead>
-<tbody id="expenseTable">
-<tr>
-<td colspan="9">Memuat data...</td>
-</tr>
-</tbody>
-</table>
-</div>
-
-<!-- PIUTANG -->
-<div id="debtTableWrapper" class="table-wrapper" style="display:none;">
-
-<table class="admin-table">
-<thead>
-<tr>
-<th>No</th>
-<th>Nama</th>
-<th>Alamat</th>
-<th>Metode</th>
-<th>Tanggal Masuk</th>
-<th>Status</th>
-<th>Jatuh Tempo</th>
-<th>Sparepart</th>
-<th>Dibayar</th>
-<th>Sisa</th>
-<th>Total</th>
-</tr>
-</thead>
-
-<tbody id="debtTable"></tbody>
-
-</table>
-
-</div>
-
-<!-- ================= LAPTOP TABLE ================= -->
-<div id="laptopTableWrapper" class="table-wrapper" style="display:none;">
-
-  <table class="admin-table">
-    <thead>
-      <tr>
-        <th>No</th>
-        <th>Nama</th>
-        <th>No HP</th>
-        <th>Alamat</th>
-        <th>Kategori Perangkat</th>
-        <th>Tipe / Model</th>
-        <th>Tanggal Masuk</th>
-        <th>Status</th>
-        <th>Tanggal Selesai</th>
-        <th>Sparepart</th>
-        <th>Dibayar</th>
-        <th>Sisa</th>
-        <th>Total</th>
-      </tr>
-    </thead>
-
-    <tbody id="laptopTable">
-      <tr>
-        <td colspan="13">Memuat data laptop...</td>
-      </tr>
-    </tbody>
-
-  </table>
-
-</div>
-
-<!-- ================= UJANG / BAGI HASIL ================= -->
-<div id="ujangTableWrapper" class="ujang-section" style="display:none;">
-
-  <div class="ujang-summary-grid">
-    <div class="ujang-summary-card">
-      <span>Unit Selesai</span>
-      <strong id="ujangTotalUnit">0 Unit</strong>
-      <small>Service yang dikerjakan UJANG</small>
-    </div>
-    <div class="ujang-summary-card">
-      <span>Dasar Bagi Hasil</span>
-      <strong id="ujangTotalDasar">Rp 0</strong>
-      <small>Setelah modal sparepart & transport</small>
-    </div>
-    <div class="ujang-summary-card ujang-share">
-      <span>Hak UJANG</span>
-      <strong id="ujangTotalBagian">Rp 0</strong>
-      <small>Akumulasi 65% / 50%</small>
-    </div>
-    <div class="ujang-summary-card ceo-share">
-      <span>Hak CEO</span>
-      <strong id="ceoTotalBagian">Rp 0</strong>
-      <small>Akumulasi 35% / 50%</small>
-    </div>
-  </div>
-
-  <div class="ujang-info-box">
-    <i class="fa-solid fa-circle-info"></i>
-    <div>
-      <strong>Skema Kolaborasi UJANG</strong>
-      <p>Pelanggan UJANG: <b>65% UJANG / 35% CEO</b> &nbsp;•&nbsp; Pelanggan CEO: <b>50% UJANG / 50% CEO</b>. Pembagian dihitung dari nilai service setelah dikurangi transport dan modal sparepart.</p>
-    </div>
-  </div>
-
-  <div class="table-wrapper ujang-table-wrap">
-    <table class="admin-table ujang-table">
-      <thead>
-        <tr>
-          <th>No</th>
-          <th>Pelanggan</th>
-          <th>Perangkat</th>
-          <th>Sumber</th>
-          <th>Tgl Selesai</th>
-          <th>Total Tagihan</th>
-          <th>Transport</th>
-          <th>Modal Sparepart</th>
-          <th>Dasar Bagi Hasil</th>
-          <th>Skema</th>
-          <th>Bagian UJANG</th>
-          <th>Bagian CEO</th>
-        </tr>
-      </thead>
-      <tbody id="ujangTable">
-        <tr><td colspan="12">Memuat data UJANG...</td></tr>
-      </tbody>
-    </table>
-  </div>
-</div>
-
-  
- <!-- ================= Laporan ================= -->
-<div id="reportSection" class="report-section" style="display:none;">
-
-  <h2>Laporan Keuangan</h2>
-  <p id="reportPeriod"></p>
-
-  <div class="report-summary">
-    <div>
-      <strong>Total Pemasukan:</strong>
-      <span id="reportIncome">Rp 0</span>
-    </div>
-    <div>
-      <strong>Total Pengeluaran:</strong>
-      <span id="reportExpense">Rp 0</span>
-    </div>
-    <div>
-      <strong>Laba Bersih:</strong>
-      <span id="reportProfit">Rp 0</span>
-    </div>
-    <div>
-      <strong>Margin:</strong>
-      <span id="reportMargin">0%</span>
-    </div>
-  </div>
-
-  <h3>Breakdown Pengeluaran</h3>
-  <ul id="expenseBreakdown"></ul>
-
-</div>
-
-<!-- ================= MODAL TAMBAH PENGELUARAN ================= -->
-<div id="expenseModal" class="modal">
-  <div class="modal-content">
-    <h3>Tambah Pengeluaran</h3>
-
-    <input type="text" id="expTitle" placeholder="Judul Pengeluaran">
-
-    <select id="expCategory"></select>
-
-    <div id="honorUserWrapper" style="display:none;">
-      <label>Pilih Penerima Honor</label>
-      <select id="honorUserSelect"></select>
-    </div>
-    
-    <div class="category-manage">
-      <button id="addCategoryBtn" class="btn-small">+ Kategori</button>
-      <button id="deleteCategoryBtn" class="btn-small danger">Hapus Kategori</button>
-    </div>
-
-    <input type="number" id="expPrice" placeholder="Harga Satuan">
-
-    <input type="number" id="expQty" placeholder="Jumlah">
-    
-    <input type="number" id="expAmount" placeholder="Total" readonly>
-
-    <textarea id="expNotes" placeholder="Catatan (opsional)"></textarea>
-
-    <div class="modal-actions">
-      <button id="saveExpense" class="btn-success">Simpan</button>
-      <button id="closeModal" class="btn-reset">Batal</button>
-    </div>
-  </div>
-</div>
-
-<!-- ================= FOOTER ================= -->
-<footer>
-  © 2026 CEO Part & Service — All Rights Reserved
-</footer>
-
-
-</div> <!-- wrapper -->
 </body>
 </html>
