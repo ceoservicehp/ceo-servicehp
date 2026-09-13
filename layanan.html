@@ -3,285 +3,364 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Form Service — CEO Service HP</title>
-
+<title>Ajukan Service — CEO Part & Service</title>
+<meta name="description" content="Ajukan service HP, laptop, dan perangkat elektronik di CEO Part & Service.">
+<link rel="icon" href="images/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/layanan.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
-
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
 </head>
 <body>
 
-<header>
-  <div id="logo-container">
-    <img src="images/logo.png" width="55">
-
-    <div>
-      <h1>CEO ORDER SERVICE</h1>
-      <div class="tagline">CELLULAR ENGINEERING OFFICER</div>
-    </div>
-  </div>
-
-<!-- SOCIAL MEDIA -->
-  <div class="social-header">
-
-    <a href="https://www.instagram.com/ceo_servicehp?igsh=MTNwMWJkcDQyb3dpcA==" target="_blank">
-      <i class="fa-brands fa-instagram"></i>
+<header class="site-header">
+  <div class="header-inner">
+    <a href="index.html" id="logo-container" class="brand">
+      <img src="images/logo.png" width="48" height="48" alt="Logo CEO Part & Service">
+      <div class="brand-text">
+        <strong>CEO PART & SERVICE</strong>
+        <span>CELLULAR ENGINEERING OFFICER</span>
+      </div>
     </a>
 
-    <a href="https://www.tiktok.com/@ceo_servicehp?_r=1&_t=ZS-95r6MR04yLF" target="_blank">
-      <i class="fa-brands fa-tiktok"></i>
-    </a>
+    <button class="menu-toggle" id="menuToggle" type="button" aria-label="Buka menu" aria-expanded="false">
+      <i class="fa-solid fa-bars"></i>
+    </button>
 
-    <a href="#" target="_blank">
-      <i class="fa-brands fa-facebook"></i>
-    </a>
-
+    <nav class="top-nav" id="topNav">
+      <a href="index.html"><i class="fa-solid fa-house"></i> Beranda</a>
+      <a class="active" href="layanan.html"><i class="fa-solid fa-screwdriver-wrench"></i> Ajukan Service</a>
+      <a href="ceo_status.html"><i class="fa-solid fa-chart-line"></i> Status Service</a>
+      <span class="nav-divider"></span>
+      <a class="social-link" href="https://www.instagram.com/ceo_servicehp?igsh=MTNwMWJkcDQyb3dpcA==" target="_blank" rel="noopener" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+      <a class="social-link" href="https://www.tiktok.com/@ceo_servicehp?_r=1&_t=ZS-95r6MR04yLF" target="_blank" rel="noopener" aria-label="TikTok"><i class="fa-brands fa-tiktok"></i></a>
+    </nav>
   </div>
 </header>
+<div class="nav-overlay" id="navOverlay"></div>
 
-<!-- NAV -->
-<nav class="top-nav">
-<a href="index.html" class="nav-btn">
-<i class="fa-solid fa-house"></i> Beranda
-</a>
+<section class="service-hero">
+  <div class="service-hero-inner">
+    <div class="hero-copy">
+      <div class="hero-badge"><i class="fa-solid fa-mobile-screen-button"></i> LAYANAN SERVICE</div>
+      <h1>Ajukan <span>Service Perangkat</span></h1>
+      <p>Isi data perangkat dan pilih metode service. Tim CEO Part & Service akan menindaklanjuti permintaan Anda dengan informasi yang jelas dan transparan.</p>
+      <div class="hero-points">
+        <span><i class="fa-solid fa-circle-check"></i> Transparan</span>
+        <span><i class="fa-solid fa-shield-halved"></i> Bergaransi</span>
+        <span><i class="fa-solid fa-bolt"></i> Respons Cepat</span>
+      </div>
+    </div>
 
-<!-- <a href="#produk-section" class="nav-btn">
-<i class="fa-solid fa-mobile-screen"></i> Produk
-</a> -->
-
-  <a href="ceo_status.html" class="nav-btn">
-    <i class="fa fa-chart-line"></i>
-    Status Service
-  </a>
-</nav>
-
-<!-- FORM -->
-<section class="form-section">
-
-<h2>Form Service</h2>
-
-<label>Nama Lengkap</label>
-<input type="text" id="customer-name">
-
-<label>Alamat Detail</label>
-<textarea id="customer-address"></textarea>
-
-<label>No HP</label>
-<input type="tel" id="customer-phone">
-
-<label>Kategori Perangkat</label>
-<select id="device-category">
-  <option value="">Pilih Kategori Perangkat</option>
-  <option value="LAPTOP">LAPTOP</option>
-  <option value="SMARTPHONE">SMARTPHONE</option>
-  <option value="DRONE">DRONE</option>
-</select>
-
-<label>Tipe/Model Perangkat</label>
-<input 
-  type="text" 
-  id="device-model"
-  placeholder="Contoh: iPhone 16 ProMax / ASUS Vivobook 14"
->
-
-<label>Keluhan</label>
-<textarea id="customer-problem"></textarea>
-
-<label>Metode Service</label>
-<select id="service-option">
-<option value="">Pilih metode</option>
-<option value="Home Service">Home Service</option>
-<option value="Kirim Paket">Kirim Paket</option>
-<option value="Datang ke Toko">Datang ke Toko</option>
-</select>
-
-<!-- ALAMAT TOKO -->
-<div id="alamat-toko" style="display:none;margin-top:10px">
-  <b>Alamat Toko:</b>
-
-  <div id="alamat-text" style="margin:8px 0;">
-    CEO (Cellular Engineering Officer)
-    ITC Roxy Mas LT.1 No.123 B
-    Jl. KH. Hasyim Ashari No.125, Cideng, Kecamatan Gambir, Kota Jakarta Pusat, Daerah Khusus Ibukota Jakarta 10150
+    <div class="hero-side-card">
+      <span class="hero-side-icon"><i class="fa-solid fa-headset"></i></span>
+      <div>
+        <small>Butuh bantuan?</small>
+        <strong>Konsultasikan dulu dengan kami</strong>
+        <a href="https://wa.me/628138892098?text=Halo%20CEO%20Part%20and%20Service%20HP,%20saya%20ingin%20bertanya%20tentang%20service" target="_blank" rel="noopener">
+          <i class="fa-brands fa-whatsapp"></i> Chat WhatsApp
+        </a>
+      </div>
+    </div>
   </div>
-
-  <button type="button" id="copy-alamat" 
-          style="padding:6px 12px;
-                 border:none;
-                 background:#1f6f78;
-                 color:#fff;
-                 border-radius:6px;
-                 cursor:pointer;">
-    📋 Copy Alamat
-  </button>
-</div>
-
-<div id="resi-section" style="display:none;margin-top:10px">
-
-  <label>Ekspedisi</label>
-   <select id="customer-ekspedisi">
-    <option value="">Pilih Pengiriman</option>
-  
-    <optgroup label="Ekspedisi">
-      <option value="JNE">JNE</option>
-      <option value="J&T">J&T</option>
-      <option value="SiCepat">SiCepat</option>
-      <option value="AnterAja">AnterAja</option>
-      <option value="POS Indonesia">POS Indonesia</option>
-    </optgroup>
-  
-    <optgroup label="Kurir Instan">
-      <option value="Gojek">Gojek</option>
-      <option value="Grab">Grab</option>
-      <option value="Maxim">Maxim</option>
-      <option value="Lalamove">Lalamove</option>
-    </optgroup>
-  </select>
-
-  <label id="label-resi" style="margin-top:8px;">
-    Nomor Resi Pengiriman
-</label>
-  <input type="text" id="customer-resi" placeholder="Masukkan nomor resi">
-
-</div>
-
-<!-- MAP -->
-<div id="map-section" style="display:none">
-<label>Lokasi Anda</label>
-<input type="text" id="customer-coord" readonly>
-
-<button type="button" id="getLocation">
-📍 Gunakan Lokasi Saya
-</button>
-
-<div id="map" style="height:250px;margin-top:10px;border-radius:10px;"></div>
-<small>Klik map untuk pilih lokasi manual</small>
-</div>
-
-<!-- ONGKIR -->
-<div id="transport-section" style="display:none">
-<label>Biaya Transport</label>
-<input type="text" id="transport-fee" readonly value="Rp 0">
-<div id="distance-info" style="font-size:12px;color:#666;margin-top:5px;"></div>
-</div>
-
-<!-- METODE PEMBAYARAN (HANYA HOME SERVICE) -->
-<div id="payment-section" style="display:none;margin-top:15px;">
-  <label for="payment-method">Metode Pembayaran</label>
-  <select id="payment-method">
-    <option value="">-- Pilih --</option>
-    <option value="Transfer">Transfer Bank</option>
-    <option value="QRIS">QRIS</option>
-  </select>
-
-  <div id="payment-info" style="margin-top:10px;font-size:13px;color:#444;"></div>
-</div>
-
-<!-- BUKTI -->
-<div id="payment-proof-section" style="display:none">
-<label>Bukti Transfer Transport</label>
-<input type="file" id="payment-proof">
-</div>
-
-<!-- ================= KERANJANG SPAREPART ================= -->
-<div id="cart-box" style="display:none">
-<h3 style="margin-top:20px;color:#1f6f78">Sparepart Dipilih</h3>
-<div id="cart-items"></div>
-</div>
-
-<!-- RINGKASAN -->
-<div class="summary-box">
-
-<div class="summary-row">
-<span>Total</span>
-<span id="sparepart-price">Rp 0</span>
-</div>
-
-<div class="summary-row" id="transport-row" style="display:none;">
-<span>Biaya Transport</span>
-<span id="transport-price">Rp 0</span>
-</div>
-
-<div class="summary-row summary-total">
-<span>Total Estimasi</span>
-<span id="total-price">Rp 0</span>
-</div>
-
-<small>Biaya jasa diinformasikan setelah pengecekan teknisi</small>
-
-</div>
-
-<button id="checkout" class="btn-submit">
-Kirim Permintaan Service
-</button>
-
 </section>
 
+<main class="page-shell">
+  <section class="steps-grid" aria-label="Tahapan pengajuan service">
+    <article class="step-card">
+      <span>01</span>
+      <div><strong>Isi Data</strong><small>Lengkapi pelanggan dan perangkat</small></div>
+    </article>
+    <article class="step-card">
+      <span>02</span>
+      <div><strong>Pilih Metode</strong><small>Toko, Home Service, atau kirim paket</small></div>
+    </article>
+    <article class="step-card">
+      <span>03</span>
+      <div><strong>Kirim Permintaan</strong><small>Tim kami akan menindaklanjuti</small></div>
+    </article>
+  </section>
 
-<!-- PRODUK -->
-<!-- <section class="form-section" id="produk-section">
+  <section class="section-heading">
+    <div>
+      <span class="section-label"><i class="fa-solid fa-clipboard-list"></i> FORM SERVICE</span>
+      <h2>Data Pengajuan Service</h2>
+      <p>Pastikan data yang Anda masukkan benar agar proses konfirmasi lebih cepat.</p>
+    </div>
+  </section>
 
-<h2>Tambah Sparepart (Opsional)</h2>
+  <section class="service-layout">
+    <div class="form-column">
+      <section class="service-card form-card">
+        <div class="card-heading">
+          <span class="card-icon"><i class="fa-solid fa-user"></i></span>
+          <div>
+            <h3>Data Pelanggan</h3>
+            <p>Informasi untuk menghubungi Anda.</p>
+          </div>
+        </div>
 
-<p style="font-size:13px;color:#666;margin-bottom:10px">
-Silakan pilih sparepart jika diperlukan. Tidak memilih juga tetap bisa kirim permintaan service.
-</p>
+        <div class="form-grid two-col">
+          <div class="field full-on-mobile">
+            <label for="customer-name">Nama Lengkap</label>
+            <div class="input-wrap">
+              <i class="fa-regular fa-user"></i>
+              <input type="text" id="customer-name" placeholder="Nama pelanggan" autocomplete="name">
+            </div>
+          </div>
 
-<div class="sparepart-tools">
+          <div class="field full-on-mobile">
+            <label for="customer-phone">No HP / WhatsApp</label>
+            <div class="input-wrap">
+              <i class="fa-brands fa-whatsapp"></i>
+              <input type="tel" id="customer-phone" placeholder="08xxxxxxxxxx" autocomplete="tel">
+            </div>
+          </div>
 
-  <div class="search-box-sp">
-    <i class="fa-solid fa-magnifying-glass"></i>
-    <input type="text"
-           id="searchSparepart"
-           placeholder="Cari sparepart...">
-  </div>
-  <select id="filterCategory">
-    <option value="">Semua Kategori</option>
-  </select>
-  
-</div>
-<div id="products-container" class="products-grid"></div>
-</section>
+          <div class="field span-2">
+            <label for="customer-address">Alamat Detail</label>
+            <div class="input-wrap textarea-wrap">
+              <i class="fa-solid fa-location-dot"></i>
+              <textarea id="customer-address" placeholder="Tuliskan alamat lengkap Anda" autocomplete="street-address"></textarea>
+            </div>
+          </div>
+        </div>
+      </section>
 
-<!-- MODAL -->
-<!-- <div id="product-modal" class="modal hidden">
-<div class="modal-content">
+      <section class="service-card form-card">
+        <div class="card-heading">
+          <span class="card-icon"><i class="fa-solid fa-mobile-screen-button"></i></span>
+          <div>
+            <h3>Data Perangkat</h3>
+            <p>Beritahu kami perangkat dan keluhannya.</p>
+          </div>
+        </div>
 
-<span id="close-product-modal" class="btn-close">&times;</span>
+        <div class="form-grid two-col">
+          <div class="field">
+            <label for="device-category">Kategori Perangkat</label>
+            <select id="device-category">
+              <option value="">Pilih Kategori Perangkat</option>
+              <option value="LAPTOP">LAPTOP</option>
+              <option value="SMARTPHONE">SMARTPHONE</option>
+              <option value="DRONE">DRONE</option>
+            </select>
+          </div>
 
-<img id="modal-product-img" class="modal-img">
-<h2 id="modal-product-name"></h2>
-<p id="modal-product-price"></p>
-<p id="modal-product-desc"></p>
+          <div class="field">
+            <label for="device-model">Tipe / Model Perangkat</label>
+            <input type="text" id="device-model" placeholder="Contoh: iPhone 16 Pro Max / ASUS Vivobook 14">
+          </div>
 
-<button id="modal-add-cart" class="btn-add">
-Tambah Sparepart
-</button> -->
+          <div class="field span-2">
+            <label for="customer-problem">Keluhan</label>
+            <textarea id="customer-problem" placeholder="Ceritakan kendala perangkat secara singkat dan jelas"></textarea>
+          </div>
+        </div>
+      </section>
 
-</div>
-</div>
+      <section class="service-card form-card method-card">
+        <div class="card-heading">
+          <span class="card-icon"><i class="fa-solid fa-route"></i></span>
+          <div>
+            <h3>Metode Service</h3>
+            <p>Pilih cara penyerahan perangkat yang paling nyaman.</p>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="service-option">Metode Service</label>
+          <select id="service-option">
+            <option value="">Pilih metode</option>
+            <option value="Home Service">Home Service</option>
+            <option value="Kirim Paket">Kirim Paket</option>
+            <option value="Datang ke Toko">Datang ke Toko</option>
+          </select>
+        </div>
+
+        <div id="alamat-toko" class="dynamic-panel store-address" style="display:none;">
+          <div class="dynamic-title"><i class="fa-solid fa-store"></i><strong>Alamat CEO Part & Service</strong></div>
+          <div id="alamat-text" class="address-text">
+            CEO (Cellular Engineering Officer)<br>
+            ITC Roxy Mas LT.1 No.123 B<br>
+            Jl. KH. Hasyim Ashari No.125, Cideng, Kecamatan Gambir, Kota Jakarta Pusat, Daerah Khusus Ibukota Jakarta 10150
+          </div>
+          <button type="button" id="copy-alamat" class="btn secondary-btn">
+            <i class="fa-regular fa-copy"></i> Salin Alamat
+          </button>
+        </div>
+
+        <div id="resi-section" class="dynamic-panel" style="display:none;">
+          <div class="dynamic-title"><i class="fa-solid fa-box"></i><strong>Informasi Pengiriman</strong></div>
+          <div class="form-grid two-col">
+            <div class="field">
+              <label for="customer-ekspedisi">Ekspedisi</label>
+              <select id="customer-ekspedisi">
+                <option value="">Pilih Pengiriman</option>
+                <optgroup label="Ekspedisi">
+                  <option value="JNE">JNE</option>
+                  <option value="J&T">J&T</option>
+                  <option value="SiCepat">SiCepat</option>
+                  <option value="AnterAja">AnterAja</option>
+                  <option value="POS Indonesia">POS Indonesia</option>
+                </optgroup>
+                <optgroup label="Kurir Instan">
+                  <option value="Gojek">Gojek</option>
+                  <option value="Grab">Grab</option>
+                  <option value="Maxim">Maxim</option>
+                  <option value="Lalamove">Lalamove</option>
+                </optgroup>
+              </select>
+            </div>
+            <div class="field">
+              <label id="label-resi" for="customer-resi">Nomor Resi Pengiriman</label>
+              <input type="text" id="customer-resi" placeholder="Masukkan nomor resi">
+            </div>
+          </div>
+        </div>
+
+        <div id="map-section" class="dynamic-panel map-panel" style="display:none;">
+          <div class="dynamic-title"><i class="fa-solid fa-location-crosshairs"></i><strong>Lokasi Home Service</strong></div>
+          <div class="field">
+            <label for="customer-coord">Koordinat Lokasi</label>
+            <input type="text" id="customer-coord" readonly placeholder="Belum ada lokasi dipilih">
+          </div>
+          <button type="button" id="getLocation" class="btn primary-btn full-btn">
+            <i class="fa-solid fa-location-crosshairs"></i> Gunakan Lokasi Saya
+          </button>
+          <div id="map"></div>
+          <small class="helper-text"><i class="fa-solid fa-circle-info"></i> Klik peta jika ingin memilih titik lokasi secara manual.</small>
+        </div>
+
+        <div id="transport-section" class="dynamic-panel" style="display:none;">
+          <div class="dynamic-title"><i class="fa-solid fa-motorcycle"></i><strong>Biaya Transport</strong></div>
+          <div class="field">
+            <label for="transport-fee">Estimasi Transport</label>
+            <input type="text" id="transport-fee" readonly value="Rp 0">
+          </div>
+          <div id="distance-info"></div>
+        </div>
+
+        <div id="payment-section" class="dynamic-panel" style="display:none;">
+          <div class="dynamic-title"><i class="fa-solid fa-wallet"></i><strong>Pembayaran Transport</strong></div>
+          <div class="field">
+            <label for="payment-method">Metode Pembayaran</label>
+            <select id="payment-method">
+              <option value="">-- Pilih --</option>
+              <option value="Transfer">Transfer Bank</option>
+              <option value="QRIS">QRIS</option>
+            </select>
+          </div>
+          <div id="payment-info"></div>
+        </div>
+
+        <div id="payment-proof-section" class="dynamic-panel" style="display:none;">
+          <div class="dynamic-title"><i class="fa-solid fa-receipt"></i><strong>Bukti Pembayaran Transport</strong></div>
+          <div class="field">
+            <label for="payment-proof">Upload Bukti Transfer</label>
+            <input type="file" id="payment-proof" accept="image/*">
+          </div>
+        </div>
+      </section>
+
+      <section id="cart-box" class="service-card form-card" style="display:none;">
+        <div class="card-heading">
+          <span class="card-icon"><i class="fa-solid fa-cart-shopping"></i></span>
+          <div>
+            <h3>Sparepart Dipilih</h3>
+            <p>Sparepart yang ditambahkan ke permintaan service.</p>
+          </div>
+        </div>
+        <div id="cart-items"></div>
+      </section>
+    </div>
+
+    <aside class="summary-column">
+      <section class="service-card summary-card">
+        <div class="summary-head">
+          <span class="summary-icon"><i class="fa-solid fa-file-invoice-dollar"></i></span>
+          <div>
+            <span class="section-label">RINGKASAN</span>
+            <h3>Estimasi Service</h3>
+          </div>
+        </div>
+
+        <div class="summary-box">
+          <div class="summary-row">
+            <span>Sparepart</span>
+            <strong id="sparepart-price">Rp 0</strong>
+          </div>
+          <div class="summary-row" id="transport-row" style="display:none;">
+            <span>Biaya Transport</span>
+            <strong id="transport-price">Rp 0</strong>
+          </div>
+          <div class="summary-row summary-total">
+            <span>Total Estimasi</span>
+            <strong id="total-price">Rp 0</strong>
+          </div>
+        </div>
+
+        <div class="summary-note">
+          <i class="fa-solid fa-circle-info"></i>
+          <p>Biaya jasa diinformasikan setelah pengecekan teknisi. Nilai di atas merupakan estimasi awal.</p>
+        </div>
+
+        <button id="checkout" class="btn-submit">
+          <i class="fa-solid fa-paper-plane"></i>
+          Kirim Permintaan Service
+        </button>
+
+        <div class="trust-strip">
+          <span><i class="fa-solid fa-lock"></i> Data aman</span>
+          <span><i class="fa-solid fa-shield-halved"></i> Bergaransi</span>
+        </div>
+      </section>
+    </aside>
+  </section>
+</main>
 
 <footer>
-© 2026 CEO Service HP — All Rights Reserved
+  <div class="footer-inner">
+    <div>
+      <strong>CEO Part & Service</strong>
+      <span>Cellular Engineering Officer</span>
+    </div>
+    <p>© 2026 CEO Part & Service — All Rights Reserved</p>
+  </div>
 </footer>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-<!-- 1. LIBRARY SUPABASE -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<!-- 2. CONFIG CLIENT -->
 <script src="js/supabase.js"></script>
 <script src="js/layanan.js"></script>
+<script>
+(function(){
+  const toggle = document.getElementById('menuToggle');
+  const nav = document.getElementById('topNav');
+  const overlay = document.getElementById('navOverlay');
+  if(!toggle || !nav || !overlay) return;
+  function closeNav(){
+    nav.classList.remove('open');
+    overlay.classList.remove('show');
+    toggle.setAttribute('aria-expanded','false');
+  }
+  toggle.addEventListener('click', function(){
+    const open = nav.classList.toggle('open');
+    overlay.classList.toggle('show', open);
+    toggle.setAttribute('aria-expanded', String(open));
+  });
+  overlay.addEventListener('click', closeNav);
+  nav.querySelectorAll('a').forEach(function(a){ a.addEventListener('click', closeNav); });
+})();
+</script>
+
 <div class="floating-wa">
-  <a href="https://wa.me/628138892098?text=Halo%20CEO%20Part%20and%20Service%20HP,%20saya%20ingin%20bertanya%20tentang%20service"
-     target="_blank">
-
-     <i class="fa-brands fa-whatsapp"></i>
-
+  <a href="https://wa.me/628138892098?text=Halo%20CEO%20Part%20and%20Service%20HP,%20saya%20ingin%20bertanya%20tentang%20service" target="_blank" rel="noopener" aria-label="Chat WhatsApp">
+    <i class="fa-brands fa-whatsapp"></i>
   </a>
 </div>
-  
+
 </body>
 </html>
