@@ -136,6 +136,11 @@ function hitungTotalManualSparepart(){
     totalField.value = formatRupiahInput(total.toString());
   }
 
+  if(typeof updateCollaborationPreview === "function"){
+    updateCollaborationPreview();
+    hitungPembayaran();
+  }
+
 }
 
 function kumpulkanSparepartManual(){
@@ -474,7 +479,7 @@ function renderTable(){
     let rows = allOrders;
     
     if(rows.length===0){
-        tbody.innerHTML=`<tr><td colspan="9">Tidak ada data</td></tr>`;
+        tbody.innerHTML=`<tr><td colspan="10">Tidak ada data</td></tr>`;
         return;
     }
 
@@ -508,6 +513,7 @@ function renderTable(){
             <td><input type="checkbox" class="row-check" data-id="${row.id}"></td>
             <td>${nomor}</td>
             <td>${row.nama ?? "-"}</td>
+            <td><span class="technician-badge ${String(row.teknisi || "CEO").toLowerCase()}">${row.teknisi || "CEO"}</span></td>
             <td>${row.alamat ?? "-"}</td>
             <td>
                 ${
@@ -682,6 +688,72 @@ function renderSelectedParts(){
     JSON.stringify(selectedParts);
 }
 
+/* ================= KOLABORASI TEKNISI ================= */
+function getCollaborationValues(){
+    const teknisi = document.getElementById("edit-teknisi")?.value || "CEO";
+    const sumber = document.getElementById("edit-sumber-pelanggan")?.value || "CEO";
+    const spare = parseRupiah(document.getElementById("edit-total-sparepart")?.value || "0");
+    const transport = parseRupiah(document.getElementById("edit-transport")?.value || "0");
+    const jasa = parseRupiah(document.getElementById("edit-jasa")?.value || "0");
+    const modalSparepart = parseRupiah(document.getElementById("edit-modal-sparepart")?.value || "0");
+    const total = spare + transport + jasa;
+    const dasarBagiHasil = Math.max((total - transport) - modalSparepart, 0);
+
+    let persenUjang = 0;
+    let persenCeo = 100;
+
+    if(teknisi === "UJANG"){
+        if(sumber === "UJANG"){
+            persenUjang = 65;
+            persenCeo = 35;
+        }else{
+            persenUjang = 50;
+            persenCeo = 50;
+        }
+    }
+
+    const bagianUjang = Math.round(dasarBagiHasil * persenUjang / 100);
+    const bagianCeo = dasarBagiHasil - bagianUjang;
+
+    return { teknisi, sumber, spare, transport, jasa, total, modalSparepart, dasarBagiHasil, persenUjang, persenCeo, bagianUjang, bagianCeo };
+}
+
+function updateCollaborationPreview(){
+    const v = getCollaborationValues();
+    const totalEl = document.getElementById("edit-total");
+    if(totalEl) totalEl.value = formatRupiahInput(String(v.total));
+
+    const sumberEl = document.getElementById("edit-sumber-pelanggan");
+    const helpEl = document.getElementById("sumberHelp");
+    if(sumberEl){
+        sumberEl.disabled = v.teknisi !== "UJANG";
+        if(v.teknisi !== "UJANG") sumberEl.value = "CEO";
+    }
+    if(helpEl){
+        helpEl.textContent = v.teknisi === "UJANG"
+            ? "Pelanggan UJANG = 65/35, pelanggan CEO = 50/50."
+            : "Tidak dipakai karena teknisi adalah CEO.";
+    }
+
+    const rule = document.getElementById("splitRuleText");
+    if(rule){
+        rule.textContent = v.teknisi === "UJANG"
+            ? `UJANG ${v.persenUjang}% • CEO ${v.persenCeo}%`
+            : "Teknisi CEO • CEO 100%";
+    }
+
+    const dasar = document.getElementById("preview-bagi-hasil");
+    const ujang = document.getElementById("preview-ujang");
+    const ceo = document.getElementById("preview-ceo");
+    const ujangPct = document.getElementById("preview-ujang-pct");
+    const ceoPct = document.getElementById("preview-ceo-pct");
+    if(dasar) dasar.textContent = rupiah(v.dasarBagiHasil);
+    if(ujang) ujang.textContent = rupiah(v.bagianUjang);
+    if(ceo) ceo.textContent = rupiah(v.bagianCeo);
+    if(ujangPct) ujangPct.textContent = `${v.persenUjang}% dari laba service`;
+    if(ceoPct) ceoPct.textContent = `${v.persenCeo}% dari laba service`;
+}
+
 /* ================= INIT ================= */
 function initUI(){
 
@@ -703,6 +775,24 @@ function initUI(){
     document.getElementById("edit-total")
         ?.addEventListener("input", hitungPembayaran);
 
+    ["edit-teknisi","edit-sumber-pelanggan"].forEach(id=>{
+        document.getElementById(id)?.addEventListener("change", updateCollaborationPreview);
+    });
+
+    ["edit-transport","edit-jasa","edit-modal-sparepart"].forEach(id=>{
+        document.getElementById(id)?.addEventListener("input", ()=>{
+            updateCollaborationPreview();
+            hitungPembayaran();
+        });
+    });
+
+    document.getElementById("sparepartContainer")?.addEventListener("input", ()=>{
+        setTimeout(()=>{
+            updateCollaborationPreview();
+            hitungPembayaran();
+        },0);
+    });
+
     initRupiahInputs();
     initSparepartManual();
 
@@ -723,6 +813,10 @@ function initUI(){
         document.getElementById("edit-tipe-model").value=data.tipe_model ?? "";
         document.getElementById("edit-problem").value=data.problem ?? "";
         document.getElementById("edit-metode").value=data.metode ?? "";
+        document.getElementById("edit-teknisi").value = data.teknisi || "CEO";
+        document.getElementById("edit-sumber-pelanggan").value = data.sumber_pelanggan || "CEO";
+        document.getElementById("edit-modal-sparepart").value =
+        formatRupiahInput((data.modal_sparepart || 0).toString());
         document.getElementById("edit-ekspedisi").value =
         data.ekspedisi ?? "";
     
@@ -807,6 +901,8 @@ function initUI(){
             minute:"2-digit"
         });
         document.getElementById("edit-coord").value=data.coord ?? "";
+        updateCollaborationPreview();
+        hitungPembayaran();
 
         // Preview Bukti Transfer (dari user)
         const buktiTransferDiv = document.getElementById("edit-bukti-transfer-preview");
@@ -918,6 +1014,11 @@ const { error } = await client
       tipe_model: document.getElementById("edit-tipe-model").value || null,
       problem: document.getElementById("edit-problem").value,
       metode: document.getElementById("edit-metode").value,
+      teknisi: document.getElementById("edit-teknisi").value || "CEO",
+      sumber_pelanggan: document.getElementById("edit-teknisi").value === "UJANG"
+        ? (document.getElementById("edit-sumber-pelanggan").value || "CEO")
+        : "CEO",
+      modal_sparepart: parseRupiah(document.getElementById("edit-modal-sparepart").value || "0"),
       ekspedisi: document.getElementById("edit-ekspedisi").value || null,
       resi: document.getElementById("edit-resi").value || null,
       sparepart: JSON.stringify(selectedParts),
