@@ -1030,8 +1030,25 @@ const { data: { user } } = await client.auth.getUser();
 
 let tanggalSelesai = existingData?.tanggal_selesai || null;
 
-if(newStatus === "selesai" && !tanggalSelesai){
+/*
+ * Jika status BARU saja diubah menjadi "selesai",
+ * selalu gunakan waktu saat ini sebagai tanggal selesai.
+ * Jadi tanggal selesai tidak lagi ikut tanggal masuk.
+ *
+ * Jika order memang sudah berstatus selesai sebelumnya
+ * lalu admin hanya mengedit data lain, tanggal selesai lama dipertahankan.
+ */
+if(newStatus === "selesai" && existingData?.status !== "selesai"){
   tanggalSelesai = new Date().toISOString();
+}
+
+/*
+ * Jika status dikembalikan dari selesai ke status lain,
+ * kosongkan tanggal selesai agar nanti saat diselesaikan lagi
+ * akan memakai waktu terbaru.
+ */
+if(newStatus !== "selesai"){
+  tanggalSelesai = null;
 }
 
 const { error } = await client
@@ -1247,11 +1264,14 @@ document.addEventListener("change", async e => {
     let tanggalSelesai = existingData.tanggal_selesai || null;
 
     /*
-     * Jika status BARU berubah menjadi selesai
-     * dan sebelumnya belum pernah selesai,
-     * simpan waktu saat status diubah.
+     * Jika status BARU saja diubah menjadi selesai,
+     * gunakan waktu saat ini sebagai tanggal selesai.
+     *
+     * Pengecekan berdasarkan status sebelumnya, bukan berdasarkan
+     * ada/tidaknya tanggal_selesai. Ini juga memperbaiki data lama
+     * yang tanggal selesainya sempat mengikuti tanggal masuk.
      */
-    if(val === "selesai" && !tanggalSelesai){
+    if(val === "selesai" && existingData.status !== "selesai"){
         tanggalSelesai = new Date().toISOString();
     }
 
