@@ -25,7 +25,7 @@
       </div>
     </a>
     <button class="menu-toggle" id="menuToggle" type="button" aria-label="Buka menu" aria-expanded="false"><i class="fa-solid fa-bars"></i></button>
-    <nav class="top-nav" aria-label="Navigasi admin">
+    <nav class="top-nav" id="topNav" aria-label="Navigasi admin">
       <a href="index.html" class="nav-btn"><i class="fa-solid fa-house"></i><span>Beranda</span></a>
       <a href="profile.html" class="nav-btn"><i class="fa-solid fa-user"></i><span>Profil</span></a>
       <a href="dapur.html" class="nav-btn active"><i class="fa-solid fa-kitchen-set"></i><span>Dapur</span></a>
@@ -40,66 +40,79 @@
 <div class="nav-overlay" id="navOverlay"></div>
 
 <main>
-  <section class="dapur-hero">
-    <div class="dapur-hero-inner">
-      <div class="hero-copy">
-        <span class="hero-badge"><i class="fa-solid fa-screwdriver-wrench"></i> OPERASIONAL SERVICE</span>
-        <h1>Kelola <span>Service Masuk</span></h1>
-        <p>Pantau service, tentukan teknisi CEO atau UJANG, atur biaya, pembayaran, garansi, dan status pengerjaan dalam satu halaman.</p>
+  <section class="order-hero dapur-hero">
+    <div class="order-hero-inner dapur-hero-inner">
+      <div>
+        <div class="hero-badge"><i class="fa-solid fa-screwdriver-wrench"></i> MANAJEMEN SERVICE</div>
+        <h1>Kelola <span>Service HP & Laptop</span></h1>
+        <p>Pantau service masuk, teknisi CEO atau UJANG, pembayaran, biaya, garansi, dan progres pengerjaan dalam satu halaman admin.</p>
       </div>
-      <div class="hero-side">
-        <div class="hero-status-card">
-          <div class="status-title"><i class="fa-solid fa-store"></i><span>Status Layanan</span></div>
-          <div id="admin-status" class="store-status">Memuat status layanan...</div>
+      <div class="hero-service-actions">
+        <div class="hero-store-state">
+          <span><i class="fa-solid fa-store"></i> Status Layanan</span>
+          <strong id="admin-status" class="store-status">Memuat status layanan...</strong>
           <small id="tanggalOtomatis">Memuat tanggal...</small>
-          <div class="hero-status-actions buttons">
-            <button id="btnOpen" class="btn btn-open"><i class="fa-solid fa-circle-check"></i> Buka</button>
-            <button id="btnClose" class="btn btn-close"><i class="fa-solid fa-circle-xmark"></i> Tutup</button>
-          </div>
+        </div>
+        <div class="hero-status-actions buttons">
+          <button id="btnOpen" class="btn btn-light service-open"><i class="fa-solid fa-circle-check"></i> Buka Layanan</button>
+          <button id="btnClose" class="btn service-close"><i class="fa-solid fa-circle-xmark"></i> Tutup</button>
         </div>
       </div>
     </div>
   </section>
 
   <div class="container">
-    <section class="content-card admin-content">
-      <div class="content-head">
-        <div>
-          <span class="eyebrow">DATA SERVICE</span>
-          <h2>Daftar Service Masuk</h2>
-          <p>Cari pelanggan, filter metode service, dan buka detail untuk mengelola pengerjaan.</p>
-        </div>
-        <div class="content-head-actions">
-          <button id="cetakTanggal" class="btn btn-soft"><i class="fa-solid fa-print"></i> Cetak Data</button>
-          <button id="hapusTerpilih" class="btn btn-danger-soft"><i class="fa-solid fa-trash"></i> Hapus Terpilih</button>
-        </div>
-      </div>
+    <section class="stats" id="serviceStats">
+      <article class="stat-card">
+        <div class="stat-icon"><i class="fa-solid fa-screwdriver-wrench"></i></div>
+        <div><span>Total Service</span><strong id="statServiceTotal">0</strong><small>Seluruh service terdata</small></div>
+      </article>
+      <article class="stat-card">
+        <div class="stat-icon waiting"><i class="fa-regular fa-clock"></i></div>
+        <div><span>Pending</span><strong id="statServicePending">0</strong><small>Menunggu tindak lanjut</small></div>
+      </article>
+      <article class="stat-card">
+        <div class="stat-icon process-icon"><i class="fa-solid fa-gears"></i></div>
+        <div><span>Sedang Proses</span><strong id="statServiceProcess">0</strong><small>Unit sedang dikerjakan</small></div>
+      </article>
+      <article class="stat-card">
+        <div class="stat-icon done-icon"><i class="fa-solid fa-circle-check"></i></div>
+        <div><span>Selesai</span><strong id="statServiceDone">0</strong><small>Service telah selesai</small></div>
+      </article>
+    </section>
 
-      <div class="filter-card">
+    <section class="section-heading">
+      <div>
+        <span class="section-label"><i class="fa-solid fa-list-check"></i> Manajemen Service</span>
+        <h2>Daftar Service Masuk</h2>
+        <p>Cari pelanggan, filter metode service, lalu buka detail untuk mengelola pengerjaan.</p>
+      </div>
+      <div class="heading-actions">
+        <button id="cetakTanggal" class="btn"><i class="fa-solid fa-print"></i> Cetak Data</button>
+        <button id="hapusTerpilih" class="btn danger"><i class="fa-solid fa-trash"></i> Hapus Terpilih</button>
+      </div>
+    </section>
+
+    <section class="card filters service-filters">
+
         <div class="search-box search-wrap">
           <i class="fa-solid fa-magnifying-glass"></i>
           <input type="text" id="searchNama" placeholder="Cari nama pelanggan..." autocomplete="off">
         </div>
         <label class="date-filter-wrap"><span>Tanggal Masuk</span><input type="date" id="filterTanggal" class="filter-date"></label>
-      </div>
+      </section>
 
-      <div class="order-tabs" role="tablist">
+      <div class="order-tabs service-tabs" role="tablist">
         <button class="tab active" data-filter="all"><i class="fa-solid fa-layer-group"></i> Semua</button>
         <button class="tab" data-filter="toko"><i class="fa-solid fa-store"></i> Datang ke Toko</button>
         <button class="tab" data-filter="home"><i class="fa-solid fa-house-chimney-user"></i> Home Service</button>
         <button class="tab" data-filter="paket"><i class="fa-solid fa-box"></i> Kirim Paket</button>
       </div>
 
+      <section class="card table-card">
       <div class="table-toolbar">
         <div class="table-hint"><i class="fa-solid fa-circle-info"></i><span>Centang service untuk aksi massal. Klik Detail untuk membuka seluruh informasi service.</span></div>
-        <div class="page-size">Tampilkan
-          <select id="pageSize">
-            <option value="10">10 / halaman</option>
-            <option value="20">20 / halaman</option>
-            <option value="50">50 / halaman</option>
-            <option value="100">100 / halaman</option>
-          </select>
-        </div>
+
       </div>
 
       <div class="table-wrapper">
@@ -112,30 +125,35 @@
         </table>
       </div>
 
-      <div class="table-pagination">
-        <span class="pagination-label">Navigasi halaman</span>
-        <div class="page-nav">
-          <button id="prevPage" type="button"><i class="fa-solid fa-chevron-left"></i><span> Prev</span></button>
-          <span id="pageNumbers"></span>
-          <button id="nextPage" type="button"><span>Next </span><i class="fa-solid fa-chevron-right"></i></button>
+      <div class="pagination pagination-modern">
+        <div class="page-size-wrap"><span>Tampilkan</span>
+          <select id="pageSize" aria-label="Jumlah service per halaman">
+            <option value="10">10</option><option value="20">20</option><option value="50">50</option><option value="100">100</option>
+          </select><span>service</span>
         </div>
+        <div class="page-nav">
+          <button id="prevPage" class="btn page-arrow" type="button"><i class="fa-solid fa-chevron-left"></i></button>
+          <div id="pageNumbers" class="page-numbers"></div>
+          <button id="nextPage" class="btn page-arrow" type="button"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+        <span id="pageInfo" class="page-info-text">0 service</span>
       </div>
-    </section>
+      </section>
   </div>
 </main>
 
 <footer class="main-footer">© 2026 CEO Part & Service — Dapur Service</footer>
 </div>
 <!-- MODAL DETAIL -->
-<div id="detailModal" class="modal">
-  <div class="modal-box service-modal-box">
+<div id="detailModal" class="modal" aria-hidden="true">
+  <div class="modal-panel service-modal-box">
     <div class="modal-head">
       <div>
         <span class="eyebrow">SERVICE ORDER</span>
-        <h3>Edit Data Service</h3>
+        <h2>Edit Data Service</h2>
         <p>Kelola perangkat, teknisi, biaya, pembayaran, dan status dalam satu tempat.</p>
       </div>
-      <button type="button" id="closeModal" class="modal-close" aria-label="Tutup">&times;</button>
+      <button type="button" id="closeModal" class="icon-btn modal-close" aria-label="Tutup"><i class="fa-solid fa-xmark"></i></button>
     </div>
 
     <input type="hidden" id="edit-id">
