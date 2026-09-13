@@ -48,6 +48,8 @@ let incomeData = [];
 let expenseData = [];
 let debtData = [];
 let laptopData = [];
+let ujangData = [];
+let fullUjangData = [];
 
 let summaryIncomeData = [];
 let summaryExpenseData = [];
@@ -191,6 +193,55 @@ function applyQuickFilter(type){
 }
 
 
+/* ================= KOLABORASI UJANG ================= */
+function getUjangShare(row){
+    const total = Number(row?.total || 0);
+    const transport = Number(row?.transport || 0);
+    const modalSparepart = Number(row?.modal_sparepart || 0);
+
+    const storedDasar = row?.bagi_hasil_dasar;
+    const dasar = storedDasar === null || storedDasar === undefined
+        ? Math.max(0, total - transport - modalSparepart)
+        : Number(storedDasar || 0);
+
+    const sumber = String(row?.sumber_pelanggan || "CEO").toUpperCase();
+    const persenUjang = row?.persen_ujang === null || row?.persen_ujang === undefined
+        ? (sumber === "UJANG" ? 65 : 50)
+        : Number(row.persen_ujang || 0);
+    const persenCeo = row?.persen_ceo === null || row?.persen_ceo === undefined
+        ? (100 - persenUjang)
+        : Number(row.persen_ceo || 0);
+
+    const bagianUjang = row?.bagian_ujang === null || row?.bagian_ujang === undefined
+        ? Math.round(dasar * persenUjang / 100)
+        : Number(row.bagian_ujang || 0);
+    const bagianCeo = row?.bagian_ceo === null || row?.bagian_ceo === undefined
+        ? Math.round(dasar * persenCeo / 100)
+        : Number(row.bagian_ceo || 0);
+
+    return { total, transport, modalSparepart, dasar, sumber, persenUjang, persenCeo, bagianUjang, bagianCeo };
+}
+
+function updateUjangSummary(rows = []){
+    const summary = rows.reduce((acc, row)=>{
+        const calc = getUjangShare(row);
+        acc.dasar += calc.dasar;
+        acc.ujang += calc.bagianUjang;
+        acc.ceo += calc.bagianCeo;
+        return acc;
+    }, { dasar:0, ujang:0, ceo:0 });
+
+    const unitEl = document.getElementById("ujangTotalUnit");
+    const dasarEl = document.getElementById("ujangTotalDasar");
+    const ujangEl = document.getElementById("ujangTotalBagian");
+    const ceoEl = document.getElementById("ceoTotalBagian");
+
+    if(unitEl) unitEl.textContent = `${rows.length} Unit`;
+    if(dasarEl) dasarEl.textContent = rupiah(summary.dasar);
+    if(ujangEl) ujangEl.textContent = rupiah(summary.ujang);
+    if(ceoEl) ceoEl.textContent = rupiah(summary.ceo);
+}
+
 /* ================= LOAD DATA ================= */
 async function loadFinance(){
     const start = (currentPage - 1) * pageSize;
@@ -266,6 +317,13 @@ const { data:expense, count:expenseCount } =
 incomeData = income || [];
 expenseData = expense || [];
 
+/* ================= DATA UJANG ================= */
+fullUjangData = (fullIncome || []).filter(row =>
+    String(row.teknisi || "").toUpperCase() === "UJANG"
+);
+ujangData = fullUjangData.slice(start, start + pageSize);
+updateUjangSummary(fullUjangData);
+
 /* ================= DATA LAPTOP ================= */
 
 let laptopQuery = client
@@ -313,12 +371,15 @@ else if(currentTab === "debt"){
 else if(currentTab === "laptop"){
     totalRows = laptopCount;
 }
+else if(currentTab === "ujang"){
+    totalRows = fullUjangData.length;
+}
 
 const totalPages = Math.ceil(totalRows / pageSize);
 if(currentPage > totalPages) currentPage = totalPages || 1;
 
 updatePagination();
-renderByTab(incomeData, expenseData, laptopData);
+renderByTab(incomeData, expenseData, laptopData, ujangData);
 
 if(startDate && endDate){
     updateFinanceCards(fullIncome || [], fullExpense || []);
@@ -490,17 +551,19 @@ function updateFinanceCards(income, expense){
 }
 
 /* ================= RENDER TABLE ================= */
-function renderByTab(income = incomeData, expense = expenseData, laptop = laptopData){
+function renderByTab(income = incomeData, expense = expenseData, laptop = laptopData, ujang = ujangData){
 
     const incomeWrapper = document.getElementById("incomeTableWrapper");
     const expenseWrapper = document.getElementById("expenseTableWrapper");
     const debtWrapper = document.getElementById("debtTableWrapper");
     const laptopWrapper = document.getElementById("laptopTableWrapper");
+    const ujangWrapper = document.getElementById("ujangTableWrapper");
 
     if(incomeWrapper) incomeWrapper.style.display = "none";
     if(expenseWrapper) expenseWrapper.style.display = "none";
     if(debtWrapper) debtWrapper.style.display = "none";
     if(laptopWrapper) laptopWrapper.style.display = "none";
+    if(ujangWrapper) ujangWrapper.style.display = "none";
 
     /* ================= INCOME ================= */
    if(currentTab === "income"){
@@ -744,6 +807,44 @@ else if(currentTab === "laptop"){
 
         </tr>
         `;
+    });
+}
+
+/* ================= UJANG ================= */
+else if(currentTab === "ujang"){
+    if(ujangWrapper) ujangWrapper.style.display = "block";
+
+    const tbody = document.getElementById("ujangTable");
+    if(!tbody) return;
+
+    tbody.innerHTML = "";
+
+    if(!ujang.length){
+        tbody.innerHTML = `<tr><td colspan="12" class="empty-ujang">Belum ada service selesai yang dikerjakan UJANG pada periode ini.</td></tr>`;
+        return;
+    }
+
+    ujang.forEach((row, i)=>{
+        const calc = getUjangShare(row);
+        const perangkat = [row.kategori_perangkat, row.tipe_model || row.brand]
+            .filter(Boolean).join(" · ") || "-";
+        const sourceClass = calc.sumber === "UJANG" ? "source-ujang" : "source-ceo";
+
+        tbody.innerHTML += `
+        <tr>
+            <td>${(currentPage - 1) * pageSize + i + 1}</td>
+            <td class="ujang-customer"><strong>${row.nama || "-"}</strong><small>${row.phone || ""}</small></td>
+            <td>${perangkat}</td>
+            <td><span class="source-badge ${sourceClass}">${calc.sumber}</span></td>
+            <td>${row.tanggal_selesai ? new Date(row.tanggal_selesai).toLocaleDateString("id-ID") : "-"}</td>
+            <td>${rupiah(calc.total)}</td>
+            <td>${rupiah(calc.transport)}</td>
+            <td>${rupiah(calc.modalSparepart)}</td>
+            <td class="share-base">${rupiah(calc.dasar)}</td>
+            <td><span class="split-badge">${calc.persenUjang}% / ${calc.persenCeo}%</span></td>
+            <td class="share-ujang">${rupiah(calc.bagianUjang)}</td>
+            <td class="share-ceo">${rupiah(calc.bagianCeo)}</td>
+        </tr>`;
     });
 }
     
@@ -1154,6 +1255,39 @@ const exportExpense = isFilterActive
     });
 
     fileName = "laporan_piutang.csv";
+}
+
+else if(currentTab === "ujang"){
+    rows.push([
+        "No", "Pelanggan", "No HP", "Perangkat", "Sumber Pelanggan",
+        "Tanggal Selesai", "Total Tagihan", "Transport", "Modal Sparepart",
+        "Dasar Bagi Hasil", "Persen UJANG", "Persen CEO", "Bagian UJANG", "Bagian CEO"
+    ]);
+
+    const exportUjang = (isFilterActive ? filteredIncomeData : summaryIncomeData)
+        .filter(o => String(o.teknisi || "").toUpperCase() === "UJANG");
+
+    exportUjang.forEach((o,i)=>{
+        const calc = getUjangShare(o);
+        rows.push([
+            i+1,
+            o.nama || "-",
+            o.phone || "-",
+            [o.kategori_perangkat, o.tipe_model || o.brand].filter(Boolean).join(" - ") || "-",
+            calc.sumber,
+            o.tanggal_selesai ? new Date(o.tanggal_selesai).toLocaleDateString("id-ID") : "-",
+            calc.total,
+            calc.transport,
+            calc.modalSparepart,
+            calc.dasar,
+            calc.persenUjang,
+            calc.persenCeo,
+            calc.bagianUjang,
+            calc.bagianCeo
+        ]);
+    });
+
+    fileName = "laporan_bagi_hasil_ujang.csv";
 }
 
     let csv = "data:text/csv;charset=utf-8,";
