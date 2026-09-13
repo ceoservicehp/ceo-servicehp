@@ -1,187 +1,241 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Status Service — CEO Service HP</title>
-
-<link rel="stylesheet" href="/css/ceo_status.css">
-
-<!-- Font Awesome -->
-<link rel="stylesheet"
-href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="/js/supabase.js"></script>
-<script defer src="/js/ceo_status.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Status Service — CEO Part & Service</title>
+  <meta name="description" content="Pantau status service perangkat Anda di CEO Part & Service.">
+  <link rel="icon" href="images/logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/ceo_status.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase.js"></script>
+  <script defer src="js/ceo_status.js"></script>
 </head>
-
 <body>
 
-<!-- ================= HEADER ================= -->
-<header>
-  <div id="logo-container">
-    <img src="images/logo.png" width="55">
-    <div>
-      <h1>CEO STATUS SERVICE</h1>
-      <div class="tagline">CELLULAR ENGINEERING OFFICER</div>
-    </div>
-  </div>
-
-<!-- SOCIAL MEDIA -->
-  <div class="social-header">
-
-    <a href="https://www.instagram.com/ceo_servicehp?igsh=MTNwMWJkcDQyb3dpcA==" target="_blank">
-      <i class="fa-brands fa-instagram"></i>
+<header class="site-header">
+  <div class="header-inner">
+    <a href="index.html" class="brand" aria-label="CEO Part & Service">
+      <img src="images/logo.png" width="48" height="48" alt="Logo CEO Part & Service">
+      <div class="brand-text">
+        <strong>CEO PART & SERVICE</strong>
+        <span>CELLULAR ENGINEERING OFFICER</span>
+      </div>
     </a>
 
-    <a href="https://www.tiktok.com/@ceo_servicehp?_r=1&_t=ZS-95r6MR04yLF" target="_blank">
-      <i class="fa-brands fa-tiktok"></i>
-    </a>
+    <button class="menu-toggle" id="menuToggle" type="button" aria-label="Buka menu" aria-expanded="false">
+      <i class="fa-solid fa-bars"></i>
+    </button>
 
-    <a href="#" target="_blank">
-      <i class="fa-brands fa-facebook"></i>
-    </a>
-
+    <nav class="top-nav" id="topNav">
+      <a href="index.html"><i class="fa-solid fa-house"></i> Beranda</a>
+      <a href="layanan.html"><i class="fa-solid fa-screwdriver-wrench"></i> Ajukan Service</a>
+      <a href="ceo_status.html" class="active"><i class="fa-solid fa-chart-line"></i> Status Service</a>
+    </nav>
   </div>
 </header>
+<div class="nav-overlay" id="navOverlay"></div>
 
-<!-- ================= NAVBAR ================= -->
- <nav class="top-nav">
-  <a href="index.html" class="nav-btn">
-    <i class="fa-solid fa-house"></i> Beranda
-  </a>
-
-  <a href="layanan.html" class="nav-btn">
-    <i class="fa fa-mobile-alt"></i>
-    Order Service
-  </a>
- </nav>
-
-<!-- ================= CONTENT ================= -->
-<div class="container">
-
-<h2>📦 Status Service Anda</h2>
-
-<div class="service-count">
-  Total Service Masuk: <b id="totalService">0</b>
-</div>
-
-<div class="search-box">
-    <i class="fas fa-search"></i>
-    <input type="text" id="searchNama"
-        placeholder="Cari Nama Lengkap...">
-</div>
-
-<div class="table-wrapper">
-  <table>
-    <thead>
-      <tr>
-        <th>No</th>
-        <th>Nama</th>
-        <th>Alamat</th>
-        <th>Tanggal Masuk</th>
-        <th>Status</th>
-        <!-- <th>Total</th> -->
-        <th>Aksi</th>
-      </tr>
-    </thead>
-    <tbody id="statusTable">
-      <tr>
-        <td colspan="7">Memuat data...</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
-</div>
-
-<!-- ================= MODAL DETAIL ================= -->
-<div id="detailModal" class="modal">
-<div class="modal-content">
-
-<span id="closeModal" class="close">&times;</span>
-
-<h3>Detail Service</h3>
-
-<div class="service-progress">
-
-  <div class="progress-step">
-    <div class="step-icon">
-      <i class="fa-solid fa-box"></i>
+<section class="status-hero">
+  <div class="status-hero-inner">
+    <div class="hero-copy">
+      <div class="hero-badge"><i class="fa-solid fa-screwdriver-wrench"></i> TRACKING SERVICE</div>
+      <h1>Pantau <span>Status Service</span> Anda</h1>
+      <p>Cek progres pengerjaan perangkat mulai dari service masuk, proses teknisi, hingga selesai.</p>
     </div>
-    <div class="step-text">
-      <b>Service Masuk</b>
-      <p id="p-masuk"></p>
+    <a href="layanan.html" class="btn btn-light">
+      <i class="fa-solid fa-plus"></i> Ajukan Service Baru
+    </a>
+  </div>
+</section>
+
+<main class="container">
+  <section class="stats" aria-label="Ringkasan status service">
+    <article class="stat-card stat-filter-card active" data-status-filter="all" role="button" tabindex="0">
+      <div class="stat-icon"><i class="fa-solid fa-mobile-screen-button"></i></div>
+      <div>
+        <span>Total Service</span>
+        <strong id="totalService">0</strong>
+        <small>Seluruh service masuk</small>
+      </div>
+    </article>
+
+    <article class="stat-card stat-filter-card" data-status-filter="pending" role="button" tabindex="0">
+      <div class="stat-icon pending"><i class="fa-solid fa-clock"></i></div>
+      <div>
+        <span>Pending</span>
+        <strong id="statPending">0</strong>
+        <small>Menunggu antrian</small>
+      </div>
+    </article>
+
+    <article class="stat-card stat-filter-card" data-status-filter="proses" role="button" tabindex="0">
+      <div class="stat-icon process"><i class="fa-solid fa-gears"></i></div>
+      <div>
+        <span>Sedang Proses</span>
+        <strong id="statProses">0</strong>
+        <small>Dalam pengerjaan teknisi</small>
+      </div>
+    </article>
+
+    <article class="stat-card stat-filter-card" data-status-filter="selesai" role="button" tabindex="0">
+      <div class="stat-icon done"><i class="fa-solid fa-circle-check"></i></div>
+      <div>
+        <span>Selesai</span>
+        <strong id="statSelesai">0</strong>
+        <small>Service telah selesai</small>
+      </div>
+    </article>
+
+    <article class="stat-card stat-filter-card" data-status-filter="batal" role="button" tabindex="0">
+      <div class="stat-icon cancelled"><i class="fa-solid fa-circle-xmark"></i></div>
+      <div>
+        <span>Batal</span>
+        <strong id="statBatal">0</strong>
+        <small>Service dibatalkan</small>
+      </div>
+    </article>
+  </section>
+
+  <section class="section-heading">
+    <div>
+      <span class="section-label"><i class="fa-solid fa-list-check"></i> STATUS SERVICE</span>
+      <h2>Daftar Service</h2>
+      <p>Cari berdasarkan nama pelanggan atau pilih card status untuk menyaring data.</p>
+    </div>
+  </section>
+
+  <section class="card search-card">
+    <div class="search-box">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <input type="search" id="searchNama" placeholder="Cari nama pelanggan..." autocomplete="off">
+    </div>
+    <div class="search-hint"><i class="fa-solid fa-circle-info"></i> Klik status pada tabel untuk melihat informasi singkat.</div>
+  </section>
+
+  <section class="card table-card">
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>No</th>
+            <th>Nama</th>
+            <th>Alamat</th>
+            <th>Tanggal Masuk</th>
+            <th>Status</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="statusTable">
+          <tr><td colspan="6" class="empty"><i class="fa-solid fa-spinner fa-spin"></i> Memuat data service...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<div id="detailModal" class="modal" aria-hidden="true">
+  <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="detailTitle">
+    <div class="modal-head">
+      <div>
+        <span class="eyebrow"><i class="fa-solid fa-file-lines"></i> DETAIL SERVICE</span>
+        <h2 id="detailTitle">Informasi Pengerjaan</h2>
+      </div>
+      <button id="closeModal" class="icon-btn" type="button" aria-label="Tutup">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <section class="progress-card">
+        <div class="progress-heading">
+          <span class="section-label"><i class="fa-solid fa-route"></i> PROGRES SERVICE</span>
+          <p>Riwayat tahapan pengerjaan perangkat Anda.</p>
+        </div>
+        <div class="service-progress">
+          <div class="progress-step" id="step-masuk">
+            <div class="step-icon"><i class="fa-solid fa-box"></i></div>
+            <div class="step-text"><b>Service Masuk</b><p id="p-masuk">-</p></div>
+          </div>
+          <div class="progress-line"></div>
+          <div class="progress-step" id="step-proses">
+            <div class="step-icon"><i class="fa-solid fa-screwdriver-wrench"></i></div>
+            <div class="step-text"><b>Sedang Dikerjakan</b><p id="p-proses">-</p></div>
+          </div>
+          <div class="progress-line"></div>
+          <div class="progress-step" id="step-selesai">
+            <div class="step-icon"><i class="fa-solid fa-circle-check"></i></div>
+            <div class="step-text"><b>Service Selesai</b><p id="p-selesai">-</p></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="detail-grid">
+        <article class="info-card">
+          <div class="card-title"><span class="card-icon"><i class="fa-solid fa-user"></i></span><div><h3>Pelanggan</h3><small>Data pemilik perangkat</small></div></div>
+          <div class="info-list">
+            <div class="info-row"><span>Nama</span><strong id="d-nama">-</strong></div>
+            <div class="info-row"><span>Alamat</span><strong id="d-alamat">-</strong></div>
+            <div class="info-row"><span>Tanggal Masuk</span><strong id="d-tanggal">-</strong></div>
+          </div>
+        </article>
+
+        <article class="info-card">
+          <div class="card-title"><span class="card-icon"><i class="fa-solid fa-mobile-screen"></i></span><div><h3>Perangkat</h3><small>Informasi service perangkat</small></div></div>
+          <div class="info-list">
+            <div class="info-row"><span>Merk / Perangkat</span><strong id="d-brand">-</strong></div>
+            <div class="info-row"><span>Metode Service</span><strong id="d-metode">-</strong></div>
+            <div class="info-row"><span>Status Service</span><strong id="d-status">-</strong></div>
+          </div>
+        </article>
+
+        <article class="info-card wide-card">
+          <div class="card-title"><span class="card-icon"><i class="fa-solid fa-stethoscope"></i></span><div><h3>Diagnosa & Perbaikan</h3><small>Keluhan pelanggan dan tindakan teknisi</small></div></div>
+          <div class="info-list">
+            <div class="info-row block-row"><span>Keluhan</span><strong id="d-problem">-</strong></div>
+            <div class="info-row block-row"><span>Jenis Perbaikan</span><strong id="d-perbaikan">-</strong></div>
+          </div>
+        </article>
+
+        <article class="info-card">
+          <div class="card-title"><span class="card-icon"><i class="fa-solid fa-calendar-check"></i></span><div><h3>Penyelesaian</h3><small>Status akhir pengerjaan</small></div></div>
+          <div class="info-list">
+            <div class="info-row"><span>Tanggal Selesai</span><strong id="d-selesai">-</strong></div>
+          </div>
+        </article>
+
+        <article class="info-card">
+          <div class="card-title"><span class="card-icon"><i class="fa-solid fa-camera"></i></span><div><h3>Bukti Service</h3><small>Dokumentasi hasil pengerjaan</small></div></div>
+          <div id="d-bukti-service" class="proof-box">-</div>
+        </article>
+      </section>
     </div>
   </div>
-
-  <div class="progress-line"></div>
-
-  <div class="progress-step">
-    <div class="step-icon">
-      <i class="fa-solid fa-screwdriver-wrench"></i>
-    </div>
-    <div class="step-text">
-      <b>Sedang Dikerjakan</b>
-      <p id="p-proses"></p>
-    </div>
-  </div>
-
-  <div class="progress-line"></div>
-
-  <div class="progress-step">
-    <div class="step-icon" id="step-selesai">
-      <i class="fa-solid fa-shield-check"></i>
-    </div>
-    <div class="step-text">
-      <b>Service Selesai</b>
-      <p id="p-selesai"></p>
-    </div>
-  </div>
-
 </div>
 
-<div class="detail-grid">
-<div><b>Nama</b><p id="d-nama"></p></div>
-<div><b>Alamat</b><p id="d-alamat"></p></div>
-<div><b>Merk HP</b><p id="d-brand"></p></div>
-<div><b>Keluhan</b><p id="d-problem"></p></div>
-<div><b>Metode Service</b><p id="d-metode"></p></div>
-<!-- <div><b>Biaya Transport</b><p id="d-transport"></p></div> -->
-<!-- <div><b>Sparepart</b><p id="sparepartContainer"></p></div> -->
-<!-- <div><b>Total Sparepart</b><p id="d-totalspare"></p></div> -->
-<!-- <div><b>Total Akhir</b><p id="d-total"></p></div> -->
-<div><b>Status Service</b><p id="d-status"></p></div>
-<div><b>Tanggal Masuk</b><p id="d-tanggal"></p></div>
-<div><b>Tanggal Selesai</b><p id="d-selesai"></p></div>
-<div><b>Jenis Perbaikan</b><p id="d-perbaikan"></p></div>
-<div><b>Bukti Service Selesai</b><p id="d-bukti-service"></p></div>
-</div>
-
-</div>
-</div>
-
-<div id="statusPopup" class="status-popup">
+<div id="statusPopup" class="status-popup" aria-hidden="true">
   <div class="popup-content">
-    <span id="closeStatusPopup" class="close">&times;</span>
+    <button id="closeStatusPopup" class="icon-btn popup-close" type="button" aria-label="Tutup"><i class="fa-solid fa-xmark"></i></button>
     <div id="popupText"></div>
   </div>
 </div>
-  
-<!-- ================= FOOTER ================= -->
-<footer class="main-footer">
-<p>© 2026 CEO Service HP — All Rights Reserved</p>
+
+<footer>
+  <div class="footer-inner">
+    <strong>CEO Part & Service</strong>
+    <span>© 2026 Cellular Engineering Officer — All Rights Reserved</span>
+  </div>
 </footer>
 
 <div class="floating-wa">
-  <a href="https://wa.me/628138892098?text=Halo%20CEO%20Part%20and%20Service%20HP,%20saya%20ingin%20bertanya%20tentang%20service"
-     target="_blank">
-
-     <i class="fa-brands fa-whatsapp"></i>
-
+  <a href="https://wa.me/628138892098?text=Halo%20CEO%20Part%20and%20Service%20HP,%20saya%20ingin%20bertanya%20tentang%20service" target="_blank" rel="noopener" aria-label="Chat WhatsApp">
+    <i class="fa-brands fa-whatsapp"></i>
   </a>
 </div>
-  
+
 </body>
 </html>
