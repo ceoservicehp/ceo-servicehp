@@ -268,6 +268,7 @@ async function loadServiceStats(){
     setText("statServicePending", rows.filter(r => (r.status || "pending") === "pending").length);
     setText("statServiceProcess", rows.filter(r => r.status === "proses").length);
     setText("statServiceDone", rows.filter(r => r.status === "selesai").length);
+    setText("statServiceCancelled", rows.filter(r => r.status === "batal").length);
   }catch(err){
     console.error("Gagal memuat statistik service:", err);
   }
