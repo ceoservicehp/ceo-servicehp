@@ -2,6 +2,7 @@
 (async()=>{
   const client=window.supabaseClient;
   const slug=new URLSearchParams(location.search).get("slug");
+  const {data:site}=await client.from("site_settings").select("site_name,tagline,logo_url,footer_text,favicon_url").eq("id",1).maybeSingle();if(site){document.querySelectorAll(".brand strong").forEach(x=>{if(site.site_name)x.textContent=site.site_name});document.querySelectorAll(".brand span").forEach(x=>{if(site.tagline)x.textContent=site.tagline});document.querySelectorAll(".brand img").forEach(x=>{if(site.logo_url)x.src=site.logo_url});if(site.footer_text)document.getElementById("pageFooter").textContent=site.footer_text;if(site.favicon_url){let l=document.createElement("link");l.rel="icon";l.href=site.favicon_url;document.head.appendChild(l)}}
   if(!client||!slug)return show404();
   const {data,error}=await client.from("site_pages").select("title,excerpt,content,featured_image,seo_title,seo_description,status").eq("slug",slug).eq("status","published").maybeSingle();
   if(error||!data)return show404();
