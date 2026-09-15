@@ -55,7 +55,7 @@
 
   async function loadNavigation(){
     const { data, error } = await client.from("site_pages")
-      .select("title,slug,show_in_nav,nav_order")
+      .select("title,slug,show_in_nav,nav_order,nav_label")
       .eq("status","published")
       .eq("show_in_nav",true)
       .order("nav_order",{ascending:true});
@@ -65,7 +65,7 @@
     data.forEach(page => {
       const a = document.createElement("a");
       a.href = `page.html?slug=${encodeURIComponent(page.slug)}`;
-      a.innerHTML = `<i class="fa-regular fa-file-lines"></i> ${escapeHtml(page.title)}`;
+      a.innerHTML = `<i class="fa-regular fa-file-lines"></i> ${escapeHtml(page.nav_label || page.title)}`;
       nav.appendChild(a);
     });
   }
