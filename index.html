@@ -72,12 +72,12 @@
 <!-- ================= HERO ================= -->
 <section class="hero">
   <div class="hero-content" data-aos="fade-up">
-    <div class="hero-badge"><i class="fa-solid fa-mobile-screen-button"></i> SERVICE HP & LAPTOP JAKARTA</div>
-    <h1>Solusi Tepat untuk <span>Perangkat Anda</span></h1>
-    <p>Service HP & laptop profesional, transparan, dan bergaransi di ITC Roxy Mas Jakarta Pusat.</p>
+    <div class="hero-badge"><i class="fa-solid fa-mobile-screen-button"></i> <span id="cmsHeroBadge">SERVICE HP & LAPTOP JAKARTA</span></div>
+    <h1 id="cmsHeroTitle">Solusi Tepat untuk <span>Perangkat Anda</span></h1>
+    <p id="cmsHeroDescription">Service HP & laptop profesional, transparan, dan bergaransi di ITC Roxy Mas Jakarta Pusat.</p>
     <div class="hero-buttons">
-      <a href="layanan.html" class="btn-hero service-btn"><i class="fa-solid fa-screwdriver-wrench"></i> Ajukan Service</a>
-      <a href="ceo_status.html" class="btn-hero status-btn"><i class="fa-solid fa-magnifying-glass"></i> Cek Status</a>
+      <a href="layanan.html" id="cmsHeroPrimary" class="btn-hero service-btn"><i class="fa-solid fa-screwdriver-wrench"></i> <span>Ajukan Service</span></a>
+      <a href="ceo_status.html" id="cmsHeroSecondary" class="btn-hero status-btn"><i class="fa-solid fa-magnifying-glass"></i> <span>Cek Status</span></a>
       <a href="#reviews" id="hero-rating" class="btn-hero rating-btn"><i class="fa-solid fa-star"></i> <span id="hero-rating-score">5.0</span><span class="rating-text">Google</span></a>
     </div>
   </div>
@@ -199,7 +199,7 @@
   
 <!-- ================= LAYANAN ================= -->
 <section id="layanan" class="section">
-  <span class="section-label"><i class="fa-solid fa-screwdriver-wrench"></i> KEAHLIAN KAMI</span><h2 data-aos="fade-up">Layanan Service</h2><p class="section-subtitle">Solusi perbaikan untuk berbagai kebutuhan perangkat Anda.</p>
+  <span class="section-label"><i class="fa-solid fa-screwdriver-wrench"></i> <span id="cmsServicesLabel">KEAHLIAN KAMI</span></span><h2 id="cmsServicesTitle" data-aos="fade-up">Layanan Service</h2><p id="cmsServicesSubtitle" class="section-subtitle">Solusi perbaikan untuk berbagai kebutuhan perangkat Anda.</p>
 
   <div class="grid">
 
@@ -238,7 +238,7 @@
 
 <!-- ================= KEUNGGULAN ================= -->
 <section id="keunggulan" class="section">
-  <span class="section-label"><i class="fa-solid fa-circle-check"></i> KENAPA CEO</span><h2 data-aos="fade-up">Kenapa Pilih Kami?</h2><p class="section-subtitle">Pelayanan yang mengutamakan kualitas, kejelasan, dan kenyamanan pelanggan.</p>
+  <span class="section-label"><i class="fa-solid fa-circle-check"></i> <span id="cmsWhyLabel">KENAPA CEO</span></span><h2 id="cmsWhyTitle" data-aos="fade-up">Kenapa Pilih Kami?</h2><p id="cmsWhySubtitle" class="section-subtitle">Pelayanan yang mengutamakan kualitas, kejelasan, dan kenyamanan pelanggan.</p>
 
   <div class="grid">
 
@@ -291,19 +291,17 @@
 
 <!-- ================= KONTAK ================= -->
 <section id="kontak" class="contact">
-  <span class="section-label"><i class="fa-solid fa-location-dot"></i> LOKASI & KONTAK</span><h2>Hubungi Kami</h2>
-  <p>📍 ITC Roxy Mas LT. 1 No. 123 B</p>
-  <p>
+  <span class="section-label"><i class="fa-solid fa-location-dot"></i> LOKASI & KONTAK</span><h2 id="cmsContactTitle">Hubungi Kami</h2>
+  <p id="cmsContactShort">📍 ITC Roxy Mas LT. 1 No. 123 B</p>
+  <p id="cmsContactAddress">
     Jl. KH. Hasyim Ashari No.125, RW.8, Cideng,
     Kecamatan Gambir, Jakarta Pusat,
     Daerah Khusus Ibukota Jakarta 10150
   </p>
   
-  <p>📞 0813-889-2098</p>
+  <p id="cmsContactPhone">📞 0813-889-2098</p>
 
-<a href="https://wa.me/628138892098" target="_blank" class="btn-whatsapp">
-Chat via WhatsApp
-</a>
+<a href="https://wa.me/628138892098" target="_blank" id="cmsContactWhatsapp" class="btn-whatsapp">Chat via WhatsApp</a>
 
 <div class="map-container">
   <iframe
@@ -333,6 +331,9 @@ src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD5iqLx1p4JqP2LiioUVlUdoqR
   });
 </script>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase.js"></script>
+<script src="js/cms-public.js"></script>
 <script src="js/script.js"></script>
 <div class="floating-wa">
   <a href="https://wa.me/628138892098?text=Halo%20CEO%20Part%20and%20Service%20HP,%20saya%20ingin%20bertanya%20tentang%20service"
