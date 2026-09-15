@@ -182,3 +182,13 @@ footer{width:min(1240px,calc(100% - 32px));margin:0 auto 28px;text-align:center;
   .modal{padding:10px}.modal-content{border-radius:16px}.modal-grid{grid-template-columns:1fr}.modal-actions{flex-direction:column}.modal-actions .btn{width:100%}
   .report-summary{grid-template-columns:1fr 1fr}
 }
+
+/* Lini service terpisah: Laptop & Drone */
+.device-section{
+  padding:18px;
+  background:#f8fbfb;
+}
+.device-income .ujang-card-icon{background:#e9f8ef;color:#16804a}
+.device-income strong{color:#16804a}
+.device-debt .ujang-card-icon{background:#fff5df;color:#b97800}
+.device-debt strong{color:#b97800}
