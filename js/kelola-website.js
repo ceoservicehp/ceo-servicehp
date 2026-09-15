@@ -1,168 +1,37 @@
 "use strict";
-const client = window.supabaseClient;
-let currentUser = null;
-let currentRole = null;
-let pages = [];
-let filteredPages = [];
-let currentPage = 1;
-const pageSize = 10;
-const $ = id => document.getElementById(id);
-const fields = ["hero_badge","hero_title","hero_description","hero_primary_text","hero_primary_url","hero_secondary_text","hero_secondary_url","hero_image_url","services_label","services_title","services_subtitle","why_label","why_title","why_subtitle","contact_title","contact_short","contact_address","contact_phone","whatsapp_url"];
-
-function msg(text,error=false){const el=$("message");el.hidden=false;el.textContent=text;el.classList.toggle("error",error);clearTimeout(msg.t);msg.t=setTimeout(()=>el.hidden=true,4000)}
-function slugify(v){return String(v||"").toLowerCase().trim().replace(/[^a-z0-9\s-]/g,"").replace(/\s+/g,"-").replace(/-+/g,"-")}
-function esc(v=""){return String(v).replace(/[&<>'"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[c]))}
-function fmtDate(v){if(!v)return "-";return new Intl.DateTimeFormat("id-ID",{dateStyle:"medium",timeStyle:"short"}).format(new Date(v))}
-function pageUrl(p){return `page.html?slug=${encodeURIComponent(p.slug)}`}
-
-async function guard(){
-  const {data:{session}}=await client.auth.getSession();
-  if(!session){location.href="login.html";return false}
-  currentUser=session.user;
-  const {data,error}=await client.from("admin_users").select("role,is_active").eq("user_id",currentUser.id).maybeSingle();
-  if(error||!data||!data.is_active||!["admin","superadmin"].includes(data.role)){alert("Akses Kelola Website hanya untuk admin/superadmin.");location.href="index.html";return false}
-  currentRole=data.role;
-  return true;
-}
-
-async function loadHome(){const {data,error}=await client.from("site_homepage").select("*").eq("id",1).maybeSingle();if(error){msg(error.message,true);return}if(data)fields.forEach(k=>{if($(k))$(k).value=data[k]??""})}
-async function saveHome(e){e.preventDefault();const btn=e.submitter;btn&&(btn.disabled=true);const payload={id:1,updated_by:currentUser.id,updated_at:new Date().toISOString()};fields.forEach(k=>payload[k]=$(k).value.trim());const {error}=await client.from("site_homepage").upsert(payload,{onConflict:"id"});btn&&(btn.disabled=false);if(error)return msg(error.message,true);msg("Halaman utama berhasil disimpan.")}
-
-async function loadPages(){
-  const {data,error}=await client.from("site_pages").select("*").order("nav_order").order("created_at",{ascending:false});
-  if(error)return msg(error.message,true);
-  pages=data||[];
-  applyFilters();
-  updateStats();
-}
-function updateStats(){
-  $("statTotal").textContent=pages.length;
-  $("statPublished").textContent=pages.filter(p=>p.status==="published").length;
-  $("statDraft").textContent=pages.filter(p=>p.status==="draft").length;
-  $("statNav").textContent=pages.filter(p=>p.status==="published"&&p.show_in_nav).length;
-}
-function applyFilters(){
-  const q=($("pageSearch")?.value||"").trim().toLowerCase();
-  const status=$("statusFilter")?.value||"all";
-  filteredPages=pages.filter(p=>{
-    const hit=!q||[p.title,p.slug,p.excerpt,p.nav_label].some(v=>String(v||"").toLowerCase().includes(q));
-    const statusHit=status==="all"||p.status===status;
-    return hit&&statusHit;
-  });
-  const max=Math.max(1,Math.ceil(filteredPages.length/pageSize));
-  currentPage=Math.min(currentPage,max);
-  renderPages();
-}
-function renderPages(){
-  const body=$("pagesBody");
-  const start=(currentPage-1)*pageSize;
-  const rows=filteredPages.slice(start,start+pageSize);
-  body.innerHTML=rows.length?rows.map(p=>`<tr>
-    <td><div class="page-title-cell"><strong>${esc(p.title)}</strong><small>${esc(p.excerpt||"Tanpa ringkasan")}</small></div></td>
-    <td><code>/${esc(p.slug)}</code></td>
-    <td><button class="badge ${p.status} status-toggle" data-action="toggle-status" data-id="${p.id}" title="Klik untuk ubah status">${p.status==="published"?"Terbit":"Draft"}</button></td>
-    <td>${p.show_in_nav?`<span class="yes"><i class="fa-solid fa-check"></i> ${esc(p.nav_label||p.title)}</span>`:"Tidak"}</td>
-    <td>${p.nav_order||0}</td>
-    <td>${fmtDate(p.updated_at||p.created_at)}</td>
-    <td><div class="actions">
-      <button class="icon-action edit" data-action="edit" data-id="${p.id}" title="Edit"><i class="fa-solid fa-pen"></i></button>
-      <a class="icon-action" target="_blank" href="${pageUrl(p)}" title="Lihat"><i class="fa-solid fa-eye"></i></a>
-      <button class="icon-action" data-action="duplicate" data-id="${p.id}" title="Duplikat"><i class="fa-regular fa-copy"></i></button>
-      <button class="icon-action danger-icon" data-action="delete" data-id="${p.id}" title="Hapus"><i class="fa-solid fa-trash"></i></button>
-    </div></td></tr>`).join(""):`<tr><td colspan="7" class="empty-state"><i class="fa-regular fa-file-lines"></i><strong>Tidak ada halaman</strong><span>Coba ubah pencarian/filter atau buat halaman baru.</span></td></tr>`;
-  renderPagination();
-}
-function renderPagination(){
-  const total=filteredPages.length;
-  const max=Math.max(1,Math.ceil(total/pageSize));
-  $("pageInfo").textContent=total?`${(currentPage-1)*pageSize+1}–${Math.min(currentPage*pageSize,total)} dari ${total} halaman`:`0 halaman`;
-  $("prevPage").disabled=currentPage<=1;
-  $("nextPage").disabled=currentPage>=max;
-  $("pageNumber").textContent=`${currentPage} / ${max}`;
-}
-function openModal(p=null){
-  $("pageForm").reset();
-  $("page_id").value=p?.id||"";
-  $("modalTitle").textContent=p?"Edit Halaman":"Tambah Halaman";
-  $("deletePageBtn").hidden=!p;
-  $("duplicatePageBtn").hidden=!p;
-  if(p){
-    ["title","slug","status","excerpt","content","seo_title","seo_description","nav_label","featured_image"].forEach(k=>{const el=$("page_"+k)||$(k);if(el)el.value=p[k]??""});
-    $("nav_order").value=p.nav_order||0;
-    $("show_in_nav").checked=!!p.show_in_nav;
-  }
-  updateNavFields();
-  updateSlugPreview();
-  $("pageModal").classList.add("show");
-  document.body.classList.add("modal-open");
-}
-window.editPage=id=>openModal(pages.find(x=>x.id===id));
-function closeModal(){$("pageModal").classList.remove("show");document.body.classList.remove("modal-open")}
-function updateNavFields(){const on=$("show_in_nav").checked;$("nav_label").disabled=!on;$("nav_order").disabled=!on}
-function updateSlugPreview(){$("slugPreview").textContent=`page.html?slug=${slugify($("page_slug").value)||"slug-halaman"}`}
-
-async function savePage(e){
-  e.preventDefault();
-  const id=$("page_id").value;
-  const payload={
-    title:$("page_title").value.trim(),slug:slugify($("page_slug").value),status:$("page_status").value,
-    excerpt:$("page_excerpt").value.trim(),content:$("page_content").value,
-    featured_image:$("featured_image").value.trim(),seo_title:$("seo_title").value.trim(),seo_description:$("seo_description").value.trim(),
-    show_in_nav:$("show_in_nav").checked,nav_label:$("nav_label").value.trim(),nav_order:Number($("nav_order").value||0),
-    updated_by:currentUser.id,updated_at:new Date().toISOString()
-  };
-  if(!payload.title)return msg("Judul wajib diisi.",true);
-  if(!payload.slug)return msg("Slug wajib diisi.",true);
-  if(!payload.content.trim())return msg("Isi halaman wajib diisi.",true);
-  if(payload.show_in_nav&&!payload.nav_label)payload.nav_label=payload.title;
-  const duplicate=pages.find(p=>p.slug===payload.slug&&p.id!==id);
-  if(duplicate)return msg("Slug sudah dipakai halaman lain.",true);
-  const submit=e.submitter;submit&&(submit.disabled=true);
-  const q=id?client.from("site_pages").update(payload).eq("id",id):client.from("site_pages").insert({...payload,created_by:currentUser.id});
-  const {error}=await q;submit&&(submit.disabled=false);
-  if(error)return msg(error.message,true);
-  closeModal();await loadPages();msg(id?"Perubahan halaman berhasil disimpan.":"Halaman baru berhasil dibuat.");
-}
-async function deleteById(id){
-  const p=pages.find(x=>x.id===id);if(!p)return;
-  if(!confirm(`Hapus halaman “${p.title}”?\n\nTindakan ini tidak dapat dibatalkan.`))return;
-  const {error}=await client.from("site_pages").delete().eq("id",id);
-  if(error)return msg(error.message,true);
-  if($("page_id").value===id)closeModal();
-  await loadPages();msg("Halaman berhasil dihapus.");
-}
-async function duplicateById(id){
-  const p=pages.find(x=>x.id===id);if(!p)return;
-  let base=`${p.slug}-copy`,slug=base,n=2;while(pages.some(x=>x.slug===slug))slug=`${base}-${n++}`;
-  const payload={title:`${p.title} (Salinan)`,slug,excerpt:p.excerpt||"",content:p.content||"",featured_image:p.featured_image||"",status:"draft",show_in_nav:false,nav_label:p.nav_label||p.title,nav_order:p.nav_order||0,seo_title:p.seo_title||"",seo_description:p.seo_description||"",created_by:currentUser.id,updated_by:currentUser.id};
-  const {data,error}=await client.from("site_pages").insert(payload).select().single();
-  if(error)return msg(error.message,true);await loadPages();msg("Halaman berhasil diduplikat sebagai Draft.");if(data)openModal(data);
-}
-async function toggleStatus(id){
-  const p=pages.find(x=>x.id===id);if(!p)return;
-  const status=p.status==="published"?"draft":"published";
-  const {error}=await client.from("site_pages").update({status,updated_by:currentUser.id,updated_at:new Date().toISOString()}).eq("id",id);
-  if(error)return msg(error.message,true);await loadPages();msg(status==="published"?"Halaman diterbitkan.":"Halaman dijadikan Draft.");
-}
-function insertHtml(before,after=""){
-  const ta=$("page_content"),start=ta.selectionStart,end=ta.selectionEnd,selected=ta.value.slice(start,end);
-  ta.setRangeText(before+selected+after,start,end,"end");ta.focus();
-}
-
-function bindEvents(){
-  document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));document.querySelectorAll(".panel").forEach(x=>x.classList.remove("active"));b.classList.add("active");$(b.dataset.tab==="homepage"?"homepagePanel":"pagesPanel").classList.add("active")});
-  $("homepageForm").onsubmit=saveHome;
-  $("newPageBtn").onclick=()=>openModal();$("closeModal").onclick=closeModal;$("cancelPageBtn").onclick=closeModal;$("pageForm").onsubmit=savePage;
-  $("deletePageBtn").onclick=()=>deleteById($("page_id").value);$("duplicatePageBtn").onclick=()=>duplicateById($("page_id").value);
-  $("page_title").addEventListener("input",()=>{if(!$("page_id").value){$("page_slug").value=slugify($("page_title").value);updateSlugPreview()}});
-  $("page_slug").addEventListener("input",updateSlugPreview);$("show_in_nav").addEventListener("change",updateNavFields);
-  $("pageSearch").addEventListener("input",()=>{currentPage=1;applyFilters()});$("statusFilter").addEventListener("change",()=>{currentPage=1;applyFilters()});
-  $("prevPage").onclick=()=>{if(currentPage>1){currentPage--;renderPages()}};$("nextPage").onclick=()=>{if(currentPage*pageSize<filteredPages.length){currentPage++;renderPages()}};
-  $("pagesBody").addEventListener("click",e=>{const b=e.target.closest("[data-action]");if(!b)return;const {action,id}=b.dataset;if(action==="edit")openModal(pages.find(x=>x.id===id));if(action==="delete")deleteById(id);if(action==="duplicate")duplicateById(id);if(action==="toggle-status")toggleStatus(id)});
-  document.querySelectorAll("[data-insert]").forEach(b=>b.onclick=()=>insertHtml(b.dataset.insert,b.dataset.after||""));
-  $("menuToggle").onclick=()=>$("topNav").classList.toggle("open");
-  $("pageModal").addEventListener("click",e=>{if(e.target===$("pageModal"))closeModal()});
-  document.addEventListener("keydown",e=>{if(e.key==="Escape"&&$("pageModal").classList.contains("show"))closeModal()});
-}
-
-document.addEventListener("DOMContentLoaded",async()=>{if(!client)return alert("Supabase client tidak ditemukan.");if(!await guard())return;bindEvents();await Promise.all([loadHome(),loadPages()])});
+const client=window.supabaseClient; let currentUser=null,currentRole=null,pages=[],filteredPages=[],items=[],currentPage=1; const pageSize=10,$=id=>document.getElementById(id);
+const homeFields=["hero_badge","hero_title","hero_description","hero_primary_text","hero_primary_url","hero_secondary_text","hero_secondary_url","hero_image_url","services_label","services_title","services_subtitle","why_label","why_title","why_subtitle","contact_title","contact_short","contact_address","contact_phone","whatsapp_url"];
+const esc=(v="")=>String(v).replace(/[&<>'"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[c]));
+const slugify=v=>String(v||"").toLowerCase().trim().replace(/[^a-z0-9\s-]/g,"").replace(/\s+/g,"-").replace(/-+/g,"-");
+function msg(t,e=false){const x=$("message");x.hidden=false;x.textContent=t;x.classList.toggle("error",e);clearTimeout(msg.t);msg.t=setTimeout(()=>x.hidden=true,4500)}
+function fmtDate(v){return v?new Intl.DateTimeFormat("id-ID",{dateStyle:"medium",timeStyle:"short"}).format(new Date(v)):"-"}
+async function guard(){const {data:{session}}=await client.auth.getSession();if(!session){location.href="login.html";return false}currentUser=session.user;const {data,error}=await client.from("admin_users").select("role,is_active").eq("user_id",currentUser.id).maybeSingle();if(error||!data?.is_active||!["admin","superadmin"].includes(data.role)){alert("Akses hanya untuk admin/superadmin.");location.href="index.html";return false}currentRole=data.role;return true}
+function switchTab(name){document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("active",x.dataset.tab===name));document.querySelectorAll("main .panel").forEach(x=>x.classList.remove("active"));$(name+"Panel")?.classList.add("active");if(name==="media")loadMedia()}
+async function loadHome(){const {data,error}=await client.from("site_homepage").select("*").eq("id",1).maybeSingle();if(error)return msg(error.message,true);if(!data)return;homeFields.forEach(k=>{if($(k))$(k).value=data[k]??""});$("home_seo_title").value=data.seo_title||"";$("home_seo_description").value=data.seo_description||"";$("home_og_image").value=data.og_image||"";updateHomeSeo()}
+async function saveHome(e){e.preventDefault();const payload={id:1,updated_by:currentUser.id};homeFields.forEach(k=>payload[k]=$(k).value.trim());payload.seo_title=$("home_seo_title").value.trim();payload.seo_description=$("home_seo_description").value.trim();payload.og_image=$("home_og_image").value.trim();const {error}=await client.from("site_homepage").upsert(payload,{onConflict:"id"});if(error)return msg(error.message,true);msg("Halaman utama dan SEO berhasil disimpan.")}
+function updateHomeSeo(){const t=$("home_seo_title").value,d=$("home_seo_description").value;$("homeSeoTitleCount").textContent=t.length;$("homeSeoDescCount").textContent=d.length;$("homeSeoPreviewTitle").textContent=t||"CEO Part & Service";$("homeSeoPreviewDesc").textContent=d||"Deskripsi halaman akan tampil di sini."}
+async function loadItems(){const {data,error}=await client.from("site_home_items").select("*").order("item_type").order("sort_order");if(error)return msg(error.message,true);items=data||[];renderItems()}
+const typeLabel={trust:"Trust Card",marquee:"Slider Service",service:"Layanan",why:"Kenapa CEO"};
+function renderItems(){const f=$("itemTypeFilter")?.value||"all",rows=items.filter(x=>f==="all"||x.item_type===f);$("itemsBody").innerHTML=rows.length?rows.map(x=>`<tr><td><div class="page-title-cell"><strong>${esc(x.title)}</strong><small>${esc(x.description||"")}</small></div></td><td>${typeLabel[x.item_type]||x.item_type}</td><td><button class="badge ${x.is_active?'published':'draft'}" data-item-action="toggle" data-id="${x.id}">${x.is_active?'Aktif':'Nonaktif'}</button></td><td>${x.sort_order}</td><td>${esc(x.link_url||'-')}</td><td><div class="actions"><button class="icon-action edit" data-item-action="edit" data-id="${x.id}"><i class="fa-solid fa-pen"></i></button><button class="icon-action danger-icon" data-item-action="delete" data-id="${x.id}"><i class="fa-solid fa-trash"></i></button></div></td></tr>`).join(""):`<tr><td colspan="6" class="empty-state">Belum ada komponen.</td></tr>`}
+function openItem(x=null){$("itemForm").reset();$("item_id").value=x?.id||"";$("itemModalTitle").textContent=x?"Edit Komponen":"Tambah Komponen";$("deleteItemBtn").hidden=!x;if(x){$("item_type").value=x.item_type;$("item_title").value=x.title||"";$("item_description").value=x.description||"";$("item_icon").value=x.icon||"";$("item_image_url").value=x.image_url||"";$("item_link_url").value=x.link_url||"";$("item_sort_order").value=x.sort_order||0;$("item_is_active").checked=!!x.is_active}else $("item_is_active").checked=true;$("itemModal").classList.add("show");document.body.classList.add("modal-open")}
+function closeItem(){$("itemModal").classList.remove("show");document.body.classList.remove("modal-open")}
+async function saveItem(e){e.preventDefault();const id=$("item_id").value,p={item_type:$("item_type").value,title:$("item_title").value.trim(),description:$("item_description").value.trim(),icon:$("item_icon").value.trim(),image_url:$("item_image_url").value.trim(),link_url:$("item_link_url").value.trim(),sort_order:Number($("item_sort_order").value||0),is_active:$("item_is_active").checked,updated_by:currentUser.id};const q=id?client.from("site_home_items").update(p).eq("id",id):client.from("site_home_items").insert({...p,created_by:currentUser.id});const {error}=await q;if(error)return msg(error.message,true);closeItem();await loadItems();msg("Komponen homepage berhasil disimpan.")}
+async function deleteItem(id){const x=items.find(v=>v.id===id);if(!x||!confirm(`Hapus komponen “${x.title}”?`))return;const {error}=await client.from("site_home_items").delete().eq("id",id);if(error)return msg(error.message,true);closeItem();await loadItems();msg("Komponen dihapus.")}
+async function toggleItem(id){const x=items.find(v=>v.id===id);if(!x)return;const {error}=await client.from("site_home_items").update({is_active:!x.is_active,updated_by:currentUser.id}).eq("id",id);if(error)return msg(error.message,true);await loadItems()}
+async function loadPages(){const {data,error}=await client.from("site_pages").select("*").order("nav_order").order("created_at",{ascending:false});if(error)return msg(error.message,true);pages=data||[];applyFilters();updateStats()}
+function updateStats(){$("statTotal").textContent=pages.length;$("statPublished").textContent=pages.filter(p=>p.status==="published").length;$("statDraft").textContent=pages.filter(p=>p.status==="draft").length;$("statNav").textContent=pages.filter(p=>p.status==="published"&&p.show_in_nav).length}
+function applyFilters(){const q=($("pageSearch")?.value||"").toLowerCase(),st=$("statusFilter")?.value||"all";filteredPages=pages.filter(p=>(!q||[p.title,p.slug,p.excerpt,p.nav_label].some(v=>String(v||"").toLowerCase().includes(q)))&&(st==="all"||p.status===st));currentPage=Math.min(currentPage,Math.max(1,Math.ceil(filteredPages.length/pageSize)));renderPages()}
+function renderPages(){const start=(currentPage-1)*pageSize,rows=filteredPages.slice(start,start+pageSize);$("pagesBody").innerHTML=rows.length?rows.map(p=>`<tr><td><div class="page-title-cell"><strong>${esc(p.title)}</strong><small>${esc(p.excerpt||'Tanpa ringkasan')}</small></div></td><td><code>/${esc(p.slug)}</code></td><td><button class="badge ${p.status}" data-page-action="toggle" data-id="${p.id}">${p.status==='published'?'Terbit':'Draft'}</button></td><td>${p.show_in_nav?esc(p.nav_label||p.title):'Tidak'}</td><td>${p.nav_order||0}</td><td>${fmtDate(p.updated_at||p.created_at)}</td><td><div class="actions"><button class="icon-action edit" data-page-action="edit" data-id="${p.id}"><i class="fa-solid fa-pen"></i></button><a class="icon-action" target="_blank" href="page.html?slug=${encodeURIComponent(p.slug)}"><i class="fa-solid fa-eye"></i></a><button class="icon-action" data-page-action="duplicate" data-id="${p.id}"><i class="fa-regular fa-copy"></i></button><button class="icon-action danger-icon" data-page-action="delete" data-id="${p.id}"><i class="fa-solid fa-trash"></i></button></div></td></tr>`).join(""):`<tr><td colspan="7" class="empty-state">Tidak ada halaman.</td></tr>`;const max=Math.max(1,Math.ceil(filteredPages.length/pageSize));$("pageInfo").textContent=`${filteredPages.length} halaman`;$("pageNumber").textContent=`${currentPage} / ${max}`;$("prevPage").disabled=currentPage<=1;$("nextPage").disabled=currentPage>=max}
+function openPage(p=null){$("pageForm").reset();$("page_id").value=p?.id||"";$("modalTitle").textContent=p?"Edit Halaman":"Tambah Halaman";$("deletePageBtn").hidden=!p;$("duplicatePageBtn").hidden=!p;if(p){$("page_title").value=p.title||"";$("page_slug").value=p.slug||"";$("page_status").value=p.status;$("featured_image").value=p.featured_image||"";$("show_in_nav").checked=!!p.show_in_nav;$("nav_label").value=p.nav_label||"";$("nav_order").value=p.nav_order||0;$("page_excerpt").value=p.excerpt||"";$("page_content").value=p.content||"";$("seo_title").value=p.seo_title||"";$("seo_description").value=p.seo_description||""}updatePageSeo();$("pageModal").classList.add("show");document.body.classList.add("modal-open")}
+function closePage(){$("pageModal").classList.remove("show");document.body.classList.remove("modal-open")}
+function updatePageSeo(){const slug=slugify($("page_slug").value),title=$("seo_title").value||$("page_title").value,desc=$("seo_description").value||$("page_excerpt").value;$("slugPreview").textContent=`page.html?slug=${slug||'slug-halaman'}`;$("seoTitleCount").textContent=$("seo_title").value.length;$("seoDescCount").textContent=$("seo_description").value.length;$("seoPreviewTitle").textContent=title||"Judul halaman";$("seoPreviewUrl").textContent=`ceo-servicehp.vercel.app/page.html?slug=${slug||'...'}`;$("seoPreviewDesc").textContent=desc||"Deskripsi halaman akan tampil di sini."}
+async function savePage(e){e.preventDefault();const id=$("page_id").value,p={title:$("page_title").value.trim(),slug:slugify($("page_slug").value),status:$("page_status").value,featured_image:$("featured_image").value.trim(),show_in_nav:$("show_in_nav").checked,nav_label:$("nav_label").value.trim(),nav_order:Number($("nav_order").value||0),excerpt:$("page_excerpt").value.trim(),content:$("page_content").value,seo_title:$("seo_title").value.trim(),seo_description:$("seo_description").value.trim(),updated_by:currentUser.id};if(!p.title||!p.slug||!p.content.trim())return msg("Judul, slug, dan isi halaman wajib diisi.",true);if(p.show_in_nav&&!p.nav_label)p.nav_label=p.title;if(pages.some(x=>x.slug===p.slug&&x.id!==id))return msg("Slug sudah dipakai.",true);const q=id?client.from("site_pages").update(p).eq("id",id):client.from("site_pages").insert({...p,created_by:currentUser.id});const {error}=await q;if(error)return msg(error.message,true);closePage();await loadPages();msg("Halaman berhasil disimpan.")}
+async function deletePage(id){const p=pages.find(x=>x.id===id);if(!p||!confirm(`Hapus halaman “${p.title}”?`))return;const {error}=await client.from("site_pages").delete().eq("id",id);if(error)return msg(error.message,true);closePage();await loadPages();msg("Halaman dihapus.")}
+async function duplicatePage(id){const p=pages.find(x=>x.id===id);if(!p)return;let base=p.slug+'-copy',slug=base,n=2;while(pages.some(x=>x.slug===slug))slug=base+'-'+n++;const q={...p};delete q.id;delete q.created_at;delete q.updated_at;q.title=p.title+' (Salinan)';q.slug=slug;q.status='draft';q.show_in_nav=false;q.created_by=currentUser.id;q.updated_by=currentUser.id;const {error}=await client.from("site_pages").insert(q);if(error)return msg(error.message,true);await loadPages();msg("Halaman diduplikat sebagai Draft.")}
+async function togglePage(id){const p=pages.find(x=>x.id===id);if(!p)return;const {error}=await client.from("site_pages").update({status:p.status==='published'?'draft':'published',updated_by:currentUser.id}).eq("id",id);if(error)return msg(error.message,true);await loadPages()}
+function mediaUrl(name){return client.storage.from('website-media').getPublicUrl(name).data.publicUrl}
+async function loadMedia(){const {data,error}=await client.storage.from('website-media').list('',{limit:100,sortBy:{column:'created_at',order:'desc'}});if(error){$("mediaGrid").innerHTML=`<div class="empty-state">${esc(error.message)}</div>`;return}const arr=(data||[]).filter(x=>x.name&&x.id);$("mediaGrid").innerHTML=arr.length?arr.map(x=>{const u=mediaUrl(x.name);return `<article class="media-card"><img src="${u}" alt=""><div><strong>${esc(x.name)}</strong><small>${x.metadata?.size?Math.round(x.metadata.size/1024)+' KB':''}</small></div><div class="media-actions"><button data-copy-url="${u}" class="btn">Copy URL</button><button data-delete-media="${esc(x.name)}" class="btn danger">Hapus</button></div></article>`}).join(''):`<div class="empty-state">Belum ada media.</div>`}
+async function uploadMedia(files){for(const file of files){if(file.size>5*1024*1024){msg(`${file.name} lebih dari 5 MB.`,true);continue}const ext=(file.name.split('.').pop()||'jpg').toLowerCase(),name=`${Date.now()}-${Math.random().toString(36).slice(2,7)}.${ext}`;const {error}=await client.storage.from('website-media').upload(name,file,{cacheControl:'3600',upsert:false});if(error)msg(error.message,true)}await loadMedia();msg("Upload media selesai.")}
+async function deleteMedia(name){if(!confirm(`Hapus media ${name}? Pastikan gambar tidak sedang digunakan.`))return;const {error}=await client.storage.from('website-media').remove([name]);if(error)return msg(error.message,true);await loadMedia();msg("Media dihapus.")}
+function bind(){document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>switchTab(b.dataset.tab));$("homepageForm").onsubmit=saveHome;["home_seo_title","home_seo_description"].forEach(id=>$(id).addEventListener('input',updateHomeSeo));$("newItemBtn").onclick=()=>openItem();$("itemTypeFilter").onchange=renderItems;$("itemForm").onsubmit=saveItem;$("closeItemModal").onclick=$("cancelItemBtn").onclick=closeItem;$("deleteItemBtn").onclick=()=>deleteItem($("item_id").value);$("itemsBody").onclick=e=>{const b=e.target.closest('[data-item-action]');if(!b)return;const x=items.find(v=>v.id===b.dataset.id);if(b.dataset.itemAction==='edit')openItem(x);if(b.dataset.itemAction==='delete')deleteItem(b.dataset.id);if(b.dataset.itemAction==='toggle')toggleItem(b.dataset.id)};$("newPageBtn").onclick=()=>openPage();$("pageForm").onsubmit=savePage;$("closeModal").onclick=$("cancelPageBtn").onclick=closePage;$("deletePageBtn").onclick=()=>deletePage($("page_id").value);$("duplicatePageBtn").onclick=()=>duplicatePage($("page_id").value);["page_title","page_slug","seo_title","seo_description","page_excerpt"].forEach(id=>$(id).addEventListener('input',updatePageSeo));$("page_title").addEventListener('input',()=>{if(!$("page_id").value)$("page_slug").value=slugify($("page_title").value);updatePageSeo()});$("pageSearch").oninput=()=>{currentPage=1;applyFilters()};$("statusFilter").onchange=()=>{currentPage=1;applyFilters()};$("prevPage").onclick=()=>{if(currentPage>1){currentPage--;renderPages()}};$("nextPage").onclick=()=>{if(currentPage*pageSize<filteredPages.length){currentPage++;renderPages()}};$("pagesBody").onclick=e=>{const b=e.target.closest('[data-page-action]');if(!b)return;const p=pages.find(x=>x.id===b.dataset.id);if(b.dataset.pageAction==='edit')openPage(p);if(b.dataset.pageAction==='delete')deletePage(b.dataset.id);if(b.dataset.pageAction==='duplicate')duplicatePage(b.dataset.id);if(b.dataset.pageAction==='toggle')togglePage(b.dataset.id)};document.querySelectorAll('[data-insert]').forEach(b=>b.onclick=()=>{const ta=$("page_content"),st=ta.selectionStart,en=ta.selectionEnd;ta.setRangeText(b.dataset.insert+ta.value.slice(st,en)+(b.dataset.after||''),st,en,'end');ta.focus()});$("mediaUpload").onchange=e=>uploadMedia([...e.target.files]);$("mediaGrid").onclick=async e=>{const c=e.target.closest('[data-copy-url]'),d=e.target.closest('[data-delete-media]');if(c){await navigator.clipboard.writeText(c.dataset.copyUrl);msg("URL media disalin.")}if(d)deleteMedia(d.dataset.deleteMedia)};const toggle=$("menuToggle"),nav=$("topNav");toggle.onclick=()=>nav.classList.toggle('open')}
+(async()=>{if(!await guard())return;bind();await Promise.all([loadHome(),loadPages(),loadItems()])})();

@@ -1,81 +1,8 @@
 "use strict";
-
-(() => {
-  const client = window.supabaseClient;
-  if (!client) return;
-
-  const setText = (id, value) => {
-    const el = document.getElementById(id);
-    if (el && value !== null && value !== undefined && value !== "") el.textContent = value;
-  };
-  const setHref = (id, value) => {
-    const el = document.getElementById(id);
-    if (el && value) el.href = value;
-  };
-
-  async function loadHomepage(){
-    const { data, error } = await client
-      .from("site_homepage")
-      .select("*")
-      .eq("id", 1)
-      .maybeSingle();
-    if (error || !data) return;
-
-    setText("cmsHeroBadge", data.hero_badge);
-    if (data.hero_title) {
-      const h = document.getElementById("cmsHeroTitle");
-      if (h) h.textContent = data.hero_title;
-    }
-    setText("cmsHeroDescription", data.hero_description);
-    const p = document.querySelector("#cmsHeroPrimary span");
-    if (p && data.hero_primary_text) p.textContent = data.hero_primary_text;
-    setHref("cmsHeroPrimary", data.hero_primary_url);
-    const s = document.querySelector("#cmsHeroSecondary span");
-    if (s && data.hero_secondary_text) s.textContent = data.hero_secondary_text;
-    setHref("cmsHeroSecondary", data.hero_secondary_url);
-
-    setText("cmsServicesLabel", data.services_label);
-    setText("cmsServicesTitle", data.services_title);
-    setText("cmsServicesSubtitle", data.services_subtitle);
-    setText("cmsWhyLabel", data.why_label);
-    setText("cmsWhyTitle", data.why_title);
-    setText("cmsWhySubtitle", data.why_subtitle);
-    setText("cmsContactTitle", data.contact_title);
-    setText("cmsContactShort", data.contact_short);
-    setText("cmsContactAddress", data.contact_address);
-    setText("cmsContactPhone", data.contact_phone ? `📞 ${data.contact_phone}` : "");
-    setHref("cmsContactWhatsapp", data.whatsapp_url);
-
-    if (data.hero_image_url) {
-      document.querySelector(".hero")?.style.setProperty("--cms-hero-image", `url('${data.hero_image_url}')`);
-      const hero = document.querySelector(".hero");
-      if (hero) hero.style.background = `linear-gradient(rgba(13,57,64,.64),rgba(17,86,94,.58)),url('${data.hero_image_url}') center/cover no-repeat`;
-    }
-  }
-
-  async function loadNavigation(){
-    const { data, error } = await client.from("site_pages")
-      .select("title,slug,show_in_nav,nav_order,nav_label")
-      .eq("status","published")
-      .eq("show_in_nav",true)
-      .order("nav_order",{ascending:true});
-    if (error || !data?.length) return;
-    const nav = document.getElementById("topNav");
-    if (!nav) return;
-    data.forEach(page => {
-      const a = document.createElement("a");
-      a.href = `page.html?slug=${encodeURIComponent(page.slug)}`;
-      a.innerHTML = `<i class="fa-regular fa-file-lines"></i> ${escapeHtml(page.nav_label || page.title)}`;
-      nav.appendChild(a);
-    });
-  }
-
-  function escapeHtml(v=""){
-    return String(v).replace(/[&<>'"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[c]));
-  }
-
-  document.addEventListener("DOMContentLoaded", () => {
-    loadHomepage();
-    loadNavigation();
-  });
-})();
+(()=>{const client=window.supabaseClient;if(!client)return;const $=id=>document.getElementById(id),esc=(v="")=>String(v).replace(/[&<>'"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[c]));
+function text(id,v){const e=$(id);if(e&&v)e.textContent=v} function href(id,v){const e=$(id);if(e&&v)e.href=v}
+function meta(sel,attr,value){if(!value)return;let e=document.querySelector(sel);if(!e){e=document.createElement('meta');if(attr==='name')e.name=sel.match(/"([^"]+)/)?.[1]||'';document.head.appendChild(e)}e.content=value}
+async function home(){const {data}=await client.from('site_homepage').select('*').eq('id',1).maybeSingle();if(!data)return;text('cmsHeroBadge',data.hero_badge);text('cmsHeroTitle',data.hero_title);text('cmsHeroDescription',data.hero_description);const p=document.querySelector('#cmsHeroPrimary span'),s=document.querySelector('#cmsHeroSecondary span');if(p&&data.hero_primary_text)p.textContent=data.hero_primary_text;if(s&&data.hero_secondary_text)s.textContent=data.hero_secondary_text;href('cmsHeroPrimary',data.hero_primary_url);href('cmsHeroSecondary',data.hero_secondary_url);text('cmsServicesLabel',data.services_label);text('cmsServicesTitle',data.services_title);text('cmsServicesSubtitle',data.services_subtitle);text('cmsWhyLabel',data.why_label);text('cmsWhyTitle',data.why_title);text('cmsWhySubtitle',data.why_subtitle);text('cmsContactTitle',data.contact_title);text('cmsContactShort',data.contact_short);text('cmsContactAddress',data.contact_address);text('cmsContactPhone',data.contact_phone?`📞 ${data.contact_phone}`:'');href('cmsContactWhatsapp',data.whatsapp_url);if(data.hero_image_url){const h=document.querySelector('.hero');if(h)h.style.background=`linear-gradient(rgba(13,57,64,.64),rgba(17,86,94,.58)),url('${data.hero_image_url.replace(/'/g,"%27")}') center/cover no-repeat`}if(data.seo_title)document.title=data.seo_title;meta('meta[name="description"]','name',data.seo_description);const ogt=document.querySelector('meta[property="og:title"]');if(ogt&&data.seo_title)ogt.content=data.seo_title;const ogd=document.querySelector('meta[property="og:description"]');if(ogd&&data.seo_description)ogd.content=data.seo_description;const ogi=document.querySelector('meta[property="og:image"]');if(ogi&&data.og_image)ogi.content=data.og_image}
+async function components(){const {data}=await client.from('site_home_items').select('*').eq('is_active',true).order('sort_order');if(!data?.length)return;const by=t=>data.filter(x=>x.item_type===t);const trust=by('trust'),marquee=by('marquee'),service=by('service'),why=by('why');if(trust.length&&$('cmsTrustStrip'))$('cmsTrustStrip').innerHTML=trust.map(x=>`<article><span class="trust-icon"><i class="${esc(x.icon||'fa-solid fa-circle-check')}"></i></span><div><strong>${esc(x.title)}</strong><small>${esc(x.description||'')}</small></div></article>`).join('');if(marquee.length&&$('cmsMarqueeTrack'))$('cmsMarqueeTrack').innerHTML=marquee.map(x=>`<div class="service-card"><img src="${esc(x.image_url||'images/logo.png')}" alt="${esc(x.title)}"><div><h4>${esc(x.title)}</h4><p>${esc(x.description||'')}</p></div></div>`).join('');if(service.length&&$('cmsServicesGrid'))$('cmsServicesGrid').innerHTML=service.map(x=>`${x.link_url?`<a href="${esc(x.link_url)}" class="service-link">`:''}<div class="card"><i class="${esc(x.icon||'fa-solid fa-screwdriver-wrench')}"></i><h3>${esc(x.title)}</h3><p>${esc(x.description||'')}</p></div>${x.link_url?'</a>':''}`).join('');if(why.length&&$('cmsWhyGrid'))$('cmsWhyGrid').innerHTML=why.map(x=>`<div class="card"><i class="${esc(x.icon||'fa-solid fa-circle-check')}"></i><h3>${esc(x.title)}</h3>${x.description?`<p>${esc(x.description)}</p>`:''}</div>`).join('')}
+async function nav(){const {data}=await client.from('site_pages').select('title,slug,nav_label').eq('status','published').eq('show_in_nav',true).order('nav_order');const n=$('topNav');if(!n||!data)return;data.forEach(p=>{const a=document.createElement('a');a.href=`page.html?slug=${encodeURIComponent(p.slug)}`;a.innerHTML=`<i class="fa-regular fa-file-lines"></i> ${esc(p.nav_label||p.title)}`;n.appendChild(a)})}
+document.addEventListener('DOMContentLoaded',()=>{home();components();nav()})})();
