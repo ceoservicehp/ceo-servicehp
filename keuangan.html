@@ -53,7 +53,7 @@
         <div>
           <span class="hero-badge"><i class="fa-solid fa-chart-pie"></i> KEUANGAN SERVICE</span>
           <h1>Ringkasan Keuangan <span>CEO Service</span></h1>
-          <p>Pantau pemasukan, pengeluaran, piutang, service laptop, dan pembagian hasil kolaborasi UJANG dalam satu halaman.</p>
+          <p>Keuangan Service HP CEO dipisahkan dari hak UJANG, service Laptop & Drone agar rekap lini perangkat non-HP tetap terpisah dari Service HP CEO.</p>
         </div>
         <div class="hero-side">
           <div class="hero-date"><i class="fa-regular fa-calendar"></i><span id="tanggalOtomatis">Memuat tanggal...</span></div>
@@ -90,7 +90,7 @@
       <section class="summary-grid">
         <article class="summary-card income-card">
           <div class="summary-icon"><i class="fa-solid fa-arrow-trend-up"></i></div>
-          <div><span>Total Pemasukan</span><strong id="totalIncome">Rp 0</strong><small>Uang masuk dari service selesai</small></div>
+          <div><span>Pemasukan Service HP CEO</span><strong id="totalIncome">Rp 0</strong><small>Khusus HP • hak UJANG tidak dihitung sebagai pemasukan CEO</small></div>
         </article>
         <article class="summary-card expense-card">
           <div class="summary-icon"><i class="fa-solid fa-arrow-trend-down"></i></div>
@@ -98,15 +98,15 @@
         </article>
         <article class="summary-card profit-card">
           <div class="summary-icon"><i class="fa-solid fa-coins"></i></div>
-          <div><span>Laba Bersih</span><strong id="totalProfit">Rp 0</strong><small>Pemasukan dikurangi pengeluaran</small></div>
+          <div><span>Saldo Setelah Pengeluaran</span><strong id="totalProfit">Rp 0</strong><small>Pemasukan HP CEO dikurangi pengeluaran tercatat</small></div>
         </article>
         <article class="summary-card margin-card">
           <div class="summary-icon"><i class="fa-solid fa-percent"></i></div>
-          <div><span>Margin</span><strong id="totalMargin">0%</strong><small>Persentase laba terhadap pemasukan</small></div>
+          <div><span>Margin Service HP</span><strong id="totalMargin">0%</strong><small>Perbandingan saldo terhadap pemasukan HP CEO</small></div>
         </article>
         <article class="summary-card debt-card">
           <div class="summary-icon"><i class="fa-solid fa-clock-rotate-left"></i></div>
-          <div><span>Total Piutang</span><strong id="totalDebt">Rp 0</strong><small>Sisa pembayaran pelanggan</small></div>
+          <div><span>Piutang Service HP</span><strong id="totalDebt">Rp 0</strong><small>Khusus pelanggan service HP</small></div>
         </article>
       </section>
 
@@ -127,7 +127,7 @@
           <button class="tab active" data-tab="income"><i class="fa-solid fa-arrow-trend-up"></i> Pemasukan</button>
           <button class="tab" data-tab="expense"><i class="fa-solid fa-receipt"></i> Pengeluaran</button>
           <button class="tab" data-tab="debt"><i class="fa-solid fa-hand-holding-dollar"></i> Piutang</button>
-          <button class="tab" data-tab="laptop"><i class="fa-solid fa-laptop"></i> Laptop</button>
+          <button class="tab" data-tab="laptop"><i class="fa-solid fa-laptop"></i> Laptop & Drone</button>
           <button class="tab tab-ujang" data-tab="ujang"><i class="fa-solid fa-user-gear"></i> UJANG</button>
         </div>
 
@@ -146,8 +146,8 @@
         <div class="table-area">
           <div id="incomeTableWrapper" class="table-wrapper">
             <table class="admin-table"><thead><tr>
-              <th>No</th><th>Nama</th><th>Alamat</th><th>Metode</th><th>Tanggal Masuk</th><th>Status</th><th>Tanggal Selesai</th><th>Sparepart</th><th>Dibayar</th><th>Kembalian</th><th>Sisa</th><th>Total</th>
-            </tr></thead><tbody id="incomeTable"><tr><td colspan="12">Memuat data...</td></tr></tbody></table>
+              <th>No</th><th>Nama</th><th>Alamat</th><th>Metode</th><th>Tanggal Masuk</th><th>Status</th><th>Tanggal Selesai</th><th>Sparepart</th><th>Dibayar Pelanggan</th><th>Hak UJANG</th><th>Pemasukan CEO</th><th>Sisa</th><th>Total</th>
+            </tr></thead><tbody id="incomeTable"><tr><td colspan="13">Memuat data...</td></tr></tbody></table>
           </div>
 
           <div id="expenseTableWrapper" class="table-wrapper" style="display:none;">
@@ -162,10 +162,20 @@
             </tr></thead><tbody id="debtTable"></tbody></table>
           </div>
 
-          <div id="laptopTableWrapper" class="table-wrapper" style="display:none;">
-            <table class="admin-table"><thead><tr>
+          <div id="laptopTableWrapper" class="device-section" style="display:none;">
+            <div class="ujang-heading">
+              <div><span class="eyebrow">LINI SERVICE TERPISAH</span><h3>Rekap Service Laptop & Drone</h3><p>Pemasukan Laptop dan Drone digabung dalam satu rekap dan tidak masuk ke akumulasi Service HP CEO.</p></div>
+              <div class="ujang-badge"><i class="fa-solid fa-laptop"></i> LAPTOP & DRONE</div>
+            </div>
+            <div class="ujang-summary-grid">
+              <div class="ujang-summary-card"><div class="ujang-card-icon"><i class="fa-solid fa-laptop"></i></div><div><span>Unit Selesai</span><strong id="laptopTotalUnit">0 Unit</strong><small>Service Laptop & Drone selesai</small></div></div>
+              <div class="ujang-summary-card device-income"><div class="ujang-card-icon"><i class="fa-solid fa-money-bill-trend-up"></i></div><div><span>Pemasukan Laptop & Drone</span><strong id="laptopTotalIncome">Rp 0</strong><small>Uang pelanggan yang sudah dibayar</small></div></div>
+              <div class="ujang-summary-card"><div class="ujang-card-icon"><i class="fa-solid fa-file-invoice-dollar"></i></div><div><span>Total Tagihan</span><strong id="laptopTotalBilling">Rp 0</strong><small>Nilai seluruh service laptop</small></div></div>
+              <div class="ujang-summary-card device-debt"><div class="ujang-card-icon"><i class="fa-solid fa-clock"></i></div><div><span>Piutang Laptop & Drone</span><strong id="laptopTotalDebt">Rp 0</strong><small>Sisa pembayaran Laptop & Drone</small></div></div>
+            </div>
+            <div class="table-wrapper ujang-table-wrap"><table class="admin-table"><thead><tr>
               <th>No</th><th>Nama</th><th>No HP</th><th>Alamat</th><th>Kategori Perangkat</th><th>Tipe / Model</th><th>Tanggal Masuk</th><th>Status</th><th>Tanggal Selesai</th><th>Sparepart</th><th>Dibayar</th><th>Sisa</th><th>Total</th>
-            </tr></thead><tbody id="laptopTable"><tr><td colspan="13">Memuat data laptop...</td></tr></tbody></table>
+            </tr></thead><tbody id="laptopTable"><tr><td colspan="13">Memuat data laptop...</td></tr></tbody></table></div>
           </div>
 
           <div id="ujangTableWrapper" class="ujang-section" style="display:none;">
