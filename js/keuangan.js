@@ -48,6 +48,8 @@ let incomeData = [];
 let expenseData = [];
 let debtData = [];
 let laptopData = [];
+let fullLaptopData = [];
+let fullDroneData = [];
 let ujangData = [];
 let fullUjangData = [];
 
@@ -242,152 +244,118 @@ function updateUjangSummary(rows = []){
     if(ceoEl) ceoEl.textContent = rupiah(summary.ceo);
 }
 
+
+function deviceCategory(row){
+    return String(row?.kategori_perangkat || "HP").trim().toUpperCase();
+}
+function isLaptop(row){ return deviceCategory(row) === "LAPTOP"; }
+function isDrone(row){ return deviceCategory(row) === "DRONE"; }
+function isLaptopOrDrone(row){ return isLaptop(row) || isDrone(row); }
+function isHpService(row){ return !isLaptopOrDrone(row); }
+function isUjangJob(row){ return String(row?.teknisi || "").trim().toUpperCase() === "UJANG"; }
+
+/* Pemasukan yang benar-benar menjadi hak CEO.
+   Untuk pekerjaan UJANG, hak UJANG dikeluarkan dari pemasukan CEO. */
+function getCeoRecognizedIncome(row){
+    const paid = Math.max(0, Number(row?.amount_paid || 0));
+    if(!isUjangJob(row)) return paid;
+    const calc = getUjangShare(row);
+    return Math.max(0, paid - Math.min(paid, Number(calc.bagianUjang || 0)));
+}
+
+function updateDeviceSummary(prefix, rows = []){
+    const totalPaid = rows.reduce((sum,row)=>sum + Number(row.amount_paid || 0),0);
+    const totalBilling = rows.reduce((sum,row)=>sum + Number(row.total || 0),0);
+    const totalDebt = rows.reduce((sum,row)=>sum + Math.max(0,Number(row.remaining_amount || 0)),0);
+    const unitEl = document.getElementById(prefix + "TotalUnit");
+    const incomeEl = document.getElementById(prefix + "TotalIncome");
+    const billingEl = document.getElementById(prefix + "TotalBilling");
+    const debtEl = document.getElementById(prefix + "TotalDebt");
+    if(unitEl) unitEl.textContent = `${rows.length} Unit`;
+    if(incomeEl) incomeEl.textContent = rupiah(totalPaid);
+    if(billingEl) billingEl.textContent = rupiah(totalBilling);
+    if(debtEl) debtEl.textContent = rupiah(totalDebt);
+}
+
 /* ================= LOAD DATA ================= */
 async function loadFinance(){
     const start = (currentPage - 1) * pageSize;
-    const end = start + pageSize - 1;
-    
-   const startDate = document.getElementById("startDate")?.value;
+    const startDate = document.getElementById("startDate")?.value;
     const endDate = document.getElementById("endDate")?.value;
-    
+
     let incomeQuery = client
         .from("service_orders")
-        .select("*",{count:"exact"})
+        .select("*")
         .eq("status","selesai")
         .order("tanggal_selesai",{ascending:false});
-    
+
     if(startDate && endDate){
         incomeQuery = incomeQuery
             .gte("tanggal_selesai", startDate + "T00:00:00")
             .lte("tanggal_selesai", endDate + "T23:59:59");
     }
-    
-    /* ================= DATA FULL UNTUK SUMMARY ================= */
-const { data:fullIncome } = await incomeQuery;
-filteredIncomeData = fullIncome || [];
-const paginatedIncomeQuery = client
-    .from("service_orders")
-    .select("*",{count:"exact"})
-    .eq("status","selesai")
-    .order("tanggal_selesai",{ascending:false});
 
-if(startDate && endDate){
-    paginatedIncomeQuery
-        .gte("tanggal_selesai", startDate + "T00:00:00")
-        .lte("tanggal_selesai", endDate + "T23:59:59");
-}
+    const { data:fullIncome, error:incomeError } = await incomeQuery;
+    if(incomeError) console.error("Gagal mengambil pemasukan:", incomeError);
 
-const { data:income, count:incomeCount } =
-    await paginatedIncomeQuery.range(start,end);
-    
+    const allFinished = fullIncome || [];
+    filteredIncomeData = allFinished;
+
+    // Pemisahan lini usaha
+    const hpRows = allFinished.filter(isHpService);
+    fullLaptopData = allFinished.filter(isLaptopOrDrone);
+    fullDroneData = [];
+    fullUjangData = allFinished.filter(isUjangJob);
+
+    incomeData = hpRows.slice(start, start + pageSize);
+    laptopData = fullLaptopData.slice(start, start + pageSize);
+        ujangData = fullUjangData.slice(start, start + pageSize);
+
+    updateLaptopAndDroneCards();
+    updateUjangSummary(fullUjangData);
+
     let expenseQuery = client
-    .from("expenses")
-    .select(`
-        *,
-        profiles:honor_user_id(full_name)
-    `,{count:"exact"})
-    .order("created_at",{ascending:false});
+        .from("expenses")
+        .select(`*, profiles:honor_user_id(full_name)`)
+        .order("created_at",{ascending:false});
 
     if(startDate && endDate){
         expenseQuery = expenseQuery
             .gte("created_at", startDate + "T00:00:00")
             .lte("created_at", endDate + "T23:59:59");
     }
-    
-    /* ================= DATA FULL EXPENSE UNTUK SUMMARY ================= */
-const { data:fullExpense } = await expenseQuery;
-filteredExpenseData = fullExpense || [];
-const paginatedExpenseQuery = client
-    .from("expenses")
-    .select(`
-        *,
-        profiles:honor_user_id(full_name)
-    `,{count:"exact"})
-    .order("created_at",{ascending:false});
 
-if(startDate && endDate){
-    paginatedExpenseQuery
-        .gte("created_at", startDate + "T00:00:00")
-        .lte("created_at", endDate + "T23:59:59");
+    const { data:fullExpense, error:expenseError } = await expenseQuery;
+    if(expenseError) console.error("Gagal mengambil pengeluaran:", expenseError);
+    filteredExpenseData = fullExpense || [];
+    expenseData = filteredExpenseData.slice(start, start + pageSize);
+
+    const hpDebt = hpRows.filter(row => Number(row.remaining_amount || 0) > 0);
+    debtData = hpDebt;
+
+    if(currentTab === "income") totalRows = hpRows.length;
+    else if(currentTab === "expense") totalRows = filteredExpenseData.length;
+    else if(currentTab === "debt"){
+        totalRows = hpDebt.length;
+        incomeData = hpDebt.slice(start, start + pageSize);
+    }
+    else if(currentTab === "laptop") totalRows = fullLaptopData.length;
+    else if(currentTab === "ujang") totalRows = fullUjangData.length;
+
+    const totalPages = Math.ceil(totalRows / pageSize);
+    if(currentPage > totalPages) currentPage = totalPages || 1;
+
+    updatePagination();
+    renderByTab(incomeData, expenseData, laptopData, ujangData);
+
+    // Card utama HANYA Service HP. Laptop & Drone tidak masuk.
+    updateFinanceCards(hpRows, filteredExpenseData);
 }
 
-const { data:expense, count:expenseCount } =
-    await paginatedExpenseQuery.range(start,end);
-
-incomeData = income || [];
-expenseData = expense || [];
-
-/* ================= DATA UJANG ================= */
-fullUjangData = (fullIncome || []).filter(row =>
-    String(row.teknisi || "").toUpperCase() === "UJANG"
-);
-ujangData = fullUjangData.slice(start, start + pageSize);
-updateUjangSummary(fullUjangData);
-
-/* ================= DATA LAPTOP ================= */
-
-let laptopQuery = client
-    .from("service_orders")
-    .select("*", { count: "exact" })
-    .eq("kategori_perangkat", "LAPTOP")
-    .eq("status", "selesai")
-    .order("tanggal_selesai", { ascending: false });
-
-if(startDate && endDate){
-    laptopQuery = laptopQuery
-        .gte("tanggal_selesai", startDate + "T00:00:00")
-        .lte("tanggal_selesai", endDate + "T23:59:59");
+function updateLaptopAndDroneCards(){
+    updateDeviceSummary("laptop", fullLaptopData);
 }
 
-const { data: laptop, count: laptopCount, error: laptopError } =
-    await laptopQuery.range(start, end);
-
-if(laptopError){
-    console.error("Gagal mengambil data laptop:", laptopError);
-}
-
-laptopData = laptop || [];
-    
-if(currentTab === "income"){
-    totalRows = incomeCount;
-}
-else if(currentTab === "expense"){
-    totalRows = expenseCount;
-}
-else if(currentTab === "debt"){
-
-    const allDebt = (fullIncome || []).filter(
-        row => Number(row.remaining_amount || 0) > 0
-    );
-
-    debtData = allDebt;
-    totalRows = allDebt.length;
-    incomeData = allDebt.slice(
-        start,
-        start + pageSize
-    );
-}
-    
-else if(currentTab === "laptop"){
-    totalRows = laptopCount;
-}
-else if(currentTab === "ujang"){
-    totalRows = fullUjangData.length;
-}
-
-const totalPages = Math.ceil(totalRows / pageSize);
-if(currentPage > totalPages) currentPage = totalPages || 1;
-
-updatePagination();
-renderByTab(incomeData, expenseData, laptopData, ujangData);
-
-if(startDate && endDate){
-    updateFinanceCards(fullIncome || [], fullExpense || []);
-}
-else{
-    updateFinanceCards(summaryIncomeData, summaryExpenseData);
-}
-} // ← TAMBAHKAN INI
 /* ================= LOAD SUMMARY (UNTUK CARD) ================= */
 async function loadSummaryData(){
 
@@ -403,7 +371,7 @@ async function loadSummaryData(){
     summaryIncomeData = income || [];
     summaryExpenseData = expense || [];
     
-    updateFinanceCards(summaryIncomeData, summaryExpenseData);
+    updateFinanceCards(summaryIncomeData.filter(isHpService), summaryExpenseData);
 }
 
 function updatePagination(){
@@ -522,7 +490,7 @@ loadFinance();
 function updateFinanceCards(income, expense){
 
     const totalIncome = income.reduce((sum,row)=>
-        sum + (Number(row.amount_paid) || 0),0);
+        sum + getCeoRecognizedIncome(row),0);
 
     const totalExpense = expense.reduce((sum,row)=>
         sum + (Number(row.amount) || 0),0);
@@ -582,6 +550,8 @@ function renderByTab(income = incomeData, expense = expenseData, laptop = laptop
     let sisa = Number(row.remaining_amount || 0);
     
     let kembalian = 0;
+    const hakUjang = isUjangJob(row) ? getUjangShare(row).bagianUjang : 0;
+    const pemasukanCeo = getCeoRecognizedIncome(row);
     
     if(dibayar > total){
         kembalian = dibayar - total;
@@ -612,8 +582,12 @@ function renderByTab(income = incomeData, expense = expenseData, laptop = laptop
         ${rupiah(dibayar)}
         </td>
         
-        <td style="color:#2980b9;font-weight:600;">
-        ${kembalian > 0 ? rupiah(kembalian) : "-"}
+        <td style="color:#b97800;font-weight:600;">
+        ${hakUjang > 0 ? rupiah(hakUjang) : "-"}
+        </td>
+
+        <td style="color:#16804a;font-weight:700;">
+        ${rupiah(pemasukanCeo)}
         </td>
         
         <td style="color:#e74c3c;font-weight:600;">
@@ -741,7 +715,7 @@ else if(currentTab === "laptop"){
         tbody.innerHTML = `
             <tr>
                 <td colspan="13">
-                    Tidak ada service laptop
+                    Tidak ada service Laptop & Drone
                 </td>
             </tr>
         `;
@@ -1126,9 +1100,9 @@ function exportToCSV(){
     
     const isFilterActive = start && end;
 
-const exportIncome = isFilterActive
+const exportIncome = (isFilterActive
     ? filteredIncomeData
-    : summaryIncomeData;
+    : summaryIncomeData).filter(isHpService);
 
 const exportExpense = isFilterActive
     ? filteredExpenseData
@@ -1148,8 +1122,9 @@ const exportExpense = isFilterActive
             "Status",
             "Tanggal Selesai",
             "Sparepart",
-            "Dibayar",
-            "Kembalian",
+            "Dibayar Pelanggan",
+            "Hak UJANG",
+            "Pemasukan CEO",
             "Sisa",
             "Total"
         ]);
@@ -1176,7 +1151,8 @@ const exportExpense = isFilterActive
                 : "-",
             formatSparepartCSV(o.sparepart),
             dibayar,
-            kembalian,
+            isUjangJob(o) ? getUjangShare(o).bagianUjang : 0,
+            getCeoRecognizedIncome(o),
             o.remaining_amount,
             total
         ]);
@@ -1255,6 +1231,19 @@ const exportExpense = isFilterActive
     });
 
     fileName = "laporan_piutang.csv";
+}
+
+else if(currentTab === "laptop"){
+    const source = (isFilterActive ? filteredIncomeData : summaryIncomeData)
+        .filter(isLaptopOrDrone);
+    rows.push(["No","Nama","No HP","Alamat","Perangkat","Tanggal Masuk","Tanggal Selesai","Sparepart","Dibayar","Sisa","Total"]);
+    source.forEach((o,i)=>rows.push([
+        i+1,o.nama||"-",o.phone||"-",o.alamat||"-",o.tipe_model||o.brand||"-",
+        o.created_at ? new Date(o.created_at).toLocaleDateString("id-ID") : "-",
+        o.tanggal_selesai ? new Date(o.tanggal_selesai).toLocaleDateString("id-ID") : "-",
+        formatSparepartCSV(o.sparepart),o.amount_paid||0,o.remaining_amount||0,o.total||0
+    ]));
+    fileName = "laporan_service_laptop_drone.csv";
 }
 
 else if(currentTab === "ujang"){
