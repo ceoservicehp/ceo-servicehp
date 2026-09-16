@@ -718,6 +718,21 @@ function renderSelectedParts(){
     JSON.stringify(selectedParts);
 }
 
+let ujangCapitalBalance = 0;
+
+async function loadUjangCapitalBalance(){
+    const help = document.getElementById("ujangCapitalHelp");
+    try{
+        const { data, error } = await client.rpc("get_ujang_capital_balance");
+        if(error) throw error;
+        ujangCapitalBalance = Number(data || 0);
+        if(help) help.textContent = `Saldo modal UJANG tersedia: ${rupiah(ujangCapitalBalance)}`;
+    }catch(err){
+        console.error("Gagal membaca saldo modal UJANG", err);
+        if(help) help.textContent = "Saldo modal UJANG belum dapat dibaca. Pastikan SQL Modal UJANG V1 sudah dijalankan.";
+    }
+}
+
 /* ================= KOLABORASI TEKNISI ================= */
 function getCollaborationValues(){
     const teknisi = document.getElementById("edit-teknisi")?.value || "CEO";
@@ -754,6 +769,7 @@ function updateCollaborationPreview(){
     if(totalEl) totalEl.value = formatRupiahInput(String(v.total));
 
     const sumberEl = document.getElementById("edit-sumber-pelanggan");
+    const modalSourceEl = document.getElementById("edit-sumber-modal-sparepart");
     const helpEl = document.getElementById("sumberHelp");
     if(sumberEl){
         sumberEl.disabled = v.teknisi !== "UJANG";
@@ -763,6 +779,10 @@ function updateCollaborationPreview(){
         helpEl.textContent = v.teknisi === "UJANG"
             ? "Pelanggan UJANG = 65/35, pelanggan CEO = 50/50."
             : "Tidak dipakai karena teknisi adalah CEO.";
+    }
+    if(modalSourceEl){
+        modalSourceEl.disabled = v.teknisi !== "UJANG";
+        if(v.teknisi !== "UJANG") modalSourceEl.value = "CEO";
     }
 
     const rule = document.getElementById("splitRuleText");
@@ -805,7 +825,7 @@ function initUI(){
     document.getElementById("edit-total")
         ?.addEventListener("input", hitungPembayaran);
 
-    ["edit-teknisi","edit-sumber-pelanggan"].forEach(id=>{
+    ["edit-teknisi","edit-sumber-pelanggan","edit-sumber-modal-sparepart"].forEach(id=>{
         document.getElementById(id)?.addEventListener("change", updateCollaborationPreview);
     });
 
@@ -847,6 +867,8 @@ function initUI(){
         document.getElementById("edit-sumber-pelanggan").value = data.sumber_pelanggan || "CEO";
         document.getElementById("edit-modal-sparepart").value =
         formatRupiahInput((data.modal_sparepart || 0).toString());
+        document.getElementById("edit-sumber-modal-sparepart").value = data.sumber_modal_sparepart || "CEO";
+        loadUjangCapitalBalance();
         document.getElementById("edit-ekspedisi").value =
         data.ekspedisi ?? "";
     
@@ -1030,25 +1052,8 @@ const { data: { user } } = await client.auth.getUser();
 
 let tanggalSelesai = existingData?.tanggal_selesai || null;
 
-/*
- * Jika status BARU saja diubah menjadi "selesai",
- * selalu gunakan waktu saat ini sebagai tanggal selesai.
- * Jadi tanggal selesai tidak lagi ikut tanggal masuk.
- *
- * Jika order memang sudah berstatus selesai sebelumnya
- * lalu admin hanya mengedit data lain, tanggal selesai lama dipertahankan.
- */
-if(newStatus === "selesai" && existingData?.status !== "selesai"){
+if(newStatus === "selesai" && !tanggalSelesai){
   tanggalSelesai = new Date().toISOString();
-}
-
-/*
- * Jika status dikembalikan dari selesai ke status lain,
- * kosongkan tanggal selesai agar nanti saat diselesaikan lagi
- * akan memakai waktu terbaru.
- */
-if(newStatus !== "selesai"){
-  tanggalSelesai = null;
 }
 
 const { error } = await client
@@ -1066,6 +1071,9 @@ const { error } = await client
         ? (document.getElementById("edit-sumber-pelanggan").value || "CEO")
         : "CEO",
       modal_sparepart: parseRupiah(document.getElementById("edit-modal-sparepart").value || "0"),
+      sumber_modal_sparepart: document.getElementById("edit-teknisi").value === "UJANG"
+        ? (document.getElementById("edit-sumber-modal-sparepart").value || "CEO")
+        : "CEO",
       ekspedisi: document.getElementById("edit-ekspedisi").value || null,
       resi: document.getElementById("edit-resi").value || null,
       sparepart: JSON.stringify(selectedParts),
@@ -1102,7 +1110,38 @@ const { error } = await client
         return;
     }
 
+    // Sinkronkan pemakaian modal UJANG setelah order utama berhasil disimpan.
+    const capitalOwner = document.getElementById("edit-teknisi").value === "UJANG"
+      ? (document.getElementById("edit-sumber-modal-sparepart").value || "CEO")
+      : "CEO";
+    const capitalAmount = parseRupiah(document.getElementById("edit-modal-sparepart").value || "0");
+
+    const { error: capitalError } = await client.rpc("sync_ujang_order_capital", {
+      p_order_id: id,
+      p_capital_owner: capitalOwner,
+      p_capital_amount: capitalAmount
+    });
+    if(capitalError){
+      alert("Data service tersimpan, tetapi sinkron modal UJANG gagal: " + capitalError.message);
+      console.error(capitalError);
+      await loadUjangCapitalBalance();
+      return;
+    }
+
+    // RPC ini aman dipanggil setiap simpan. Settlement hanya terjadi bila teknisi UJANG, status selesai, dan pembayaran lunas.
+    const { data: settlement, error: settlementError } = await client.rpc("settle_ujang_service_order", { p_order_id: id });
+    if(settlementError){
+      alert("Data dan modal tersimpan, tetapi settlement UJANG gagal: " + settlementError.message);
+      console.error(settlementError);
+      return;
+    }
+
+    if(settlement?.settled && !settlement?.duplicate_prevented){
+      alert(`Service tersimpan dan settlement UJANG berhasil.\nHak UJANG: ${rupiah(settlement.ujang_share)}\nHak CEO: ${rupiah(settlement.ceo_share)}\nSaldo modal UJANG: ${rupiah(settlement.balance)}`);
+    }
+
     document.getElementById("detailModal").style.display="none";
+    await loadUjangCapitalBalance();
     loadOrders();
 };
 }
@@ -1264,14 +1303,11 @@ document.addEventListener("change", async e => {
     let tanggalSelesai = existingData.tanggal_selesai || null;
 
     /*
-     * Jika status BARU saja diubah menjadi selesai,
-     * gunakan waktu saat ini sebagai tanggal selesai.
-     *
-     * Pengecekan berdasarkan status sebelumnya, bukan berdasarkan
-     * ada/tidaknya tanggal_selesai. Ini juga memperbaiki data lama
-     * yang tanggal selesainya sempat mengikuti tanggal masuk.
+     * Jika status BARU berubah menjadi selesai
+     * dan sebelumnya belum pernah selesai,
+     * simpan waktu saat status diubah.
      */
-    if(val === "selesai" && existingData.status !== "selesai"){
+    if(val === "selesai" && !tanggalSelesai){
         tanggalSelesai = new Date().toISOString();
     }
 
