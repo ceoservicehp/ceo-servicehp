@@ -255,12 +255,24 @@ function isHpService(row){ return !isLaptopOrDrone(row); }
 function isUjangJob(row){ return String(row?.teknisi || "").trim().toUpperCase() === "UJANG"; }
 
 /* Pemasukan yang benar-benar menjadi hak CEO.
-   Untuk pekerjaan UJANG, hak UJANG dikeluarkan dari pemasukan CEO. */
+   - Teknisi CEO: pemasukan CEO mengikuti pembayaran pelanggan.
+   - Teknisi UJANG: pemasukan CEO HANYA bagian/hak CEO dari laba service.
+     Pengembalian modal sparepart (baik modal UJANG maupun modal CEO) tidak
+     dihitung sebagai pendapatan/laba CEO pada card dan tabel pemasukan.
+   - Jika pembayaran pelanggan belum penuh, hak CEO diakui proporsional
+     terhadap pembayaran yang sudah diterima agar tidak melebihi kas masuk. */
 function getCeoRecognizedIncome(row){
     const paid = Math.max(0, Number(row?.amount_paid || 0));
     if(!isUjangJob(row)) return paid;
+
     const calc = getUjangShare(row);
-    return Math.max(0, paid - Math.min(paid, Number(calc.bagianUjang || 0)));
+    const total = Math.max(0, Number(row?.total || calc.total || 0));
+    const hakCeo = Math.max(0, Number(calc.bagianCeo || 0));
+
+    if(total <= 0 || paid <= 0) return 0;
+
+    const rasioTerbayar = Math.min(1, paid / total);
+    return Math.round(hakCeo * rasioTerbayar);
 }
 
 function updateDeviceSummary(prefix, rows = []){
