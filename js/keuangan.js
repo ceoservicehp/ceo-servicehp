@@ -48,8 +48,6 @@ let incomeData = [];
 let expenseData = [];
 let debtData = [];
 let laptopData = [];
-let fullLaptopData = [];
-let fullDroneData = [];
 let ujangData = [];
 let fullUjangData = [];
 
@@ -244,118 +242,152 @@ function updateUjangSummary(rows = []){
     if(ceoEl) ceoEl.textContent = rupiah(summary.ceo);
 }
 
-
-function deviceCategory(row){
-    return String(row?.kategori_perangkat || "HP").trim().toUpperCase();
-}
-function isLaptop(row){ return deviceCategory(row) === "LAPTOP"; }
-function isDrone(row){ return deviceCategory(row) === "DRONE"; }
-function isLaptopOrDrone(row){ return isLaptop(row) || isDrone(row); }
-function isHpService(row){ return !isLaptopOrDrone(row); }
-function isUjangJob(row){ return String(row?.teknisi || "").trim().toUpperCase() === "UJANG"; }
-
-/* Pemasukan yang benar-benar menjadi hak CEO.
-   Untuk pekerjaan UJANG, hak UJANG dikeluarkan dari pemasukan CEO. */
-function getCeoRecognizedIncome(row){
-    const paid = Math.max(0, Number(row?.amount_paid || 0));
-    if(!isUjangJob(row)) return paid;
-    const calc = getUjangShare(row);
-    return Math.max(0, paid - Math.min(paid, Number(calc.bagianUjang || 0)));
-}
-
-function updateDeviceSummary(prefix, rows = []){
-    const totalPaid = rows.reduce((sum,row)=>sum + Number(row.amount_paid || 0),0);
-    const totalBilling = rows.reduce((sum,row)=>sum + Number(row.total || 0),0);
-    const totalDebt = rows.reduce((sum,row)=>sum + Math.max(0,Number(row.remaining_amount || 0)),0);
-    const unitEl = document.getElementById(prefix + "TotalUnit");
-    const incomeEl = document.getElementById(prefix + "TotalIncome");
-    const billingEl = document.getElementById(prefix + "TotalBilling");
-    const debtEl = document.getElementById(prefix + "TotalDebt");
-    if(unitEl) unitEl.textContent = `${rows.length} Unit`;
-    if(incomeEl) incomeEl.textContent = rupiah(totalPaid);
-    if(billingEl) billingEl.textContent = rupiah(totalBilling);
-    if(debtEl) debtEl.textContent = rupiah(totalDebt);
-}
-
 /* ================= LOAD DATA ================= */
 async function loadFinance(){
     const start = (currentPage - 1) * pageSize;
-    const startDate = document.getElementById("startDate")?.value;
+    const end = start + pageSize - 1;
+    
+   const startDate = document.getElementById("startDate")?.value;
     const endDate = document.getElementById("endDate")?.value;
-
+    
     let incomeQuery = client
         .from("service_orders")
-        .select("*")
+        .select("*",{count:"exact"})
         .eq("status","selesai")
         .order("tanggal_selesai",{ascending:false});
-
+    
     if(startDate && endDate){
         incomeQuery = incomeQuery
             .gte("tanggal_selesai", startDate + "T00:00:00")
             .lte("tanggal_selesai", endDate + "T23:59:59");
     }
+    
+    /* ================= DATA FULL UNTUK SUMMARY ================= */
+const { data:fullIncome } = await incomeQuery;
+filteredIncomeData = fullIncome || [];
+const paginatedIncomeQuery = client
+    .from("service_orders")
+    .select("*",{count:"exact"})
+    .eq("status","selesai")
+    .order("tanggal_selesai",{ascending:false});
 
-    const { data:fullIncome, error:incomeError } = await incomeQuery;
-    if(incomeError) console.error("Gagal mengambil pemasukan:", incomeError);
+if(startDate && endDate){
+    paginatedIncomeQuery
+        .gte("tanggal_selesai", startDate + "T00:00:00")
+        .lte("tanggal_selesai", endDate + "T23:59:59");
+}
 
-    const allFinished = fullIncome || [];
-    filteredIncomeData = allFinished;
-
-    // Pemisahan lini usaha
-    const hpRows = allFinished.filter(isHpService);
-    fullLaptopData = allFinished.filter(isLaptopOrDrone);
-    fullDroneData = [];
-    fullUjangData = allFinished.filter(isUjangJob);
-
-    incomeData = hpRows.slice(start, start + pageSize);
-    laptopData = fullLaptopData.slice(start, start + pageSize);
-        ujangData = fullUjangData.slice(start, start + pageSize);
-
-    updateLaptopAndDroneCards();
-    updateUjangSummary(fullUjangData);
-
+const { data:income, count:incomeCount } =
+    await paginatedIncomeQuery.range(start,end);
+    
     let expenseQuery = client
-        .from("expenses")
-        .select(`*, profiles:honor_user_id(full_name)`)
-        .order("created_at",{ascending:false});
+    .from("expenses")
+    .select(`
+        *,
+        profiles:honor_user_id(full_name)
+    `,{count:"exact"})
+    .order("created_at",{ascending:false});
 
     if(startDate && endDate){
         expenseQuery = expenseQuery
             .gte("created_at", startDate + "T00:00:00")
             .lte("created_at", endDate + "T23:59:59");
     }
+    
+    /* ================= DATA FULL EXPENSE UNTUK SUMMARY ================= */
+const { data:fullExpense } = await expenseQuery;
+filteredExpenseData = fullExpense || [];
+const paginatedExpenseQuery = client
+    .from("expenses")
+    .select(`
+        *,
+        profiles:honor_user_id(full_name)
+    `,{count:"exact"})
+    .order("created_at",{ascending:false});
 
-    const { data:fullExpense, error:expenseError } = await expenseQuery;
-    if(expenseError) console.error("Gagal mengambil pengeluaran:", expenseError);
-    filteredExpenseData = fullExpense || [];
-    expenseData = filteredExpenseData.slice(start, start + pageSize);
-
-    const hpDebt = hpRows.filter(row => Number(row.remaining_amount || 0) > 0);
-    debtData = hpDebt;
-
-    if(currentTab === "income") totalRows = hpRows.length;
-    else if(currentTab === "expense") totalRows = filteredExpenseData.length;
-    else if(currentTab === "debt"){
-        totalRows = hpDebt.length;
-        incomeData = hpDebt.slice(start, start + pageSize);
-    }
-    else if(currentTab === "laptop") totalRows = fullLaptopData.length;
-    else if(currentTab === "ujang") totalRows = fullUjangData.length;
-
-    const totalPages = Math.ceil(totalRows / pageSize);
-    if(currentPage > totalPages) currentPage = totalPages || 1;
-
-    updatePagination();
-    renderByTab(incomeData, expenseData, laptopData, ujangData);
-
-    // Card utama HANYA Service HP. Laptop & Drone tidak masuk.
-    updateFinanceCards(hpRows, filteredExpenseData);
+if(startDate && endDate){
+    paginatedExpenseQuery
+        .gte("created_at", startDate + "T00:00:00")
+        .lte("created_at", endDate + "T23:59:59");
 }
 
-function updateLaptopAndDroneCards(){
-    updateDeviceSummary("laptop", fullLaptopData);
+const { data:expense, count:expenseCount } =
+    await paginatedExpenseQuery.range(start,end);
+
+incomeData = income || [];
+expenseData = expense || [];
+
+/* ================= DATA UJANG ================= */
+fullUjangData = (fullIncome || []).filter(row =>
+    String(row.teknisi || "").toUpperCase() === "UJANG"
+);
+ujangData = fullUjangData.slice(start, start + pageSize);
+updateUjangSummary(fullUjangData);
+
+/* ================= DATA LAPTOP ================= */
+
+let laptopQuery = client
+    .from("service_orders")
+    .select("*", { count: "exact" })
+    .eq("kategori_perangkat", "LAPTOP")
+    .eq("status", "selesai")
+    .order("tanggal_selesai", { ascending: false });
+
+if(startDate && endDate){
+    laptopQuery = laptopQuery
+        .gte("tanggal_selesai", startDate + "T00:00:00")
+        .lte("tanggal_selesai", endDate + "T23:59:59");
 }
 
+const { data: laptop, count: laptopCount, error: laptopError } =
+    await laptopQuery.range(start, end);
+
+if(laptopError){
+    console.error("Gagal mengambil data laptop:", laptopError);
+}
+
+laptopData = laptop || [];
+    
+if(currentTab === "income"){
+    totalRows = incomeCount;
+}
+else if(currentTab === "expense"){
+    totalRows = expenseCount;
+}
+else if(currentTab === "debt"){
+
+    const allDebt = (fullIncome || []).filter(
+        row => Number(row.remaining_amount || 0) > 0
+    );
+
+    debtData = allDebt;
+    totalRows = allDebt.length;
+    incomeData = allDebt.slice(
+        start,
+        start + pageSize
+    );
+}
+    
+else if(currentTab === "laptop"){
+    totalRows = laptopCount;
+}
+else if(currentTab === "ujang"){
+    totalRows = fullUjangData.length;
+}
+
+const totalPages = Math.ceil(totalRows / pageSize);
+if(currentPage > totalPages) currentPage = totalPages || 1;
+
+updatePagination();
+renderByTab(incomeData, expenseData, laptopData, ujangData);
+
+if(startDate && endDate){
+    updateFinanceCards(fullIncome || [], fullExpense || []);
+}
+else{
+    updateFinanceCards(summaryIncomeData, summaryExpenseData);
+}
+} // ← TAMBAHKAN INI
 /* ================= LOAD SUMMARY (UNTUK CARD) ================= */
 async function loadSummaryData(){
 
@@ -371,7 +403,7 @@ async function loadSummaryData(){
     summaryIncomeData = income || [];
     summaryExpenseData = expense || [];
     
-    updateFinanceCards(summaryIncomeData.filter(isHpService), summaryExpenseData);
+    updateFinanceCards(summaryIncomeData, summaryExpenseData);
 }
 
 function updatePagination(){
@@ -490,7 +522,7 @@ loadFinance();
 function updateFinanceCards(income, expense){
 
     const totalIncome = income.reduce((sum,row)=>
-        sum + getCeoRecognizedIncome(row),0);
+        sum + (Number(row.amount_paid) || 0),0);
 
     const totalExpense = expense.reduce((sum,row)=>
         sum + (Number(row.amount) || 0),0);
@@ -550,8 +582,6 @@ function renderByTab(income = incomeData, expense = expenseData, laptop = laptop
     let sisa = Number(row.remaining_amount || 0);
     
     let kembalian = 0;
-    const hakUjang = isUjangJob(row) ? getUjangShare(row).bagianUjang : 0;
-    const pemasukanCeo = getCeoRecognizedIncome(row);
     
     if(dibayar > total){
         kembalian = dibayar - total;
@@ -582,12 +612,8 @@ function renderByTab(income = incomeData, expense = expenseData, laptop = laptop
         ${rupiah(dibayar)}
         </td>
         
-        <td style="color:#b97800;font-weight:600;">
-        ${hakUjang > 0 ? rupiah(hakUjang) : "-"}
-        </td>
-
-        <td style="color:#16804a;font-weight:700;">
-        ${rupiah(pemasukanCeo)}
+        <td style="color:#2980b9;font-weight:600;">
+        ${kembalian > 0 ? rupiah(kembalian) : "-"}
         </td>
         
         <td style="color:#e74c3c;font-weight:600;">
@@ -715,7 +741,7 @@ else if(currentTab === "laptop"){
         tbody.innerHTML = `
             <tr>
                 <td colspan="13">
-                    Tidak ada service Laptop & Drone
+                    Tidak ada service laptop
                 </td>
             </tr>
         `;
@@ -1100,9 +1126,9 @@ function exportToCSV(){
     
     const isFilterActive = start && end;
 
-const exportIncome = (isFilterActive
+const exportIncome = isFilterActive
     ? filteredIncomeData
-    : summaryIncomeData).filter(isHpService);
+    : summaryIncomeData;
 
 const exportExpense = isFilterActive
     ? filteredExpenseData
@@ -1122,9 +1148,8 @@ const exportExpense = isFilterActive
             "Status",
             "Tanggal Selesai",
             "Sparepart",
-            "Dibayar Pelanggan",
-            "Hak UJANG",
-            "Pemasukan CEO",
+            "Dibayar",
+            "Kembalian",
             "Sisa",
             "Total"
         ]);
@@ -1151,8 +1176,7 @@ const exportExpense = isFilterActive
                 : "-",
             formatSparepartCSV(o.sparepart),
             dibayar,
-            isUjangJob(o) ? getUjangShare(o).bagianUjang : 0,
-            getCeoRecognizedIncome(o),
+            kembalian,
             o.remaining_amount,
             total
         ]);
@@ -1231,19 +1255,6 @@ const exportExpense = isFilterActive
     });
 
     fileName = "laporan_piutang.csv";
-}
-
-else if(currentTab === "laptop"){
-    const source = (isFilterActive ? filteredIncomeData : summaryIncomeData)
-        .filter(isLaptopOrDrone);
-    rows.push(["No","Nama","No HP","Alamat","Perangkat","Tanggal Masuk","Tanggal Selesai","Sparepart","Dibayar","Sisa","Total"]);
-    source.forEach((o,i)=>rows.push([
-        i+1,o.nama||"-",o.phone||"-",o.alamat||"-",o.tipe_model||o.brand||"-",
-        o.created_at ? new Date(o.created_at).toLocaleDateString("id-ID") : "-",
-        o.tanggal_selesai ? new Date(o.tanggal_selesai).toLocaleDateString("id-ID") : "-",
-        formatSparepartCSV(o.sparepart),o.amount_paid||0,o.remaining_amount||0,o.total||0
-    ]));
-    fileName = "laporan_service_laptop_drone.csv";
 }
 
 else if(currentTab === "ujang"){
@@ -1347,4 +1358,110 @@ document.addEventListener("DOMContentLoaded", function(){
     btn.addEventListener("click", closeNav);
   });
 
+});
+
+/* =========================================================
+   BUKU BESAR MODAL UJANG
+   Modal dipisahkan dari hak bagi hasil UJANG.
+========================================================= */
+let ujangCapitalBalance = 0;
+
+function capitalTypeLabel(type){
+    const labels = {
+        MODAL_AWAL:"Modal Awal", MODAL_MASUK:"Tambah Modal", MODAL_SPAREPART:"Pemakaian Sparepart",
+        PENGEMBALIAN_MODAL:"Pengembalian Modal", PENARIKAN:"Penarikan Modal", PENYESUAIAN:"Penyesuaian"
+    };
+    return labels[type] || type || "-";
+}
+
+async function loadUjangCapital(){
+    const body = document.getElementById("ujangCapitalLedger");
+    try{
+        const [{ data: ledger, error: ledgerError }, { data: openOrders, error: orderError }] = await Promise.all([
+            client.from("ujang_capital_ledger").select("*").order("created_at",{ascending:true}),
+            client.from("service_orders").select("id,modal_ujang_reserved,modal_sparepart,sumber_modal_sparepart,collaboration_settled_at,status")
+                .eq("sumber_modal_sparepart","UJANG").is("collaboration_settled_at",null)
+        ]);
+        if(ledgerError) throw ledgerError;
+        if(orderError) throw orderError;
+
+        const rows = ledger || [];
+        let running = 0;
+        const rendered = rows.map(row=>{
+            const signed = Number(row.signed_amount || 0);
+            running += signed;
+            return {...row, running};
+        });
+        ujangCapitalBalance = running;
+        const totalIn = rows.filter(r=>["MODAL_AWAL","MODAL_MASUK"].includes(r.transaction_type)).reduce((a,r)=>a+Math.max(0,Number(r.signed_amount||0)),0);
+        const totalWithdraw = rows.filter(r=>r.transaction_type==="PENARIKAN").reduce((a,r)=>a+Math.abs(Math.min(0,Number(r.signed_amount||0))),0);
+        const used = (openOrders || []).reduce((a,r)=>a+Number(r.modal_ujang_reserved || r.modal_sparepart || 0),0);
+
+        document.getElementById("ujangCapitalBalance")?.replaceChildren(document.createTextNode(rupiah(ujangCapitalBalance)));
+        document.getElementById("ujangCapitalUsed")?.replaceChildren(document.createTextNode(rupiah(used)));
+        document.getElementById("ujangCapitalIn")?.replaceChildren(document.createTextNode(rupiah(totalIn)));
+        document.getElementById("ujangCapitalWithdraw")?.replaceChildren(document.createTextNode(rupiah(totalWithdraw)));
+        document.getElementById("ujangCapitalModalBalance")?.replaceChildren(document.createTextNode(rupiah(ujangCapitalBalance)));
+
+        if(body){
+            if(!rendered.length){ body.innerHTML='<tr><td colspan="6">Belum ada mutasi modal.</td></tr>'; }
+            else{
+                body.innerHTML = rendered.slice().reverse().map(row=>{
+                    const amount=Number(row.signed_amount||0); const masuk=amount>0?rupiah(amount):"-"; const keluar=amount<0?rupiah(Math.abs(amount)):"-";
+                    const date=new Date(row.created_at).toLocaleString("id-ID",{day:"2-digit",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"});
+                    return `<tr><td>${date}</td><td>${capitalTypeLabel(row.transaction_type)}</td><td>${escapeHtml(row.note||"-")}</td><td>${masuk}</td><td>${keluar}</td><td>${rupiah(row.running)}</td></tr>`;
+                }).join("");
+            }
+        }
+    }catch(err){
+        console.error("Gagal memuat modal UJANG:",err);
+        if(body) body.innerHTML='<tr><td colspan="6">Gagal memuat buku besar modal. Pastikan SQL Modal UJANG V2 sudah dijalankan.</td></tr>';
+    }
+}
+
+function openUjangCapitalModal(){
+    const modal=document.getElementById("ujangCapitalModal"); if(!modal) return;
+    const dt=document.getElementById("ujangCapitalDate");
+    if(dt && !dt.value){ const now=new Date(); now.setMinutes(now.getMinutes()-now.getTimezoneOffset()); dt.value=now.toISOString().slice(0,16); }
+    document.getElementById("ujangCapitalModalBalance").textContent=rupiah(ujangCapitalBalance);
+    modal.style.display="flex";
+}
+function closeUjangCapitalModal(){ const modal=document.getElementById("ujangCapitalModal"); if(modal) modal.style.display="none"; }
+
+async function saveUjangCapitalMutation(){
+    const type=document.getElementById("ujangCapitalType")?.value;
+    const amount=Number(document.getElementById("ujangCapitalAmount")?.value||0);
+    const note=document.getElementById("ujangCapitalNote")?.value?.trim()||"";
+    const dateValue=document.getElementById("ujangCapitalDate")?.value;
+    if(!amount || amount<=0){ alert("Nominal modal harus lebih dari Rp 0."); return; }
+    if(!note){ alert("Catatan transaksi wajib diisi agar mutasi modal jelas."); return; }
+    const isOut=["PENARIKAN","PENYESUAIAN_KELUAR"].includes(type);
+    if(isOut && amount>ujangCapitalBalance){ alert(`Saldo modal UJANG tidak cukup. Saldo tersedia ${rupiah(ujangCapitalBalance)}.`); return; }
+
+    const btn=document.getElementById("saveUjangCapital"); if(btn){btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan...';}
+    try{
+        const { data,error }=await client.rpc("mutate_ujang_capital",{
+            p_action:type,
+            p_amount:amount,
+            p_note:note,
+            p_transaction_at:dateValue ? new Date(dateValue).toISOString() : new Date().toISOString()
+        });
+        if(error) throw error;
+        closeUjangCapitalModal();
+        document.getElementById("ujangCapitalAmount").value="";
+        document.getElementById("ujangCapitalNote").value="";
+        await loadUjangCapital();
+        alert(`Mutasi modal berhasil disimpan. Saldo sekarang ${rupiah(Number(data?.balance ?? ujangCapitalBalance))}.`);
+    }catch(err){ console.error(err); alert("Gagal menyimpan mutasi modal UJANG: "+(err.message||err)); }
+    finally{ if(btn){btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-floppy-disk"></i> Simpan Mutasi';} }
+}
+
+document.addEventListener("DOMContentLoaded",()=>{
+    document.getElementById("openUjangCapitalModal")?.addEventListener("click",openUjangCapitalModal);
+    document.getElementById("closeUjangCapitalModal")?.addEventListener("click",closeUjangCapitalModal);
+    document.getElementById("cancelUjangCapital")?.addEventListener("click",closeUjangCapitalModal);
+    document.getElementById("saveUjangCapital")?.addEventListener("click",saveUjangCapitalMutation);
+    document.getElementById("refreshUjangCapital")?.addEventListener("click",loadUjangCapital);
+    document.querySelectorAll('.tab[data-tab="ujang"]').forEach(btn=>btn.addEventListener("click",loadUjangCapital));
+    document.getElementById("ujangCapitalModal")?.addEventListener("click",e=>{if(e.target.id==="ujangCapitalModal") closeUjangCapitalModal();});
 });
