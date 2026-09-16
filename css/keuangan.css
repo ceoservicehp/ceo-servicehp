@@ -224,3 +224,12 @@ footer{width:min(1240px,calc(100% - 32px));margin:0 auto 28px;text-align:center;
 .capital-current-balance strong{font-size:17px;color:var(--text)}
 .capital-modal-content .modal-x{width:34px;height:34px;border:0;border-radius:50%;background:#eef5f6;color:var(--primary);font-size:20px;line-height:1;cursor:pointer}
 @media(max-width:650px){.ujang-capital-panel{padding:14px}.capital-card{padding:10px 12px}.capital-card strong{font-size:17px}.capital-modal-form{padding:14px 16px 16px}}
+
+/* Pagination khusus Mutasi Modal UJANG */
+.capital-pagination{display:flex;justify-content:flex-end;padding:12px 0 0}
+.capital-pagination .page-nav{display:flex;align-items:center;gap:7px}
+.capital-pagination .page-nav>button,#ujangCapitalPageNumbers button{min-width:34px;height:34px;padding:0 9px;border:1px solid var(--border);border-radius:9px;background:#fff;color:#5d6c71;font-size:10px;font-weight:750;transition:.2s}
+.capital-pagination .page-nav>button:hover:not(:disabled),#ujangCapitalPageNumbers button:hover{border-color:#b5d9dc;color:var(--primary);background:#f0f8f9}
+.capital-pagination .page-nav>button:disabled{opacity:.4;cursor:not-allowed}
+#ujangCapitalPageNumbers{display:flex;gap:5px;align-items:center;flex-wrap:wrap}
+#ujangCapitalPageNumbers button.active{border-color:var(--primary);background:var(--primary);color:#fff}
