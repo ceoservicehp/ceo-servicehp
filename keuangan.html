@@ -53,7 +53,7 @@
         <div>
           <span class="hero-badge"><i class="fa-solid fa-chart-pie"></i> KEUANGAN SERVICE</span>
           <h1>Ringkasan Keuangan <span>CEO Service</span></h1>
-          <p>Pantau pemasukan, pengeluaran, piutang, service laptop, dan pembagian hasil kolaborasi UJANG dalam satu halaman.</p>
+          <p>Keuangan Service HP CEO dipisahkan dari hak UJANG, service Laptop & Drone agar rekap lini perangkat non-HP tetap terpisah dari Service HP CEO.</p>
         </div>
         <div class="hero-side">
           <div class="hero-date"><i class="fa-regular fa-calendar"></i><span id="tanggalOtomatis">Memuat tanggal...</span></div>
@@ -90,7 +90,7 @@
       <section class="summary-grid">
         <article class="summary-card income-card">
           <div class="summary-icon"><i class="fa-solid fa-arrow-trend-up"></i></div>
-          <div><span>Total Pemasukan</span><strong id="totalIncome">Rp 0</strong><small>Uang masuk dari service selesai</small></div>
+          <div><span>Pemasukan Service HP CEO</span><strong id="totalIncome">Rp 0</strong><small>Khusus HP • hak UJANG tidak dihitung sebagai pemasukan CEO</small></div>
         </article>
         <article class="summary-card expense-card">
           <div class="summary-icon"><i class="fa-solid fa-arrow-trend-down"></i></div>
@@ -98,15 +98,15 @@
         </article>
         <article class="summary-card profit-card">
           <div class="summary-icon"><i class="fa-solid fa-coins"></i></div>
-          <div><span>Laba Bersih</span><strong id="totalProfit">Rp 0</strong><small>Pemasukan dikurangi pengeluaran</small></div>
+          <div><span>Saldo Setelah Pengeluaran</span><strong id="totalProfit">Rp 0</strong><small>Pemasukan HP CEO dikurangi pengeluaran tercatat</small></div>
         </article>
         <article class="summary-card margin-card">
           <div class="summary-icon"><i class="fa-solid fa-percent"></i></div>
-          <div><span>Margin</span><strong id="totalMargin">0%</strong><small>Persentase laba terhadap pemasukan</small></div>
+          <div><span>Margin Service HP</span><strong id="totalMargin">0%</strong><small>Perbandingan saldo terhadap pemasukan HP CEO</small></div>
         </article>
         <article class="summary-card debt-card">
           <div class="summary-icon"><i class="fa-solid fa-clock-rotate-left"></i></div>
-          <div><span>Total Piutang</span><strong id="totalDebt">Rp 0</strong><small>Sisa pembayaran pelanggan</small></div>
+          <div><span>Piutang Service HP</span><strong id="totalDebt">Rp 0</strong><small>Khusus pelanggan service HP</small></div>
         </article>
       </section>
 
@@ -127,7 +127,7 @@
           <button class="tab active" data-tab="income"><i class="fa-solid fa-arrow-trend-up"></i> Pemasukan</button>
           <button class="tab" data-tab="expense"><i class="fa-solid fa-receipt"></i> Pengeluaran</button>
           <button class="tab" data-tab="debt"><i class="fa-solid fa-hand-holding-dollar"></i> Piutang</button>
-          <button class="tab" data-tab="laptop"><i class="fa-solid fa-laptop"></i> Laptop</button>
+          <button class="tab" data-tab="laptop"><i class="fa-solid fa-laptop"></i> Laptop & Drone</button>
           <button class="tab tab-ujang" data-tab="ujang"><i class="fa-solid fa-user-gear"></i> UJANG</button>
         </div>
 
@@ -146,8 +146,8 @@
         <div class="table-area">
           <div id="incomeTableWrapper" class="table-wrapper">
             <table class="admin-table"><thead><tr>
-              <th>No</th><th>Nama</th><th>Alamat</th><th>Metode</th><th>Tanggal Masuk</th><th>Status</th><th>Tanggal Selesai</th><th>Sparepart</th><th>Dibayar</th><th>Kembalian</th><th>Sisa</th><th>Total</th>
-            </tr></thead><tbody id="incomeTable"><tr><td colspan="12">Memuat data...</td></tr></tbody></table>
+              <th>No</th><th>Nama</th><th>Alamat</th><th>Metode</th><th>Tanggal Masuk</th><th>Status</th><th>Tanggal Selesai</th><th>Sparepart</th><th>Dibayar Pelanggan</th><th>Hak UJANG</th><th>Pemasukan CEO</th><th>Sisa</th><th>Total</th>
+            </tr></thead><tbody id="incomeTable"><tr><td colspan="13">Memuat data...</td></tr></tbody></table>
           </div>
 
           <div id="expenseTableWrapper" class="table-wrapper" style="display:none;">
@@ -162,10 +162,20 @@
             </tr></thead><tbody id="debtTable"></tbody></table>
           </div>
 
-          <div id="laptopTableWrapper" class="table-wrapper" style="display:none;">
-            <table class="admin-table"><thead><tr>
+          <div id="laptopTableWrapper" class="device-section" style="display:none;">
+            <div class="ujang-heading">
+              <div><span class="eyebrow">LINI SERVICE TERPISAH</span><h3>Rekap Service Laptop & Drone</h3><p>Pemasukan Laptop dan Drone digabung dalam satu rekap dan tidak masuk ke akumulasi Service HP CEO.</p></div>
+              <div class="ujang-badge"><i class="fa-solid fa-laptop"></i> LAPTOP & DRONE</div>
+            </div>
+            <div class="ujang-summary-grid">
+              <div class="ujang-summary-card"><div class="ujang-card-icon"><i class="fa-solid fa-laptop"></i></div><div><span>Unit Selesai</span><strong id="laptopTotalUnit">0 Unit</strong><small>Service Laptop & Drone selesai</small></div></div>
+              <div class="ujang-summary-card device-income"><div class="ujang-card-icon"><i class="fa-solid fa-money-bill-trend-up"></i></div><div><span>Pemasukan Laptop & Drone</span><strong id="laptopTotalIncome">Rp 0</strong><small>Uang pelanggan yang sudah dibayar</small></div></div>
+              <div class="ujang-summary-card"><div class="ujang-card-icon"><i class="fa-solid fa-file-invoice-dollar"></i></div><div><span>Total Tagihan</span><strong id="laptopTotalBilling">Rp 0</strong><small>Nilai seluruh service laptop</small></div></div>
+              <div class="ujang-summary-card device-debt"><div class="ujang-card-icon"><i class="fa-solid fa-clock"></i></div><div><span>Piutang Laptop & Drone</span><strong id="laptopTotalDebt">Rp 0</strong><small>Sisa pembayaran Laptop & Drone</small></div></div>
+            </div>
+            <div class="table-wrapper ujang-table-wrap"><table class="admin-table"><thead><tr>
               <th>No</th><th>Nama</th><th>No HP</th><th>Alamat</th><th>Kategori Perangkat</th><th>Tipe / Model</th><th>Tanggal Masuk</th><th>Status</th><th>Tanggal Selesai</th><th>Sparepart</th><th>Dibayar</th><th>Sisa</th><th>Total</th>
-            </tr></thead><tbody id="laptopTable"><tr><td colspan="13">Memuat data laptop...</td></tr></tbody></table>
+            </tr></thead><tbody id="laptopTable"><tr><td colspan="13">Memuat data laptop...</td></tr></tbody></table></div>
           </div>
 
           <div id="ujangTableWrapper" class="ujang-section" style="display:none;">
@@ -183,21 +193,19 @@
 
             <div class="ujang-info-box"><i class="fa-solid fa-circle-info"></i><div><strong>Skema Kolaborasi UJANG</strong><p>Pelanggan UJANG: <b>65% UJANG / 35% CEO</b> &nbsp;•&nbsp; Pelanggan CEO: <b>50% UJANG / 50% CEO</b>. Pembagian dihitung dari nilai service setelah dikurangi transport dan modal sparepart.</p></div></div>
 
-            <section class="ujang-capital-panel">
-              <div class="ujang-capital-head">
+            <section class="ujang-capital-panel" id="ujangCapitalPanel">
+              <div class="ujang-capital-heading">
                 <div><span class="eyebrow">BUKU BESAR MODAL</span><h3>Modal UJANG</h3><p>Modal dan hak bagi hasil dipisahkan. Saldo berubah melalui mutasi, bukan diedit langsung.</p></div>
-                <button id="openUjangCapitalModal" class="btn btn-success" type="button"><i class="fa-solid fa-wallet"></i> Kelola Modal</button>
+                <button type="button" class="btn-capital" id="manageUjangCapital"><i class="fa-solid fa-wallet"></i> Kelola Modal</button>
               </div>
               <div class="ujang-capital-grid">
-                <article class="capital-card"><span>Saldo Modal Saat Ini</span><strong id="ujangCapitalBalance">Rp 0</strong><small>Saldo buku besar UJANG</small></article>
-                <article class="capital-card"><span>Modal Sedang Dipakai</span><strong id="ujangCapitalUsed">Rp 0</strong><small>Terikat pada order yang belum settlement</small></article>
-                <article class="capital-card"><span>Total Modal Masuk</span><strong id="ujangCapitalIn">Rp 0</strong><small>Modal awal + penambahan modal</small></article>
-                <article class="capital-card"><span>Total Penarikan</span><strong id="ujangCapitalWithdraw">Rp 0</strong><small>Modal yang telah diambil UJANG</small></article>
+                <div class="capital-card"><span>Saldo Modal Saat Ini</span><strong id="ujangCapitalBalance">Rp 0</strong><small>Saldo buku besar UJANG</small></div>
+                <div class="capital-card"><span>Modal Sedang Dipakai</span><strong id="ujangCapitalUsed">Rp 0</strong><small>Terikat pada order yang belum settlement</small></div>
+                <div class="capital-card"><span>Total Modal Masuk</span><strong id="ujangCapitalIn">Rp 0</strong><small>Modal awal + penambahan + penyesuaian masuk</small></div>
+                <div class="capital-card"><span>Total Penarikan</span><strong id="ujangCapitalWithdraw">Rp 0</strong><small>Modal yang telah diambil UJANG</small></div>
               </div>
-              <div class="capital-table-title"><div><strong>Mutasi Modal UJANG</strong><small>Riwayat setoran, pemakaian sparepart, pengembalian, penarikan, dan penyesuaian.</small></div><button id="refreshUjangCapital" class="btn btn-soft" type="button"><i class="fa-solid fa-rotate"></i> Refresh</button></div>
-              <div class="table-wrapper">
-                <table class="admin-table capital-ledger-table"><thead><tr><th>Tanggal</th><th>Jenis</th><th>Keterangan</th><th>Masuk</th><th>Keluar</th><th>Saldo</th></tr></thead><tbody id="ujangCapitalLedger"><tr><td colspan="6">Memuat mutasi modal...</td></tr></tbody></table>
-              </div>
+              <div class="capital-ledger-head"><div><h3>Mutasi Modal UJANG</h3><p>Riwayat setoran, pemakaian sparepart, pengembalian, penarikan, dan penyesuaian.</p></div><button type="button" class="btn-capital-soft" id="refreshUjangCapital"><i class="fa-solid fa-rotate"></i> Refresh</button></div>
+              <div class="table-wrapper capital-table-wrap"><table class="admin-table"><thead><tr><th>Tanggal</th><th>Jenis</th><th>Keterangan</th><th>Masuk</th><th>Keluar</th><th>Saldo</th></tr></thead><tbody id="ujangCapitalLedger"><tr><td colspan="6">Memuat buku besar modal...</td></tr></tbody></table></div>
             </section>
 
             <div class="table-wrapper ujang-table-wrap">
@@ -230,6 +238,18 @@
     </div>
   </main>
 
+  <div id="ujangCapitalModal" class="modal">
+    <div class="modal-content capital-modal-content">
+      <div class="modal-head"><div><span class="eyebrow">TRANSAKSI MODAL</span><h3>Kelola Modal UJANG</h3></div><button type="button" class="modal-x" id="closeUjangCapitalModal">&times;</button></div>
+      <div class="capital-current-balance">Saldo saat ini <strong id="ujangCapitalModalBalance">Rp 0</strong></div>
+      <div class="form-group"><label>Jenis Transaksi</label><select id="ujangCapitalAction"><option value="MODAL_MASUK">Tambah Modal</option><option value="PENARIKAN">Penarikan Modal</option><option value="PENYESUAIAN_MASUK">Penyesuaian Tambah</option><option value="PENYESUAIAN_KELUAR">Penyesuaian Kurang</option></select></div>
+      <div class="form-group"><label>Nominal</label><input type="number" min="1" step="1" id="ujangCapitalAmount" placeholder="Contoh: 500000"></div>
+      <div class="form-group"><label>Tanggal Transaksi</label><input type="datetime-local" id="ujangCapitalDate"></div>
+      <div class="form-group"><label>Catatan</label><textarea id="ujangCapitalNote" rows="3" placeholder="Contoh: Tambahan modal UJANG September 2026"></textarea></div>
+      <div class="modal-actions"><button type="button" class="btn btn-success" id="saveUjangCapital"><i class="fa-solid fa-floppy-disk"></i> Simpan Mutasi</button><button type="button" class="btn btn-soft" id="cancelUjangCapitalModal">Batal</button></div>
+    </div>
+  </div>
+
   <div id="expenseModal" class="modal">
     <div class="modal-content">
       <div class="modal-head">
@@ -249,21 +269,6 @@
         <label>Catatan<textarea id="expNotes" placeholder="Catatan (opsional)"></textarea></label>
       </div>
       <div class="modal-actions"><button id="saveExpense" class="btn btn-success"><i class="fa-solid fa-floppy-disk"></i> Simpan</button><button type="button" class="btn btn-soft" onclick="document.getElementById('expenseModal').style.display='none'">Batal</button></div>
-    </div>
-  </div>
-
-  <div id="ujangCapitalModal" class="modal">
-    <div class="modal-content capital-modal-content">
-      <div class="modal-head"><div><span class="eyebrow">MODAL UJANG</span><h3>Kelola Modal UJANG</h3></div><button type="button" id="closeUjangCapitalModal" class="modal-close"><i class="fa-solid fa-xmark"></i></button></div>
-      <div class="capital-balance-banner"><span>Saldo tersedia saat ini</span><strong id="ujangCapitalModalBalance">Rp 0</strong></div>
-      <div class="modal-form">
-        <label>Jenis Transaksi<select id="ujangCapitalType"><option value="MODAL_MASUK">Tambah Modal</option><option value="PENARIKAN">Penarikan Modal</option><option value="PENYESUAIAN_MASUK">Penyesuaian Tambah</option><option value="PENYESUAIAN_KELUAR">Penyesuaian Kurang</option></select></label>
-        <label>Nominal<input type="number" id="ujangCapitalAmount" min="1" step="1" placeholder="Contoh: 500000"></label>
-        <label>Tanggal Transaksi<input type="datetime-local" id="ujangCapitalDate"></label>
-        <label>Catatan<textarea id="ujangCapitalNote" placeholder="Contoh: Tambahan modal dari UJANG"></textarea></label>
-        <div class="capital-warning"><i class="fa-solid fa-circle-info"></i><span>Penarikan/penyesuaian kurang tidak boleh melebihi saldo modal yang tersedia.</span></div>
-      </div>
-      <div class="modal-actions"><button id="saveUjangCapital" class="btn btn-success" type="button"><i class="fa-solid fa-floppy-disk"></i> Simpan Mutasi</button><button id="cancelUjangCapital" type="button" class="btn btn-soft">Batal</button></div>
     </div>
   </div>
 
