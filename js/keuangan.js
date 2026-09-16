@@ -807,7 +807,7 @@ else if(currentTab === "ujang"){
         tbody.innerHTML += `
         <tr>
             <td>${(currentPage - 1) * pageSize + i + 1}</td>
-            <td class="ujang-customer"><strong>${row.nama || "-"}</strong><small>${row.phone || ""}</small></td>
+            <td class="ujang-customer"><strong>${row.nama || "-"}</strong></td>
             <td>${perangkat}</td>
             <td><span class="source-badge ${sourceClass}">${calc.sumber}</span></td>
             <td>${row.tanggal_selesai ? new Date(row.tanggal_selesai).toLocaleDateString("id-ID") : "-"}</td>
