@@ -1363,6 +1363,9 @@ document.addEventListener("DOMContentLoaded", function(){
 
 /* ================= BUKU BESAR MODAL UJANG ================= */
 let ujangCapitalBalance = 0;
+let ujangCapitalLedgerRows = [];
+let ujangCapitalPage = 1;
+const ujangCapitalPageSize = 5;
 
 function ujangCapitalLabel(type){
     return ({
@@ -1373,6 +1376,57 @@ function ujangCapitalLabel(type){
 
 function setCapitalText(id, value){ const el=document.getElementById(id); if(el) el.textContent=rupiah(value); }
 
+function renderUjangCapitalLedger(){
+    const tbody=document.getElementById("ujangCapitalLedger");
+    const pageNumbers=document.getElementById("ujangCapitalPageNumbers");
+    const prevBtn=document.getElementById("ujangCapitalPrevPage");
+    const nextBtn=document.getElementById("ujangCapitalNextPage");
+    if(!tbody) return;
+
+    const rows=ujangCapitalLedgerRows;
+    const totalPages=Math.max(1,Math.ceil(rows.length/ujangCapitalPageSize));
+    if(ujangCapitalPage>totalPages) ujangCapitalPage=totalPages;
+    if(ujangCapitalPage<1) ujangCapitalPage=1;
+
+    if(!rows.length){
+        tbody.innerHTML='<tr><td colspan="6">Belum ada mutasi modal UJANG.</td></tr>';
+        if(pageNumbers) pageNumbers.innerHTML="";
+        if(prevBtn) prevBtn.disabled=true;
+        if(nextBtn) nextBtn.disabled=true;
+        return;
+    }
+
+    // Data disimpan terbaru -> terlama. Saldo setiap baris adalah saldo sesudah transaksi tersebut.
+    const totalBalance=rows.reduce((sum,r)=>sum+Number(r.signed_amount||0),0);
+    let balanceAfter=totalBalance;
+    const rowsWithBalance=rows.map(r=>{
+        const item={...r,balance_after:balanceAfter};
+        balanceAfter-=Number(r.signed_amount||0);
+        return item;
+    });
+
+    const start=(ujangCapitalPage-1)*ujangCapitalPageSize;
+    const pageRows=rowsWithBalance.slice(start,start+ujangCapitalPageSize);
+    tbody.innerHTML=pageRows.map(r=>{
+        const signed=Number(r.signed_amount||0);
+        return `<tr><td>${r.created_at?new Date(r.created_at).toLocaleString("id-ID"):"-"}</td><td><span class="capital-ledger-type">${ujangCapitalLabel(r.transaction_type)}</span></td><td>${r.note||"-"}${r.service_order_id?`<small style="display:block">Order #${r.service_order_id}</small>`:""}</td><td class="capital-in">${signed>0?rupiah(signed):"-"}</td><td class="capital-out">${signed<0?rupiah(Math.abs(signed)):"-"}</td><td>${rupiah(r.balance_after)}</td></tr>`;
+    }).join("");
+
+    if(pageNumbers){
+        pageNumbers.innerHTML="";
+        for(let i=1;i<=totalPages;i++){
+            const btn=document.createElement("button");
+            btn.type="button";
+            btn.textContent=i;
+            if(i===ujangCapitalPage) btn.classList.add("active");
+            btn.addEventListener("click",()=>{ujangCapitalPage=i;renderUjangCapitalLedger();});
+            pageNumbers.appendChild(btn);
+        }
+    }
+    if(prevBtn) prevBtn.disabled=ujangCapitalPage===1;
+    if(nextBtn) nextBtn.disabled=ujangCapitalPage===totalPages;
+}
+
 async function loadUjangCapital(){
     const tbody=document.getElementById("ujangCapitalLedger");
     if(!tbody) return;
@@ -1380,7 +1434,7 @@ async function loadUjangCapital(){
 
     const { data:ledger, error } = await client.from("ujang_capital_ledger")
         .select("id,service_order_id,transaction_type,signed_amount,note,created_at")
-        .order("created_at",{ascending:true}).order("id",{ascending:true});
+        .order("created_at",{ascending:false}).order("id",{ascending:false});
 
     if(error){
         console.error("Gagal memuat ujang_capital_ledger:", error);
@@ -1389,6 +1443,8 @@ async function loadUjangCapital(){
     }
 
     const rows=ledger || [];
+    ujangCapitalLedgerRows=rows;
+    ujangCapitalPage=1;
     ujangCapitalBalance=rows.reduce((sum,r)=>sum+Number(r.signed_amount||0),0);
     const totalIn=rows.filter(r=>["MODAL_AWAL","MODAL_MASUK"].includes(r.transaction_type) || (r.transaction_type==="PENYESUAIAN" && Number(r.signed_amount)>0)).reduce((s,r)=>s+Math.max(0,Number(r.signed_amount||0)),0);
     const totalWithdraw=rows.filter(r=>r.transaction_type==="PENARIKAN").reduce((s,r)=>s+Math.abs(Number(r.signed_amount||0)),0);
@@ -1397,14 +1453,16 @@ async function loadUjangCapital(){
 
     setCapitalText("ujangCapitalBalance",ujangCapitalBalance); setCapitalText("ujangCapitalModalBalance",ujangCapitalBalance);
     setCapitalText("ujangCapitalIn",totalIn); setCapitalText("ujangCapitalWithdraw",totalWithdraw); setCapitalText("ujangCapitalUsed",Math.max(0,used));
-
-    if(!rows.length){ tbody.innerHTML='<tr><td colspan="6">Belum ada mutasi modal UJANG.</td></tr>'; return; }
-    let running=0;
-    tbody.innerHTML=rows.map(r=>{
-        const signed=Number(r.signed_amount||0); running+=signed;
-        return `<tr><td>${r.created_at?new Date(r.created_at).toLocaleString("id-ID"):"-"}</td><td><span class="capital-ledger-type">${ujangCapitalLabel(r.transaction_type)}</span></td><td>${r.note||"-"}${r.service_order_id?`<small style="display:block">Order #${r.service_order_id}</small>`:""}</td><td class="capital-in">${signed>0?rupiah(signed):"-"}</td><td class="capital-out">${signed<0?rupiah(Math.abs(signed)):"-"}</td><td>${rupiah(running)}</td></tr>`;
-    }).join("");
+    renderUjangCapitalLedger();
 }
+
+document.getElementById("ujangCapitalPrevPage")?.addEventListener("click",()=>{
+    if(ujangCapitalPage>1){ujangCapitalPage--;renderUjangCapitalLedger();}
+});
+document.getElementById("ujangCapitalNextPage")?.addEventListener("click",()=>{
+    const totalPages=Math.max(1,Math.ceil(ujangCapitalLedgerRows.length/ujangCapitalPageSize));
+    if(ujangCapitalPage<totalPages){ujangCapitalPage++;renderUjangCapitalLedger();}
+});
 
 function openUjangCapitalModal(){
     const modal=document.getElementById("ujangCapitalModal"); if(!modal) return;
