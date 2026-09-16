@@ -183,16 +183,20 @@ footer{width:min(1240px,calc(100% - 32px));margin:0 auto 28px;text-align:center;
   .report-summary{grid-template-columns:1fr 1fr}
 }
 
-/* ================= MODAL UJANG CAPITAL ================= */
-.ujang-capital-panel{margin-top:16px;padding:16px;background:#fff;border:1px solid var(--border);border-radius:16px}
-.ujang-capital-head,.capital-table-title{display:flex;align-items:center;justify-content:space-between;gap:14px}
-.ujang-capital-head h3{margin:2px 0 4px}.ujang-capital-head p,.capital-table-title small{margin:0;color:var(--muted);font-size:11px}
-.ujang-capital-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:14px 0}
-.capital-card{padding:14px;border:1px solid var(--border);border-radius:13px;background:#f8fbfb}
-.capital-card span{display:block;color:var(--muted);font-size:10px;font-weight:700}.capital-card strong{display:block;margin:5px 0;font-size:18px}.capital-card small{color:#8a999d;font-size:9px}
-.capital-table-title{margin:15px 0 8px}.capital-table-title strong,.capital-table-title small{display:block}
-.capital-ledger-table td:nth-child(4){color:#16815b;font-weight:700}.capital-ledger-table td:nth-child(5){color:#c44949;font-weight:700}.capital-ledger-table td:nth-child(6){font-weight:800}
-.capital-modal-content{max-width:560px}.capital-balance-banner{display:flex;justify-content:space-between;align-items:center;padding:13px 15px;margin-bottom:12px;border-radius:12px;background:#f0f8f7}.capital-balance-banner span{font-size:11px;color:var(--muted)}.capital-balance-banner strong{font-size:19px}
-.capital-warning{display:flex;gap:8px;padding:10px;border-radius:10px;background:#fff8e8;color:#7b6225;font-size:10px;line-height:1.5}
-@media(max-width:900px){.ujang-capital-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:560px){.ujang-capital-head,.capital-table-title{align-items:flex-start;flex-direction:column}.ujang-capital-grid{grid-template-columns:1fr}.ujang-capital-head .btn,.capital-table-title .btn{width:100%}}
+/* Lini service terpisah: Laptop & Drone */
+.device-section{
+  padding:18px;
+  background:#f8fbfb;
+}
+.device-income .ujang-card-icon{background:#e9f8ef;color:#16804a}
+.device-income strong{color:#16804a}
+.device-debt .ujang-card-icon{background:#fff5df;color:#b97800}
+.device-debt strong{color:#b97800}
+
+/* ================= MODAL UJANG / BUKU BESAR ================= */
+.ujang-capital-panel{margin:26px 0;padding:26px;border:1px solid var(--border);border-radius:var(--radius);background:#fff}
+.ujang-capital-heading,.capital-ledger-head{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:20px}.ujang-capital-heading h3,.capital-ledger-head h3{margin:4px 0 5px;font-size:24px}.ujang-capital-heading p,.capital-ledger-head p{margin:0;color:var(--muted)}
+.btn-capital,.btn-capital-soft{border:1px solid #bfe6cf;border-radius:14px;padding:13px 18px;font-weight:700;cursor:pointer}.btn-capital{background:#eaf9f0;color:#157347}.btn-capital-soft{background:#f4f7f8;color:#52636b;border-color:var(--border)}
+.ujang-capital-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-bottom:26px}.capital-card{min-height:126px;padding:20px;border:1px solid var(--border);border-radius:18px;background:#f9fbfb;display:flex;flex-direction:column}.capital-card span{font-weight:700;color:#69777d}.capital-card strong{font-size:25px;margin:15px 0 auto}.capital-card small{color:#8b9ba1}.capital-table-wrap{margin-top:10px}.capital-table-wrap td:nth-last-child(-n+3){font-weight:700}.capital-ledger-type{font-weight:700}.capital-in{color:#198754}.capital-out{color:#c0392b}.capital-error{color:#b42318;background:#fff5f5}.capital-current-balance{padding:14px 16px;margin:4px 0 18px;border-radius:12px;background:#f3f8f6;display:flex;justify-content:space-between;gap:20px}.capital-modal-content{max-width:560px}.capital-modal-content textarea{resize:vertical}
+@media(max-width:1050px){.ujang-capital-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:650px){.ujang-capital-panel{padding:18px}.ujang-capital-heading,.capital-ledger-head{align-items:flex-start;flex-direction:column}.ujang-capital-grid{grid-template-columns:1fr}.btn-capital,.btn-capital-soft{width:100%}}
