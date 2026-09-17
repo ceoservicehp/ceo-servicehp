@@ -280,18 +280,17 @@ function getCeoRecognizedIncome(row){
 }
 
 function updateDeviceSummary(prefix, rows = []){
-    const totalPaid = rows.reduce((sum,row)=>sum + Number(row.amount_paid || 0),0);
-    const totalBilling = rows.reduce((sum,row)=>sum + Number(row.total || 0),0);
-    const totalDebt = rows.reduce((sum,row)=>sum + Math.max(0,Number(row.remaining_amount || 0)),0);
-    const unitEl = document.getElementById(prefix + "TotalUnit");
-    const incomeEl = document.getElementById(prefix + "TotalIncome");
-    const billingEl = document.getElementById(prefix + "TotalBilling");
-    const debtEl = document.getElementById(prefix + "TotalDebt");
-    if(unitEl) unitEl.textContent = `${rows.length} Unit`;
-    if(incomeEl) incomeEl.textContent = rupiah(totalPaid);
-    if(billingEl) billingEl.textContent = rupiah(totalBilling);
-    if(debtEl) debtEl.textContent = rupiah(totalDebt);
+    if(prefix !== "laptop") return;
+    let billing=0, capital=0, profit=0, bmn=0;
+    rows.forEach(row=>{
+        const f=row._device_finance;
+        billing += f ? Number(f.total_tagihan||0) : Number(row.total||0);
+        if(f){ capital += Number(f.modal_teknisi||0); profit += Number(f.keuntungan_ceo||0); bmn += Number(f.hak_bmn||0); }
+    });
+    const set=(id,val)=>{const el=document.getElementById(id); if(el) el.textContent=rupiah(val)};
+    set("laptopTotalBilling",billing); set("laptopTotalCapital",capital); set("laptopTotalProfit",profit); set("laptopTotalBmn",bmn);
 }
+
 
 
 /* ================= KASBON TIM CEO ================= */
@@ -392,6 +391,13 @@ async function loadFinance(){
     // Pemisahan lini usaha
     const hpRows = allFinished.filter(isHpService);
     fullLaptopData = allFinished.filter(isLaptopOrDrone);
+    if(fullLaptopData.length){
+        const ids=fullLaptopData.map(r=>r.id);
+        const {data:deviceFinance,error:deviceFinanceError}=await client.from("laptop_drone_finance").select("*").in("service_order_id",ids);
+        if(deviceFinanceError) console.error("Gagal mengambil perhitungan Laptop & Drone:",deviceFinanceError);
+        const map=new Map((deviceFinance||[]).map(x=>[String(x.service_order_id),x]));
+        fullLaptopData.forEach(r=>r._device_finance=map.get(String(r.id))||null);
+    }
     fullDroneData = [];
     fullUjangData = allFinished.filter(isUjangJob);
 
@@ -821,85 +827,26 @@ function renderByTab(income = incomeData, expense = expenseData, laptop = laptop
 
 /* ================= LAPTOP ================= */
 else if(currentTab === "laptop"){
-
     if(laptopWrapper) laptopWrapper.style.display = "block";
-
-    const tbody = document.getElementById("laptopTable");
-
-    if(!tbody) return;
-
-    tbody.innerHTML = "";
-
-    if(laptop.length === 0){
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="13">
-                    Tidak ada service Laptop & Drone
-                </td>
-            </tr>
-        `;
-        return;
-    }
-
-    laptop.forEach((row, i)=>{
-
-        const total = Number(row.total || 0);
-        const dibayar = Number(row.amount_paid || 0);
-        const sisa = Number(row.remaining_amount || 0);
-
-        const sparepartList = formatSparepart(row.sparepart);
-
-        tbody.innerHTML += `
-        <tr>
-
-            <td>${(currentPage - 1) * pageSize + i + 1}</td>
-
-            <td>${row.nama || "-"}</td>
-
-            <td>${row.phone || "-"}</td>
-
-            <td>${row.alamat || "-"}</td>
-
-            <td>${row.kategori_perangkat || "-"}</td>
-
-            <td>${row.tipe_model || "-"}</td>
-
-            <td>
-                ${
-                    row.created_at
-                    ? new Date(row.created_at)
-                        .toLocaleDateString("id-ID")
-                    : "-"
-                }
-            </td>
-
-            <td>${row.status || "-"}</td>
-
-            <td>
-                ${
-                    row.tanggal_selesai
-                    ? new Date(row.tanggal_selesai)
-                        .toLocaleDateString("id-ID")
-                    : "-"
-                }
-            </td>
-
-            <td>${sparepartList}</td>
-
-            <td style="color:#27ae60;font-weight:600;">
-                ${rupiah(dibayar)}
-            </td>
-
-            <td style="color:#e74c3c;font-weight:600;">
-                ${rupiah(sisa)}
-            </td>
-
-            <td style="font-weight:600;">
-                ${rupiah(total)}
-            </td>
-
-        </tr>
-        `;
+    const tbody=document.getElementById("laptopTable"); if(!tbody) return; tbody.innerHTML="";
+    if(!laptop.length){ tbody.innerHTML='<tr><td colspan="11">Tidak ada service Laptop & Drone pada periode ini.</td></tr>'; return; }
+    laptop.forEach((row,i)=>{
+        const f=row._device_finance;
+        const device=[row.kategori_perangkat,row.tipe_model||row.brand].filter(Boolean).join(" · ")||"-";
+        const date=row.tanggal_selesai?new Date(row.tanggal_selesai).toLocaleDateString("id-ID"):"-";
+        tbody.innerHTML += `<tr>
+          <td>${(currentPage-1)*pageSize+i+1}</td>
+          <td><strong>${row.nama||"-"}</strong><small class="device-row-sub">${device}</small></td>
+          <td>${date}</td>
+          <td>${f?rupiah(f.modal_teknisi):'<span class="calc-empty">Belum diatur</span>'}</td>
+          <td class="device-profit-cell">${f?rupiah(f.keuntungan_ceo):"-"}</td>
+          <td>${f?rupiah(f.harga_ceo):"-"}</td>
+          <td>${f?`${rupiah(f.hak_bmn)} <small>(${Number(f.bmn_percent)}%)</small>`:"-"}</td>
+          <td>${f?`${rupiah(f.ppn_amount)} <small>(${Number(f.ppn_percent)}%)</small>`:"-"}</td>
+          <td><strong>${f?rupiah(f.total_tagihan):rupiah(row.total||0)}</strong>${f&&Number(row.total||0)!==Number(f.total_tagihan||0)?`<small class="device-row-sub warn">Dapur: ${rupiah(row.total||0)}</small>`:""}</td>
+          <td>${rupiah(row.amount_paid||0)}</td>
+          <td><button type="button" class="btn-small device-calc-btn" data-device-order="${row.id}"><i class="fa-solid fa-calculator"></i> ${f?"Edit":"Atur"}</button></td>
+        </tr>`;
     });
 }
 
@@ -1611,3 +1558,46 @@ function setupUjangCapital(){
 }
 
 document.addEventListener("DOMContentLoaded", setupUjangCapital);
+
+
+/* ================= LAPTOP & DRONE FINANCE ================= */
+let deviceFinanceSettings={bmn_percent:25,ppn_percent:11};
+async function loadDeviceFinanceSettings(){
+ const {data,error}=await client.from("laptop_drone_settings").select("*").eq("id",1).maybeSingle();
+ if(error){console.error("Gagal memuat pengaturan Laptop & Drone:",error);return;}
+ if(data) deviceFinanceSettings={bmn_percent:Number(data.bmn_percent??25),ppn_percent:Number(data.ppn_percent??11)};
+ const b=document.getElementById("deviceDefaultBmn"),p=document.getElementById("deviceDefaultPpn"); if(b)b.textContent=deviceFinanceSettings.bmn_percent;if(p)p.textContent=deviceFinanceSettings.ppn_percent;
+}
+function calcDeviceFinance(){
+ const capital=Math.max(0,Number(document.getElementById("deviceCalcCapital")?.value||0));
+ const profit=Math.max(0,Number(document.getElementById("deviceCalcProfit")?.value||0));
+ const bmnPct=Math.max(0,Number(document.getElementById("deviceCalcBmnPct")?.value||0));
+ const ppnPct=Math.max(0,Number(document.getElementById("deviceCalcPpnPct")?.value||0));
+ const hargaCeo=capital+profit; const hakBmn=Math.round(hargaCeo*bmnPct/100); const subtotal=hargaCeo+hakBmn; const ppn=Math.round(subtotal*ppnPct/100); const total=subtotal+ppn;
+ [["devicePreviewCeoPrice",hargaCeo],["devicePreviewBmn",hakBmn],["devicePreviewPpn",ppn],["devicePreviewTotal",total]].forEach(([id,v])=>{const e=document.getElementById(id);if(e)e.textContent=rupiah(v)});
+ return {capital,profit,bmnPct,ppnPct,hargaCeo,hakBmn,subtotal,ppn,total};
+}
+function closeDeviceModal(id){const m=document.getElementById(id);if(m)m.style.display="none";}
+async function openDeviceCalc(orderId){
+ const row=fullLaptopData.find(r=>String(r.id)===String(orderId)); if(!row)return; const f=row._device_finance;
+ document.getElementById("deviceCalcOrderId").value=row.id; document.getElementById("deviceCalcTitle").textContent=`${row.kategori_perangkat||"Perangkat"} · ${row.nama||"-"}`;
+ document.getElementById("deviceCalcCapital").value=f?.modal_teknisi??""; document.getElementById("deviceCalcProfit").value=f?.keuntungan_ceo??"";
+ document.getElementById("deviceCalcBmnPct").value=f?.bmn_percent??deviceFinanceSettings.bmn_percent; document.getElementById("deviceCalcPpnPct").value=f?.ppn_percent??deviceFinanceSettings.ppn_percent; document.getElementById("deviceCalcNote").value=f?.notes??""; calcDeviceFinance();
+ document.getElementById("deviceCalcModal").style.display="flex";
+}
+async function saveDeviceCalc(){
+ const serviceOrderId=document.getElementById("deviceCalcOrderId")?.value; const v=calcDeviceFinance(); if(!serviceOrderId)return;
+ const {data:{user}}=await client.auth.getUser(); const payload={service_order_id:Number(serviceOrderId),modal_teknisi:v.capital,keuntungan_ceo:v.profit,harga_ceo:v.hargaCeo,bmn_percent:v.bmnPct,hak_bmn:v.hakBmn,subtotal:v.subtotal,ppn_percent:v.ppnPct,ppn_amount:v.ppn,total_tagihan:v.total,notes:document.getElementById("deviceCalcNote")?.value?.trim()||null,updated_by:user?.id||null,updated_at:new Date().toISOString()};
+ const {error}=await client.from("laptop_drone_finance").upsert(payload,{onConflict:"service_order_id"}); if(error){alert("Gagal menyimpan perhitungan: "+error.message);return;} closeDeviceModal("deviceCalcModal"); await loadFinance();
+}
+function setupDeviceFinance(){
+ loadDeviceFinanceSettings();
+ document.getElementById("deviceFinanceSettingsBtn")?.addEventListener("click",()=>{document.getElementById("deviceSettingBmn").value=deviceFinanceSettings.bmn_percent;document.getElementById("deviceSettingPpn").value=deviceFinanceSettings.ppn_percent;document.getElementById("deviceSettingsModal").style.display="flex";});
+ document.getElementById("saveDeviceSettings")?.addEventListener("click",async()=>{const b=Math.max(0,Number(document.getElementById("deviceSettingBmn").value||0)),p=Math.max(0,Number(document.getElementById("deviceSettingPpn").value||0));const {data:{user}}=await client.auth.getUser();const {error}=await client.from("laptop_drone_settings").upsert({id:1,bmn_percent:b,ppn_percent:p,updated_by:user?.id||null,updated_at:new Date().toISOString()});if(error){alert("Gagal menyimpan pengaturan: "+error.message);return;}deviceFinanceSettings={bmn_percent:b,ppn_percent:p};await loadDeviceFinanceSettings();closeDeviceModal("deviceSettingsModal");});
+ ["closeDeviceSettingsModal","cancelDeviceSettings"].forEach(id=>document.getElementById(id)?.addEventListener("click",()=>closeDeviceModal("deviceSettingsModal")));
+ ["closeDeviceCalcModal","cancelDeviceCalc"].forEach(id=>document.getElementById(id)?.addEventListener("click",()=>closeDeviceModal("deviceCalcModal")));
+ ["deviceCalcCapital","deviceCalcProfit","deviceCalcBmnPct","deviceCalcPpnPct"].forEach(id=>document.getElementById(id)?.addEventListener("input",calcDeviceFinance));
+ document.getElementById("saveDeviceCalc")?.addEventListener("click",saveDeviceCalc);
+ document.getElementById("laptopTable")?.addEventListener("click",e=>{const btn=e.target.closest("[data-device-order]");if(btn)openDeviceCalc(btn.dataset.deviceOrder);});
+}
+document.addEventListener("DOMContentLoaded",setupDeviceFinance);
