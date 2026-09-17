@@ -91,6 +91,8 @@ document.addEventListener("DOMContentLoaded", async ()=>{
     setupTabs();
     setupFilters();
     setupExpenseForm();
+    setupKasbonNames();
+    loadKasbonMasterNames();
     setupExportButtons();
 
     await loadSummaryData();
@@ -293,68 +295,74 @@ function updateDeviceSummary(prefix, rows = []){
 
 
 /* ================= KASBON TIM CEO ================= */
+let kasbonMasterNames = [];
+let filteredKasbonView = [];
+
 function normalizeKasbonName(value = ""){
-    return String(value || "")
-        .replace(/^\s*kasbon\s*[-:–—]?\s*/i, "")
-        .replace(/\s+/g, " ")
-        .trim();
+    return String(value || "").replace(/^\s*kasbon\s*[-:–—]?\s*/i, "").replace(/\s+/g, " ").trim();
 }
-
 function getKasbonPerson(row){
-    // Data baru: prioritaskan akun/profile.
-    const profileName = String(row?.profiles?.full_name || "").trim();
-    const profilePosition = String(row?.profiles?.position || "").trim();
-    if(profileName){
-        return {
-            name: profileName,
-            position: profilePosition || "-",
-            key: `profile:${String(row.honor_user_id || profileName).toLowerCase()}`
-        };
-    }
-
-    // Data lama: nama ditulis manual pada judul, mis. "Kasbon Rian".
     const manualName = normalizeKasbonName(row?.title);
-    return {
-        name: manualName || "Nama tidak terbaca",
-        position: "-",
-        key: `manual:${(manualName || "UNKNOWN").toLocaleLowerCase("id-ID")}`
-    };
+    return { name: manualName || "Nama tidak terbaca", key:(manualName || "UNKNOWN").toLocaleLowerCase("id-ID") };
 }
-
-function buildKasbonGroups(rows = []){
-    const map = new Map();
-    rows.forEach(row => {
-        const person = getKasbonPerson(row);
-        // Satukan data lama manual dengan data baru profile bila nama sama.
-        const normalizedName = person.name.toLocaleLowerCase("id-ID");
-        let key = person.key;
-        for(const [existingKey, existing] of map){
-            if(existing.name.toLocaleLowerCase("id-ID") === normalizedName){
-                key = existingKey;
-                if(existing.position === "-" && person.position !== "-") existing.position = person.position;
-                break;
-            }
-        }
-        const amount = Number(row.amount || 0);
-        const createdAt = row.created_at ? new Date(row.created_at) : null;
-        if(!map.has(key)) map.set(key, { name:person.name, position:person.position, count:0, total:0, last:null });
-        const item = map.get(key);
-        item.count += 1;
-        item.total += amount;
-        if(createdAt && (!item.last || createdAt > item.last)) item.last = createdAt;
-    });
-    return [...map.values()].sort((a,b) => (b.last?.getTime() || 0) - (a.last?.getTime() || 0));
+function applyKasbonNameFilter(){
+    const selected = String(document.getElementById("kasbonNameFilter")?.value || "").toLocaleLowerCase("id-ID");
+    filteredKasbonView = fullKasbonData.filter(row => !selected || getKasbonPerson(row).key === selected);
+    updateKasbonSummary(filteredKasbonView);
 }
-
-function updateKasbonSummary(rows = [], groups = []){
+function updateKasbonSummary(rows = []){
     const total = rows.reduce((sum,row)=>sum + Number(row.amount || 0),0);
-    const people = groups.length;
-    const avg = people ? total / people : 0;
-    const set = (id, value) => { const el = document.getElementById(id); if(el) el.textContent = value; };
+    const set = (id, value) => { const el=document.getElementById(id); if(el) el.textContent=value; };
     set("kasbonTotalAmount", rupiah(total));
-    set("kasbonTotalPeople", `${people} Orang`);
     set("kasbonTotalTransactions", `${rows.length} Transaksi`);
-    set("kasbonAverage", rupiah(Math.round(avg)));
+}
+function refreshKasbonFilterOptions(){
+    const select=document.getElementById("kasbonNameFilter"); if(!select) return;
+    const current=select.value;
+    const names=new Map();
+    fullKasbonData.forEach(row=>{ const p=getKasbonPerson(row); if(p.name && p.name!=="Nama tidak terbaca") names.set(p.key,p.name); });
+    kasbonMasterNames.forEach(row=>{ const n=String(row.name||"").trim(); if(n) names.set(n.toLocaleLowerCase("id-ID"),n); });
+    select.innerHTML='<option value="">Semua Nama</option>'+[...names.entries()].sort((a,b)=>a[1].localeCompare(b[1],'id')).map(([k,n])=>`<option value="${k}">${n}</option>`).join('');
+    if([...select.options].some(o=>o.value===current)) select.value=current;
+}
+async function loadKasbonMasterNames(){
+    const {data,error}=await client.from("kasbon_members").select("id,name,created_at").order("name");
+    if(error){ console.error("Gagal memuat master nama Kasbon:",error); kasbonMasterNames=[]; return; }
+    kasbonMasterNames=data||[]; refreshKasbonFilterOptions(); refreshKasbonExpenseSelect(); renderKasbonNameList();
+}
+function refreshKasbonExpenseSelect(){
+    const select=document.getElementById("kasbonNameSelect"); if(!select) return;
+    const current=select.value;
+    select.innerHTML='<option value="">Pilih Nama</option>'+kasbonMasterNames.map(r=>`<option value="${r.id}" data-name="${String(r.name||'').replace(/"/g,'&quot;')}">${r.name}</option>`).join('');
+    if([...select.options].some(o=>o.value===current)) select.value=current;
+}
+function renderKasbonNameList(){
+    const box=document.getElementById("kasbonNameList"); if(!box) return;
+    if(!kasbonMasterNames.length){ box.innerHTML='<div class="empty-kasbon-names">Belum ada nama. Tambahkan nama tim yang dapat mengambil kasbon.</div>'; return; }
+    box.innerHTML=kasbonMasterNames.map(r=>`<div class="kasbon-name-row"><span>${r.name}</span><button type="button" class="btn-small danger" data-delete-kasbon-name="${r.id}" data-name="${String(r.name||'').replace(/"/g,'&quot;')}"><i class="fa-solid fa-trash"></i> Hapus</button></div>`).join('');
+}
+function setupKasbonNames(){
+    const modal=document.getElementById("kasbonNamesModal");
+    const close=()=>{ if(modal) modal.style.display='none'; };
+    document.getElementById("manageKasbonNamesBtn")?.addEventListener("click",async()=>{ if(modal) modal.style.display='flex'; await loadKasbonMasterNames(); });
+    document.getElementById("closeKasbonNamesModal")?.addEventListener("click",close);
+    document.getElementById("closeKasbonNamesModalBottom")?.addEventListener("click",close);
+    document.getElementById("addKasbonNameBtn")?.addEventListener("click",async()=>{
+        const input=document.getElementById("newKasbonName"); const name=String(input?.value||'').replace(/\s+/g,' ').trim();
+        if(!name) return alert('Isi nama terlebih dahulu.');
+        if(name.toUpperCase()==='UJANG') return alert('UJANG bukan bagian dari Tim CEO.');
+        const {error}=await client.from('kasbon_members').insert({name});
+        if(error){ alert(error.code==='23505'?'Nama tersebut sudah ada.':'Gagal menambahkan nama Kasbon.'); return; }
+        input.value=''; await loadKasbonMasterNames();
+    });
+    document.getElementById("kasbonNameList")?.addEventListener("click",async(e)=>{
+        const btn=e.target.closest('[data-delete-kasbon-name]'); if(!btn) return;
+        if(!confirm(`Hapus ${btn.dataset.name} dari pilihan nama Kasbon? Riwayat transaksi lama tidak akan terhapus.`)) return;
+        const {error}=await client.from('kasbon_members').delete().eq('id',btn.dataset.deleteKasbonName);
+        if(error){ alert('Gagal menghapus nama Kasbon.'); return; }
+        await loadKasbonMasterNames();
+    });
+    document.getElementById("kasbonNameFilter")?.addEventListener("change",()=>{ currentPage=1; applyKasbonNameFilter(); totalRows=filteredKasbonView.length; updatePagination(); renderByTab(); });
 }
 
 /* ================= LOAD DATA ================= */
@@ -410,23 +418,21 @@ async function loadFinance(){
     filteredExpenseData = fullExpense || [];
     expenseData = filteredExpenseData.slice(start, start + pageSize);
 
-    // Kasbon hanya rekap dari expenses, bukan transaksi baru.
-    // UJANG dikecualikan karena bukan bagian dari tim CEO.
+    // Kasbon tetap berasal dari expenses. Tabel menampilkan setiap transaksi.
     fullKasbonData = filteredExpenseData.filter(row => {
         const isKasbon = String(row.category || "").trim().toLowerCase() === "kasbon";
         if(!isKasbon) return false;
-        const person = getKasbonPerson(row);
-        return person.name.trim().toUpperCase() !== "UJANG";
+        return getKasbonPerson(row).name.trim().toUpperCase() !== "UJANG";
     });
-    kasbonGroupedData = buildKasbonGroups(fullKasbonData);
-    updateKasbonSummary(fullKasbonData, kasbonGroupedData);
+    refreshKasbonFilterOptions();
+    applyKasbonNameFilter();
 
     const hpDebt = hpRows.filter(row => Number(row.remaining_amount || 0) > 0);
     debtData = hpDebt;
 
     if(currentTab === "income") totalRows = hpRows.length;
     else if(currentTab === "expense") totalRows = filteredExpenseData.length;
-    else if(currentTab === "kasbon") totalRows = kasbonGroupedData.length;
+    else if(currentTab === "kasbon") totalRows = filteredKasbonView.length;
     else if(currentTab === "debt"){
         totalRows = hpDebt.length;
         incomeData = hpDebt.slice(start, start + pageSize);
@@ -734,25 +740,19 @@ function renderByTab(income = incomeData, expense = expenseData, laptop = laptop
     /* ================= KASBON ================= */
     else if(currentTab === "kasbon"){
         if(kasbonWrapper) kasbonWrapper.style.display = "block";
-        const tbody = document.getElementById("kasbonTable");
-        if(!tbody) return;
-        tbody.innerHTML = "";
-        const start = (currentPage - 1) * pageSize;
-        const rows = kasbonGroupedData.slice(start, start + pageSize);
-        if(!rows.length){
-            tbody.innerHTML = `<tr><td colspan="6">Belum ada kasbon tim CEO pada periode ini.</td></tr>`;
-            return;
-        }
-        rows.forEach((row,i)=>{
-            tbody.innerHTML += `<tr>
-                <td>${start + i + 1}</td>
-                <td><strong>${row.name}</strong></td>
-                <td>${row.position}</td>
-                <td>${row.count} Transaksi</td>
-                <td style="font-weight:700;color:#b45309;">${rupiah(row.total)}</td>
-                <td>${row.last ? row.last.toLocaleDateString("id-ID") : "-"}</td>
-            </tr>`;
-        });
+        const tbody=document.getElementById("kasbonTable"); if(!tbody) return;
+        tbody.innerHTML="";
+        const start=(currentPage-1)*pageSize;
+        const rows=filteredKasbonView.slice(start,start+pageSize);
+        if(!rows.length){ tbody.innerHTML=`<tr><td colspan="6">Belum ada transaksi kasbon pada filter ini.</td></tr>`; return; }
+        rows.forEach((row,i)=>{ const person=getKasbonPerson(row); tbody.innerHTML += `<tr>
+            <td>${start+i+1}</td>
+            <td>${new Date(row.created_at).toLocaleDateString("id-ID")}</td>
+            <td><strong>${person.name}</strong></td>
+            <td>${row.title || "-"}</td>
+            <td>${row.notes || "-"}</td>
+            <td style="font-weight:700;color:#b45309;">${rupiah(row.amount)}</td>
+        </tr>`; });
     }
 
 /* ================= DEBT ================= */
@@ -1014,47 +1014,29 @@ function setupExpenseForm(){
     
         document.getElementById("expQty").value = 1;
     
-        // reset honor wrapper
         document.getElementById("honorUserWrapper").style.display = "none";
+        document.getElementById("kasbonNameWrapper").style.display = "none";
         document.getElementById("honorUserSelect").value = "";
-    
+        document.getElementById("kasbonNameSelect").value = "";
         await loadExpenseCategories();
         await loadHonorUsers();
+        await loadKasbonMasterNames();
     });
 
-    /* ===== DETECT HONOR ===== */
-    document.getElementById("expCategory")
-    ?.addEventListener("change", function(){
-    
-        const wrapper = document.getElementById("honorUserWrapper");
-        if(!wrapper) return;
-    
-        const selected = this.value?.toLowerCase();
-    
-        if(selected === "honor" || selected === "kasbon"){
-            wrapper.style.display = "block";
-            const label = document.getElementById("honorUserLabel");
-            if(label) label.childNodes[0].nodeValue = selected === "kasbon" ? "Pilih Anggota Tim " : "Pilih Penerima ";
-            if(selected === "kasbon"){
-                const selectedOption = document.getElementById("honorUserSelect")?.selectedOptions?.[0];
-                const selectedName = String(selectedOption?.dataset?.name || "").trim();
-                if(selectedName) document.getElementById("expTitle").value = `Kasbon ${selectedName}`;
-            }
-        }else{
-            wrapper.style.display = "none";
-            document.getElementById("honorUserSelect").value = "";
-        }
+    /* ===== DETECT HONOR / KASBON ===== */
+    document.getElementById("expCategory")?.addEventListener("change", function(){
+        const selected=String(this.value||'').trim().toLowerCase();
+        const honorWrapper=document.getElementById("honorUserWrapper");
+        const kasbonWrapper=document.getElementById("kasbonNameWrapper");
+        if(honorWrapper) honorWrapper.style.display = selected==='honor' ? 'block' : 'none';
+        if(kasbonWrapper) kasbonWrapper.style.display = selected==='kasbon' ? 'block' : 'none';
+        if(selected!=='honor') document.getElementById("honorUserSelect").value='';
+        if(selected!=='kasbon') document.getElementById("kasbonNameSelect").value='';
+        if(selected==='kasbon') refreshKasbonExpenseSelect();
     });
-
-
-    document.getElementById("honorUserSelect")
-    ?.addEventListener("change", function(){
-        const category = String(document.getElementById("expCategory")?.value || "").trim().toLowerCase();
-        if(category !== "kasbon") return;
-        const selectedName = String(this.selectedOptions?.[0]?.dataset?.name || "").trim();
-        if(selectedName){
-            document.getElementById("expTitle").value = `Kasbon ${selectedName}`;
-        }
+    document.getElementById("kasbonNameSelect")?.addEventListener("change",function(){
+        const name=String(this.selectedOptions?.[0]?.dataset?.name||'').trim();
+        if(name) document.getElementById("expTitle").value=`Kasbon ${name}`;
     });
 
     document.getElementById("saveExpense")
@@ -1067,6 +1049,7 @@ function setupExpenseForm(){
         const amount = document.getElementById("expAmount").value;
         const notes = document.getElementById("expNotes").value;
         const honorUserId = document.getElementById("honorUserSelect")?.value || null;
+        const kasbonName = String(document.getElementById("kasbonNameSelect")?.selectedOptions?.[0]?.dataset?.name || "").trim();
 
         if(!title || !amount){
             alert("Isi semua data.");
@@ -1074,35 +1057,27 @@ function setupExpenseForm(){
         }
 
         const normalizedCategory = String(category || "").trim().toUpperCase();
-        if((normalizedCategory === "HONOR" || normalizedCategory === "KASBON") && !honorUserId){
-            alert(normalizedCategory === "KASBON" ? "Pilih anggota tim penerima kasbon." : "Pilih penerima honor.");
-            return;
-        }
-        if(normalizedCategory === "KASBON"){
-            const selectedOption = document.getElementById("honorUserSelect")?.selectedOptions?.[0];
-            const selectedName = String(selectedOption?.dataset?.name || "").trim().toUpperCase();
-            if(selectedName === "UJANG"){
-                alert("UJANG bukan bagian dari rekap Kasbon Tim CEO.");
-                return;
-            }
-        }
+        if(normalizedCategory === "HONOR" && !honorUserId){ alert("Pilih penerima honor."); return; }
+        if(normalizedCategory === "KASBON" && !kasbonName){ alert("Pilih nama Kasbon."); return; }
+        if(normalizedCategory === "KASBON" && kasbonName.toUpperCase()==="UJANG"){ alert("UJANG bukan bagian dari Tim CEO."); return; }
 
         const { data: { user } } = await client.auth.getUser();
 
         const isHonor = category?.toLowerCase() === "honor";
         const isKasbon = category?.toLowerCase() === "kasbon";
+        const finalTitle = isKasbon ? `Kasbon ${kasbonName}` : title;
         
         const { error } = await client
             .from("expenses")
             .insert([{
-            title,
+            title: finalTitle,
             category,
             price,
             qty,
             amount,
             notes,
             created_by: user.id,
-            honor_user_id: (isHonor || isKasbon) ? honorUserId : null
+            honor_user_id: isHonor ? honorUserId : null
         }]);
 
         if(error){
@@ -1126,6 +1101,8 @@ function closeExpenseModal(){
     document.getElementById("expNotes").value = "";
     document.getElementById("honorUserSelect").value = "";
     document.getElementById("honorUserWrapper").style.display = "none";
+    if(document.getElementById("kasbonNameSelect")) document.getElementById("kasbonNameSelect").value = "";
+    if(document.getElementById("kasbonNameWrapper")) document.getElementById("kasbonNameWrapper").style.display = "none";
 }
 
 document.getElementById("closeModal")
