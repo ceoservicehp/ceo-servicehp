@@ -233,3 +233,16 @@ footer{width:min(1240px,calc(100% - 32px));margin:0 auto 28px;text-align:center;
 .capital-pagination .page-nav>button:disabled{opacity:.4;cursor:not-allowed}
 #ujangCapitalPageNumbers{display:flex;gap:5px;align-items:center;flex-wrap:wrap}
 #ujangCapitalPageNumbers button.active{border-color:var(--primary);background:var(--primary);color:#fff}
+
+/* ================= KASBON TIM CEO ================= */
+.kasbon-section{display:block}
+.kasbon-summary-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:14px 0}
+.kasbon-summary-card{background:#fff;border:1px solid var(--border,#e5e7eb);border-radius:14px;padding:14px 16px;min-height:100px;display:flex;flex-direction:column;justify-content:center}
+.kasbon-summary-card span{font-size:12px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.03em}
+.kasbon-summary-card strong{font-size:21px;line-height:1.2;margin:5px 0;color:#111827}
+.kasbon-summary-card small{font-size:11px;line-height:1.35;color:#94a3b8}
+.kasbon-badge{background:#fff7ed;color:#9a3412;border-color:#fed7aa}
+.kasbon-info-box{margin-bottom:14px}
+.kasbon-table-wrap{margin-top:0}
+@media(max-width:900px){.kasbon-summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.kasbon-summary-grid{grid-template-columns:1fr}.kasbon-summary-card{min-height:auto}}
