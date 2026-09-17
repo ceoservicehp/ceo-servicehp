@@ -162,16 +162,20 @@
               <div><span class="eyebrow">REKAP INFORMASI</span><h3>Kasbon Tim CEO</h3><p>Rekap dari pengeluaran berkategori Kasbon. Data ini tidak dihitung ulang karena sudah termasuk dalam Total Pengeluaran.</p></div>
               <div class="ujang-badge kasbon-badge"><i class="fa-solid fa-users"></i> TIM CEO</div>
             </div>
-            <div class="kasbon-summary-grid">
-              <div class="kasbon-summary-card"><span>Total Kasbon Tim</span><strong id="kasbonTotalAmount">Rp 0</strong><small>Akumulasi pengeluaran kategori Kasbon</small></div>
-              <div class="kasbon-summary-card"><span>Anggota Tercatat</span><strong id="kasbonTotalPeople">0 Orang</strong><small>Tim CEO yang memiliki catatan kasbon</small></div>
-              <div class="kasbon-summary-card"><span>Jumlah Transaksi</span><strong id="kasbonTotalTransactions">0 Transaksi</strong><small>Jumlah transaksi kasbon pada periode ini</small></div>
-              <div class="kasbon-summary-card"><span>Rata-rata / Anggota</span><strong id="kasbonAverage">Rp 0</strong><small>Rata-rata kasbon per anggota tercatat</small></div>
+            <div class="kasbon-toolbar">
+              <label>Filter Nama
+                <select id="kasbonNameFilter"><option value="">Semua Nama</option></select>
+              </label>
+              <button type="button" class="btn btn-soft" id="manageKasbonNamesBtn"><i class="fa-solid fa-user-gear"></i> Kelola Nama</button>
             </div>
-            <div class="ujang-info-box kasbon-info-box"><i class="fa-solid fa-circle-info"></i><div><strong>Hanya sebagai rekap</strong><p>Kasbon tetap berasal dari tabel Pengeluaran dan sudah mengurangi keuangan CEO. Tab ini hanya mengelompokkan total kasbon per anggota tim CEO. UJANG tidak dimasukkan.</p></div></div>
+            <div class="kasbon-summary-grid kasbon-summary-grid-two">
+              <div class="kasbon-summary-card"><span>Total Kasbon Tim</span><strong id="kasbonTotalAmount">Rp 0</strong><small>Mengikuti periode dan filter nama</small></div>
+              <div class="kasbon-summary-card"><span>Jumlah Transaksi</span><strong id="kasbonTotalTransactions">0 Transaksi</strong><small>Mengikuti periode dan filter nama</small></div>
+            </div>
+            <div class="ujang-info-box kasbon-info-box"><i class="fa-solid fa-circle-info"></i><div><strong>Hanya sebagai rekap</strong><p>Kasbon tetap berasal dari Pengeluaran dan sudah mengurangi keuangan CEO. Tabel menampilkan setiap transaksi pengambilan. UJANG tidak dimasukkan.</p></div></div>
             <div class="table-wrapper kasbon-table-wrap"><table class="admin-table"><thead><tr>
-              <th>No</th><th>Nama Tim</th><th>Posisi</th><th>Jumlah Transaksi</th><th>Total Kasbon</th><th>Transaksi Terakhir</th>
-            </tr></thead><tbody id="kasbonTable"><tr><td colspan="6">Memuat rekap kasbon...</td></tr></tbody></table></div>
+              <th>No</th><th>Tanggal</th><th>Nama</th><th>Judul</th><th>Catatan</th><th>Nominal</th>
+            </tr></thead><tbody id="kasbonTable"><tr><td colspan="6">Memuat transaksi kasbon...</td></tr></tbody></table></div>
           </div>
 
           <div id="debtTableWrapper" class="table-wrapper" style="display:none;">
@@ -271,6 +275,17 @@
     </div>
   </div>
 
+  <div id="kasbonNamesModal" class="modal">
+    <div class="modal-content kasbon-name-modal">
+      <div class="modal-head"><div><span class="eyebrow">KASBON TIM CEO</span><h3>Kelola Nama Kasbon</h3></div><button type="button" id="closeKasbonNamesModal" class="modal-close"><i class="fa-solid fa-xmark"></i></button></div>
+      <div class="modal-form">
+        <div class="kasbon-name-add"><input type="text" id="newKasbonName" placeholder="Contoh: Rian"><button type="button" class="btn btn-success" id="addKasbonNameBtn"><i class="fa-solid fa-plus"></i> Tambah</button></div>
+        <div class="kasbon-name-list" id="kasbonNameList"><p>Memuat nama...</p></div>
+      </div>
+      <div class="modal-actions"><button type="button" class="btn btn-soft" id="closeKasbonNamesModalBottom">Tutup</button></div>
+    </div>
+  </div>
+
   <div id="expenseModal" class="modal">
     <div class="modal-content">
       <div class="modal-head">
@@ -281,6 +296,7 @@
         <label>Judul Pengeluaran<input type="text" id="expTitle" placeholder="Contoh: Pembelian alat service"></label>
         <label>Kategori<select id="expCategory"></select></label>
         <div id="honorUserWrapper" style="display:none;"><label id="honorUserLabel">Pilih Penerima<select id="honorUserSelect"></select></label></div>
+        <div id="kasbonNameWrapper" style="display:none;"><label>Nama Kasbon<select id="kasbonNameSelect"><option value="">Pilih Nama</option></select></label><small class="field-hint">Nama dikelola dari Tab Kasbon → Kelola Nama.</small></div>
         <div class="category-manage"><button id="addCategoryBtn" class="btn-small">+ Kategori</button><button id="deleteCategoryBtn" class="btn-small danger">Hapus Kategori</button></div>
         <div class="modal-grid">
           <label>Harga Satuan<input type="number" id="expPrice" placeholder="0"></label>
