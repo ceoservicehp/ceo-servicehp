@@ -235,29 +235,32 @@ footer{width:min(1240px,calc(100% - 32px));margin:0 auto 28px;text-align:center;
 #ujangCapitalPageNumbers button.active{border-color:var(--primary);background:var(--primary);color:#fff}
 
 /* ================= KASBON TIM CEO ================= */
-.kasbon-section{display:block}
-.kasbon-summary-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:14px 0}
-.kasbon-summary-card{background:#fff;border:1px solid var(--border,#e5e7eb);border-radius:14px;padding:14px 16px;min-height:100px;display:flex;flex-direction:column;justify-content:center}
-.kasbon-summary-card span{font-size:12px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.03em}
-.kasbon-summary-card strong{font-size:21px;line-height:1.2;margin:5px 0;color:#111827}
-.kasbon-summary-card small{font-size:11px;line-height:1.35;color:#94a3b8}
-.kasbon-badge{background:#fff7ed;color:#9a3412;border-color:#fed7aa}
-.kasbon-info-box{margin-bottom:14px}
-.kasbon-table-wrap{margin-top:0}
-@media(max-width:900px){.kasbon-summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:560px){.kasbon-summary-grid{grid-template-columns:1fr}.kasbon-summary-card{min-height:auto}}
-
-/* KASBON MASTER + FILTER */
-.kasbon-toolbar{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin:14px 0 4px}
-.kasbon-toolbar label{font-size:12px;font-weight:700;color:#475569;display:flex;flex-direction:column;gap:6px;min-width:230px}
-.kasbon-toolbar select{height:40px;border:1px solid var(--border);border-radius:10px;padding:0 12px;background:#fff}
-.kasbon-summary-grid-two{max-width:720px}
+/* KASBON — visual mengikuti card & komponen Keuangan */
+.kasbon-section{display:block;padding:18px;background:#f8fbfb}
+.kasbon-heading{margin-bottom:12px}
+.kasbon-badge{background:#fff5df;color:#a66a00;border:1px solid #f4dfac}
+.kasbon-toolbar{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin:0 0 13px;padding:12px 13px;border:1px solid var(--border);border-radius:12px;background:#fff}
+.kasbon-toolbar label{font-size:9px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.45px;display:flex;flex-direction:column;gap:5px;min-width:240px}
+.kasbon-toolbar select{height:38px;border:1px solid var(--border);border-radius:9px;padding:0 11px;background:#fff;color:var(--text);font-size:10px;outline:none}
+.kasbon-toolbar select:focus{border-color:var(--secondary);box-shadow:0 0 0 3px rgba(0,194,199,.10)}
+.kasbon-summary-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px;margin:0 0 13px}
+.kasbon-summary-grid-two{max-width:none}
+.kasbon-summary-card{min-height:0}
+.kasbon-summary-card .ujang-card-icon{background:#fff5df;color:#b97800}
+.kasbon-summary-card span{display:block;color:var(--muted);font-size:9px;font-weight:750}
+.kasbon-summary-card strong{display:block;margin-top:1px;font-size:16px;line-height:1.2;color:var(--text);white-space:nowrap}
+.kasbon-summary-card small{display:block;margin-top:3px;color:#95a1a5;font-size:8px;line-height:1.35}
+.kasbon-count-card .ujang-card-icon{background:#eef3ff;color:#466ab2}
+.kasbon-info-box{margin-bottom:13px}
+.kasbon-table-wrap{margin-top:0;border:1px solid var(--border);border-radius:13px;background:#fff;overflow:auto}
+.kasbon-table-wrap .admin-table{min-width:820px}
 .kasbon-name-modal{max-width:560px}
 .kasbon-name-add{display:grid;grid-template-columns:1fr auto;gap:10px}
-.kasbon-name-add input{width:100%;height:42px;border:1px solid var(--border);border-radius:10px;padding:0 12px}
-.kasbon-name-list{margin-top:14px;border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.kasbon-name-add input{width:100%;height:42px;border:1px solid var(--border);border-radius:10px;padding:0 12px;outline:none}
+.kasbon-name-add input:focus{border-color:var(--secondary);box-shadow:0 0 0 3px rgba(0,194,199,.10)}
+.kasbon-name-list{margin-top:14px;border:1px solid var(--border);border-radius:12px;overflow:hidden;background:#fff}
 .kasbon-name-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 12px;border-bottom:1px solid var(--border)}
-.kasbon-name-row:last-child{border-bottom:0}.kasbon-name-row span{font-weight:700}
-.empty-kasbon-names{padding:18px;text-align:center;color:#64748b;font-size:13px}
-.field-hint{display:block;margin-top:5px;color:#94a3b8;font-size:11px}
-@media(max-width:600px){.kasbon-toolbar{align-items:stretch;flex-direction:column}.kasbon-toolbar label{min-width:0;width:100%}.kasbon-toolbar .btn{width:100%}.kasbon-summary-grid-two{grid-template-columns:1fr}.kasbon-name-add{grid-template-columns:1fr}}
+.kasbon-name-row:last-child{border-bottom:0}.kasbon-name-row span{font-weight:700;font-size:11px;color:var(--text)}
+.empty-kasbon-names{padding:18px;text-align:center;color:#64748b;font-size:11px}
+@media(max-width:900px){.kasbon-summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.kasbon-section{padding:12px}.kasbon-toolbar{align-items:stretch;flex-direction:column}.kasbon-toolbar label{min-width:0;width:100%}.kasbon-toolbar .btn{width:100%}.kasbon-summary-grid{grid-template-columns:1fr}.kasbon-name-add{grid-template-columns:1fr}.kasbon-summary-card strong{font-size:18px}}
