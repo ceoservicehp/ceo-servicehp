@@ -52,6 +52,8 @@ let fullLaptopData = [];
 let fullDroneData = [];
 let ujangData = [];
 let fullUjangData = [];
+let fullKasbonData = [];
+let kasbonGroupedData = [];
 
 let summaryIncomeData = [];
 let summaryExpenseData = [];
@@ -289,6 +291,36 @@ function updateDeviceSummary(prefix, rows = []){
     if(debtEl) debtEl.textContent = rupiah(totalDebt);
 }
 
+
+/* ================= KASBON TIM CEO ================= */
+function buildKasbonGroups(rows = []){
+    const map = new Map();
+    rows.forEach(row => {
+        const name = String(row.profiles?.full_name || "").trim() || "Penerima belum dipilih";
+        const position = String(row.profiles?.position || "").trim() || "-";
+        const key = row.honor_user_id || `unassigned:${name.toUpperCase()}`;
+        const amount = Number(row.amount || 0);
+        const createdAt = row.created_at ? new Date(row.created_at) : null;
+        if(!map.has(key)) map.set(key, { name, position, count:0, total:0, last:null });
+        const item = map.get(key);
+        item.count += 1;
+        item.total += amount;
+        if(createdAt && (!item.last || createdAt > item.last)) item.last = createdAt;
+    });
+    return [...map.values()].sort((a,b) => (b.last?.getTime() || 0) - (a.last?.getTime() || 0));
+}
+
+function updateKasbonSummary(rows = [], groups = []){
+    const total = rows.reduce((sum,row)=>sum + Number(row.amount || 0),0);
+    const people = groups.length;
+    const avg = people ? total / people : 0;
+    const set = (id, value) => { const el = document.getElementById(id); if(el) el.textContent = value; };
+    set("kasbonTotalAmount", rupiah(total));
+    set("kasbonTotalPeople", `${people} Orang`);
+    set("kasbonTotalTransactions", `${rows.length} Transaksi`);
+    set("kasbonAverage", rupiah(Math.round(avg)));
+}
+
 /* ================= LOAD DATA ================= */
 async function loadFinance(){
     const start = (currentPage - 1) * pageSize;
@@ -328,7 +360,7 @@ async function loadFinance(){
 
     let expenseQuery = client
         .from("expenses")
-        .select(`*, profiles:honor_user_id(full_name)`)
+        .select(`*, profiles:honor_user_id(full_name,position)`)
         .order("created_at",{ascending:false});
 
     if(startDate && endDate){
@@ -342,11 +374,23 @@ async function loadFinance(){
     filteredExpenseData = fullExpense || [];
     expenseData = filteredExpenseData.slice(start, start + pageSize);
 
+    // Kasbon hanya rekap dari expenses, bukan transaksi baru.
+    // UJANG dikecualikan karena bukan bagian dari tim CEO.
+    fullKasbonData = filteredExpenseData.filter(row => {
+        const isKasbon = String(row.category || "").trim().toLowerCase() === "kasbon";
+        const nama = String(row.profiles?.full_name || "").trim().toUpperCase();
+        const title = String(row.title || "").trim().toUpperCase();
+        return isKasbon && nama !== "UJANG" && !(!nama && /\bUJANG\b/.test(title));
+    });
+    kasbonGroupedData = buildKasbonGroups(fullKasbonData);
+    updateKasbonSummary(fullKasbonData, kasbonGroupedData);
+
     const hpDebt = hpRows.filter(row => Number(row.remaining_amount || 0) > 0);
     debtData = hpDebt;
 
     if(currentTab === "income") totalRows = hpRows.length;
     else if(currentTab === "expense") totalRows = filteredExpenseData.length;
+    else if(currentTab === "kasbon") totalRows = kasbonGroupedData.length;
     else if(currentTab === "debt"){
         totalRows = hpDebt.length;
         incomeData = hpDebt.slice(start, start + pageSize);
@@ -536,12 +580,14 @@ function renderByTab(income = incomeData, expense = expenseData, laptop = laptop
     const incomeWrapper = document.getElementById("incomeTableWrapper");
     const expenseWrapper = document.getElementById("expenseTableWrapper");
     const debtWrapper = document.getElementById("debtTableWrapper");
+    const kasbonWrapper = document.getElementById("kasbonTableWrapper");
     const laptopWrapper = document.getElementById("laptopTableWrapper");
     const ujangWrapper = document.getElementById("ujangTableWrapper");
 
     if(incomeWrapper) incomeWrapper.style.display = "none";
     if(expenseWrapper) expenseWrapper.style.display = "none";
     if(debtWrapper) debtWrapper.style.display = "none";
+    if(kasbonWrapper) kasbonWrapper.style.display = "none";
     if(laptopWrapper) laptopWrapper.style.display = "none";
     if(ujangWrapper) ujangWrapper.style.display = "none";
 
@@ -646,6 +692,31 @@ function renderByTab(income = incomeData, expense = expenseData, laptop = laptop
             <td>${new Date(row.created_at).toLocaleDateString("id-ID")}</td>
         </tr>`;
     });
+    }
+
+
+    /* ================= KASBON ================= */
+    else if(currentTab === "kasbon"){
+        if(kasbonWrapper) kasbonWrapper.style.display = "block";
+        const tbody = document.getElementById("kasbonTable");
+        if(!tbody) return;
+        tbody.innerHTML = "";
+        const start = (currentPage - 1) * pageSize;
+        const rows = kasbonGroupedData.slice(start, start + pageSize);
+        if(!rows.length){
+            tbody.innerHTML = `<tr><td colspan="6">Belum ada kasbon tim CEO pada periode ini.</td></tr>`;
+            return;
+        }
+        rows.forEach((row,i)=>{
+            tbody.innerHTML += `<tr>
+                <td>${start + i + 1}</td>
+                <td><strong>${row.name}</strong></td>
+                <td>${row.position}</td>
+                <td>${row.count} Transaksi</td>
+                <td style="font-weight:700;color:#b45309;">${rupiah(row.total)}</td>
+                <td>${row.last ? row.last.toLocaleDateString("id-ID") : "-"}</td>
+            </tr>`;
+        });
     }
 
 /* ================= DEBT ================= */
@@ -872,7 +943,7 @@ async function loadHonorUsers(){
 
     data?.forEach(user=>{
         select.innerHTML += `
-            <option value="${user.id}">
+            <option value="${user.id}" data-name="${user.full_name || ""}">
                 ${user.full_name} (${user.position || "-"})
             </option>
         `;
@@ -924,8 +995,10 @@ function setupExpenseForm(){
     
         const selected = this.value?.toLowerCase();
     
-        if(selected === "honor"){
+        if(selected === "honor" || selected === "kasbon"){
             wrapper.style.display = "block";
+            const label = document.getElementById("honorUserLabel");
+            if(label) label.childNodes[0].nodeValue = selected === "kasbon" ? "Pilih Anggota Tim " : "Pilih Penerima ";
         }else{
             wrapper.style.display = "none";
             document.getElementById("honorUserSelect").value = "";
@@ -949,14 +1022,24 @@ function setupExpenseForm(){
             return;
         }
 
-        if(category?.toUpperCase() === "HONOR" && !honorUserId){
-            alert("Pilih penerima honor.");
+        const normalizedCategory = String(category || "").trim().toUpperCase();
+        if((normalizedCategory === "HONOR" || normalizedCategory === "KASBON") && !honorUserId){
+            alert(normalizedCategory === "KASBON" ? "Pilih anggota tim penerima kasbon." : "Pilih penerima honor.");
             return;
+        }
+        if(normalizedCategory === "KASBON"){
+            const selectedOption = document.getElementById("honorUserSelect")?.selectedOptions?.[0];
+            const selectedName = String(selectedOption?.dataset?.name || "").trim().toUpperCase();
+            if(selectedName === "UJANG"){
+                alert("UJANG bukan bagian dari rekap Kasbon Tim CEO.");
+                return;
+            }
         }
 
         const { data: { user } } = await client.auth.getUser();
 
         const isHonor = category?.toLowerCase() === "honor";
+        const isKasbon = category?.toLowerCase() === "kasbon";
         
         const { error } = await client
             .from("expenses")
@@ -968,7 +1051,7 @@ function setupExpenseForm(){
             amount,
             notes,
             created_by: user.id,
-            honor_user_id: isHonor ? honorUserId : null
+            honor_user_id: (isHonor || isKasbon) ? honorUserId : null
         }]);
 
         if(error){
