@@ -293,15 +293,51 @@ function updateDeviceSummary(prefix, rows = []){
 
 
 /* ================= KASBON TIM CEO ================= */
+function normalizeKasbonName(value = ""){
+    return String(value || "")
+        .replace(/^\s*kasbon\s*[-:–—]?\s*/i, "")
+        .replace(/\s+/g, " ")
+        .trim();
+}
+
+function getKasbonPerson(row){
+    // Data baru: prioritaskan akun/profile.
+    const profileName = String(row?.profiles?.full_name || "").trim();
+    const profilePosition = String(row?.profiles?.position || "").trim();
+    if(profileName){
+        return {
+            name: profileName,
+            position: profilePosition || "-",
+            key: `profile:${String(row.honor_user_id || profileName).toLowerCase()}`
+        };
+    }
+
+    // Data lama: nama ditulis manual pada judul, mis. "Kasbon Rian".
+    const manualName = normalizeKasbonName(row?.title);
+    return {
+        name: manualName || "Nama tidak terbaca",
+        position: "-",
+        key: `manual:${(manualName || "UNKNOWN").toLocaleLowerCase("id-ID")}`
+    };
+}
+
 function buildKasbonGroups(rows = []){
     const map = new Map();
     rows.forEach(row => {
-        const name = String(row.profiles?.full_name || "").trim() || "Penerima belum dipilih";
-        const position = String(row.profiles?.position || "").trim() || "-";
-        const key = row.honor_user_id || `unassigned:${name.toUpperCase()}`;
+        const person = getKasbonPerson(row);
+        // Satukan data lama manual dengan data baru profile bila nama sama.
+        const normalizedName = person.name.toLocaleLowerCase("id-ID");
+        let key = person.key;
+        for(const [existingKey, existing] of map){
+            if(existing.name.toLocaleLowerCase("id-ID") === normalizedName){
+                key = existingKey;
+                if(existing.position === "-" && person.position !== "-") existing.position = person.position;
+                break;
+            }
+        }
         const amount = Number(row.amount || 0);
         const createdAt = row.created_at ? new Date(row.created_at) : null;
-        if(!map.has(key)) map.set(key, { name, position, count:0, total:0, last:null });
+        if(!map.has(key)) map.set(key, { name:person.name, position:person.position, count:0, total:0, last:null });
         const item = map.get(key);
         item.count += 1;
         item.total += amount;
@@ -378,9 +414,9 @@ async function loadFinance(){
     // UJANG dikecualikan karena bukan bagian dari tim CEO.
     fullKasbonData = filteredExpenseData.filter(row => {
         const isKasbon = String(row.category || "").trim().toLowerCase() === "kasbon";
-        const nama = String(row.profiles?.full_name || "").trim().toUpperCase();
-        const title = String(row.title || "").trim().toUpperCase();
-        return isKasbon && nama !== "UJANG" && !(!nama && /\bUJANG\b/.test(title));
+        if(!isKasbon) return false;
+        const person = getKasbonPerson(row);
+        return person.name.trim().toUpperCase() !== "UJANG";
     });
     kasbonGroupedData = buildKasbonGroups(fullKasbonData);
     updateKasbonSummary(fullKasbonData, kasbonGroupedData);
@@ -999,12 +1035,27 @@ function setupExpenseForm(){
             wrapper.style.display = "block";
             const label = document.getElementById("honorUserLabel");
             if(label) label.childNodes[0].nodeValue = selected === "kasbon" ? "Pilih Anggota Tim " : "Pilih Penerima ";
+            if(selected === "kasbon"){
+                const selectedOption = document.getElementById("honorUserSelect")?.selectedOptions?.[0];
+                const selectedName = String(selectedOption?.dataset?.name || "").trim();
+                if(selectedName) document.getElementById("expTitle").value = `Kasbon ${selectedName}`;
+            }
         }else{
             wrapper.style.display = "none";
             document.getElementById("honorUserSelect").value = "";
         }
     });
 
+
+    document.getElementById("honorUserSelect")
+    ?.addEventListener("change", function(){
+        const category = String(document.getElementById("expCategory")?.value || "").trim().toLowerCase();
+        if(category !== "kasbon") return;
+        const selectedName = String(this.selectedOptions?.[0]?.dataset?.name || "").trim();
+        if(selectedName){
+            document.getElementById("expTitle").value = `Kasbon ${selectedName}`;
+        }
+    });
 
     document.getElementById("saveExpense")
     ?.addEventListener("click", async ()=>{
