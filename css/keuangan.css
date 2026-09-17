@@ -236,7 +236,7 @@ footer{width:min(1240px,calc(100% - 32px));margin:0 auto 28px;text-align:center;
 
 /* ================= KASBON TIM CEO ================= */
 .kasbon-section{display:block}
-.kasbon-summary-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:14px 0}
+.kasbon-summary-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:14px 0}
 .kasbon-summary-card{background:#fff;border:1px solid var(--border,#e5e7eb);border-radius:14px;padding:14px 16px;min-height:100px;display:flex;flex-direction:column;justify-content:center}
 .kasbon-summary-card span{font-size:12px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.03em}
 .kasbon-summary-card strong{font-size:21px;line-height:1.2;margin:5px 0;color:#111827}
@@ -246,3 +246,18 @@ footer{width:min(1240px,calc(100% - 32px));margin:0 auto 28px;text-align:center;
 .kasbon-table-wrap{margin-top:0}
 @media(max-width:900px){.kasbon-summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:560px){.kasbon-summary-grid{grid-template-columns:1fr}.kasbon-summary-card{min-height:auto}}
+
+/* KASBON MASTER + FILTER */
+.kasbon-toolbar{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin:14px 0 4px}
+.kasbon-toolbar label{font-size:12px;font-weight:700;color:#475569;display:flex;flex-direction:column;gap:6px;min-width:230px}
+.kasbon-toolbar select{height:40px;border:1px solid var(--border);border-radius:10px;padding:0 12px;background:#fff}
+.kasbon-summary-grid-two{max-width:720px}
+.kasbon-name-modal{max-width:560px}
+.kasbon-name-add{display:grid;grid-template-columns:1fr auto;gap:10px}
+.kasbon-name-add input{width:100%;height:42px;border:1px solid var(--border);border-radius:10px;padding:0 12px}
+.kasbon-name-list{margin-top:14px;border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.kasbon-name-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 12px;border-bottom:1px solid var(--border)}
+.kasbon-name-row:last-child{border-bottom:0}.kasbon-name-row span{font-weight:700}
+.empty-kasbon-names{padding:18px;text-align:center;color:#64748b;font-size:13px}
+.field-hint{display:block;margin-top:5px;color:#94a3b8;font-size:11px}
+@media(max-width:600px){.kasbon-toolbar{align-items:stretch;flex-direction:column}.kasbon-toolbar label{min-width:0;width:100%}.kasbon-toolbar .btn{width:100%}.kasbon-summary-grid-two{grid-template-columns:1fr}.kasbon-name-add{grid-template-columns:1fr}}
