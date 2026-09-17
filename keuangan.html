@@ -126,6 +126,7 @@
         <div class="tabs" role="tablist">
           <button class="tab active" data-tab="income"><i class="fa-solid fa-arrow-trend-up"></i> Pemasukan</button>
           <button class="tab" data-tab="expense"><i class="fa-solid fa-receipt"></i> Pengeluaran</button>
+          <button class="tab" data-tab="kasbon"><i class="fa-solid fa-hand-holding-dollar"></i> Kasbon</button>
           <button class="tab" data-tab="debt"><i class="fa-solid fa-hand-holding-dollar"></i> Piutang</button>
           <button class="tab" data-tab="laptop"><i class="fa-solid fa-laptop"></i> Laptop & Drone</button>
           <button class="tab tab-ujang" data-tab="ujang"><i class="fa-solid fa-user-gear"></i> UJANG</button>
@@ -154,6 +155,23 @@
             <table class="admin-table"><thead><tr>
               <th>No</th><th>Judul</th><th>Kategori</th><th>Penerima</th><th>Harga</th><th>Qty</th><th>Total</th><th>Catatan</th><th>Tanggal</th>
             </tr></thead><tbody id="expenseTable"><tr><td colspan="9">Memuat data...</td></tr></tbody></table>
+          </div>
+
+          <div id="kasbonTableWrapper" class="kasbon-section" style="display:none;">
+            <div class="ujang-heading kasbon-heading">
+              <div><span class="eyebrow">REKAP INFORMASI</span><h3>Kasbon Tim CEO</h3><p>Rekap dari pengeluaran berkategori Kasbon. Data ini tidak dihitung ulang karena sudah termasuk dalam Total Pengeluaran.</p></div>
+              <div class="ujang-badge kasbon-badge"><i class="fa-solid fa-users"></i> TIM CEO</div>
+            </div>
+            <div class="kasbon-summary-grid">
+              <div class="kasbon-summary-card"><span>Total Kasbon Tim</span><strong id="kasbonTotalAmount">Rp 0</strong><small>Akumulasi pengeluaran kategori Kasbon</small></div>
+              <div class="kasbon-summary-card"><span>Anggota Tercatat</span><strong id="kasbonTotalPeople">0 Orang</strong><small>Tim CEO yang memiliki catatan kasbon</small></div>
+              <div class="kasbon-summary-card"><span>Jumlah Transaksi</span><strong id="kasbonTotalTransactions">0 Transaksi</strong><small>Jumlah transaksi kasbon pada periode ini</small></div>
+              <div class="kasbon-summary-card"><span>Rata-rata / Anggota</span><strong id="kasbonAverage">Rp 0</strong><small>Rata-rata kasbon per anggota tercatat</small></div>
+            </div>
+            <div class="ujang-info-box kasbon-info-box"><i class="fa-solid fa-circle-info"></i><div><strong>Hanya sebagai rekap</strong><p>Kasbon tetap berasal dari tabel Pengeluaran dan sudah mengurangi keuangan CEO. Tab ini hanya mengelompokkan total kasbon per anggota tim CEO. UJANG tidak dimasukkan.</p></div></div>
+            <div class="table-wrapper kasbon-table-wrap"><table class="admin-table"><thead><tr>
+              <th>No</th><th>Nama Tim</th><th>Posisi</th><th>Jumlah Transaksi</th><th>Total Kasbon</th><th>Transaksi Terakhir</th>
+            </tr></thead><tbody id="kasbonTable"><tr><td colspan="6">Memuat rekap kasbon...</td></tr></tbody></table></div>
           </div>
 
           <div id="debtTableWrapper" class="table-wrapper" style="display:none;">
@@ -262,7 +280,7 @@
       <div class="modal-form">
         <label>Judul Pengeluaran<input type="text" id="expTitle" placeholder="Contoh: Pembelian alat service"></label>
         <label>Kategori<select id="expCategory"></select></label>
-        <div id="honorUserWrapper" style="display:none;"><label>Pilih Penerima Honor<select id="honorUserSelect"></select></label></div>
+        <div id="honorUserWrapper" style="display:none;"><label id="honorUserLabel">Pilih Penerima<select id="honorUserSelect"></select></label></div>
         <div class="category-manage"><button id="addCategoryBtn" class="btn-small">+ Kategori</button><button id="deleteCategoryBtn" class="btn-small danger">Hapus Kategori</button></div>
         <div class="modal-grid">
           <label>Harga Satuan<input type="number" id="expPrice" placeholder="0"></label>
