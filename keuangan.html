@@ -178,7 +178,7 @@
                 <div><span>Jumlah Transaksi</span><strong id="kasbonTotalTransactions">0 Transaksi</strong><small>Mengikuti periode dan filter nama</small></div>
               </div>
             </div>
-            <div class="ujang-info-box kasbon-info-box"><i class="fa-solid fa-circle-info"></i><div><strong>Hanya sebagai rekap</strong><p>Kasbon tetap berasal dari Pengeluaran dan sudah mengurangi keuangan CEO. Tabel menampilkan setiap transaksi pengambilan.</p></div></div>
+            <div class="ujang-info-box kasbon-info-box"><i class="fa-solid fa-circle-info"></i><div><strong>Hanya sebagai rekap</strong><p>Kasbon tetap berasal dari Pengeluaran dan sudah mengurangi keuangan CEO. Tabel menampilkan setiap transaksi pengambilan. UJANG tidak dimasukkan.</p></div></div>
             <div class="table-wrapper kasbon-table-wrap"><table class="admin-table"><thead><tr>
               <th>No</th><th>Tanggal</th><th>Nama</th><th>Judul</th><th>Catatan</th><th>Nominal</th>
             </tr></thead><tbody id="kasbonTable"><tr><td colspan="6">Memuat transaksi kasbon...</td></tr></tbody></table></div>
@@ -192,18 +192,19 @@
 
           <div id="laptopTableWrapper" class="device-section" style="display:none;">
             <div class="ujang-heading">
-              <div><span class="eyebrow">LINI SERVICE TERPISAH</span><h3>Rekap Service Laptop & Drone</h3><p>Pemasukan Laptop dan Drone digabung dalam satu rekap dan tidak masuk ke akumulasi Service HP CEO.</p></div>
-              <div class="ujang-badge"><i class="fa-solid fa-laptop"></i> LAPTOP & DRONE</div>
+              <div><span class="eyebrow">LINI BISNIS TERPISAH</span><h3>Keuangan Laptop & Drone</h3><p>Perhitungan lini Laptop & Drone berdiri sendiri dan <strong>tidak masuk ke Pemasukan Service HP CEO</strong>.</p></div>
+              <div class="device-heading-actions"><button type="button" class="btn btn-soft" id="deviceFinanceSettingsBtn"><i class="fa-solid fa-sliders"></i> Pengaturan</button><div class="ujang-badge"><i class="fa-solid fa-laptop"></i> LAPTOP & DRONE</div></div>
             </div>
-            <div class="ujang-summary-grid">
-              <div class="ujang-summary-card"><div class="ujang-card-icon"><i class="fa-solid fa-laptop"></i></div><div><span>Unit Selesai</span><strong id="laptopTotalUnit">0 Unit</strong><small>Service Laptop & Drone selesai</small></div></div>
-              <div class="ujang-summary-card device-income"><div class="ujang-card-icon"><i class="fa-solid fa-money-bill-trend-up"></i></div><div><span>Pemasukan Laptop & Drone</span><strong id="laptopTotalIncome">Rp 0</strong><small>Uang pelanggan yang sudah dibayar</small></div></div>
-              <div class="ujang-summary-card"><div class="ujang-card-icon"><i class="fa-solid fa-file-invoice-dollar"></i></div><div><span>Total Tagihan</span><strong id="laptopTotalBilling">Rp 0</strong><small>Nilai seluruh service laptop</small></div></div>
-              <div class="ujang-summary-card device-debt"><div class="ujang-card-icon"><i class="fa-solid fa-clock"></i></div><div><span>Piutang Laptop & Drone</span><strong id="laptopTotalDebt">Rp 0</strong><small>Sisa pembayaran Laptop & Drone</small></div></div>
+            <div class="ujang-summary-grid device-finance-grid">
+              <div class="ujang-summary-card"><div class="ujang-card-icon"><i class="fa-solid fa-file-invoice-dollar"></i></div><div><span>Total Tagihan</span><strong id="laptopTotalBilling">Rp 0</strong><small>Tagihan Laptop & Drone pada periode ini</small></div></div>
+              <div class="ujang-summary-card"><div class="ujang-card-icon"><i class="fa-solid fa-screwdriver-wrench"></i></div><div><span>Modal / Biaya Teknisi</span><strong id="laptopTotalCapital">Rp 0</strong><small>Biaya penanganan teknisi eksternal</small></div></div>
+              <div class="ujang-summary-card device-income"><div class="ujang-card-icon"><i class="fa-solid fa-chart-line"></i></div><div><span>Keuntungan CEO</span><strong id="laptopTotalProfit">Rp 0</strong><small>Hak keuntungan CEO dari lini ini</small></div></div>
+              <div class="ujang-summary-card device-bmn"><div class="ujang-card-icon"><i class="fa-solid fa-building-columns"></i></div><div><span>Hak BMN</span><strong id="laptopTotalBmn">Rp 0</strong><small>Bagian BMN sesuai persentase transaksi</small></div></div>
             </div>
+            <div class="device-setting-note"><i class="fa-solid fa-circle-info"></i><div><strong>Default saat ini: BMN <span id="deviceDefaultBmn">25</span>% · PPN <span id="deviceDefaultPpn">11</span>%</strong><span>Default hanya dipakai saat membuat perhitungan baru. Transaksi lama tidak berubah ketika default diubah.</span></div></div>
             <div class="table-wrapper ujang-table-wrap"><table class="admin-table"><thead><tr>
-              <th>No</th><th>Nama</th><th>No HP</th><th>Alamat</th><th>Kategori Perangkat</th><th>Tipe / Model</th><th>Tanggal Masuk</th><th>Status</th><th>Tanggal Selesai</th><th>Sparepart</th><th>Dibayar</th><th>Sisa</th><th>Total</th>
-            </tr></thead><tbody id="laptopTable"><tr><td colspan="13">Memuat data laptop...</td></tr></tbody></table></div>
+              <th>No</th><th>Pelanggan / Unit</th><th>Tgl Selesai</th><th>Modal Teknisi</th><th>Keuntungan CEO</th><th>Harga CEO</th><th>Hak BMN</th><th>PPN</th><th>Total Hitung</th><th>Dibayar</th><th>Aksi</th>
+            </tr></thead><tbody id="laptopTable"><tr><td colspan="11">Memuat data Laptop & Drone...</td></tr></tbody></table></div>
           </div>
 
           <div id="ujangTableWrapper" class="ujang-section" style="display:none;">
@@ -289,6 +290,33 @@
         <div class="kasbon-name-list" id="kasbonNameList"><p>Memuat nama...</p></div>
       </div>
       <div class="modal-actions"><button type="button" class="btn btn-soft" id="closeKasbonNamesModalBottom">Tutup</button></div>
+    </div>
+  </div>
+
+  <div id="deviceSettingsModal" class="modal">
+    <div class="modal-content device-finance-modal">
+      <div class="modal-head"><div><span class="eyebrow">LAPTOP & DRONE</span><h3>Pengaturan Perhitungan</h3></div><button type="button" class="modal-close" id="closeDeviceSettingsModal"><i class="fa-solid fa-xmark"></i></button></div>
+      <div class="modal-form">
+        <div class="device-form-info"><i class="fa-solid fa-circle-info"></i><span>Nilai ini menjadi default untuk perhitungan baru. Data transaksi yang sudah disimpan tetap memakai persentasenya sendiri.</span></div>
+        <div class="modal-grid"><label>Default Hak BMN (%)<input type="number" id="deviceSettingBmn" min="0" max="100" step="0.01" value="25"></label><label>Default PPN (%)<input type="number" id="deviceSettingPpn" min="0" max="100" step="0.01" value="11"></label></div>
+      </div>
+      <div class="modal-actions"><button type="button" class="btn btn-success" id="saveDeviceSettings"><i class="fa-solid fa-floppy-disk"></i> Simpan Pengaturan</button><button type="button" class="btn btn-soft" id="cancelDeviceSettings">Batal</button></div>
+    </div>
+  </div>
+
+  <div id="deviceCalcModal" class="modal">
+    <div class="modal-content device-finance-modal">
+      <div class="modal-head"><div><span class="eyebrow">PERHITUNGAN UNIT</span><h3 id="deviceCalcTitle">Atur Laptop & Drone</h3></div><button type="button" class="modal-close" id="closeDeviceCalcModal"><i class="fa-solid fa-xmark"></i></button></div>
+      <div class="modal-form">
+        <input type="hidden" id="deviceCalcOrderId">
+        <div class="modal-grid"><label>Modal / Biaya Teknisi<input type="number" id="deviceCalcCapital" min="0" step="1" placeholder="500000"></label><label>Keuntungan CEO<input type="number" id="deviceCalcProfit" min="0" step="1" placeholder="200000"></label></div>
+        <div class="modal-grid"><label>Hak BMN (%)<input type="number" id="deviceCalcBmnPct" min="0" max="100" step="0.01"></label><label>PPN (%)<input type="number" id="deviceCalcPpnPct" min="0" max="100" step="0.01"></label></div>
+        <div class="device-calc-preview">
+          <div><span>Harga CEO</span><strong id="devicePreviewCeoPrice">Rp 0</strong></div><div><span>Hak BMN</span><strong id="devicePreviewBmn">Rp 0</strong></div><div><span>PPN</span><strong id="devicePreviewPpn">Rp 0</strong></div><div class="grand"><span>Total Tagihan Hitung</span><strong id="devicePreviewTotal">Rp 0</strong></div>
+        </div>
+        <label>Catatan<input type="text" id="deviceCalcNote" placeholder="Opsional, misalnya nama teknisi / keterangan pekerjaan"></label>
+      </div>
+      <div class="modal-actions"><button type="button" class="btn btn-success" id="saveDeviceCalc"><i class="fa-solid fa-floppy-disk"></i> Simpan Perhitungan</button><button type="button" class="btn btn-soft" id="cancelDeviceCalc">Batal</button></div>
     </div>
   </div>
 
