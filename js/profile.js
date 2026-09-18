@@ -116,6 +116,7 @@ function fillProfileData(data){
 
     setValue("nameInput", data.full_name);
     setValue("emailInput", data.email);
+    setText("securityEmail", data.email);
     setValue("phoneInput", data.phone);
     setValue("birthInput", data.birth_date);
     setValue("addressInput", data.address);
@@ -498,6 +499,89 @@ document.addEventListener("DOMContentLoaded", function(){
     btn.addEventListener("click", closeNav);
   });
 
+});
+
+
+/* ========================================= */
+/* ACCOUNT SECURITY */
+/* ========================================= */
+function showSecurityMessage(message, type="success"){
+    const el = document.getElementById("securityMessage");
+    if(!el) return;
+    el.hidden = false;
+    el.className = `security-message ${type}`;
+    el.textContent = message;
+}
+
+function setSecurityLoading(button, loading, loadingText){
+    if(!button) return;
+    if(loading){
+        button.dataset.original = button.innerHTML;
+        button.disabled = true;
+        button.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> ${loadingText}`;
+    }else{
+        button.disabled = false;
+        if(button.dataset.original) button.innerHTML = button.dataset.original;
+    }
+}
+
+document.querySelectorAll(".password-toggle").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+        const input = document.getElementById(btn.dataset.target);
+        if(!input) return;
+        const visible = input.type === "text";
+        input.type = visible ? "password" : "text";
+        btn.innerHTML = `<i class="fa-solid ${visible ? "fa-eye" : "fa-eye-slash"}"></i>`;
+    });
+});
+
+document.getElementById("changePasswordBtn")?.addEventListener("click", async ()=>{
+    const btn = document.getElementById("changePasswordBtn");
+    const password = document.getElementById("newPassword")?.value || "";
+    const confirm = document.getElementById("confirmPassword")?.value || "";
+
+    if(password.length < 8){
+        showSecurityMessage("Password baru minimal 8 karakter.", "error");
+        return;
+    }
+    if(password !== confirm){
+        showSecurityMessage("Konfirmasi password tidak sama.", "error");
+        return;
+    }
+
+    setSecurityLoading(btn, true, "Menyimpan...");
+    const { error } = await client.auth.updateUser({ password });
+    setSecurityLoading(btn, false);
+
+    if(error){
+        showSecurityMessage("Gagal mengubah password: " + error.message, "error");
+        return;
+    }
+
+    document.getElementById("newPassword").value = "";
+    document.getElementById("confirmPassword").value = "";
+    showSecurityMessage("Password berhasil diubah.");
+});
+
+document.getElementById("sendResetBtn")?.addEventListener("click", async ()=>{
+    const btn = document.getElementById("sendResetBtn");
+    const { data: sessionData } = await client.auth.getSession();
+    const email = sessionData?.session?.user?.email;
+    if(!email){
+        showSecurityMessage("Email akun tidak ditemukan.", "error");
+        return;
+    }
+
+    setSecurityLoading(btn, true, "Mengirim...");
+    const redirectTo = `${window.location.origin}/reset-password.html`;
+    const { error } = await client.auth.resetPasswordForEmail(email, { redirectTo });
+    setSecurityLoading(btn, false);
+
+    if(error){
+        showSecurityMessage("Gagal mengirim link reset: " + error.message, "error");
+        return;
+    }
+    showSecurityMessage(`Link reset password telah dikirim ke ${email}.`);
 });
 
 })();
