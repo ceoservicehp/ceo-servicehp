@@ -209,6 +209,52 @@
       </div>
     </section>
 
+
+    <!-- ================= KEAMANAN AKUN ================= -->
+    <section class="card-section security-section">
+      <div class="section-header section-header-split">
+        <div class="section-title-wrap">
+          <span class="section-icon security-icon"><i class="fa-solid fa-shield-halved"></i></span>
+          <div>
+            <h3>Keamanan Akun</h3>
+            <p>Kelola kata sandi dan pemulihan akun.</p>
+          </div>
+        </div>
+        <span class="security-badge"><i class="fa-solid fa-lock"></i> Aman</span>
+      </div>
+
+      <div class="security-grid">
+        <div class="security-panel">
+          <div class="security-panel-head">
+            <i class="fa-solid fa-key"></i>
+            <div><b>Ubah Password</b><span>Gunakan minimal 8 karakter.</span></div>
+          </div>
+          <div class="password-field">
+            <input type="password" id="newPassword" placeholder="Password baru" autocomplete="new-password">
+            <button type="button" class="password-toggle" data-target="newPassword" aria-label="Lihat password"><i class="fa-solid fa-eye"></i></button>
+          </div>
+          <div class="password-field">
+            <input type="password" id="confirmPassword" placeholder="Ulangi password baru" autocomplete="new-password">
+            <button type="button" class="password-toggle" data-target="confirmPassword" aria-label="Lihat password"><i class="fa-solid fa-eye"></i></button>
+          </div>
+          <button type="button" id="changePasswordBtn" class="security-action primary"><i class="fa-solid fa-key"></i> Ubah Password</button>
+        </div>
+
+        <div class="security-panel recovery-panel">
+          <div class="security-panel-head">
+            <i class="fa-solid fa-envelope-circle-check"></i>
+            <div><b>Lupa Password</b><span>Kirim tautan pemulihan ke email akun ini.</span></div>
+          </div>
+          <div class="account-email-box">
+            <small>Email akun</small>
+            <strong id="securityEmail">-</strong>
+          </div>
+          <button type="button" id="sendResetBtn" class="security-action secondary"><i class="fa-solid fa-paper-plane"></i> Kirim Link Reset</button>
+        </div>
+      </div>
+      <div id="securityMessage" class="security-message" hidden></div>
+    </section>
+
     <!-- HONOR SECTION -->
 <section class="honor-section">
   <h3><i class="fa-solid fa-money-bill-wave"></i> Informasi Honor</h3>
