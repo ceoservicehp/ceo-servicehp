@@ -60,22 +60,11 @@
 
 <main class="container">
   <section class="stats" id="stats">
-    <article class="stat-card stat-filter-card active" data-stat-filter="all" role="button" tabindex="0">
-      <div class="stat-icon"><i class="fa-solid fa-bag-shopping"></i></div>
-      <div><span>Total Order</span><strong id="statTotal">0</strong><small>Seluruh pesanan produk</small></div>
-    </article>
-    <article class="stat-card stat-filter-card" data-stat-filter="waiting" role="button" tabindex="0">
-      <div class="stat-icon waiting"><i class="fa-solid fa-clock"></i></div>
-      <div><span>Menunggu Diproses</span><strong id="statWaiting">0</strong><small>Butuh tindak lanjut admin</small></div>
-    </article>
-    <article class="stat-card stat-filter-card" data-stat-filter="proof" role="button" tabindex="0">
-      <div class="stat-icon proof-icon"><i class="fa-solid fa-receipt"></i></div>
-      <div><span>Bukti Masuk</span><strong id="statProof">0</strong><small>Menunggu verifikasi</small></div>
-    </article>
-    <article class="stat-card stat-filter-card" data-stat-filter="unpaid" role="button" tabindex="0">
-      <div class="stat-icon unpaid"><i class="fa-solid fa-wallet"></i></div>
-      <div><span>Belum Lunas</span><strong id="statUnpaid">0</strong><small>Pembayaran belum selesai</small></div>
-    </article>
+    <article class="stat-card stat-filter-card active" data-stat-filter="all" role="button" tabindex="0"><div class="stat-icon"><i class="fa-solid fa-bag-shopping"></i></div><div><span>Total Order</span><strong id="statTotal">0</strong><small>Seluruh pesanan</small></div></article>
+    <article class="stat-card stat-filter-card" data-stat-filter="waiting" role="button" tabindex="0"><div class="stat-icon waiting"><i class="fa-solid fa-clock"></i></div><div><span>Menunggu</span><strong id="statWaiting">0</strong><small>Belum diproses</small></div></article>
+    <article class="stat-card stat-filter-card" data-stat-filter="unpaid" role="button" tabindex="0"><div class="stat-icon unpaid"><i class="fa-solid fa-wallet"></i></div><div><span>Belum Lunas</span><strong id="statUnpaid">0</strong><small>Masih ada tagihan</small></div></article>
+    <article class="stat-card stat-filter-card" data-stat-filter="done" role="button" tabindex="0"><div class="stat-icon done"><i class="fa-solid fa-circle-check"></i></div><div><span>Selesai</span><strong id="statDone">0</strong><small>Order selesai</small></div></article>
+    <span id="statProof" hidden>0</span>
   </section>
 
   <section class="section-heading">
@@ -120,24 +109,15 @@
   </section>
 
   <section class="card table-card">
-    <div class="bulk-order-actions selection-tools">
-      <div class="bulk-selection-info">
-        <label class="bulk-check-label"><input type="checkbox" id="checkAllOrders"> <span>Pilih semua di halaman ini</span></label>
-        <span id="selectedOrderCount">0 order dipilih</span>
-      </div>
-      <button id="deleteSelectedOrders" class="btn danger" type="button" disabled>
-        <i class="fa-solid fa-trash"></i> Hapus Terpilih
-      </button>
-    </div>
     <div class="table-scroll">
       <table>
         <thead>
           <tr>
-            <th class="selection-col"><span class="sr-only">Pilih</span></th><th>No Order</th><th>Pembeli</th><th>Produk</th><th>Pengiriman</th><th>Pembayaran</th><th>Total</th><th>Prioritas</th><th>Status</th><th>Aksi</th>
+            <th>No</th><th>No Order</th><th>Pembeli</th><th>Produk</th><th>Tanggal</th><th>Pembayaran</th><th>Total</th><th>Status</th><th>Aksi</th>
           </tr>
         </thead>
         <tbody id="orderTableBody">
-          <tr><td colspan="10" class="empty">Memuat order...</td></tr>
+          <tr><td colspan="9" class="empty">Memuat order...</td></tr>
         </tbody>
       </table>
     </div>
