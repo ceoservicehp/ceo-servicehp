@@ -364,3 +364,26 @@ footer{
   font-size:13px;
   border-radius:12px 12px 0 0;
 }
+
+/* ================= PASSWORD MANAGEMENT ================= */
+.password-modal-box{width:min(520px,calc(100vw - 28px));text-align:left;padding:0;overflow:hidden;border-radius:20px}
+.modal-head{display:flex;justify-content:space-between;gap:18px;padding:24px 24px 18px;border-bottom:1px solid #e5edf0}
+.modal-head h3{margin:4px 0 6px;font-size:22px;color:#17242a}
+.modal-head p{margin:0;color:#6b7c85;font-size:13px;line-height:1.55}
+.modal-kicker{font-size:11px;font-weight:800;letter-spacing:.08em;color:#1f7a83}
+.modal-close{border:0;background:#edf6f7;color:#1f6f78;width:38px;height:38px;border-radius:50%;font-size:25px;cursor:pointer;flex:none}
+.password-form{padding:20px 24px;display:grid;gap:9px}
+.password-form label{font-size:12px;font-weight:700;color:#53666f;margin-top:5px}
+.password-input-wrap{position:relative}
+.password-input-wrap input{width:100%;height:46px;border:1px solid #d7e2e6;border-radius:12px;padding:0 48px 0 14px;font:inherit;outline:none;background:#fff}
+.password-input-wrap input:focus{border-color:#1f7a83;box-shadow:0 0 0 3px rgba(31,122,131,.10)}
+.password-eye{position:absolute;right:7px;top:50%;transform:translateY(-50%);width:36px;height:36px;border:0;border-radius:9px;background:#f1f6f7;color:#53666f;cursor:pointer}
+.password-message{padding:11px 12px;border-radius:10px;font-size:12px;margin-top:5px}
+.password-message.success{background:#eaf8ef;color:#19733c}.password-message.error{background:#fff0f0;color:#b42318}
+.password-actions{justify-content:flex-end;padding:0 24px 24px;margin-top:0;flex-wrap:wrap}
+.btn-primary,.btn-secondary{border:0;border-radius:11px;padding:11px 15px;font-weight:700;cursor:pointer}
+.btn-primary{background:#1f7a83;color:#fff}.btn-primary:hover{background:#185f66}
+.btn-secondary{background:#eef3f5;color:#52636b}.btn-secondary:hover{background:#e3eaed}
+.btn-password{background:#e7f5f5;color:#176a72}.btn-password:hover{background:#d8eeee}
+.action-cell{display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
+@media(max-width:768px){.password-actions>*{flex:1 1 100%}.modal-head,.password-form{padding-left:18px;padding-right:18px}.password-actions{padding-left:18px;padding-right:18px}}
