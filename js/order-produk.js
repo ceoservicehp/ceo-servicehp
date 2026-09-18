@@ -304,33 +304,84 @@ function updateStats(){
 function render(){
   const pages = Math.max(1, Math.ceil(filtered.length / pageSize));
   if(page > pages) page = pages;
+
   const startIndex = (page - 1) * pageSize;
   const rows = filtered.slice(startIndex, startIndex + pageSize);
   const from = filtered.length ? startIndex + 1 : 0;
   const to = Math.min(startIndex + pageSize, filtered.length);
+
   $("pageInfo").textContent = filtered.length ? `${from}-${to} dari ${filtered.length} order` : "0 order";
   $("prevPage").disabled = page <= 1;
   $("nextPage").disabled = page >= pages;
   renderPageNumbers(pages);
-  if(!rows.length){ $("orderTableBody").innerHTML = '<tr><td colspan="9" class="empty">Tidak ada order yang sesuai.</td></tr>'; return; }
+
+  if(!rows.length){
+    $("orderTableBody").innerHTML = '<tr><td colspan="10" class="empty">Tidak ada order yang sesuai.</td></tr>';
+    updateBulkOrderUI();
+    return;
+  }
+
   $("orderTableBody").innerHTML = rows.map((o,idx) => {
-    const items=o.order_items||[], item=items[0]||{}, pay=latest(o.order_payments);
-    const proofPending=!!(pay?.proof_url && pay.payment_status==='pending');
-    const extraItems=Math.max(0,items.length-1);
-    const variantParts=[item.variant_name,item.color].filter(Boolean).join(' · ');
+    const items = o.order_items || [];
+    const item = items[0] || {};
+    const extraItems = Math.max(0, items.length - 1);
+    const variant = [item.variant_name, item.color].filter(Boolean).join(" · ");
+    const waNumber = String(o.customer_whatsapp || "").replace(/[^0-9]/g,"");
+    const waText = encodeURIComponent(
+      `Halo ${o.customer_name || ""}, berikut update pesanan ${o.order_number || `#${o.id}`} Anda.\n` +
+      `Status: ${label(o.order_status)}\n` +
+      `Total: ${rupiah(o.total)}\n` +
+      `Pembayaran: ${label(o.payment_status)}`
+    );
+    const checked = selectedOrderIds.has(Number(o.id)) ? "checked" : "";
+    const notaDisabled = o.payment_status !== "lunas";
+
     return `<tr>
-      <td><strong>${startIndex+idx+1}</strong></td>
-      <td><div class="order-number-cell"><strong>${esc(o.order_number||`#${o.id}`)}</strong></div></td>
-      <td><div class="buyer-cell"><strong>${esc(o.customer_name||'-')}</strong><small>${esc(o.customer_whatsapp||'-')}</small></div></td>
-      <td><div class="product-cell"><strong>${esc(item.product_name||'-')}</strong><small>${esc(variantParts||item.variant_name||'-')}${item.quantity?` · ${item.quantity} unit`:''}</small>${extraItems?`<span class="more-items">+${extraItems} produk lain</span>`:''}</div></td>
+      <td><input type="checkbox" class="row-check order-row-check" data-id="${o.id}" ${checked} aria-label="Pilih order ${esc(o.order_number || o.id)}"></td>
+      <td><strong>${startIndex + idx + 1}</strong></td>
+      <td><strong>${esc(o.customer_name || "-")}</strong></td>
+      <td>
+        <div class="product-cell">
+          <strong>${esc(item.product_name || "-")}</strong>
+          <small>${esc(variant || "Varian standar")}${item.quantity ? ` · ${item.quantity} unit` : ""}</small>
+          ${extraItems ? `<span class="more-items">+${extraItems} produk lain</span>` : ""}
+        </div>
+      </td>
+      <td><span class="address-cell">${esc(o.customer_address || "-")}</span></td>
+      <td>${waNumber ? `<a class="phone-link" target="_blank" rel="noopener" href="https://wa.me/${esc(waNumber)}">${esc(o.customer_whatsapp || "-")}</a>` : esc(o.customer_whatsapp || "-")}</td>
       <td><small>${fmtDate(o.created_at)}</small></td>
-      <td><span class="pill ${paymentBadge(o.payment_status)}">${esc(label(o.payment_status))}</span>${proofPending?'<small class="proof"><i class="fa-solid fa-receipt"></i> Bukti masuk</small>':''}</td>
-      <td><div class="total-cell"><strong>${rupiah(o.total)}</strong>${Number(o.remaining_amount||0)>0?`<small>Sisa ${rupiah(o.remaining_amount)}</small>`:'<small class="paid-text">Lunas</small>'}</div></td>
-      <td><span class="pill ${orderBadge(o.order_status)}">${esc(label(o.order_status))}</span></td>
-      <td><button class="btn primary detail-btn table-detail-btn" data-id="${o.id}"><i class="fa-solid fa-eye"></i> Detail</button></td>
+      <td>
+        <span class="pill ${orderBadge(o.order_status)}">${esc(label(o.order_status))}</span>
+        <small class="payment-mini ${paymentBadge(o.payment_status)}">${esc(label(o.payment_status))}</small>
+      </td>
+      <td>
+        <div class="total-cell">
+          <strong>${rupiah(o.total)}</strong>
+          ${Number(o.remaining_amount || 0) > 0 ? `<small>Sisa ${rupiah(o.remaining_amount)}</small>` : '<small class="paid-text">Lunas</small>'}
+        </div>
+      </td>
+      <td>
+        <div class="table-actions">
+          <button class="btn primary detail-btn table-detail-btn" data-id="${o.id}" type="button"><i class="fa-solid fa-eye"></i> Detail</button>
+          ${notaDisabled
+            ? `<button class="btn soft table-nota-btn" type="button" disabled title="Nota tersedia setelah lunas"><i class="fa-solid fa-file-invoice"></i> Nota</button>`
+            : `<a class="btn soft table-nota-btn" target="_blank" rel="noopener" href="nota-produk.html?id=${encodeURIComponent(o.id)}"><i class="fa-solid fa-file-invoice"></i> Nota</a>`}
+          ${waNumber ? `<a class="btn success table-wa-btn" target="_blank" rel="noopener" href="https://wa.me/${esc(waNumber)}?text=${waText}"><i class="fa-brands fa-whatsapp"></i> Kirim WA</a>` : ""}
+        </div>
+      </td>
     </tr>`;
-  }).join('');
-  document.querySelectorAll('.detail-btn').forEach(b=>b.onclick=()=>openDetail(Number(b.dataset.id)));
+  }).join("");
+
+  document.querySelectorAll(".detail-btn").forEach(b => b.onclick = () => openDetail(Number(b.dataset.id)));
+  document.querySelectorAll(".order-row-check").forEach(cb => {
+    cb.addEventListener("change", e => {
+      const id = Number(e.currentTarget.dataset.id);
+      if(e.currentTarget.checked) selectedOrderIds.add(id);
+      else selectedOrderIds.delete(id);
+      updateBulkOrderUI();
+    });
+  });
+  updateBulkOrderUI();
 }
 
 function renderPageNumbers(totalPages){
@@ -585,15 +636,105 @@ async function openDetail(id){
   const wa=String(o.customer_whatsapp||'').replace(/[^0-9]/g,'');
   const productHtml=items.map((i,idx)=>`<div class="dapur-product"><div><strong>${esc(i.product_name||'-')}</strong><small>${esc([i.variant_name,i.color,i.ram?`RAM ${i.ram}`:'',i.storage?`Storage ${i.storage}`:''].filter(Boolean).join(' · ')||'Varian standar')} · ${Number(i.quantity||0)} unit</small></div><strong>${rupiah(i.subtotal)}</strong></div>`).join('')||'<div class="notice">Item tidak ditemukan.</div>';
   $("detailContent").innerHTML=`<div class="dapur-detail">
-    <div class="dapur-top"><div><span class="pill ${orderBadge(o.order_status)}">${esc(label(o.order_status))}</span> <span class="pill ${paymentBadge(o.payment_status)}">${esc(label(o.payment_status))}</span><p>${fmtDate(o.created_at)}</p></div><strong>${rupiah(o.total)}</strong></div>
-    <section class="dapur-section"><h3><i class="fa-solid fa-user"></i> Data Pembeli</h3><div class="dapur-fields"><label>Nama<input value="${esc(o.customer_name||'-')}" readonly></label><label>WhatsApp<input value="${esc(o.customer_whatsapp||'-')}" readonly></label><label class="full">Alamat<textarea readonly>${esc(o.customer_address||'-')}</textarea></label></div><div class="dapur-links">${wa?`<a class="btn success" target="_blank" href="https://wa.me/${esc(wa)}"><i class="fa-brands fa-whatsapp"></i> WhatsApp</a>`:''}${mapLink?`<a class="btn soft" target="_blank" href="${mapLink}"><i class="fa-solid fa-location-dot"></i> Lokasi</a>`:''}</div></section>
-    <section class="dapur-section"><h3><i class="fa-solid fa-mobile-screen-button"></i> Produk</h3>${productHtml}<details class="dapur-more"><summary>Kelola IMEI / Unit <span>${assignedUnits}/${totalQty}</span></summary><div class="dapur-more-body">${items.map(i=>buildUnitManager(i)).join('')}</div></details>${buildSimpleWarrantyManager(o, items)}</section>
-    <section class="dapur-section"><h3><i class="fa-solid fa-wallet"></i> Pembayaran</h3><div class="money-simple"><div><span>Subtotal</span><strong>${rupiah(o.subtotal)}</strong></div><div><span>Diskon</span><strong>${rupiah(o.discount)}</strong></div><div><span>Ongkir</span><strong>${rupiah(o.shipping_fee)}</strong></div><div class="grand"><span>Total</span><strong>${rupiah(o.total)}</strong></div><div><span>Dibayar</span><strong>${rupiah(o.amount_paid)}</strong></div><div><span>Sisa</span><strong>${rupiah(o.remaining_amount)}</strong></div></div>${buildSimplePaymentAction(o,pay)}${buildManualPaymentSimple(o)}${o.payment_status==='lunas'?`<a class="btn primary invoice-simple" target="_blank" href="nota-produk.html?id=${encodeURIComponent(o.id)}"><i class="fa-solid fa-file-invoice"></i> Buka Invoice</a>`:''}</section>
-    ${shippingType!=='pickup'?`<section class="dapur-section"><h3><i class="fa-solid fa-truck"></i> Pengiriman</h3><div class="dapur-fields"><label>Metode<input value="${esc(shippingLabel(o,ship))}" readonly></label><label>Kurir / Ekspedisi<input id="shippingCourier" value="${esc(ship?.courier||'')}"></label><label>Ongkir<input id="shippingFee" inputmode="numeric" value="${Number(o.shipping_fee||0)}"></label><label>Resi / Kode<input id="trackingNumber" value="${esc(ship?.tracking_number||'')}"></label></div></section>`:`<input type="hidden" id="trackingNumber" value="${esc(ship?.tracking_number||'')}">`}
-    <section class="dapur-section dapur-save"><h3><i class="fa-solid fa-floppy-disk"></i> Status Order</h3><div class="dapur-fields"><label>Status<select id="adminOrderStatus">${['menunggu_diproses','dikemas','dikirim','dalam_perjalanan','selesai','dibatalkan','gagal_dikirim'].map(v=>`<option value="${v}" ${o.order_status===v?'selected':''}>${esc(label(v))}</option>`).join('')}</select></label><label class="full">Catatan Admin<textarea id="adminNote" rows="2">${esc(o.admin_note||'')}</textarea></label></div><button class="btn primary save-order-changes" id="saveOrderChangesBtn"><i class="fa-solid fa-floppy-disk"></i> Simpan Perubahan</button></section>
+    <div class="dapur-top">
+      <div>
+        <span class="pill ${orderBadge(o.order_status)}">${esc(label(o.order_status))}</span>
+        <span class="pill ${paymentBadge(o.payment_status)}">${esc(label(o.payment_status))}</span>
+        <p>${fmtDate(o.created_at)}</p>
+      </div>
+      <strong>${rupiah(o.total)}</strong>
+    </div>
+
+    <section class="dapur-section">
+      <h3><i class="fa-solid fa-user"></i> Data Pelanggan</h3>
+      <div class="dapur-fields">
+        <label>Nama<input value="${esc(o.customer_name||'-')}" readonly></label>
+        <label>No HP / WhatsApp<input value="${esc(o.customer_whatsapp||'-')}" readonly></label>
+        <label class="full">Alamat<textarea readonly>${esc(o.customer_address||'-')}</textarea></label>
+      </div>
+      <div class="dapur-links">
+        ${wa?`<a class="btn success" target="_blank" rel="noopener" href="https://wa.me/${esc(wa)}"><i class="fa-brands fa-whatsapp"></i> WhatsApp</a>`:''}
+        ${mapLink?`<a class="btn soft" target="_blank" rel="noopener" href="${mapLink}"><i class="fa-solid fa-location-dot"></i> Lokasi</a>`:''}
+      </div>
+    </section>
+
+    <section class="dapur-section">
+      <h3><i class="fa-solid fa-mobile-screen-button"></i> Produk & Unit</h3>
+      ${productHtml}
+      <div class="section-subtitle">IMEI / Serial Number</div>
+      <div class="unit-manager-simple">${items.map(i=>buildUnitManager(i)).join('')}</div>
+    </section>
+
+    <section class="dapur-section">
+      <h3><i class="fa-solid fa-truck"></i> Pengiriman</h3>
+      <div class="dapur-fields">
+        <label>Metode Pengiriman<input value="${esc(shippingLabel(o,ship))}" readonly></label>
+        ${shippingType!=='pickup'?`
+          <label>Kurir / Ekspedisi<input id="shippingCourier" value="${esc(ship?.courier||'')}"></label>
+          <label>Ongkir<input id="shippingFee" inputmode="numeric" value="${Number(o.shipping_fee||0)}"></label>
+          <label>Resi / Kode Pengiriman<input id="trackingNumber" value="${esc(ship?.tracking_number||'')}"></label>
+        `:`<input type="hidden" id="trackingNumber" value="${esc(ship?.tracking_number||'')}">`}
+      </div>
+      ${mapLink?`<div class="dapur-links"><a class="btn soft" target="_blank" rel="noopener" href="${mapLink}"><i class="fa-solid fa-location-dot"></i> Buka Titik Lokasi</a></div>`:''}
+    </section>
+
+    <section class="dapur-section">
+      <h3><i class="fa-solid fa-wallet"></i> Pembayaran</h3>
+      <div class="money-simple">
+        <div><span>Subtotal Produk</span><strong>${rupiah(o.subtotal)}</strong></div>
+        <div><span>Diskon</span><strong>${rupiah(o.discount)}</strong></div>
+        <div><span>Ongkir</span><strong>${rupiah(o.shipping_fee)}</strong></div>
+        <div class="grand"><span>Total</span><strong>${rupiah(o.total)}</strong></div>
+        <div><span>Sudah Dibayar</span><strong>${rupiah(o.amount_paid)}</strong></div>
+        <div><span>Sisa Tagihan</span><strong>${rupiah(o.remaining_amount)}</strong></div>
+      </div>
+      ${buildSimplePaymentAction(o,pay)}
+      ${buildManualPaymentSimple(o)}
+    </section>
+
+    <section class="dapur-section">
+      <h3><i class="fa-solid fa-shield-halved"></i> Garansi</h3>
+      <p class="section-help">Garansi mengikuti unit / IMEI. Satu unit dapat memiliki Garansi Tukar Unit dan Garansi Service.</p>
+      ${buildSimpleWarrantyManager(o, items)}
+    </section>
+
+    <section class="dapur-section dapur-save">
+      <h3><i class="fa-solid fa-clipboard-check"></i> Status Pesanan</h3>
+      <div class="dapur-fields">
+        <label>Status
+          <select id="adminOrderStatus">
+            ${['menunggu_diproses','dikemas','dikirim','dalam_perjalanan','selesai','dibatalkan','gagal_dikirim'].map(v=>`<option value="${v}" ${o.order_status===v?'selected':''}>${esc(label(v))}</option>`).join('')}
+          </select>
+        </label>
+        <label class="full">Catatan Admin<textarea id="adminNote" rows="2">${esc(o.admin_note||'')}</textarea></label>
+      </div>
+      <div class="modal-actions sticky-actions order-sticky-actions">
+        ${currentUserRole === 'superadmin' ? `<button class="btn danger" id="deleteCurrentOrderBtn" type="button"><i class="fa-solid fa-trash"></i> Hapus</button>` : ''}
+        <div class="action-spacer"></div>
+        <button class="btn soft" id="closeDetailBottomBtn" type="button"><i class="fa-solid fa-xmark"></i> Tutup</button>
+        <button class="btn primary save-order-changes" id="saveOrderChangesBtn" type="button"><i class="fa-solid fa-floppy-disk"></i> Simpan Perubahan</button>
+      </div>
+    </section>
   </div>`;
   if(pay?.proof_url) document.querySelectorAll('.view-current-proof').forEach(btn=>btn.onclick=()=>viewProof(pay.proof_url));
-  bindUnitActions(o); bindSimpleWarrantyActions(o); bindSimpleAdminActions(o,pay,ship,shippingType);
+  bindUnitActions(o);
+  bindSimpleWarrantyActions(o);
+  bindSimpleAdminActions(o,pay,ship,shippingType);
+  $("closeDetailBottomBtn")?.addEventListener("click", closeDetail);
+  $("deleteCurrentOrderBtn")?.addEventListener("click", async () => {
+    if(!confirm(`Hapus order ${o.order_number || o.id}? Tindakan ini tidak dapat dibatalkan.`)) return;
+    const btn = $("deleteCurrentOrderBtn");
+    setBusy(btn,true,"Menghapus...");
+    const { error } = await client.rpc("admin_delete_product_orders",{p_order_ids:[Number(o.id)]});
+    if(error){
+      console.error(error);
+      alert("Gagal menghapus order: " + error.message);
+      setBusy(btn,false);
+      return;
+    }
+    closeDetail();
+    await loadOrders();
+  });
 }
 
 function buildManualPaymentSimple(o){
