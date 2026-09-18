@@ -136,3 +136,21 @@ footer{text-align:center;color:#89979b;padding:26px 16px 34px;font-size:11px}
 }
 
 .simple-warranty-list:before{content:'Riwayat Garansi';display:block;font-size:12px;font-weight:800;color:#64748b;text-transform:uppercase;letter-spacing:.04em;padding-top:13px}
+
+
+/* ===== V6: model pengelolaan seperti Dapur ===== */
+.address-cell{display:block;max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.phone-link{font-weight:700;text-decoration:none;color:inherit}
+.phone-link:hover{text-decoration:underline}
+.table-actions{display:flex;align-items:center;gap:7px;flex-wrap:wrap;min-width:250px}
+.table-actions .btn{padding:8px 10px;font-size:12px;white-space:nowrap}
+.payment-mini{display:block;margin-top:5px;font-size:11px;font-weight:700}
+.bulk-delete-btn[hidden]{display:none!important}
+.section-subtitle{margin:16px 0 10px;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:#64748b}
+.section-help{margin:-3px 0 14px;color:#64748b;font-size:13px;line-height:1.55}
+.unit-manager-simple .unit-manager-card{margin-bottom:10px}
+.order-sticky-actions{margin-top:18px}
+.action-spacer{flex:1}
+@media(max-width:900px){
+  .table-actions{min-width:220px}
+}
