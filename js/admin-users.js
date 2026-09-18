@@ -380,7 +380,7 @@ async function saveUserPassword(){
   btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan...';
   setPasswordMessage("");
   try{
-    const { data, error } = await client.functions.invoke("admin-reset-password", {
+    const { data, error } = await client.functions.invoke("dynamic-endpoint", {
       body: { target_user_id: passwordTarget.userId, password }
     });
     if(error) throw error;
