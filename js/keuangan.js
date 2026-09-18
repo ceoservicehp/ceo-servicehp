@@ -241,11 +241,17 @@ function updateUjangSummary(rows = []){
     const dasarEl = document.getElementById("ujangTotalDasar");
     const ujangEl = document.getElementById("ujangTotalBagian");
     const ceoEl = document.getElementById("ceoTotalBagian");
+    const receivedEl = document.getElementById("ujangTotalReceived");
+    const unreceivedEl = document.getElementById("ujangTotalUnreceived");
+    const totalReceived = rows.reduce((sum,row)=>sum + Number(row._ujang_received || 0),0);
+    const totalUnreceived = rows.reduce((sum,row)=>{ const hak=getUjangShare(row).bagianUjang; return sum + Math.max(0,hak-Number(row._ujang_received||0)); },0);
 
     if(unitEl) unitEl.textContent = `${rows.length} Unit`;
     if(dasarEl) dasarEl.textContent = rupiah(summary.dasar);
     if(ujangEl) ujangEl.textContent = rupiah(summary.ujang);
     if(ceoEl) ceoEl.textContent = rupiah(summary.ceo);
+    if(receivedEl) receivedEl.textContent = rupiah(totalReceived);
+    if(unreceivedEl) unreceivedEl.textContent = rupiah(totalUnreceived);
 }
 
 
@@ -400,6 +406,14 @@ async function loadFinance(){
     }
     fullDroneData = [];
     fullUjangData = allFinished.filter(isUjangJob);
+    if(fullUjangData.length){
+        const ujangIds=fullUjangData.map(r=>r.id);
+        const {data:receipts,error:receiptError}=await client.from("ujang_receipts").select("*").in("service_order_id",ujangIds).order("received_at",{ascending:false});
+        if(receiptError) console.error("Gagal mengambil penerimaan UJANG:",receiptError);
+        const receiptMap=new Map();
+        (receipts||[]).forEach(x=>{ const k=String(x.service_order_id); if(!receiptMap.has(k)) receiptMap.set(k,[]); receiptMap.get(k).push(x); });
+        fullUjangData.forEach(r=>{ r._ujang_receipts=receiptMap.get(String(r.id))||[]; r._ujang_received=r._ujang_receipts.reduce((a,x)=>a+Number(x.amount||0),0); });
+    }
 
     incomeData = hpRows.slice(start, start + pageSize);
     laptopData = fullLaptopData.slice(start, start + pageSize);
@@ -860,7 +874,7 @@ else if(currentTab === "ujang"){
     tbody.innerHTML = "";
 
     if(!ujang.length){
-        tbody.innerHTML = `<tr><td colspan="12" class="empty-ujang">Belum ada service selesai yang dikerjakan UJANG pada periode ini.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="16" class="empty-ujang">Belum ada service selesai yang dikerjakan UJANG pada periode ini.</td></tr>`;
         return;
     }
 
@@ -869,6 +883,9 @@ else if(currentTab === "ujang"){
         const perangkat = [row.kategori_perangkat, row.tipe_model || row.brand]
             .filter(Boolean).join(" · ") || "-";
         const sourceClass = calc.sumber === "UJANG" ? "source-ujang" : "source-ceo";
+        const received = Math.min(calc.bagianUjang, Number(row._ujang_received || 0));
+        const remaining = Math.max(0, calc.bagianUjang - received);
+        const receiptState = received <= 0 ? {cls:"pending",label:"Belum Diterima"} : remaining > 0 ? {cls:"partial",label:"Diterima Sebagian"} : {cls:"done",label:"Sudah Diterima"};
 
         tbody.innerHTML += `
         <tr>
@@ -883,7 +900,11 @@ else if(currentTab === "ujang"){
             <td class="share-base">${rupiah(calc.dasar)}</td>
             <td><span class="split-badge">${calc.persenUjang}% / ${calc.persenCeo}%</span></td>
             <td class="share-ujang">${rupiah(calc.bagianUjang)}</td>
+            <td class="received-money">${rupiah(received)}</td>
+            <td class="unreceived-money">${rupiah(remaining)}</td>
+            <td><span class="receipt-status ${receiptState.cls}">${receiptState.label}</span></td>
             <td class="share-ceo">${rupiah(calc.bagianCeo)}</td>
+            <td><button type="button" class="btn-receipt" data-ujang-receipt-order="${row.id}"><i class="fa-solid fa-hand-holding-dollar"></i> Catat</button></td>
         </tr>`;
     });
 }
@@ -1559,6 +1580,36 @@ function setupUjangCapital(){
 
 document.addEventListener("DOMContentLoaded", setupUjangCapital);
 
+
+/* ================= PENERIMAAN HAK UJANG ================= */
+function getUjangReceiptRow(orderId){ return fullUjangData.find(r=>String(r.id)===String(orderId)); }
+function receiptDateLocal(){ const d=new Date(); d.setMinutes(d.getMinutes()-d.getTimezoneOffset()); return d.toISOString().slice(0,16); }
+function renderUjangReceiptHistory(row){
+ const box=document.getElementById("ujangReceiptHistory"); if(!box)return;
+ const list=row?._ujang_receipts||[];
+ if(!list.length){box.innerHTML='<p style="padding:10px 12px;color:#8a989c;font-size:9px">Belum ada penerimaan yang dicatat.</p>';return;}
+ box.innerHTML=list.map(x=>`<div class="receipt-history-item"><div><b>${x.method||"-"}</b><small>${x.received_at?new Date(x.received_at).toLocaleString("id-ID"):"-"}${x.note?` · ${x.note}`:""}</small></div><strong>${rupiah(x.amount)}</strong></div>`).join("");
+}
+function openUjangReceiptModal(orderId){
+ const row=getUjangReceiptRow(orderId); if(!row)return; const calc=getUjangShare(row); const received=Number(row._ujang_received||0); const remaining=Math.max(0,calc.bagianUjang-received);
+ document.getElementById("ujangReceiptOrderId").value=row.id; document.getElementById("ujangReceiptTitle").textContent=`Penerimaan · ${row.nama||"Order #"+row.id}`;
+ document.getElementById("receiptHakUjang").textContent=rupiah(calc.bagianUjang); document.getElementById("receiptAlready").textContent=rupiah(received); document.getElementById("receiptRemaining").textContent=rupiah(remaining);
+ document.getElementById("ujangReceiptAmount").value=remaining>0?remaining:""; document.getElementById("ujangReceiptAmount").max=remaining; document.getElementById("ujangReceiptDate").value=receiptDateLocal(); document.getElementById("ujangReceiptMethod").value="TRANSFER"; document.getElementById("ujangReceiptNote").value="";
+ renderUjangReceiptHistory(row); const btn=document.getElementById("saveUjangReceipt"); if(btn)btn.disabled=remaining<=0; document.getElementById("ujangReceiptModal").style.display="flex";
+}
+function closeUjangReceiptModal(){const m=document.getElementById("ujangReceiptModal");if(m)m.style.display="none";}
+async function saveUjangReceipt(){
+ const orderId=document.getElementById("ujangReceiptOrderId")?.value; const row=getUjangReceiptRow(orderId); if(!row)return; const calc=getUjangShare(row); const already=Number(row._ujang_received||0); const remaining=Math.max(0,calc.bagianUjang-already); const amount=Number(document.getElementById("ujangReceiptAmount")?.value||0);
+ if(amount<=0){alert("Nominal diterima harus lebih dari 0.");return;} if(amount>remaining){alert(`Nominal melebihi sisa Hak UJANG. Maksimal ${rupiah(remaining)}.`);return;}
+ const date=document.getElementById("ujangReceiptDate")?.value; const method=document.getElementById("ujangReceiptMethod")?.value||"TRANSFER"; const note=document.getElementById("ujangReceiptNote")?.value?.trim()||null; const {data:{user}}=await client.auth.getUser();
+ const payload={service_order_id:Number(orderId),amount,received_at:date?new Date(date).toISOString():new Date().toISOString(),method,note,created_by:user?.id||null}; const btn=document.getElementById("saveUjangReceipt"); if(btn)btn.disabled=true;
+ const {error}=await client.from("ujang_receipts").insert(payload); if(btn)btn.disabled=false; if(error){console.error(error);alert("Gagal mencatat penerimaan UJANG: "+error.message);return;} closeUjangReceiptModal(); await loadFinance();
+}
+function setupUjangReceipts(){
+ document.getElementById("ujangTable")?.addEventListener("click",e=>{const b=e.target.closest("[data-ujang-receipt-order]");if(b)openUjangReceiptModal(b.dataset.ujangReceiptOrder);});
+ ["closeUjangReceiptModal","cancelUjangReceiptModal"].forEach(id=>document.getElementById(id)?.addEventListener("click",closeUjangReceiptModal)); document.getElementById("saveUjangReceipt")?.addEventListener("click",saveUjangReceipt); document.getElementById("ujangReceiptModal")?.addEventListener("click",e=>{if(e.target.id==="ujangReceiptModal")closeUjangReceiptModal();});
+}
+document.addEventListener("DOMContentLoaded",setupUjangReceipts);
 
 /* ================= LAPTOP & DRONE FINANCE ================= */
 let deviceFinanceSettings={bmn_percent:25,ppn_percent:11};
