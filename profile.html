@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Profil Akun — CEO Service HP</title>
 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/profile.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
@@ -18,67 +21,46 @@
 <body>
 <div class="wrapper">
 
-<!-- ================= HEADER ================= -->
-<header>
-  <div id="logo-container">
-    <img src="images/logo.png" width="55">
+<header class="site-header">
+  <div class="header-inner">
+    <a href="index.html" class="brand">
+      <img src="images/logo.png" alt="CEO Part & Service">
+      <div class="brand-text">
+        <strong>CEO PART & SERVICE</strong>
+        <span>CELLULAR ENGINEERING OFFICER</span>
+      </div>
+    </a>
 
-    <div>
-      <h1>CEO - PROFIL AKUN</h1>
-      <div class="tagline">CELLULAR ENGINEERING OFFICER</div>
-    </div>
+    <button class="menu-toggle" id="menuToggle" aria-label="Buka menu">
+      <i class="fa-solid fa-bars"></i>
+    </button>
+
+    <nav class="top-nav">
+      <a href="index.html" class="nav-btn"><i class="fa-solid fa-house"></i> Beranda</a>
+      <a href="profile.html" class="nav-btn active"><i class="fa-solid fa-user"></i> Profil</a>
+      <a href="dapur.html" class="nav-btn"><i class="fa-solid fa-kitchen-set"></i> Dapur</a>
+      <a href="produk.html" class="nav-btn"><i class="fa-solid fa-box-open"></i> Produk</a>
+      <a href="keuangan.html" class="nav-btn"><i class="fa-solid fa-wallet"></i> Keuangan</a>
+      <a href="layanan.html" class="nav-btn"><i class="fa-solid fa-screwdriver-wrench"></i> Layanan</a>
+      <a href="ceo_status.html" class="nav-btn"><i class="fa-solid fa-chart-line"></i> Status</a>
+      <button id="logoutBtn" class="nav-btn logout-btn"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+    </nav>
   </div>
-  
-  <button class="menu-toggle" id="menuToggle">
-  <i class="fa-solid fa-bars"></i>
-</button>
 </header>
-
-<!-- ================= NAVBAR ================= -->
-<nav class="top-nav">
-  <a href="index.html" class="nav-btn">
-    <i class="fa-solid fa-house"></i>
-    Beranda
-  </a>
-
-  <a href="profile.html" class="nav-btn">
-    <i class="fa-solid fa-user"></i>
-    Profil
-  </a>
- 
-  <a href="dapur.html" class="nav-btn">
-    <i class="fa-solid fa-kitchen-set"></i>
-    Dapur
-  </a>
-
-  <a href="produk.html" class="nav-btn">
-    <i class="fa-solid fa-box-open"></i>
-    Produk
-  </a>
-
-  <a href="keuangan.html" class="nav-btn">
-    <i class="fa-solid fa-wallet"></i>
-    Keuangan
-  </a>
-
-  <a href="layanan.html" class="nav-btn">
-    <i class="fa-solid fa-screwdriver-wrench"></i>
-    Layanan
-  </a>
-
-  <a href="ceo_status.html" class="nav-btn">
-    <i class="fa-solid fa-chart-line"></i>
-    Status
-  </a>
-
-  <!-- 🔴 LOGOUT -->
-  <button id="logoutBtn" class="nav-btn logout-btn">
-    <i class="fa-solid fa-right-from-bracket"></i>
-    Logout
-  </button>
-</nav>
 <div class="nav-overlay" id="navOverlay"></div>
 
+<section class="profile-hero">
+  <div class="profile-hero-inner">
+    <div>
+      <div class="hero-badge"><i class="fa-solid fa-id-card"></i> ADMIN PANEL</div>
+      <h1>Profil <span>Akun</span></h1>
+      <p>Kelola informasi akun, data profesional, rekening, dokumen, preferensi, honor, dan keamanan akun CEO Part & Service.</p>
+    </div>
+    <div class="hero-side">
+      <div class="hero-mini"><i class="fa-solid fa-shield-halved"></i><span>Akun & Keamanan</span></div>
+    </div>
+  </div>
+</section>
 
 <main class="container">
 
