@@ -387,3 +387,47 @@ footer{
 .btn-password{background:#e7f5f5;color:#176a72}.btn-password:hover{background:#d8eeee}
 .action-cell{display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
 @media(max-width:768px){.password-actions>*{flex:1 1 100%}.modal-head,.password-form{padding-left:18px;padding-right:18px}.password-actions{padding-left:18px;padding-right:18px}}
+
+/* =========================================================
+   CEO UI ALIGNMENT V2 — selaras Profile / Keuangan / Dapur
+   ========================================================= */
+:root{--ceo-teal:#16858c;--ceo-teal-dark:#176d74;--ceo-soft:#eef8f8;--ceo-bg:#f5f7fa;--ceo-border:#e4e9ee;--ceo-text:#263238;--ceo-muted:#718096}
+body{background:var(--ceo-bg);color:var(--ceo-text)}
+header{background:#fff;color:var(--ceo-text);padding:10px 4%;border-radius:0;box-shadow:0 1px 0 var(--ceo-border);position:relative;z-index:20}
+#logo-container img{width:46px;height:46px;object-fit:contain}
+#logo-container h1{font-size:17px;color:#183b40;letter-spacing:.4px}
+.tagline{font-size:10px;color:var(--ceo-muted);opacity:1}
+.menu-toggle{color:#1d5f65}
+.top-nav{padding:8px 4%;gap:7px;box-shadow:0 2px 10px rgba(15,23,42,.05);border-bottom:1px solid var(--ceo-border)}
+.nav-btn{background:transparent;color:#56616b;border-radius:9px;padding:9px 11px;font-size:13px;flex:initial;min-width:105px}
+.nav-btn:hover{background:var(--ceo-soft);color:var(--ceo-teal-dark);transform:none}
+.container{max-width:1380px;padding:24px 20px 36px}
+.admin-content{padding:0;background:transparent;box-shadow:none;border-radius:0}
+.admin-content:before{content:'Manajemen Users';display:block;background:linear-gradient(105deg,#1f6f78,#22a7ad);color:#fff;font-size:24px;font-weight:750;padding:24px 26px 7px;border-radius:16px 16px 0 0;box-shadow:0 10px 26px rgba(31,111,120,.12)}
+.admin-content:after{content:'Kelola akun, role, status akses, dan keamanan pengguna CEO Part & Service.';display:block;background:linear-gradient(105deg,#1f6f78,#22a7ad);color:rgba(255,255,255,.86);font-size:13px;padding:0 26px 24px;margin-bottom:18px;border-radius:0 0 16px 16px}
+.header-buttons{display:flex;justify-content:flex-end;gap:9px;margin-bottom:12px}
+.btn-refresh,.btn-back{border:1px solid var(--ceo-border);background:#fff;color:#475569;padding:9px 13px;border-radius:9px;font-weight:650;cursor:pointer;box-shadow:0 2px 8px rgba(15,23,42,.04)}
+.btn-refresh:hover,.btn-back:hover{border-color:#a9d5d7;color:var(--ceo-teal-dark);background:#f9ffff}
+.filter-section{background:#fff;border:1px solid var(--ceo-border);border-radius:13px;padding:13px;margin-bottom:14px;box-shadow:0 4px 14px rgba(15,23,42,.035)}
+.search-box{margin:0;flex:1;min-width:250px}
+.search-box input,.filter-section select{height:40px;border:1px solid #dbe2e8;border-radius:9px;background:#fff;font-size:13px;padding:0 12px;outline:none}
+.search-box input{max-width:none;padding-left:38px}
+.search-box i{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:#94a3b8}
+.filter-section select:focus,.search-box input:focus{border-color:#79c7cb;box-shadow:0 0 0 3px rgba(22,133,140,.09)}
+.table-wrapper{background:#fff;border:1px solid var(--ceo-border);border-radius:13px;overflow:auto;box-shadow:0 4px 14px rgba(15,23,42,.035)}
+.admin-table{margin:0;min-width:1080px}
+.admin-table th,.admin-table td{border:0;border-bottom:1px solid #edf1f4;padding:12px 11px;font-size:12.5px;vertical-align:middle}
+.admin-table th{background:#f7fafb;color:#52636a;text-transform:none;font-size:11.5px;letter-spacing:.15px;white-space:nowrap}
+.admin-table tbody tr:last-child td{border-bottom:0}.admin-table tr:hover{background:#fbfefe}
+.role-select,.position-input{border:1px solid #dbe2e8;border-radius:8px;background:#fff;padding:7px 8px;font-size:12px;color:#334155;max-width:145px}
+.badge,.status-badge{border-radius:999px;padding:5px 9px;font-size:11px;font-weight:700}
+.action-btn{padding:7px 10px;border-radius:8px;font-size:11.5px;font-weight:650;margin:2px;white-space:nowrap}
+.btn-approve{background:#e8f7f7;color:#176d74;border:1px solid #c6e9ea}.btn-approve:hover{background:#d9f1f2}
+.btn-delete{background:#fff0f0;color:#b33a3a;border:1px solid #f2cece}.btn-delete:hover{background:#ffe4e4}
+.btn-password,.password-btn{background:#eef4ff!important;color:#355a9f!important;border:1px solid #d5e1fa!important}
+.modal{backdrop-filter:blur(3px);background:rgba(15,23,42,.42)}
+.modal-box{border-radius:15px;width:min(430px,calc(100% - 30px));padding:22px;border:1px solid #e5e9ed;box-shadow:0 24px 70px rgba(15,23,42,.18);text-align:left}
+.modal-box h3{margin:0 0 7px;color:#183b40;font-size:18px}.modal-box p{color:#64748b;font-size:13px;line-height:1.55}
+.modal-actions{justify-content:flex-end}.btn-danger,.btn-secondary{border:0;padding:9px 14px;border-radius:9px;font-weight:650;cursor:pointer}.btn-danger{background:#b94242}.btn-secondary{background:#eef1f4;color:#475569}
+footer{background:transparent;color:#87939d;margin-top:18px;padding:14px;border-radius:0;font-size:11px}
+@media(max-width:768px){header{padding:9px 16px}.top-nav{padding:92px 16px 22px;grid-template-columns:1fr 1fr;gap:9px}.nav-btn{min-width:0;padding:12px;border-radius:11px;background:#f5f7f9}.container{padding:16px 12px 28px}.admin-content:before{font-size:20px;padding:20px 18px 6px}.admin-content:after{padding:0 18px 20px;font-size:12px}.header-buttons{justify-content:stretch}.header-buttons button{flex:1}.filter-section{align-items:stretch}.search-box,.filter-section select{width:100%}.admin-table th,.admin-table td{padding:10px 9px}}
