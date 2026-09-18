@@ -3,78 +3,81 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Daftar Akun - CEO Service HP</title>
-
+<title>Daftar Akun - CEO Part & Service</title>
 <link rel="stylesheet" href="css/login.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/supabase.js"></script>
 </head>
 <body>
-
-<div class="login-wrapper">
-  <div class="login-card">
-
+<div class="login-wrapper register-wrapper">
+  <div class="login-card register-card">
     <div class="logo-area">
-      <img src="images/logo.png" class="logo">
-      <h2>Daftar Admin</h2>
-      <p class="subtitle">Akun harus disetujui Superadmin</p>
+      <img src="images/logo.png" class="logo" alt="CEO Part & Service">
+      <span class="eyebrow">CEO PART & SERVICE</span>
+      <h2>Daftar Akun Admin</h2>
+      <p class="subtitle">Lengkapi data akun. Akun baru dapat digunakan setelah disetujui Superadmin.</p>
     </div>
 
-    <form id="registerForm" class="auth-form">
-
+    <form id="registerForm" class="auth-form" novalidate>
+      <div class="field-label">Nama Lengkap</div>
       <div class="input-group">
         <i class="fa-solid fa-user"></i>
-        <input type="text" id="registerName" placeholder="Nama Lengkap" required>
+        <input type="text" id="registerName" name="registerName" placeholder="Contoh: Ikmal Falahi" autocomplete="name" required>
       </div>
 
+      <div class="field-label">Email</div>
       <div class="input-group">
         <i class="fa-solid fa-envelope"></i>
-        <input type="email"
-         id="registerEmail"
-         autocomplete="username"
-         required>
+        <input type="email" id="registerEmail" name="registerEmail" placeholder="nama@email.com" autocomplete="email" required>
       </div>
 
-      <div class="input-group">
-        <i class="fa-solid fa-phone"></i>
-        <input type="tel" id="registerPhone" placeholder="No HP" required>
+      <div class="register-grid">
+        <div>
+          <div class="field-label">No. HP</div>
+          <div class="input-group">
+            <i class="fa-solid fa-phone"></i>
+            <input type="tel" id="registerPhone" name="registerPhone" placeholder="08xxxxxxxxxx" autocomplete="tel" inputmode="tel" required>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Jabatan</div>
+          <div class="input-group">
+            <i class="fa-solid fa-briefcase"></i>
+            <input type="text" id="registerPosition" name="registerPosition" placeholder="Contoh: Teknisi" required>
+          </div>
+        </div>
       </div>
 
-      <div class="input-group">
-        <i class="fa-solid fa-briefcase"></i>
-        <input type="text" id="registerPosition" placeholder="Jabatan" required>
-      </div>
-
-      <div class="input-group">
+      <div class="field-label">Password</div>
+      <div class="input-group password-group">
         <i class="fa-solid fa-lock"></i>
-        <input type="password"
-         id="registerPassword"
-         autocomplete="new-password"
-         required>
+        <input type="password" id="registerPassword" name="registerPassword" placeholder="Minimal 8 karakter" autocomplete="new-password" required minlength="8">
+        <button type="button" class="password-toggle" id="togglePassword" aria-label="Tampilkan password"><i class="fa-regular fa-eye"></i></button>
+      </div>
+      <div class="password-hint" id="passwordHint"><i class="fa-solid fa-shield-halved"></i> Gunakan minimal 8 karakter.</div>
+
+      <div class="field-label">Konfirmasi Password</div>
+      <div class="input-group password-group">
+        <i class="fa-solid fa-lock"></i>
+        <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Ulangi password" autocomplete="new-password" required minlength="8">
+        <button type="button" class="password-toggle" id="toggleConfirmPassword" aria-label="Tampilkan konfirmasi password"><i class="fa-regular fa-eye"></i></button>
       </div>
 
-      <button type="submit" class="login-btn">
-        <i class="fa-solid fa-user-plus"></i>
-        Daftar Akun
+      <button type="submit" class="login-btn" id="registerButton">
+        <i class="fa-solid fa-user-plus"></i><span>Daftar Akun</span>
       </button>
 
-      <div class="info-box">
-        Akun akan aktif setelah disetujui oleh Superadmin.
+      <div class="info-box register-info">
+        <i class="fa-solid fa-circle-info"></i>
+        <span>Setelah registrasi, verifikasi email bila diminta. Superadmin tetap harus mengaktifkan akun sebelum dapat mengakses sistem.</span>
       </div>
-
     </form>
 
-    <div id="alertBox" class="alert-box" style="display:none;"></div>
-
-    <div class="switch-links">
-      <a href="login.html">Kembali ke Login</a>
-    </div>
-
+    <div id="alertBox" class="alert-box" style="display:none;" role="alert"></div>
+    <div class="switch-links single"><a href="login.html"><i class="fa-solid fa-arrow-left"></i> Kembali ke Login</a></div>
   </div>
 </div>
-
 <script src="js/register.js"></script>
 </body>
 </html>
