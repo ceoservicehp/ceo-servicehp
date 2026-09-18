@@ -18,8 +18,9 @@
 
     <div class="logo-area">
       <img src="images/logo.png" class="logo">
-      <h2>Admin Login</h2>
-      <p class="subtitle">Sistem Internal CEO Service HP</p>
+      <span class="eyebrow">CEO PART & SERVICE</span>
+      <h2>Masuk ke Sistem</h2>
+      <p class="subtitle">Kelola operasional CEO Part & Service dalam satu dashboard.</p>
     </div>
 
     <!-- GOOGLE LOGIN -->
@@ -52,48 +53,12 @@
 
     </form>
 
-    <!-- RESET FORM -->
-    <form id="resetForm" class="auth-form" style="display:none;">
-
-      <div class="input-group">
-        <i class="fa-solid fa-envelope"></i>
-        <input type="email" id="resetEmail" placeholder="Masukkan Email Anda" required>
-      </div>
-
-      <button type="submit" class="login-btn">
-        <i class="fa-solid fa-paper-plane"></i>
-        Kirim Link Reset
-      </button>
-
-    </form>
-
-    <!-- UPDATE PASSWORD -->
-    <form id="updatePasswordForm" class="auth-form" style="display:none;">
-
-      <input type="email" id="recoveryEmail" style="display:none;">
-
-      <div class="input-group">
-        <i class="fa-solid fa-lock"></i>
-        <input type="password" id="newPassword" placeholder="Password Baru" required>
-      </div>
-
-      <div class="input-group">
-        <i class="fa-solid fa-lock"></i>
-        <input type="password" id="confirmPassword" placeholder="Konfirmasi Password" required>
-      </div>
-
-      <button type="submit" class="login-btn">
-        <i class="fa-solid fa-check"></i>
-        Update Password
-      </button>
-
-    </form>
 
     <div id="alertBox" class="alert-box" style="display:none;"></div>
 
     <div class="switch-links">
-      <a href="register.html">Daftar akun</a>
-      <span id="showReset">Lupa password?</span>
+      <a href="register.html"><i class="fa-regular fa-user"></i> Daftar akun</a>
+      <a href="lupa-password.html" class="forgot-link"><i class="fa-solid fa-key"></i> Lupa password?</a>
     </div>
 
   </div>
