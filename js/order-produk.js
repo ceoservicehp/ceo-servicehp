@@ -657,7 +657,7 @@ function buildSimpleWarrantyManager(order, items){
 }
 
 function buildSimpleWarrantyUnit(unit){
-  const warranties = currentDetailWarranties.filter(w => Number(w.product_unit_id || w.unit_id) === Number(unit.id));
+  const warranties = currentDetailWarranties.filter(w => Number(w.order_item_unit_id) === Number(unit.id));
   return `<article class="simple-warranty-unit" data-unit-id="${unit.id}">
     <div class="simple-warranty-head">
       <div>
@@ -681,7 +681,7 @@ function simpleWarrantyRow(w){
   return `<div class="simple-warranty-row" data-warranty-id="${w.id}">
     <div>
       <strong>${esc(labelWarrantyType(w.warranty_type || w.type))}</strong>
-      <small>${esc(duration)} · ${fmtDateOnly(w.start_date)} — ${fmtDateOnly(w.end_date)}</small>
+      <small>${esc(duration)} · ${fmtDateOnly(w.warranty_start)} — ${fmtDateOnly(w.warranty_end)}</small>
     </div>
     <div class="simple-warranty-actions">
       <span class="badge ${active ? 'paid' : 'cancel'}">${active ? 'Aktif' : 'Nonaktif'}</span>
@@ -691,7 +691,7 @@ function simpleWarrantyRow(w){
 }
 
 function labelWarrantyType(v){
-  return ({tukar_unit:'Tukar Unit', service:'Service', garansi_service:'Service', replacement:'Tukar Unit'})[v] || label(v || 'Garansi');
+  return ({tukar_unit:'Tukar Unit', service:'Service', garansi_service:'Service', replacement:'Tukar Unit','Tukar Unit':'Tukar Unit','Service':'Service'})[v] || label(v || 'Garansi');
 }
 function labelWarrantyUnit(v){
   return ({hari:'Hari', bulan:'Bulan', tahun:'Tahun'})[v] || label(v || '');
@@ -703,17 +703,17 @@ function fmtDateOnly(v){
 }
 
 function simpleWarrantyEditorHtml(unitId, w=null){
-  const type = w?.warranty_type || w?.type || 'tukar_unit';
-  const duration = Number(w?.duration_value || (type === 'service' || type === 'garansi_service' ? 1 : 1));
-  const durationUnit = w?.duration_unit || (type === 'service' || type === 'garansi_service' ? 'tahun' : 'bulan');
-  const start = String(w?.start_date || new Date().toISOString().slice(0,10)).slice(0,10);
-  const end = w?.end_date || addDurationDate(start,duration,durationUnit);
+  const type = w?.warranty_type || 'Tukar Unit';
+  const duration = Number(w?.duration_value || (type === 'Service' ? 1 : 1));
+  const durationUnit = w?.duration_unit || (type === 'Service' ? 'tahun' : 'bulan');
+  const start = String(w?.warranty_start || new Date().toISOString().slice(0,10)).slice(0,10);
+  const end = w?.warranty_end || addDurationDate(start,duration,durationUnit);
   return `<div class="simple-warranty-form" data-unit-id="${unitId}" data-warranty-id="${w?.id || ''}">
     <div class="dapur-fields">
       <label>Jenis Garansi
         <select class="simple-warranty-type">
-          <option value="tukar_unit" ${type==='tukar_unit' || type==='replacement' ? 'selected':''}>Tukar Unit</option>
-          <option value="service" ${type==='service' || type==='garansi_service' ? 'selected':''}>Service</option>
+          <option value="Tukar Unit" ${type==='Tukar Unit'?'selected':''}>Tukar Unit</option>
+          <option value="Service" ${type==='Service'?'selected':''}>Service</option>
         </select>
       </label>
       <label>Durasi
@@ -733,7 +733,7 @@ function simpleWarrantyEditorHtml(unitId, w=null){
         <input class="simple-warranty-end" type="date" value="${String(end || '').slice(0,10)}" readonly>
       </label>
       <label class="full">Catatan
-        <input class="simple-warranty-note" value="${esc(w?.note || '')}" placeholder="Opsional">
+        <input class="simple-warranty-note" value="${esc(w?.warranty_note || '')}" placeholder="Opsional">
       </label>
     </div>
     <label class="simple-warranty-active"><input type="checkbox" ${w?.is_active === false ? '' : 'checked'}> Garansi aktif</label>
@@ -778,10 +778,10 @@ function bindSimpleWarrantyEditor(ed, order){
 
   // Preset praktis: Tukar Unit 1 bulan, Service 1 tahun.
   type.addEventListener('change', () => {
-    if(type.value === 'tukar_unit'){
+    if(type.value === 'Tukar Unit'){
       duration.value = 1;
       unit.value = 'bulan';
-    }else if(type.value === 'service'){
+    }else if(type.value === 'Service'){
       duration.value = 1;
       unit.value = 'tahun';
     }
