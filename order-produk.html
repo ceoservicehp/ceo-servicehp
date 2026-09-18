@@ -110,16 +110,28 @@
   </section>
 
   <section class="card table-card">
-    <div class="table-toolbar"><div class="table-hint"><i class="fa-solid fa-circle-info"></i><span>Klik Detail untuk mengelola data pembeli, produk, IMEI, pembayaran, pengiriman, garansi, dan status order.</span></div></div>
+    <div class="table-toolbar">
+      <div class="table-hint"><i class="fa-solid fa-circle-info"></i><span>Kelola order produk HP melalui Detail. Nota tersedia setelah pembayaran lunas.</span></div>
+      <button id="deleteSelectedOrders" class="btn danger bulk-delete-btn" type="button" hidden><i class="fa-solid fa-trash"></i> Hapus Terpilih</button>
+    </div>
     <div class="table-scroll">
       <table>
         <thead>
           <tr>
-            <th>No</th><th>No Order</th><th>Pembeli</th><th>Produk</th><th>Tanggal</th><th>Pembayaran</th><th>Total</th><th>Status</th><th>Aksi</th>
+            <th><input type="checkbox" id="checkAllOrders" aria-label="Pilih semua"></th>
+            <th>No</th>
+            <th>Nama</th>
+            <th>Produk</th>
+            <th>Alamat</th>
+            <th>No HP</th>
+            <th>Tanggal</th>
+            <th>Status</th>
+            <th>Total</th>
+            <th>Aksi</th>
           </tr>
         </thead>
         <tbody id="orderTableBody">
-          <tr><td colspan="9" class="empty">Memuat order...</td></tr>
+          <tr><td colspan="10" class="empty">Memuat order...</td></tr>
         </tbody>
       </table>
     </div>
