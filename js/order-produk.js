@@ -281,7 +281,8 @@ function applyFilters(){
     const statMatch = activeStatFilter === "all" ||
       (activeStatFilter === "waiting" && o.order_status === "menunggu_diproses") ||
       (activeStatFilter === "proof" && proofPending) ||
-      (activeStatFilter === "unpaid" && o.payment_status !== "lunas");
+      (activeStatFilter === "unpaid" && o.payment_status !== "lunas") ||
+      (activeStatFilter === "done" && o.order_status === "selesai");
 
     return (!q || hay.includes(q)) &&
       (pf === "all" || o.payment_status === pf) &&
@@ -297,6 +298,7 @@ function updateStats(){
   $("statWaiting").textContent = orders.filter(o => o.order_status === "menunggu_diproses").length;
   $("statProof").textContent = orders.filter(o => (o.order_payments || []).some(p => p.proof_url && p.payment_status === "pending")).length;
   $("statUnpaid").textContent = orders.filter(o => o.payment_status !== "lunas").length;
+  if($("statDone")) $("statDone").textContent = orders.filter(o => o.order_status === "selesai").length;
 }
 
 function render(){
@@ -304,79 +306,31 @@ function render(){
   if(page > pages) page = pages;
   const startIndex = (page - 1) * pageSize;
   const rows = filtered.slice(startIndex, startIndex + pageSize);
-
   const from = filtered.length ? startIndex + 1 : 0;
   const to = Math.min(startIndex + pageSize, filtered.length);
   $("pageInfo").textContent = filtered.length ? `${from}-${to} dari ${filtered.length} order` : "0 order";
   $("prevPage").disabled = page <= 1;
   $("nextPage").disabled = page >= pages;
   renderPageNumbers(pages);
-
-  if(!rows.length){
-    $("orderTableBody").innerHTML = '<tr><td colspan="10" class="empty">Tidak ada order yang sesuai.</td></tr>';
-    return;
-  }
-
-  $("orderTableBody").innerHTML = rows.map(o => {
-    const items = o.order_items || [];
-    const item = items[0] || {};
-    const pay = latest(o.order_payments);
-    const ship = latest(o.order_shipments);
-    const proofPending = !!(pay?.proof_url && pay.payment_status === "pending");
-    const priority = getOrderPriority(o);
-    const extraItems = Math.max(0, items.length - 1);
-    const variantParts = [item.variant_name, item.color].filter(Boolean).join(" · ");
-
-    return `<tr class="order-row priority-row-${priority.className}">
-      <td class="selection-col"><input type="checkbox" class="order-select" data-id="${o.id}" ${selectedOrderIds.has(Number(o.id)) ? "checked" : ""} aria-label="Pilih ${esc(o.order_number || `order ${o.id}`)}"></td>
-      <td>
-        <div class="order-number-cell">
-          <strong>${esc(o.order_number || `#${o.id}`)}</strong>
-          <small><i class="fa-regular fa-clock"></i> ${fmtDate(o.created_at)}</small>
-        </div>
-      </td>
-      <td>
-        <div class="buyer-cell">
-          <strong>${esc(o.customer_name)}</strong>
-          <small><i class="fa-brands fa-whatsapp"></i> ${esc(o.customer_whatsapp)}</small>
-        </div>
-      </td>
-      <td>
-        <div class="product-cell">
-          <strong>${esc(item.product_name || "-")}</strong>
-          <small>${esc(variantParts || item.variant_name || "-")}${item.quantity ? ` · ${item.quantity} unit` : ""}</small>
-          ${extraItems ? `<span class="more-items">+${extraItems} produk lain</span>` : ""}
-        </div>
-      </td>
-      <td>
-        <span class="pill shipping-pill"><i class="fa-solid fa-truck"></i> ${esc(shippingLabel(o, ship))}</span>
-        ${ship?.courier ? `<small>${esc(ship.courier)}</small>` : ""}
-      </td>
-      <td>
-        <span class="pill ${paymentBadge(o.payment_status)}">${esc(label(o.payment_status))}</span>
-        ${proofPending ? '<small class="proof"><i class="fa-solid fa-receipt"></i> Bukti masuk</small>' : ""}
-      </td>
-      <td>
-        <div class="total-cell">
-          <strong>${rupiah(o.total)}</strong>
-          ${Number(o.remaining_amount || 0) > 0 ? `<small>Sisa ${rupiah(o.remaining_amount)}</small>` : '<small class="paid-text">Lunas</small>'}
-        </div>
-      </td>
-      <td>
-        <span class="priority-badge ${priority.className}"><i class="fa-solid ${priority.icon}"></i> ${priority.label}</span>
-      </td>
+  if(!rows.length){ $("orderTableBody").innerHTML = '<tr><td colspan="9" class="empty">Tidak ada order yang sesuai.</td></tr>'; return; }
+  $("orderTableBody").innerHTML = rows.map((o,idx) => {
+    const items=o.order_items||[], item=items[0]||{}, pay=latest(o.order_payments);
+    const proofPending=!!(pay?.proof_url && pay.payment_status==='pending');
+    const extraItems=Math.max(0,items.length-1);
+    const variantParts=[item.variant_name,item.color].filter(Boolean).join(' · ');
+    return `<tr>
+      <td><strong>${startIndex+idx+1}</strong></td>
+      <td><div class="order-number-cell"><strong>${esc(o.order_number||`#${o.id}`)}</strong></div></td>
+      <td><div class="buyer-cell"><strong>${esc(o.customer_name||'-')}</strong><small>${esc(o.customer_whatsapp||'-')}</small></div></td>
+      <td><div class="product-cell"><strong>${esc(item.product_name||'-')}</strong><small>${esc(variantParts||item.variant_name||'-')}${item.quantity?` · ${item.quantity} unit`:''}</small>${extraItems?`<span class="more-items">+${extraItems} produk lain</span>`:''}</div></td>
+      <td><small>${fmtDate(o.created_at)}</small></td>
+      <td><span class="pill ${paymentBadge(o.payment_status)}">${esc(label(o.payment_status))}</span>${proofPending?'<small class="proof"><i class="fa-solid fa-receipt"></i> Bukti masuk</small>':''}</td>
+      <td><div class="total-cell"><strong>${rupiah(o.total)}</strong>${Number(o.remaining_amount||0)>0?`<small>Sisa ${rupiah(o.remaining_amount)}</small>`:'<small class="paid-text">Lunas</small>'}</div></td>
       <td><span class="pill ${orderBadge(o.order_status)}">${esc(label(o.order_status))}</span></td>
-      <td><button class="btn primary detail-btn table-detail-btn" data-id="${o.id}" title="Buka detail order"><i class="fa-solid fa-eye"></i><span>Detail</span></button></td>
+      <td><button class="btn primary detail-btn table-detail-btn" data-id="${o.id}"><i class="fa-solid fa-eye"></i> Detail</button></td>
     </tr>`;
-  }).join("");
-
-  document.querySelectorAll(".detail-btn").forEach(b => b.onclick = () => openDetail(Number(b.dataset.id)));
-  document.querySelectorAll(".order-select").forEach(cb => cb.addEventListener("change", () => {
-    const id = Number(cb.dataset.id);
-    if(cb.checked) selectedOrderIds.add(id); else selectedOrderIds.delete(id);
-    updateBulkSelectionUI();
-  }));
-  updateBulkSelectionUI();
+  }).join('');
+  document.querySelectorAll('.detail-btn').forEach(b=>b.onclick=()=>openDetail(Number(b.dataset.id)));
 }
 
 function renderPageNumbers(totalPages){
@@ -621,61 +575,25 @@ function buildManualPaymentForm(order){
 }
 
 async function openDetail(id){
-  const o = orders.find(x => Number(x.id) === Number(id));
-  if(!o) return;
-
-  currentOrderId = o.id;
-  $("detailOrderNumber").textContent = o.order_number || `Order #${o.id}`;
-  $("detailContent").innerHTML = '<div class="detail-loading"><i class="fa-solid fa-spinner fa-spin"></i> Memuat detail...</div>';
-  $("detailModal").classList.add("show");
-  $("detailModal").setAttribute("aria-hidden", "false");
-  document.body.classList.add("modal-open");
-
-  const [terms,warranties] = await Promise.all([loadOrderFinanceSettings(o.id),loadOrderWarranties(o.id)]);
-  currentDetailTerms=terms;
-  currentDetailWarranties=warranties;
-
-  const items = o.order_items || [];
-  const pay = latest(o.order_payments);
-  const ship = latest(o.order_shipments);
-  const shippingType = inferShippingType(o, ship);
-  const totalQty = items.reduce((sum, i) => sum + Number(i.quantity || 0), 0);
-  const assignedUnits = countAssignedUnits(o);
-  const paymentHistory = buildPaymentHistory(o);
-  const mapLink = (o.latitude != null && o.longitude != null) ? `https://www.google.com/maps?q=${encodeURIComponent(o.latitude)},${encodeURIComponent(o.longitude)}` : null;
-  const wa = String(o.customer_whatsapp || '').replace(/[^0-9]/g,'');
-  const waText = encodeURIComponent(`Halo ${o.customer_name || ''}, update pesanan ${o.order_number || ''}: status ${label(o.order_status)}. Pembayaran: ${label(o.payment_status)}.${ship?.tracking_number ? ` Resi: ${ship.tracking_number}.` : ''} Terima kasih — CEO Part & Service.`);
-
-  const productHtml = items.map((i, idx) => {
-    const units = (i.order_item_units || []).slice().sort((a,b)=>Number(a.id)-Number(b.id));
-    const unitText = units.length ? units.map((u,n)=>`<span class="unit-inline"><b>Unit ${n+1}</b> · IMEI ${esc(u.imei1 || '-')} ${u.imei2 ? `· IMEI 2 ${esc(u.imei2)}` : ''} ${u.serial_number ? `· SN ${esc(u.serial_number)}` : ''}</span>`).join('') : '<span class="unit-inline empty-unit">IMEI belum ditetapkan</span>';
-    return `<article class="simple-product-row"><div class="item-number">${idx+1}</div><div class="simple-product-main"><strong>${esc(i.product_name || '-')}</strong><span>${esc([i.variant_name, i.color, i.ram ? `RAM ${i.ram}` : '', i.storage ? `Storage ${i.storage}` : ''].filter(Boolean).join(' · ') || 'Varian standar')}</span><div class="unit-inline-list">${unitText}</div></div><div class="simple-product-price"><small>${Number(i.quantity || 0)} × ${rupiah(i.unit_price)}</small><strong>${rupiah(i.subtotal)}</strong></div></article>`;
-  }).join('') || '<div class="notice">Item tidak ditemukan.</div>';
-
-  $("detailContent").innerHTML = `
-    <div class="detail-body simple-order-detail">
-      <section class="simple-order-head"><div><div class="simple-status-row"><span class="pill ${orderBadge(o.order_status)}">${esc(label(o.order_status))}</span><span class="pill ${paymentBadge(o.payment_status)}">${esc(label(o.payment_status))}</span>${currentDetailTerms?.use_tempo?'<span class="pill warn">Tempo</span>':''}</div><p>${esc(o.customer_name || '-')} · ${fmtDate(o.created_at)} · ${items.length} produk / ${totalQty} unit</p></div><div class="simple-head-total"><span>Total</span><strong>${rupiah(o.total)}</strong></div></section>
-      <div class="simple-quick-actions">${wa ? `<a class="btn success" target="_blank" rel="noopener" href="https://wa.me/${esc(wa)}?text=${waText}"><i class="fa-brands fa-whatsapp"></i> WhatsApp</a>` : ''}${o.payment_status === 'lunas' ? `<a class="btn primary" target="_blank" rel="noopener" href="nota-produk.html?id=${encodeURIComponent(o.id)}"><i class="fa-solid fa-file-invoice"></i> Invoice</a>` : `<button class="btn soft" disabled><i class="fa-solid fa-lock"></i> Invoice setelah Lunas</button>`}<button class="btn soft quick-copy" data-copy="${esc(o.order_number || '')}"><i class="fa-regular fa-copy"></i> Salin Order</button>${mapLink ? `<a class="btn soft" target="_blank" rel="noopener" href="${mapLink}"><i class="fa-solid fa-location-dot"></i> Lokasi</a>` : ''}</div>
-
-      <section class="simple-section-card"><div class="simple-section-title"><span class="card-icon"><i class="fa-solid fa-user"></i></span><div><h3>Data Pesanan</h3><small>Informasi pelanggan dan metode transaksi</small></div></div><div class="simple-info-grid"><div><span>Nama</span><strong>${esc(o.customer_name || '-')}</strong></div><div><span>WhatsApp</span><strong>${esc(o.customer_whatsapp || '-')}</strong></div><div><span>Email</span><strong>${esc(o.customer_email || '-')}</strong></div><div><span>Pengiriman</span><strong>${esc(shippingLabel(o, ship))}</strong></div><div><span>Pembayaran</span><strong>${esc(label(o.payment_method))}</strong></div><div><span>Tanggal Order</span><strong>${fmtDate(o.created_at)}</strong></div><div class="span-2"><span>Alamat</span><strong>${esc(o.customer_address || '-')}</strong></div></div>${o.customer_note ? `<div class="note-box"><b>Catatan pelanggan</b><br>${esc(o.customer_note)}</div>` : ''}</section>
-
-      <section class="simple-section-card"><div class="simple-section-title"><span class="card-icon"><i class="fa-solid fa-mobile-screen-button"></i></span><div><h3>Produk yang Dibeli</h3><small>${totalQty} unit · IMEI terisi ${assignedUnits}/${totalQty}</small></div></div><div class="simple-products">${productHtml}</div><details class="simple-collapse imei-collapse"><summary><span><i class="fa-solid fa-barcode"></i> Kelola IMEI / Unit Fisik</span><small>${assignedUnits}/${totalQty} unit terisi</small></summary><div class="collapse-body imei-products">${items.map(i => buildUnitManager(i)).join('') || '<div class="notice">Item tidak ditemukan.</div>'}</div></details></section>
-
-      <section class="simple-section-card"><div class="simple-section-title"><span class="card-icon"><i class="fa-solid fa-wallet"></i></span><div><h3>Pembayaran & Tagihan</h3><small>Pembayaran bertahap dan tempo dapat diatur oleh admin / superadmin</small></div></div><div class="simple-money-grid"><div><span>Subtotal Produk</span><strong>${rupiah(o.subtotal)}</strong></div><div><span>Diskon</span><strong>${Number(o.discount || 0) ? `- ${rupiah(o.discount)}` : rupiah(0)}</strong></div><div><span>Ongkir</span><strong>${rupiah(o.shipping_fee)}</strong></div><div class="money-total"><span>Total Pesanan</span><strong>${rupiah(o.total)}</strong></div><div><span>Sudah Dibayar</span><strong class="text-success">${rupiah(o.amount_paid)}</strong></div><div class="${Number(o.remaining_amount || 0) > 0 ? 'has-balance' : 'is-paid'}"><span>Sisa Tagihan</span><strong>${rupiah(o.remaining_amount)}</strong></div></div>${buildSimplePaymentAction(o, pay)}${buildPaymentTerms(o)}${buildManualPaymentForm(o)}<details class="simple-collapse payment-history-collapse"><summary><span><i class="fa-solid fa-clock-rotate-left"></i> Riwayat Pembayaran</span><small>${(o.order_payments || []).length} transaksi</small></summary><div class="collapse-body">${paymentHistory}</div></details></section>
-
-      <section class="simple-section-card"><div class="simple-section-title"><span class="card-icon"><i class="fa-solid fa-shield-halved"></i></span><div><h3>Garansi Produk</h3><small>Satu unit dapat memiliki beberapa jenis garansi</small></div></div>${buildWarrantyManager(o)}</section>
-
-      ${shippingType !== 'pickup' ? `<section class="simple-section-card"><div class="simple-section-title"><span class="card-icon"><i class="fa-solid fa-truck-fast"></i></span><div><h3>Pengiriman</h3><small>${esc(shippingLabel(o, ship))}</small></div></div><div class="simple-form-grid"><label>Kurir / Ekspedisi<input id="shippingCourier" value="${esc(ship?.courier || '')}" placeholder="Gojek, Grab, JNE, J&T, dll."></label><label>Ongkir Final<input id="shippingFee" inputmode="numeric" value="${Number(o.shipping_fee || 0)}"></label>${shippingType === 'package' || ship?.tracking_number ? `<label class="span-2">Nomor Resi / Kode Pengiriman<input id="trackingNumber" value="${esc(ship?.tracking_number || '')}" placeholder="Isi jika tersedia"></label>` : `<input type="hidden" id="trackingNumber" value="${esc(ship?.tracking_number || '')}">`}</div></section>` : `<input type="hidden" id="trackingNumber" value="${esc(ship?.tracking_number || '')}">`}
-
-      <section class="simple-section-card status-save-card"><div class="simple-section-title"><span class="card-icon"><i class="fa-solid fa-route"></i></span><div><h3>Status Pesanan</h3><small>Cukup ubah yang diperlukan lalu simpan</small></div></div><div class="simple-form-grid"><label>Status Pesanan<select id="adminOrderStatus">${["menunggu_diproses","dikemas","dikirim","dalam_perjalanan","selesai","dibatalkan","gagal_dikirim"].map(v=>`<option value="${v}" ${o.order_status===v?'selected':''}>${esc(label(v))}</option>`).join('')}</select></label><label>Status Pengiriman Otomatis<input id="autoShippingStatusPreview" value="${esc(label(autoShippingStatus(o.order_status)))}" readonly></label><label class="span-2">Catatan Admin<textarea id="adminNote" rows="3" placeholder="Opsional">${esc(o.admin_note || '')}</textarea></label></div><div class="single-save-row"><button class="btn primary save-order-changes" id="saveOrderChangesBtn"><i class="fa-solid fa-floppy-disk"></i> Simpan Perubahan</button></div></section>
-    </div>`;
-
-  if(pay?.proof_url) document.querySelectorAll('.view-current-proof').forEach(btn => btn.onclick = () => viewProof(pay.proof_url));
-  document.querySelectorAll('.payment-history-proof').forEach(btn => btn.addEventListener('click', () => viewProof(btn.dataset.proofPath)));
-  document.querySelectorAll('.quick-copy').forEach(btn => btn.addEventListener('click', async () => { const value=btn.dataset.copy||''; if(!value)return; try{await navigator.clipboard.writeText(value);const old=btn.innerHTML;btn.innerHTML='<i class="fa-solid fa-check"></i> Tersalin';setTimeout(()=>btn.innerHTML=old,1200);}catch{prompt('Salin data berikut:',value);} }));
-  bindUnitActions(o);
-  bindWarrantyActions(o);
-  bindSimpleAdminActions(o, pay, ship, shippingType);
+  const o=orders.find(x=>Number(x.id)===Number(id)); if(!o)return;
+  currentOrderId=o.id; $("detailOrderNumber").textContent=o.order_number||`Order #${o.id}`;
+  $("detailContent").innerHTML='<div class="detail-loading"><i class="fa-solid fa-spinner fa-spin"></i> Memuat detail...</div>';
+  $("detailModal").classList.add('show'); $("detailModal").setAttribute('aria-hidden','false'); document.body.classList.add('modal-open');
+  const items=o.order_items||[], pay=latest(o.order_payments), ship=latest(o.order_shipments), shippingType=inferShippingType(o,ship);
+  const totalQty=items.reduce((n,i)=>n+Number(i.quantity||0),0), assignedUnits=countAssignedUnits(o);
+  const mapLink=(o.latitude!=null&&o.longitude!=null)?`https://www.google.com/maps?q=${encodeURIComponent(o.latitude)},${encodeURIComponent(o.longitude)}`:null;
+  const wa=String(o.customer_whatsapp||'').replace(/[^0-9]/g,'');
+  const productHtml=items.map((i,idx)=>`<div class="dapur-product"><div><strong>${esc(i.product_name||'-')}</strong><small>${esc([i.variant_name,i.color,i.ram?`RAM ${i.ram}`:'',i.storage?`Storage ${i.storage}`:''].filter(Boolean).join(' · ')||'Varian standar')} · ${Number(i.quantity||0)} unit</small></div><strong>${rupiah(i.subtotal)}</strong></div>`).join('')||'<div class="notice">Item tidak ditemukan.</div>';
+  $("detailContent").innerHTML=`<div class="dapur-detail">
+    <div class="dapur-top"><div><span class="pill ${orderBadge(o.order_status)}">${esc(label(o.order_status))}</span> <span class="pill ${paymentBadge(o.payment_status)}">${esc(label(o.payment_status))}</span><p>${fmtDate(o.created_at)}</p></div><strong>${rupiah(o.total)}</strong></div>
+    <section class="dapur-section"><h3><i class="fa-solid fa-user"></i> Data Pembeli</h3><div class="dapur-fields"><label>Nama<input value="${esc(o.customer_name||'-')}" readonly></label><label>WhatsApp<input value="${esc(o.customer_whatsapp||'-')}" readonly></label><label class="full">Alamat<textarea readonly>${esc(o.customer_address||'-')}</textarea></label></div><div class="dapur-links">${wa?`<a class="btn success" target="_blank" href="https://wa.me/${esc(wa)}"><i class="fa-brands fa-whatsapp"></i> WhatsApp</a>`:''}${mapLink?`<a class="btn soft" target="_blank" href="${mapLink}"><i class="fa-solid fa-location-dot"></i> Lokasi</a>`:''}</div></section>
+    <section class="dapur-section"><h3><i class="fa-solid fa-mobile-screen-button"></i> Produk</h3>${productHtml}<details class="dapur-more"><summary>Kelola IMEI / Unit <span>${assignedUnits}/${totalQty}</span></summary><div class="dapur-more-body">${items.map(i=>buildUnitManager(i)).join('')}</div></details></section>
+    <section class="dapur-section"><h3><i class="fa-solid fa-wallet"></i> Pembayaran</h3><div class="money-simple"><div><span>Subtotal</span><strong>${rupiah(o.subtotal)}</strong></div><div><span>Diskon</span><strong>${rupiah(o.discount)}</strong></div><div><span>Ongkir</span><strong>${rupiah(o.shipping_fee)}</strong></div><div class="grand"><span>Total</span><strong>${rupiah(o.total)}</strong></div><div><span>Dibayar</span><strong>${rupiah(o.amount_paid)}</strong></div><div><span>Sisa</span><strong>${rupiah(o.remaining_amount)}</strong></div></div>${buildSimplePaymentAction(o,pay)}${o.payment_status==='lunas'?`<a class="btn primary invoice-simple" target="_blank" href="nota-produk.html?id=${encodeURIComponent(o.id)}"><i class="fa-solid fa-file-invoice"></i> Buka Invoice</a>`:''}</section>
+    ${shippingType!=='pickup'?`<section class="dapur-section"><h3><i class="fa-solid fa-truck"></i> Pengiriman</h3><div class="dapur-fields"><label>Metode<input value="${esc(shippingLabel(o,ship))}" readonly></label><label>Kurir / Ekspedisi<input id="shippingCourier" value="${esc(ship?.courier||'')}"></label><label>Ongkir<input id="shippingFee" inputmode="numeric" value="${Number(o.shipping_fee||0)}"></label><label>Resi / Kode<input id="trackingNumber" value="${esc(ship?.tracking_number||'')}"></label></div></section>`:`<input type="hidden" id="trackingNumber" value="${esc(ship?.tracking_number||'')}">`}
+    <section class="dapur-section dapur-save"><h3><i class="fa-solid fa-floppy-disk"></i> Status Order</h3><div class="dapur-fields"><label>Status<select id="adminOrderStatus">${['menunggu_diproses','dikemas','dikirim','dalam_perjalanan','selesai','dibatalkan','gagal_dikirim'].map(v=>`<option value="${v}" ${o.order_status===v?'selected':''}>${esc(label(v))}</option>`).join('')}</select></label><label class="full">Catatan Admin<textarea id="adminNote" rows="2">${esc(o.admin_note||'')}</textarea></label></div><button class="btn primary save-order-changes" id="saveOrderChangesBtn"><i class="fa-solid fa-floppy-disk"></i> Simpan Perubahan</button></section>
+  </div>`;
+  if(pay?.proof_url) document.querySelectorAll('.view-current-proof').forEach(btn=>btn.onclick=()=>viewProof(pay.proof_url));
+  bindUnitActions(o); bindSimpleAdminActions(o,pay,ship,shippingType);
 }
 
 function buildSimplePaymentAction(o, pay){
