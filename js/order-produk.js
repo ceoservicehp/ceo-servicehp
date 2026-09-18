@@ -587,13 +587,13 @@ async function openDetail(id){
   $("detailContent").innerHTML=`<div class="dapur-detail">
     <div class="dapur-top"><div><span class="pill ${orderBadge(o.order_status)}">${esc(label(o.order_status))}</span> <span class="pill ${paymentBadge(o.payment_status)}">${esc(label(o.payment_status))}</span><p>${fmtDate(o.created_at)}</p></div><strong>${rupiah(o.total)}</strong></div>
     <section class="dapur-section"><h3><i class="fa-solid fa-user"></i> Data Pembeli</h3><div class="dapur-fields"><label>Nama<input value="${esc(o.customer_name||'-')}" readonly></label><label>WhatsApp<input value="${esc(o.customer_whatsapp||'-')}" readonly></label><label class="full">Alamat<textarea readonly>${esc(o.customer_address||'-')}</textarea></label></div><div class="dapur-links">${wa?`<a class="btn success" target="_blank" href="https://wa.me/${esc(wa)}"><i class="fa-brands fa-whatsapp"></i> WhatsApp</a>`:''}${mapLink?`<a class="btn soft" target="_blank" href="${mapLink}"><i class="fa-solid fa-location-dot"></i> Lokasi</a>`:''}</div></section>
-    <section class="dapur-section"><h3><i class="fa-solid fa-mobile-screen-button"></i> Produk</h3>${productHtml}<details class="dapur-more"><summary>Kelola IMEI / Unit <span>${assignedUnits}/${totalQty}</span></summary><div class="dapur-more-body">${items.map(i=>buildUnitManager(i)).join('')}</div></details></section>
+    <section class="dapur-section"><h3><i class="fa-solid fa-mobile-screen-button"></i> Produk</h3>${productHtml}<details class="dapur-more"><summary>Kelola IMEI / Unit <span>${assignedUnits}/${totalQty}</span></summary><div class="dapur-more-body">${items.map(i=>buildUnitManager(i)).join('')}</div></details>${buildSimpleWarrantyManager(o, items)}</section>
     <section class="dapur-section"><h3><i class="fa-solid fa-wallet"></i> Pembayaran</h3><div class="money-simple"><div><span>Subtotal</span><strong>${rupiah(o.subtotal)}</strong></div><div><span>Diskon</span><strong>${rupiah(o.discount)}</strong></div><div><span>Ongkir</span><strong>${rupiah(o.shipping_fee)}</strong></div><div class="grand"><span>Total</span><strong>${rupiah(o.total)}</strong></div><div><span>Dibayar</span><strong>${rupiah(o.amount_paid)}</strong></div><div><span>Sisa</span><strong>${rupiah(o.remaining_amount)}</strong></div></div>${buildSimplePaymentAction(o,pay)}${buildManualPaymentSimple(o)}${o.payment_status==='lunas'?`<a class="btn primary invoice-simple" target="_blank" href="nota-produk.html?id=${encodeURIComponent(o.id)}"><i class="fa-solid fa-file-invoice"></i> Buka Invoice</a>`:''}</section>
     ${shippingType!=='pickup'?`<section class="dapur-section"><h3><i class="fa-solid fa-truck"></i> Pengiriman</h3><div class="dapur-fields"><label>Metode<input value="${esc(shippingLabel(o,ship))}" readonly></label><label>Kurir / Ekspedisi<input id="shippingCourier" value="${esc(ship?.courier||'')}"></label><label>Ongkir<input id="shippingFee" inputmode="numeric" value="${Number(o.shipping_fee||0)}"></label><label>Resi / Kode<input id="trackingNumber" value="${esc(ship?.tracking_number||'')}"></label></div></section>`:`<input type="hidden" id="trackingNumber" value="${esc(ship?.tracking_number||'')}">`}
     <section class="dapur-section dapur-save"><h3><i class="fa-solid fa-floppy-disk"></i> Status Order</h3><div class="dapur-fields"><label>Status<select id="adminOrderStatus">${['menunggu_diproses','dikemas','dikirim','dalam_perjalanan','selesai','dibatalkan','gagal_dikirim'].map(v=>`<option value="${v}" ${o.order_status===v?'selected':''}>${esc(label(v))}</option>`).join('')}</select></label><label class="full">Catatan Admin<textarea id="adminNote" rows="2">${esc(o.admin_note||'')}</textarea></label></div><button class="btn primary save-order-changes" id="saveOrderChangesBtn"><i class="fa-solid fa-floppy-disk"></i> Simpan Perubahan</button></section>
   </div>`;
   if(pay?.proof_url) document.querySelectorAll('.view-current-proof').forEach(btn=>btn.onclick=()=>viewProof(pay.proof_url));
-  bindUnitActions(o); bindSimpleAdminActions(o,pay,ship,shippingType);
+  bindUnitActions(o); bindSimpleWarrantyActions(o); bindSimpleAdminActions(o,pay,ship,shippingType);
 }
 
 function buildManualPaymentSimple(o){
@@ -632,6 +632,195 @@ function buildManualPaymentSimple(o){
       <small class="helper">Pembayaran dicatat sebagai transaksi baru. Jika nominal sama dengan sisa tagihan, order akan menjadi lunas sesuai perhitungan sistem.</small>
     </div>
   </details>`;
+}
+
+function buildSimpleWarrantyManager(order, items){
+  const units = items.flatMap(item => (item.order_item_units || []).map(unit => ({
+    ...unit,
+    product_name:item.product_name || '-',
+    variant_name:item.variant_name || 'Varian standar'
+  })));
+
+  if(!units.length){
+    return `<details class="dapur-more warranty-simple">
+      <summary>Kelola Garansi <span>0 unit</span></summary>
+      <div class="dapur-more-body"><div class="notice">Tetapkan IMEI / unit terlebih dahulu. Garansi disimpan per unit fisik.</div></div>
+    </details>`;
+  }
+
+  return `<details class="dapur-more warranty-simple">
+    <summary>Kelola Garansi <span>${units.length} unit</span></summary>
+    <div class="dapur-more-body">
+      ${units.map(unit => buildSimpleWarrantyUnit(unit)).join('')}
+    </div>
+  </details>`;
+}
+
+function buildSimpleWarrantyUnit(unit){
+  const warranties = currentDetailWarranties.filter(w => Number(w.product_unit_id || w.unit_id) === Number(unit.id));
+  return `<article class="simple-warranty-unit" data-unit-id="${unit.id}">
+    <div class="simple-warranty-head">
+      <div>
+        <strong>${esc(unit.product_name)}</strong>
+        <small>${esc(unit.variant_name)} · IMEI ${esc(unit.imei1 || '-')}</small>
+      </div>
+      <button type="button" class="btn soft add-simple-warranty" data-unit-id="${unit.id}">
+        <i class="fa-solid fa-plus"></i> Tambah Garansi
+      </button>
+    </div>
+    <div class="simple-warranty-list">
+      ${warranties.length ? warranties.map(w => simpleWarrantyRow(w)).join('') : '<div class="notice compact">Belum ada garansi untuk unit ini.</div>'}
+    </div>
+    <div class="simple-warranty-editor" hidden></div>
+  </article>`;
+}
+
+function simpleWarrantyRow(w){
+  const duration = `${Number(w.duration_value || 0)} ${labelWarrantyUnit(w.duration_unit)}`;
+  const active = w.is_active !== false;
+  return `<div class="simple-warranty-row" data-warranty-id="${w.id}">
+    <div>
+      <strong>${esc(labelWarrantyType(w.warranty_type || w.type))}</strong>
+      <small>${esc(duration)} · ${fmtDateOnly(w.start_date)} — ${fmtDateOnly(w.end_date)}</small>
+    </div>
+    <div class="simple-warranty-actions">
+      <span class="badge ${active ? 'paid' : 'cancel'}">${active ? 'Aktif' : 'Nonaktif'}</span>
+      <button type="button" class="btn soft edit-simple-warranty" data-warranty-id="${w.id}"><i class="fa-solid fa-pen"></i> Ubah</button>
+    </div>
+  </div>`;
+}
+
+function labelWarrantyType(v){
+  return ({tukar_unit:'Tukar Unit', service:'Service', garansi_service:'Service', replacement:'Tukar Unit'})[v] || label(v || 'Garansi');
+}
+function labelWarrantyUnit(v){
+  return ({hari:'Hari', bulan:'Bulan', tahun:'Tahun'})[v] || label(v || '');
+}
+function fmtDateOnly(v){
+  if(!v) return '-';
+  const d = new Date(`${String(v).slice(0,10)}T00:00:00`);
+  return Number.isNaN(d.getTime()) ? esc(v) : d.toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'});
+}
+
+function simpleWarrantyEditorHtml(unitId, w=null){
+  const type = w?.warranty_type || w?.type || 'tukar_unit';
+  const duration = Number(w?.duration_value || (type === 'service' || type === 'garansi_service' ? 1 : 1));
+  const durationUnit = w?.duration_unit || (type === 'service' || type === 'garansi_service' ? 'tahun' : 'bulan');
+  const start = String(w?.start_date || new Date().toISOString().slice(0,10)).slice(0,10);
+  const end = w?.end_date || addDurationDate(start,duration,durationUnit);
+  return `<div class="simple-warranty-form" data-unit-id="${unitId}" data-warranty-id="${w?.id || ''}">
+    <div class="dapur-fields">
+      <label>Jenis Garansi
+        <select class="simple-warranty-type">
+          <option value="tukar_unit" ${type==='tukar_unit' || type==='replacement' ? 'selected':''}>Tukar Unit</option>
+          <option value="service" ${type==='service' || type==='garansi_service' ? 'selected':''}>Service</option>
+        </select>
+      </label>
+      <label>Durasi
+        <input class="simple-warranty-duration" type="number" min="1" value="${duration}">
+      </label>
+      <label>Satuan
+        <select class="simple-warranty-duration-unit">
+          <option value="hari" ${durationUnit==='hari'?'selected':''}>Hari</option>
+          <option value="bulan" ${durationUnit==='bulan'?'selected':''}>Bulan</option>
+          <option value="tahun" ${durationUnit==='tahun'?'selected':''}>Tahun</option>
+        </select>
+      </label>
+      <label>Tanggal Mulai
+        <input class="simple-warranty-start" type="date" value="${start}">
+      </label>
+      <label>Tanggal Berakhir
+        <input class="simple-warranty-end" type="date" value="${String(end || '').slice(0,10)}" readonly>
+      </label>
+      <label class="full">Catatan
+        <input class="simple-warranty-note" value="${esc(w?.note || '')}" placeholder="Opsional">
+      </label>
+    </div>
+    <label class="simple-warranty-active"><input type="checkbox" ${w?.is_active === false ? '' : 'checked'}> Garansi aktif</label>
+    <div class="simple-warranty-form-actions">
+      <button type="button" class="btn primary save-simple-warranty"><i class="fa-solid fa-floppy-disk"></i> Simpan Garansi</button>
+      <button type="button" class="btn soft cancel-simple-warranty">Batal</button>
+    </div>
+  </div>`;
+}
+
+function bindSimpleWarrantyActions(order){
+  document.querySelectorAll('.add-simple-warranty').forEach(btn => btn.onclick = () => {
+    const card = btn.closest('.simple-warranty-unit');
+    const ed = card.querySelector('.simple-warranty-editor');
+    ed.hidden = false;
+    ed.innerHTML = simpleWarrantyEditorHtml(Number(btn.dataset.unitId));
+    bindSimpleWarrantyEditor(ed, order);
+  });
+
+  document.querySelectorAll('.edit-simple-warranty').forEach(btn => btn.onclick = () => {
+    const card = btn.closest('.simple-warranty-unit');
+    const w = currentDetailWarranties.find(x => Number(x.id) === Number(btn.dataset.warrantyId));
+    if(!w) return alert('Data garansi tidak ditemukan.');
+    const ed = card.querySelector('.simple-warranty-editor');
+    ed.hidden = false;
+    ed.innerHTML = simpleWarrantyEditorHtml(Number(card.dataset.unitId), w);
+    bindSimpleWarrantyEditor(ed, order);
+  });
+}
+
+function bindSimpleWarrantyEditor(ed, order){
+  const form = ed.querySelector('.simple-warranty-form');
+  const type = form.querySelector('.simple-warranty-type');
+  const duration = form.querySelector('.simple-warranty-duration');
+  const unit = form.querySelector('.simple-warranty-duration-unit');
+  const start = form.querySelector('.simple-warranty-start');
+  const end = form.querySelector('.simple-warranty-end');
+
+  const recalc = () => {
+    end.value = addDurationDate(start.value, Number(duration.value || 0), unit.value);
+  };
+
+  // Preset praktis: Tukar Unit 1 bulan, Service 1 tahun.
+  type.addEventListener('change', () => {
+    if(type.value === 'tukar_unit'){
+      duration.value = 1;
+      unit.value = 'bulan';
+    }else if(type.value === 'service'){
+      duration.value = 1;
+      unit.value = 'tahun';
+    }
+    recalc();
+  });
+  [duration, unit, start].forEach(el => el.addEventListener('change', recalc));
+  duration.addEventListener('input', recalc);
+
+  form.querySelector('.cancel-simple-warranty').onclick = () => {
+    ed.hidden = true;
+    ed.innerHTML = '';
+  };
+
+  form.querySelector('.save-simple-warranty').onclick = async e => {
+    const btn = e.currentTarget;
+    const durationValue = Number(duration.value || 0);
+    if(durationValue <= 0) return alert('Durasi garansi harus lebih dari 0.');
+    if(!start.value) return alert('Tanggal mulai garansi wajib diisi.');
+
+    setBusy(btn,true,'Menyimpan...');
+    const { error } = await client.rpc('admin_save_product_warranty_v2',{
+      p_unit_id:Number(form.dataset.unitId),
+      p_warranty_id:form.dataset.warrantyId ? Number(form.dataset.warrantyId) : null,
+      p_type:type.value,
+      p_duration_value:durationValue,
+      p_duration_unit:unit.value,
+      p_start:start.value,
+      p_note:form.querySelector('.simple-warranty-note').value.trim() || null,
+      p_is_active:form.querySelector('.simple-warranty-active input').checked
+    });
+    if(error){
+      console.error(error);
+      alert('Gagal menyimpan garansi: ' + error.message);
+      setBusy(btn,false);
+      return;
+    }
+    alert('Garansi berhasil disimpan ✅');
+    await reloadAndReopen(order.id);
+  };
 }
 
 function buildSimplePaymentAction(o, pay){
