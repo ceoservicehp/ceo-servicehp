@@ -6,6 +6,7 @@ let allAdmins = [];
 let selectedUserId = null;
 let selectedAction = null;
 let currentUserId = null;
+let passwordTarget = null;
 
 /* ================= INIT ================= */
 document.addEventListener("DOMContentLoaded", async () => {
@@ -13,6 +14,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   await loadAdmins();
   initFilters();
   initModal();
+  initPasswordModal();
 });
 
 /* ================= SECURITY ================= */
@@ -113,7 +115,9 @@ function renderTable(data){
         <td>${roleDropdown}</td>
         <td>${statusBadge}</td>
         <td>${admin.approved_by ?? "-"}</td>
-        <td>
+        <td class="action-cell">
+          <button class="action-btn btn-password" data-user-id="${admin.user_id}" data-name="${escapeHtml(admin.nama ?? admin.email ?? 'User')}" data-email="${escapeHtml(admin.email ?? '')}"><i class="fa-solid fa-key"></i> Password</button>
+
           <button class="action-btn btn-approve"
             data-id="${admin.id}"
             data-action="toggle">
@@ -132,6 +136,7 @@ function renderTable(data){
 
   bindActionButtons();
   bindEditableFields();
+  bindPasswordButtons();
 }
 
 /* ================= EDIT ROLE & POSITION ================= */
@@ -280,6 +285,109 @@ function applyFilters(){
   }
 
   renderTable(filtered);
+}
+
+
+
+/* ================= PASSWORD MANAGEMENT ================= */
+function escapeHtml(value){
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function bindPasswordButtons(){
+  document.querySelectorAll(".btn-password").forEach(btn => {
+    btn.addEventListener("click", () => {
+      passwordTarget = {
+        userId: btn.dataset.userId,
+        name: btn.dataset.name,
+        email: btn.dataset.email
+      };
+      document.getElementById("passwordUserInfo").textContent = `${passwordTarget.name} • ${passwordTarget.email}`;
+      document.getElementById("newUserPassword").value = "";
+      document.getElementById("confirmUserPassword").value = "";
+      setPasswordMessage("");
+      document.getElementById("passwordModal").style.display = "flex";
+    });
+  });
+}
+
+function initPasswordModal(){
+  document.getElementById("passwordClose")?.addEventListener("click", closePasswordModal);
+  document.getElementById("passwordModal")?.addEventListener("click", e => {
+    if(e.target.id === "passwordModal") closePasswordModal();
+  });
+  document.querySelectorAll(".password-eye").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const input = document.getElementById(btn.dataset.target);
+      const show = input.type === "password";
+      input.type = show ? "text" : "password";
+      btn.innerHTML = `<i class="fa-solid ${show ? "fa-eye-slash" : "fa-eye"}"></i>`;
+    });
+  });
+  document.getElementById("savePasswordBtn")?.addEventListener("click", saveUserPassword);
+  document.getElementById("sendResetLinkBtn")?.addEventListener("click", sendUserResetLink);
+}
+
+function closePasswordModal(){
+  document.getElementById("passwordModal").style.display = "none";
+  passwordTarget = null;
+}
+
+function setPasswordMessage(message, type=""){
+  const box = document.getElementById("passwordMessage");
+  if(!message){ box.hidden = true; box.textContent = ""; box.className = "password-message"; return; }
+  box.hidden = false;
+  box.textContent = message;
+  box.className = `password-message ${type}`;
+}
+
+async function saveUserPassword(){
+  if(!passwordTarget?.userId) return;
+  const password = document.getElementById("newUserPassword").value;
+  const confirm = document.getElementById("confirmUserPassword").value;
+  if(password.length < 8) return setPasswordMessage("Password minimal 8 karakter.", "error");
+  if(password !== confirm) return setPasswordMessage("Konfirmasi password tidak sama.", "error");
+
+  const btn = document.getElementById("savePasswordBtn");
+  btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan...';
+  setPasswordMessage("");
+  try{
+    const { data, error } = await client.functions.invoke("admin-reset-password", {
+      body: { target_user_id: passwordTarget.userId, password }
+    });
+    if(error) throw error;
+    if(data?.error) throw new Error(data.error);
+    setPasswordMessage("Password user berhasil diperbarui.", "success");
+    document.getElementById("newUserPassword").value = "";
+    document.getElementById("confirmUserPassword").value = "";
+  }catch(err){
+    console.error(err);
+    setPasswordMessage(err?.message || "Gagal memperbarui password.", "error");
+  }finally{
+    btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-key"></i> Simpan Password';
+  }
+}
+
+async function sendUserResetLink(){
+  if(!passwordTarget?.email) return setPasswordMessage("Email user tidak tersedia.", "error");
+  const btn = document.getElementById("sendResetLinkBtn");
+  btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Mengirim...';
+  try{
+    const redirectTo = `${window.location.origin}/reset-password.html`;
+    const { error } = await client.auth.resetPasswordForEmail(passwordTarget.email, { redirectTo });
+    if(error) throw error;
+    setPasswordMessage("Link reset password berhasil dikirim ke email user.", "success");
+  }catch(err){
+    console.error(err);
+    setPasswordMessage(err?.message || "Gagal mengirim link reset.", "error");
+  }finally{
+    btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-envelope"></i> Kirim Link Reset';
+  }
 }
 
 /* ================= MOBILE NAV PREMIUM ================= */
