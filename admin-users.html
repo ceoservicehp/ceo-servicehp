@@ -134,6 +134,41 @@
 
 </div>
  
+<!-- Modal Reset Password -->
+<div id="passwordModal" class="modal">
+  <div class="modal-box password-modal-box">
+    <div class="modal-head">
+      <div>
+        <span class="modal-kicker">KEAMANAN AKUN</span>
+        <h3>Reset Password User</h3>
+        <p id="passwordUserInfo">Tetapkan password baru untuk user.</p>
+      </div>
+      <button type="button" class="modal-close" id="passwordClose" aria-label="Tutup">&times;</button>
+    </div>
+
+    <div class="password-form">
+      <label>Password Baru</label>
+      <div class="password-input-wrap">
+        <input type="password" id="newUserPassword" minlength="8" autocomplete="new-password" placeholder="Minimal 8 karakter">
+        <button type="button" class="password-eye" data-target="newUserPassword"><i class="fa-solid fa-eye"></i></button>
+      </div>
+
+      <label>Konfirmasi Password</label>
+      <div class="password-input-wrap">
+        <input type="password" id="confirmUserPassword" minlength="8" autocomplete="new-password" placeholder="Ulangi password baru">
+        <button type="button" class="password-eye" data-target="confirmUserPassword"><i class="fa-solid fa-eye"></i></button>
+      </div>
+
+      <div id="passwordMessage" class="password-message" hidden></div>
+    </div>
+
+    <div class="modal-actions password-actions">
+      <button type="button" id="sendResetLinkBtn" class="btn-secondary"><i class="fa-solid fa-envelope"></i> Kirim Link Reset</button>
+      <button type="button" id="savePasswordBtn" class="btn-primary"><i class="fa-solid fa-key"></i> Simpan Password</button>
+    </div>
+  </div>
+</div>
+
 <!-- Modal Konfirmasi -->
 <div id="confirmModal" class="modal">
   <div class="modal-box">
