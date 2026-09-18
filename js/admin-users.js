@@ -171,15 +171,20 @@ function bindEditableFields(){
 
 /* ================= BUTTON ================= */
 function bindActionButtons(){
-  document.querySelectorAll(".action-btn")
-    .forEach(btn=>{
-      btn.addEventListener("click", e=>{
-        const button = e.currentTarget;
-        selectedUserId = button.dataset.id;
-        selectedAction = button.dataset.action;
-        showConfirmModal(selectedAction);
-      });
+  // Password punya handler sendiri. Modal konfirmasi hanya untuk toggle dan delete.
+  document.querySelectorAll(".action-btn[data-action]").forEach(btn=>{
+    btn.addEventListener("click", e=>{
+      const button = e.currentTarget;
+      const id = button.dataset.id;
+      const action = button.dataset.action;
+
+      if(!id || !["toggle", "delete"].includes(action)) return;
+
+      selectedUserId = id;
+      selectedAction = action;
+      showConfirmModal(action);
     });
+  });
 }
 
 /* ================= MODAL ================= */
@@ -198,9 +203,11 @@ function showConfirmModal(action){
   if(action === "delete"){
     title.textContent = "Hapus Akun";
     text.textContent = "Yakin ingin menghapus akun ini?";
-  }else{
+  }else if(action === "toggle"){
     title.textContent = "Ubah Status";
     text.textContent = "Yakin ingin mengubah status akun ini?";
+  }else{
+    return;
   }
 
   document.getElementById("confirmModal").style.display = "flex";
