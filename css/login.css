@@ -208,3 +208,10 @@ body{
     padding:25px;
   }
 }
+/* ===== CEO UI ALIGNMENT V2 ===== */
+body{background:linear-gradient(145deg,#eef7f7 0%,#f7fafb 48%,#edf6f5 100%);color:#172126;padding:24px;}
+body::before{content:"";position:fixed;inset:0 0 auto 0;height:220px;background:linear-gradient(135deg,#0e6f76,#15858b);z-index:-1;}
+.login-wrapper{max-width:460px;padding:0;margin:auto;}
+.login-card{max-width:460px;padding:30px;border:1px solid #dce7e8;border-radius:18px;box-shadow:0 18px 50px rgba(20,55,60,.13);}
+.logo{width:64px;height:64px;object-fit:contain;margin-bottom:12px}.eyebrow{display:block;font-size:11px;font-weight:800;letter-spacing:.1em;color:#16767d;margin-bottom:7px}.logo-area h2{font-size:25px;line-height:1.2;color:#172126;margin-bottom:7px}.subtitle{line-height:1.6;margin:0 auto 22px;max-width:350px}.input-group{margin-top:12px}.input-group input{height:46px;border-radius:10px;border-color:#d8e3e5;background:#fbfdfd}.input-group input:focus{border-color:#197a81;box-shadow:0 0 0 3px rgba(25,122,129,.1)}.login-btn,.google-btn{height:46px;border-radius:10px}.login-btn{background:#17777e;box-shadow:none}.login-btn:hover{background:#11676d;transform:none;box-shadow:0 8px 18px rgba(23,119,126,.18)}.google-btn:hover{transform:none;border-color:#b9cccf}.divider{margin:18px 0}.switch-links{border-top:1px solid #e5edef;padding-top:18px;margin-top:20px;justify-content:space-between}.switch-links.single{justify-content:center}.switch-links a,.switch-links span{color:#176f76;text-decoration:none;font-weight:700}.switch-links a:hover{text-decoration:underline}.alert-box{text-align:left;line-height:1.5}.login-btn:disabled{opacity:.65;cursor:not-allowed}.auth-form{animation:fade .25s ease}
+@media(max-width:520px){body{padding:16px}.login-card{padding:24px 20px}.switch-links{gap:16px;flex-wrap:wrap;justify-content:center}}
