@@ -27,6 +27,14 @@ let map = null;
 let marker = null;
 let isSubmitting = false;
 
+// Simpan pilihan kurir/ekspedisi per metode pengiriman.
+// Ini mencegah pilihan ter-reset ketika lokasi/map diperbarui.
+const selectedShippingProviders = {
+    instant: "",
+    package: "",
+    cod: "ceo_cod"
+};
+
 function rupiah(value) {
     return "Rp " + Number(value || 0).toLocaleString("id-ID");
 }
@@ -129,7 +137,11 @@ function setupEvents() {
         });
     });
 
-    document.getElementById("shippingProvider")?.addEventListener("change", saveFormDraft);
+    document.getElementById("shippingProvider")?.addEventListener("change", (event) => {
+        const shipping = getSelectedShipping();
+        selectedShippingProviders[shipping] = event.target.value || "";
+        saveFormDraft();
+    });
 
     ["buyerName", "buyerPhone", "buyerEmail", "buyerAddress", "buyerNotes"].forEach(id => {
         document.getElementById(id)?.addEventListener("input", saveFormDraft);
@@ -405,10 +417,18 @@ function updateLocationVisibility() {
 function updateShippingState() {
     const shipping = getSelectedShipping();
     updateLocationVisibility();
+
     const panel = document.getElementById("shippingProviderPanel");
     const select = document.getElementById("shippingProvider");
     const label = document.getElementById("shippingProviderLabel");
     const note = document.getElementById("shippingFeeNote");
+
+    // Simpan value yang sedang tampil sebelum option dirender ulang.
+    // Penting saat setCustomerLocation() memanggil fungsi ini.
+    const currentVisibleProvider = select?.value || "";
+    if (currentVisibleProvider && ["instant", "package", "cod"].includes(shipping)) {
+        selectedShippingProviders[shipping] = currentVisibleProvider;
+    }
 
     currentShippingFee = 0;
     shippingFeePending = false;
@@ -417,18 +437,34 @@ function updateShippingState() {
         panel.hidden = false;
         label.textContent = "Kurir Instan";
         select.innerHTML = '<option value="">Pilih kurir</option><option value="gojek">Gojek</option><option value="grab">Grab</option><option value="other_instant">Lainnya</option>';
+
+        const savedProvider = selectedShippingProviders.instant || "";
+        if ([...select.options].some(option => option.value === savedProvider)) {
+            select.value = savedProvider;
+        }
+
         note.innerHTML = '<i class="fa-solid fa-clock"></i> Tarif mengikuti aplikasi kurir dan akan dikonfirmasi admin.';
         shippingFeePending = true;
+
     } else if (shipping === "package") {
         panel.hidden = false;
         label.textContent = "Ekspedisi";
         select.innerHTML = '<option value="">Pilih ekspedisi</option><option value="jne">JNE</option><option value="jnt">J&T</option><option value="sicepat">SiCepat</option><option value="anteraja">AnterAja</option><option value="pos">POS Indonesia</option><option value="other_package">Lainnya</option>';
+
+        const savedProvider = selectedShippingProviders.package || "";
+        if ([...select.options].some(option => option.value === savedProvider)) {
+            select.value = savedProvider;
+        }
+
         note.innerHTML = '<i class="fa-solid fa-clock"></i> Tarif mengikuti ekspedisi dan akan dikonfirmasi admin.';
         shippingFeePending = true;
+
     } else if (shipping === "cod") {
         panel.hidden = false;
         label.textContent = "Area COD";
         select.innerHTML = '<option value="ceo_cod">COD CEO Part & Service</option>';
+        select.value = "ceo_cod";
+        selectedShippingProviders.cod = "ceo_cod";
 
         if (!Number.isFinite(currentDistanceKm)) {
             note.innerHTML = '<i class="fa-solid fa-location-dot"></i> Pilih titik lokasi untuk menghitung ongkir COD.';
@@ -438,6 +474,7 @@ function updateShippingState() {
             currentShippingFee = calculateCodFee(currentDistanceKm);
             note.innerHTML = `<i class="fa-solid fa-route"></i> Jarak ± ${currentDistanceKm.toFixed(2)} km • Ongkir COD ${rupiah(currentShippingFee)}.`;
         }
+
     } else {
         panel.hidden = true;
         select.innerHTML = "";
@@ -627,6 +664,10 @@ function restoreFormDraft() {
 
         const shippingInput = document.querySelector(`input[name="shippingMethod"][value="${data.shipping}"]`);
         if (shippingInput) shippingInput.checked = true;
+
+        if (data.shipping && Object.prototype.hasOwnProperty.call(selectedShippingProviders, data.shipping)) {
+            selectedShippingProviders[data.shipping] = data.provider || (data.shipping === "cod" ? "ceo_cod" : "");
+        }
 
         if (Number.isFinite(Number(data.lat)) && Number.isFinite(Number(data.lng))) {
             setTimeout(() => setCustomerLocation(Number(data.lat), Number(data.lng), true), 150);
