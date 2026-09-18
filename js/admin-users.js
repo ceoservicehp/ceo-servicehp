@@ -174,8 +174,9 @@ function bindActionButtons(){
   document.querySelectorAll(".action-btn")
     .forEach(btn=>{
       btn.addEventListener("click", e=>{
-        selectedUserId = e.target.dataset.id;
-        selectedAction = e.target.dataset.action;
+        const button = e.currentTarget;
+        selectedUserId = button.dataset.id;
+        selectedAction = button.dataset.action;
         showConfirmModal(selectedAction);
       });
     });
@@ -211,36 +212,51 @@ function closeModal(){
 
 /* ================= EXECUTE ================= */
 async function executeAction(){
+  if(!selectedUserId || !selectedAction) return;
 
-  if(!selectedUserId) return;
-
-  const user = allAdmins.find(a=>a.id===selectedUserId);
-
-  if(selectedAction === "toggle"){
-
-    await client.from("admin_users")
-      .update({
-        is_active: !user.is_active,
-        approved_by: currentUserId
-      })
-      .eq("id", selectedUserId);
+  const user = allAdmins.find(a => String(a.id) === String(selectedUserId));
+  if(!user){
+    alert("Data user tidak ditemukan. Silakan refresh halaman.");
+    closeModal();
+    return;
   }
 
-  if(selectedAction === "delete"){
+  const yesBtn = document.getElementById("confirmYes");
+  if(yesBtn) yesBtn.disabled = true;
 
-    if(user.user_id === currentUserId){
-      alert("Superadmin tidak bisa menghapus dirinya sendiri.");
-      closeModal();
-      return;
+  try {
+    if(selectedAction === "toggle"){
+      const { error } = await client.from("admin_users")
+        .update({
+          is_active: !user.is_active,
+          approved_by: currentUserId
+        })
+        .eq("id", selectedUserId);
+
+      if(error) throw error;
     }
 
-    await client.from("admin_users")
-      .delete()
-      .eq("id", selectedUserId);
-  }
+    if(selectedAction === "delete"){
+      if(user.user_id === currentUserId){
+        alert("Superadmin tidak bisa menghapus dirinya sendiri.");
+        return;
+      }
 
-  closeModal();
-  loadAdmins();
+      const { error } = await client.from("admin_users")
+        .delete()
+        .eq("id", selectedUserId);
+
+      if(error) throw error;
+    }
+
+    closeModal();
+    await loadAdmins();
+  } catch(error){
+    console.error("Gagal menjalankan aksi user:", error);
+    alert("Gagal menyimpan perubahan: " + (error?.message || "Terjadi kesalahan."));
+  } finally {
+    if(yesBtn) yesBtn.disabled = false;
+  }
 }
 
 /* ================= FILTER ================= */
