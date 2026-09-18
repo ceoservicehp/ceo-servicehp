@@ -873,3 +873,26 @@ body.can-bulk-delete .selection-tools{display:flex}
 @media(max-width:640px){
   .manual-payment-simple summary{align-items:flex-start;flex-direction:column}
 }
+
+
+/* ===== Garansi per unit - versi simple Dapur ===== */
+.warranty-simple{margin-top:12px}
+.simple-warranty-unit{border:1px solid #e1e8e8;border-radius:14px;background:#fff;margin-bottom:12px;overflow:hidden}
+.simple-warranty-head{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 16px;background:#f8fbfb;border-bottom:1px solid #e8eeee}
+.simple-warranty-head>div{display:flex;flex-direction:column;gap:3px}
+.simple-warranty-head small{color:#6b7280}
+.simple-warranty-list{padding:0 16px}
+.simple-warranty-row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:13px 0;border-bottom:1px solid #edf1f1}
+.simple-warranty-row:last-child{border-bottom:0}
+.simple-warranty-row>div:first-child{display:flex;flex-direction:column;gap:4px}
+.simple-warranty-row small{color:#6b7280}
+.simple-warranty-actions{display:flex;align-items:center;gap:8px}
+.simple-warranty-editor{padding:16px;border-top:1px solid #e8eeee;background:#fbfdfd}
+.simple-warranty-form-actions{display:flex;gap:8px;margin-top:12px}
+.simple-warranty-active{display:flex;align-items:center;gap:8px;margin-top:12px;font-weight:600}
+.simple-warranty-active input{width:auto}
+.notice.compact{margin:12px 0}
+@media(max-width:640px){
+  .simple-warranty-head,.simple-warranty-row{align-items:flex-start;flex-direction:column}
+  .simple-warranty-actions{width:100%;justify-content:space-between}
+}
