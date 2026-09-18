@@ -220,6 +220,12 @@
               <div class="ujang-summary-card ceo-share"><div class="ujang-card-icon"><i class="fa-solid fa-building"></i></div><div><span>Hak CEO</span><strong id="ceoTotalBagian">Rp 0</strong><small>Akumulasi 35% / 50%</small></div></div>
             </div>
 
+            <div class="ujang-receipt-heading"><div><span class="eyebrow">PENERIMAAN HAK UJANG</span><p>Pantau hak yang sudah diterima UJANG dan nominal yang masih belum diterima.</p></div></div>
+            <div class="ujang-receipt-grid">
+              <div class="ujang-summary-card receipt-done"><div class="ujang-card-icon"><i class="fa-solid fa-circle-check"></i></div><div><span>Sudah Diterima UJANG</span><strong id="ujangTotalReceived">Rp 0</strong><small>Akumulasi penerimaan yang sudah dicatat</small></div></div>
+              <div class="ujang-summary-card receipt-pending"><div class="ujang-card-icon"><i class="fa-solid fa-clock"></i></div><div><span>Belum Diterima UJANG</span><strong id="ujangTotalUnreceived">Rp 0</strong><small>Sisa hak UJANG yang masih harus diberikan</small></div></div>
+            </div>
+
             <div class="ujang-info-box"><i class="fa-solid fa-circle-info"></i><div><strong>Skema Kolaborasi UJANG</strong><p>Pelanggan UJANG: <b>65% UJANG / 35% CEO</b> &nbsp;•&nbsp; Pelanggan CEO: <b>50% UJANG / 50% CEO</b>. Pembagian dihitung dari nilai service setelah dikurangi transport dan modal sparepart.</p></div></div>
 
             <section class="ujang-capital-panel" id="ujangCapitalPanel">
@@ -240,8 +246,8 @@
 
             <div class="table-wrapper ujang-table-wrap">
               <table class="admin-table ujang-table"><thead><tr>
-                <th>No</th><th>Pelanggan</th><th>Perangkat</th><th>Sumber</th><th>Tgl Selesai</th><th>Total Tagihan</th><th>Transport</th><th>Modal Sparepart</th><th>Dasar Bagi Hasil</th><th>Skema</th><th>Bagian UJANG</th><th>Bagian CEO</th>
-              </tr></thead><tbody id="ujangTable"><tr><td colspan="12">Memuat data UJANG...</td></tr></tbody></table>
+                <th>No</th><th>Pelanggan</th><th>Perangkat</th><th>Sumber</th><th>Tgl Selesai</th><th>Total Tagihan</th><th>Transport</th><th>Modal Sparepart</th><th>Dasar Bagi Hasil</th><th>Skema</th><th>Hak UJANG</th><th>Sudah Diterima</th><th>Belum Diterima</th><th>Status</th><th>Bagian CEO</th><th>Aksi</th>
+              </tr></thead><tbody id="ujangTable"><tr><td colspan="16">Memuat data UJANG...</td></tr></tbody></table>
             </div>
           </div>
         </div>
@@ -267,6 +273,21 @@
       </div>
     </div>
   </main>
+
+  <div id="ujangReceiptModal" class="modal">
+    <div class="modal-content ujang-receipt-modal">
+      <div class="modal-head"><div><span class="eyebrow">PENERIMAAN HAK UJANG</span><h3 id="ujangReceiptTitle">Catat Penerimaan</h3></div><button type="button" class="modal-close" id="closeUjangReceiptModal"><i class="fa-solid fa-xmark"></i></button></div>
+      <div class="modal-form">
+        <input type="hidden" id="ujangReceiptOrderId">
+        <div class="receipt-modal-summary"><div><span>Hak UJANG</span><strong id="receiptHakUjang">Rp 0</strong></div><div><span>Sudah Diterima</span><strong id="receiptAlready">Rp 0</strong></div><div><span>Belum Diterima</span><strong id="receiptRemaining">Rp 0</strong></div></div>
+        <label>Nominal Diterima<input type="number" id="ujangReceiptAmount" min="1" step="1" placeholder="Contoh: 400000"></label>
+        <div class="modal-grid"><label>Tanggal Diterima<input type="datetime-local" id="ujangReceiptDate"></label><label>Metode<select id="ujangReceiptMethod"><option value="TRANSFER">Transfer</option><option value="TUNAI">Tunai</option><option value="LAINNYA">Lainnya</option></select></label></div>
+        <label>Catatan<input type="text" id="ujangReceiptNote" placeholder="Opsional, misalnya Transfer BCA"></label>
+        <div class="receipt-history"><div class="receipt-history-head"><strong>Riwayat Penerimaan</strong><small>Catatan penerimaan untuk order ini</small></div><div id="ujangReceiptHistory"><p>Belum ada penerimaan.</p></div></div>
+      </div>
+      <div class="modal-actions"><button type="button" class="btn btn-success" id="saveUjangReceipt"><i class="fa-solid fa-check"></i> Catat Penerimaan</button><button type="button" class="btn btn-soft" id="cancelUjangReceiptModal">Batal</button></div>
+    </div>
+  </div>
 
   <div id="ujangCapitalModal" class="modal">
     <div class="modal-content capital-modal-content">
