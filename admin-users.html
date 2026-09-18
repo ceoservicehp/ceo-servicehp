@@ -3,202 +3,41 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MANAJEMEN USERS - CEO</title>
-
-<link rel="stylesheet" href="css/admin-users.css">
+<title>Manajemen Users — CEO Part & Service</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="css/admin-users.css">
 </head>
-
 <body>
-
- <!-- ================= HEADER ================= -->
-<header>
-  <div id="logo-container">
-    <img src="images/logo.png" width="55">
-
-    <div>
-      <h1>CEO - PART SERVICE</h1>
-      <div class="tagline">CELLULAR ENGINEER OFFICER</div>
-    </div>
-  </div>
- <button class="menu-toggle" id="menuToggle">
-  <i class="fa-solid fa-bars"></i>
-</button>
-</header>
-
-<!-- ================= NAVBAR ================= -->
+<div class="app-shell">
+<header class="site-header"><div class="header-inner">
+<a href="index.html" class="brand"><img src="images/logo.png" alt="CEO Part & Service"><div class="brand-text"><strong>CEO PART & SERVICE</strong><span>MANAJEMEN USERS</span></div></a>
+<button class="menu-toggle" id="menuToggle" aria-label="Buka menu"><i class="fa-solid fa-bars"></i></button>
 <nav class="top-nav">
-  <a href="index.html" class="nav-btn">
-    <i class="fa-solid fa-house"></i>
-    Beranda
-  </a>
-
-  <a href="profile.html" class="nav-btn">
-    <i class="fa-solid fa-user"></i>
-    Profil
-  </a>
- 
-  <a href="dapur.html" class="nav-btn">
-    <i class="fa-solid fa-kitchen-set"></i>
-    Dapur
-  </a>
-
-  <a href="produk.html" class="nav-btn">
-    <i class="fa-solid fa-box-open"></i>
-    Produk
-  </a>
-
-  <a href="keuangan.html" class="nav-btn">
-    <i class="fa-solid fa-wallet"></i>
-    Keuangan
-  </a>
-
-  <a href="layanan.html" class="nav-btn">
-    <i class="fa-solid fa-screwdriver-wrench"></i>
-    Layanan
-  </a>
-
-  <a href="ceo_status.html" class="nav-btn">
-    <i class="fa-solid fa-chart-line"></i>
-    Status
-  </a>
-</nav>
- <div class="nav-overlay" id="navOverlay"></div>
- 
- <div class="container">
-
-  <div class="admin-content">
-
-    <div class="header-buttons">
-      <button class="btn-refresh" id="refreshBtn">
-        <i class="fa-solid fa-rotate"></i> Refresh
-      </button>
-
-      <button class="btn-back" onclick="window.location.href='dapur.html'">
-        <i class="fa-solid fa-arrow-left"></i> Kembali
-      </button>
-    </div>
-
-    <!-- FILTER & SEARCH -->
-    <div class="filter-section">
-
-      <div class="search-box">
-        <i class="fa-solid fa-magnifying-glass"></i>
-        <input type="text" id="searchAdmin" placeholder="Cari nama / email...">
-      </div>
-
-      <select id="filterStatus">
-        <option value="all">Semua Status</option>
-        <option value="active">Aktif</option>
-        <option value="inactive">Nonaktif</option>
-      </select>
-
-      <select id="filterRole">
-        <option value="all">Semua Role</option>
-        <option value="superadmin">Superadmin</option>
-        <option value="admin">Admin</option>
-        <option value="staff">Staff</option>
-      </select>
-
-    </div>
-
-    <!-- TABLE -->
-    <div class="table-wrapper">
-      <table class="admin-table">
-        <thead>
-          <tr>
-            <th>No</th>
-            <th>Nama Lengkap</th>
-            <th>Email</th>
-            <th>No HP</th>
-            <th>Jabatan</th>
-            <th>Role Sistem</th>
-            <th>Status Akun</th>
-            <th>Disetujui Oleh</th>
-            <th>Aksi</th>
-          </tr>
-        </thead>
-
-        <tbody id="adminTable">
-          <tr>
-            <td colspan="9" class="loading">
-              <i class="fa-solid fa-spinner fa-spin"></i>
-              Memuat data...
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-  </div>
-
+<a href="index.html" class="nav-btn"><i class="fa-solid fa-house"></i><span>Beranda</span></a>
+<a href="profile.html" class="nav-btn"><i class="fa-solid fa-user"></i><span>Profil</span></a>
+<a href="dapur.html" class="nav-btn"><i class="fa-solid fa-kitchen-set"></i><span>Dapur</span></a>
+<a href="produk.html" class="nav-btn"><i class="fa-solid fa-box-open"></i><span>Produk</span></a>
+<a href="keuangan.html" class="nav-btn"><i class="fa-solid fa-wallet"></i><span>Keuangan</span></a>
+<a href="layanan.html" class="nav-btn"><i class="fa-solid fa-screwdriver-wrench"></i><span>Layanan</span></a>
+<a href="ceo_status.html" class="nav-btn"><i class="fa-solid fa-chart-line"></i><span>Status</span></a>
+</nav></div></header>
+<div class="nav-overlay" id="navOverlay"></div>
+<main>
+<section class="finance-hero"><div class="finance-hero-inner"><div><span class="hero-badge"><i class="fa-solid fa-users-gear"></i> AKSES SUPERADMIN</span><h1>Manajemen <span>Users</span></h1><p>Kelola akun tim CEO, status akses, jabatan, role sistem, serta keamanan password dari satu halaman.</p></div><div class="hero-side"><div class="hero-date"><i class="fa-solid fa-shield-halved"></i><span>Kontrol akun & keamanan</span></div><a href="dapur.html" class="btn btn-light"><i class="fa-solid fa-arrow-left"></i> Kembali ke Dapur</a></div></div></section>
+<div class="container">
+<section class="filter-card">
+<div class="filter-title"><div><span class="eyebrow">PENCARIAN & FILTER</span><h2>Daftar Akun Admin</h2><p>Cari pengguna dan saring berdasarkan status atau role sistem.</p></div><button class="btn btn-soft" id="refreshBtn"><i class="fa-solid fa-rotate"></i> Refresh</button></div>
+<div class="filter-layout"><div class="search-box"><i class="fa-solid fa-magnifying-glass"></i><input type="text" id="searchAdmin" placeholder="Cari nama atau email..."></div><div class="select-filters"><select id="filterStatus"><option value="all">Semua Status</option><option value="active">Aktif</option><option value="inactive">Nonaktif</option></select><select id="filterRole"><option value="all">Semua Role</option><option value="superadmin">Superadmin</option><option value="admin">Admin</option><option value="staff">Staff</option></select></div></div>
+</section>
+<section class="content-card"><div class="content-head"><div><span class="eyebrow">MANAJEMEN AKUN</span><h2>Users CEO Part & Service</h2><p>Perubahan role, jabatan, status akun, dan password dikelola khusus oleh Superadmin.</p></div><div class="security-pill"><i class="fa-solid fa-lock"></i> Superadmin Only</div></div>
+<div class="table-wrapper"><table class="admin-table"><thead><tr><th>No</th><th>Nama Lengkap</th><th>Email</th><th>No HP</th><th>Jabatan</th><th>Role Sistem</th><th>Status Akun</th><th>Disetujui Oleh</th><th>Aksi</th></tr></thead><tbody id="adminTable"><tr><td colspan="9" class="loading"><i class="fa-solid fa-spinner fa-spin"></i> Memuat data...</td></tr></tbody></table></div></section>
+</div></main>
+<div id="passwordModal" class="modal"><div class="modal-box password-modal-box"><div class="modal-head"><div><span class="eyebrow">KEAMANAN AKUN</span><h3>Reset Password User</h3><p id="passwordUserInfo">Tetapkan password baru untuk user.</p></div><button type="button" class="modal-close" id="passwordClose" aria-label="Tutup">&times;</button></div><div class="password-form"><label>Password Baru</label><div class="password-input-wrap"><input type="password" id="newUserPassword" minlength="8" autocomplete="new-password" placeholder="Minimal 8 karakter"><button type="button" class="password-eye" data-target="newUserPassword"><i class="fa-solid fa-eye"></i></button></div><label>Konfirmasi Password</label><div class="password-input-wrap"><input type="password" id="confirmUserPassword" minlength="8" autocomplete="new-password" placeholder="Ulangi password baru"><button type="button" class="password-eye" data-target="confirmUserPassword"><i class="fa-solid fa-eye"></i></button></div><div id="passwordMessage" class="password-message" hidden></div></div><div class="modal-actions password-actions"><button type="button" id="sendResetLinkBtn" class="btn btn-soft"><i class="fa-solid fa-envelope"></i> Kirim Link Reset</button><button type="button" id="savePasswordBtn" class="btn btn-primary"><i class="fa-solid fa-key"></i> Simpan Password</button></div></div></div>
+<div id="confirmModal" class="modal"><div class="modal-box confirm-box"><div class="confirm-icon"><i class="fa-solid fa-circle-exclamation"></i></div><h3 id="confirmTitle">Konfirmasi</h3><p id="confirmText">Apakah Anda yakin?</p><div class="modal-actions"><button id="confirmNo" class="btn btn-soft">Batal</button><button id="confirmYes" class="btn btn-danger"><i class="fa-solid fa-check"></i> Ya</button></div></div></div>
+<footer>© 2026 CEO Part & Service — All Rights Reserved</footer>
 </div>
- 
-<!-- Modal Reset Password -->
-<div id="passwordModal" class="modal">
-  <div class="modal-box password-modal-box">
-    <div class="modal-head">
-      <div>
-        <span class="modal-kicker">KEAMANAN AKUN</span>
-        <h3>Reset Password User</h3>
-        <p id="passwordUserInfo">Tetapkan password baru untuk user.</p>
-      </div>
-      <button type="button" class="modal-close" id="passwordClose" aria-label="Tutup">&times;</button>
-    </div>
-
-    <div class="password-form">
-      <label>Password Baru</label>
-      <div class="password-input-wrap">
-        <input type="password" id="newUserPassword" minlength="8" autocomplete="new-password" placeholder="Minimal 8 karakter">
-        <button type="button" class="password-eye" data-target="newUserPassword"><i class="fa-solid fa-eye"></i></button>
-      </div>
-
-      <label>Konfirmasi Password</label>
-      <div class="password-input-wrap">
-        <input type="password" id="confirmUserPassword" minlength="8" autocomplete="new-password" placeholder="Ulangi password baru">
-        <button type="button" class="password-eye" data-target="confirmUserPassword"><i class="fa-solid fa-eye"></i></button>
-      </div>
-
-      <div id="passwordMessage" class="password-message" hidden></div>
-    </div>
-
-    <div class="modal-actions password-actions">
-      <button type="button" id="sendResetLinkBtn" class="btn-secondary"><i class="fa-solid fa-envelope"></i> Kirim Link Reset</button>
-      <button type="button" id="savePasswordBtn" class="btn-primary"><i class="fa-solid fa-key"></i> Simpan Password</button>
-    </div>
-  </div>
-</div>
-
-<!-- Modal Konfirmasi -->
-<div id="confirmModal" class="modal">
-  <div class="modal-box">
-    <h3 id="confirmTitle">Konfirmasi</h3>
-    <p id="confirmText">Apakah Anda yakin?</p>
-
-    <div class="modal-actions">
-      <button id="confirmYes" class="btn-danger">
-        <i class="fa-solid fa-check"></i> Ya
-      </button>
-      <button id="confirmNo" class="btn-secondary">
-        Batal
-      </button>
-    </div>
-  </div>
-</div>
-</div>
- 
-<!-- ================= FOOTER ================= -->
-<footer>
-  © 2026 CEO Part & Service — All Rights Reserved
-</footer>
-  
-<!-- Supabase -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/supabase.js"></script>
-<script src="js/auth.js"></script>
-<script src="js/role_guard.js"></script>
-<script src="js/admin-users.js"></script>
-
-  
-</body>
-</html>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="js/supabase.js"></script><script src="js/auth.js"></script><script src="js/role_guard.js"></script><script src="js/admin-users.js"></script>
+</body></html>
