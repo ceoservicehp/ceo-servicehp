@@ -588,12 +588,50 @@ async function openDetail(id){
     <div class="dapur-top"><div><span class="pill ${orderBadge(o.order_status)}">${esc(label(o.order_status))}</span> <span class="pill ${paymentBadge(o.payment_status)}">${esc(label(o.payment_status))}</span><p>${fmtDate(o.created_at)}</p></div><strong>${rupiah(o.total)}</strong></div>
     <section class="dapur-section"><h3><i class="fa-solid fa-user"></i> Data Pembeli</h3><div class="dapur-fields"><label>Nama<input value="${esc(o.customer_name||'-')}" readonly></label><label>WhatsApp<input value="${esc(o.customer_whatsapp||'-')}" readonly></label><label class="full">Alamat<textarea readonly>${esc(o.customer_address||'-')}</textarea></label></div><div class="dapur-links">${wa?`<a class="btn success" target="_blank" href="https://wa.me/${esc(wa)}"><i class="fa-brands fa-whatsapp"></i> WhatsApp</a>`:''}${mapLink?`<a class="btn soft" target="_blank" href="${mapLink}"><i class="fa-solid fa-location-dot"></i> Lokasi</a>`:''}</div></section>
     <section class="dapur-section"><h3><i class="fa-solid fa-mobile-screen-button"></i> Produk</h3>${productHtml}<details class="dapur-more"><summary>Kelola IMEI / Unit <span>${assignedUnits}/${totalQty}</span></summary><div class="dapur-more-body">${items.map(i=>buildUnitManager(i)).join('')}</div></details></section>
-    <section class="dapur-section"><h3><i class="fa-solid fa-wallet"></i> Pembayaran</h3><div class="money-simple"><div><span>Subtotal</span><strong>${rupiah(o.subtotal)}</strong></div><div><span>Diskon</span><strong>${rupiah(o.discount)}</strong></div><div><span>Ongkir</span><strong>${rupiah(o.shipping_fee)}</strong></div><div class="grand"><span>Total</span><strong>${rupiah(o.total)}</strong></div><div><span>Dibayar</span><strong>${rupiah(o.amount_paid)}</strong></div><div><span>Sisa</span><strong>${rupiah(o.remaining_amount)}</strong></div></div>${buildSimplePaymentAction(o,pay)}${o.payment_status==='lunas'?`<a class="btn primary invoice-simple" target="_blank" href="nota-produk.html?id=${encodeURIComponent(o.id)}"><i class="fa-solid fa-file-invoice"></i> Buka Invoice</a>`:''}</section>
+    <section class="dapur-section"><h3><i class="fa-solid fa-wallet"></i> Pembayaran</h3><div class="money-simple"><div><span>Subtotal</span><strong>${rupiah(o.subtotal)}</strong></div><div><span>Diskon</span><strong>${rupiah(o.discount)}</strong></div><div><span>Ongkir</span><strong>${rupiah(o.shipping_fee)}</strong></div><div class="grand"><span>Total</span><strong>${rupiah(o.total)}</strong></div><div><span>Dibayar</span><strong>${rupiah(o.amount_paid)}</strong></div><div><span>Sisa</span><strong>${rupiah(o.remaining_amount)}</strong></div></div>${buildSimplePaymentAction(o,pay)}${buildManualPaymentSimple(o)}${o.payment_status==='lunas'?`<a class="btn primary invoice-simple" target="_blank" href="nota-produk.html?id=${encodeURIComponent(o.id)}"><i class="fa-solid fa-file-invoice"></i> Buka Invoice</a>`:''}</section>
     ${shippingType!=='pickup'?`<section class="dapur-section"><h3><i class="fa-solid fa-truck"></i> Pengiriman</h3><div class="dapur-fields"><label>Metode<input value="${esc(shippingLabel(o,ship))}" readonly></label><label>Kurir / Ekspedisi<input id="shippingCourier" value="${esc(ship?.courier||'')}"></label><label>Ongkir<input id="shippingFee" inputmode="numeric" value="${Number(o.shipping_fee||0)}"></label><label>Resi / Kode<input id="trackingNumber" value="${esc(ship?.tracking_number||'')}"></label></div></section>`:`<input type="hidden" id="trackingNumber" value="${esc(ship?.tracking_number||'')}">`}
     <section class="dapur-section dapur-save"><h3><i class="fa-solid fa-floppy-disk"></i> Status Order</h3><div class="dapur-fields"><label>Status<select id="adminOrderStatus">${['menunggu_diproses','dikemas','dikirim','dalam_perjalanan','selesai','dibatalkan','gagal_dikirim'].map(v=>`<option value="${v}" ${o.order_status===v?'selected':''}>${esc(label(v))}</option>`).join('')}</select></label><label class="full">Catatan Admin<textarea id="adminNote" rows="2">${esc(o.admin_note||'')}</textarea></label></div><button class="btn primary save-order-changes" id="saveOrderChangesBtn"><i class="fa-solid fa-floppy-disk"></i> Simpan Perubahan</button></section>
   </div>`;
   if(pay?.proof_url) document.querySelectorAll('.view-current-proof').forEach(btn=>btn.onclick=()=>viewProof(pay.proof_url));
   bindUnitActions(o); bindSimpleAdminActions(o,pay,ship,shippingType);
+}
+
+function buildManualPaymentSimple(o){
+  const remaining = Number(o.remaining_amount || 0);
+  if(o.payment_status === 'lunas' || remaining <= 0){
+    return `<div class="manual-payment-simple is-paid">
+      <div class="manual-payment-title"><i class="fa-solid fa-circle-check"></i><div><strong>Tagihan sudah lunas</strong><small>Tidak ada pembayaran tambahan yang perlu dicatat.</small></div></div>
+    </div>`;
+  }
+
+  return `<details class="manual-payment-simple" ${Number(o.amount_paid || 0) > 0 ? 'open' : ''}>
+    <summary><span><i class="fa-solid fa-circle-plus"></i> Catat Pembayaran / Pelunasan</span><strong>Sisa ${rupiah(remaining)}</strong></summary>
+    <div class="manual-payment-body">
+      <div class="dapur-fields">
+        <label>Metode Pembayaran
+          <select id="manualPaymentMethod">
+            <option value="transfer">Transfer Bank</option>
+            <option value="cash">Tunai</option>
+            <option value="qris">QRIS</option>
+            <option value="cod">COD</option>
+          </select>
+        </label>
+        <label>Nominal
+          <input id="manualPaymentAmount" inputmode="numeric" value="${remaining}" placeholder="Nominal pembayaran">
+        </label>
+        <label>Nomor Referensi
+          <input id="manualPaymentReference" placeholder="Opsional">
+        </label>
+        <label>Catatan
+          <input id="manualPaymentNote" placeholder="${Number(o.amount_paid || 0) > 0 ? 'Contoh: Pelunasan' : 'Opsional'}">
+        </label>
+      </div>
+      <button class="btn success manual-payment-btn" id="addManualPaymentBtn" type="button">
+        <i class="fa-solid fa-money-bill-transfer"></i> ${Number(o.amount_paid || 0) > 0 ? 'Catat Pembayaran / Pelunasan' : 'Catat Pembayaran'}
+      </button>
+      <small class="helper">Pembayaran dicatat sebagai transaksi baru. Jika nominal sama dengan sisa tagihan, order akan menjadi lunas sesuai perhitungan sistem.</small>
+    </div>
+  </details>`;
 }
 
 function buildSimplePaymentAction(o, pay){
