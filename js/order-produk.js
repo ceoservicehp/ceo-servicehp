@@ -19,6 +19,67 @@ const fmtDate = v => v ? new Date(v).toLocaleString("id-ID", { dateStyle:"medium
 
 const fmtDateOnly = v => v ? new Date(v).toLocaleDateString("id-ID", { day:"2-digit", month:"2-digit", year:"numeric" }) : "-";
 
+function formatWaNumber(value){
+  let phone = String(value || "").replace(/\D/g, "");
+  if(phone.startsWith("0")) phone = "62" + phone.slice(1);
+  else if(phone.startsWith("8")) phone = "62" + phone;
+  return phone;
+}
+
+function productInvoiceUrl(order){
+  return `${window.location.origin}/nota-produk.html?id=${encodeURIComponent(order.id)}`;
+}
+
+function productTrackingUrl(order){
+  // Halaman invoice produk yang sudah ada dipakai juga sebagai tautan pengecekan pesanan.
+  return productInvoiceUrl(order);
+}
+
+function shippingWhatsAppText(order){
+  const ship = latest(order?.order_shipments);
+  const trackingUrl = productTrackingUrl(order);
+  return `Halo ${order?.customer_name || ""},
+
+Pesanan Anda di *CEO Part & Service* sedang dalam perjalanan. 🚚
+
+📦 No. Pesanan: ${order?.order_number || "-"}
+📍 Status: ${label(order?.order_status)}
+${ship?.courier ? `🚚 Kurir/Ekspedisi: ${ship.courier}\n` : ""}${ship?.tracking_number ? `🧾 No. Resi/Kode: ${ship.tracking_number}\n` : ""}
+Untuk melihat informasi pesanan Anda, silakan buka:
+${trackingUrl}
+
+Jika ada pertanyaan, silakan balas pesan ini.
+
+Terima kasih 🙏
+*CEO Part & Service*`;
+}
+
+function billingWhatsAppText(order){
+  const invoiceUrl = productInvoiceUrl(order);
+  const remaining = Number(order?.remaining_amount || 0);
+  return `Halo ${order?.customer_name || ""},
+
+Berikut informasi tagihan pembelian produk Anda di *CEO Part & Service*.
+
+📄 *TAGIHAN / INVOICE PRODUK*
+No. Pesanan: ${order?.order_number || "-"}
+Total Tagihan: ${rupiah(order?.total)}
+Sudah Dibayar: ${rupiah(order?.amount_paid)}
+Sisa Tagihan: ${rupiah(remaining)}
+Status Pembayaran: ${label(order?.payment_status)}
+
+Silakan lihat detail invoice melalui link berikut:
+${invoiceUrl}
+
+${remaining > 0 ? "Mohon melakukan pembayaran sesuai kesepakatan yang telah dibuat dengan pihak CEO Part & Service." : "Pembayaran Anda telah lunas. Terima kasih."}
+
+Jika ada pertanyaan, silakan balas pesan ini.
+
+Terima kasih 🙏
+*CEO Part & Service*`;
+}
+
+
 function orderCostTotal(order){
   return (order?.order_items || []).reduce((sum,item) => {
     const snap = Number(item?.cost_subtotal);
@@ -337,7 +398,7 @@ function render(){
       <td><div class="buyer-cell"><strong>${esc(o.customer_name || "-")}</strong></div></td>
       <td><div class="product-cell"><strong>${esc(item.product_name || "-")}</strong><small>${esc(variantParts || item.variant_name || "-")}${item.quantity ? ` · ${item.quantity} unit` : ""}</small>${extraItems ? `<span class="more-items">+${extraItems} produk lain</span>` : ""}</div></td>
       <td><div class="address-cell">${esc(o.customer_address || "-")}</div></td>
-      <td><a class="phone-link" target="_blank" rel="noopener" href="https://wa.me/${esc(String(o.customer_whatsapp || "").replace(/[^0-9]/g,""))}">${esc(o.customer_whatsapp || "-")}</a></td>
+      <td>${o.customer_whatsapp ? `<a class="phone-link wa-shipping-link" target="_blank" rel="noopener" title="Kirim informasi pesanan dalam perjalanan" href="https://wa.me/${esc(formatWaNumber(o.customer_whatsapp))}?text=${encodeURIComponent(shippingWhatsAppText(o))}"><i class="fa-brands fa-whatsapp"></i><span>${esc(o.customer_whatsapp)}</span></a>` : "-"}</td>
       <td>${fmtDateOnly(o.created_at)}</td>
       <td><span class="pill ${orderBadge(o.order_status)}">${esc(label(o.order_status))}</span></td>
       <td><strong>${rupiah(modal)}</strong></td>
@@ -614,8 +675,8 @@ async function openDetail(id){
   const assignedUnits = countAssignedUnits(o);
   const paymentHistory = buildPaymentHistory(o);
   const mapLink = (o.latitude != null && o.longitude != null) ? `https://www.google.com/maps?q=${encodeURIComponent(o.latitude)},${encodeURIComponent(o.longitude)}` : null;
-  const wa = String(o.customer_whatsapp || '').replace(/[^0-9]/g,'');
-  const waText = encodeURIComponent(`Halo ${o.customer_name || ''}, update pesanan ${o.order_number || ''}: status ${label(o.order_status)}. Pembayaran: ${label(o.payment_status)}.${ship?.tracking_number ? ` Resi: ${ship.tracking_number}.` : ''} Terima kasih — CEO Part & Service.`);
+  const wa = formatWaNumber(o.customer_whatsapp);
+  const billingWaText = encodeURIComponent(billingWhatsAppText(o));
 
   const productHtml = items.map((i, idx) => {
     const units = (i.order_item_units || []).slice().sort((a,b)=>Number(a.id)-Number(b.id));
@@ -626,9 +687,9 @@ async function openDetail(id){
   $("detailContent").innerHTML = `
     <div class="detail-body simple-order-detail">
       <section class="simple-order-head"><div><div class="simple-status-row"><span class="pill ${orderBadge(o.order_status)}">${esc(label(o.order_status))}</span><span class="pill ${paymentBadge(o.payment_status)}">${esc(label(o.payment_status))}</span>${currentDetailTerms?.use_tempo?'<span class="pill warn">Tempo</span>':''}</div><p>${esc(o.customer_name || '-')} · ${fmtDate(o.created_at)} · ${items.length} produk / ${totalQty} unit</p></div><div class="simple-head-total"><span>Total</span><strong>${rupiah(o.total)}</strong></div></section>
-      <div class="simple-quick-actions">${wa ? `<a class="btn success" target="_blank" rel="noopener" href="https://wa.me/${esc(wa)}?text=${waText}"><i class="fa-brands fa-whatsapp"></i> WhatsApp</a>` : ''}${o.payment_status === 'lunas' ? `<a class="btn primary" target="_blank" rel="noopener" href="nota-produk.html?id=${encodeURIComponent(o.id)}"><i class="fa-solid fa-file-invoice"></i> Invoice</a>` : `<button class="btn soft" disabled><i class="fa-solid fa-lock"></i> Invoice setelah Lunas</button>`}<button class="btn soft quick-copy" data-copy="${esc(o.order_number || '')}"><i class="fa-regular fa-copy"></i> Salin Order</button>${mapLink ? `<a class="btn soft" target="_blank" rel="noopener" href="${mapLink}"><i class="fa-solid fa-location-dot"></i> Lokasi</a>` : ''}</div>
+      <div class="simple-quick-actions">${wa ? `<a class="btn success" target="_blank" rel="noopener" href="https://wa.me/${esc(wa)}?text=${billingWaText}"><i class="fa-brands fa-whatsapp"></i> Kirim Tagihan</a>` : ''}<a class="btn primary" target="_blank" rel="noopener" href="nota-produk.html?id=${encodeURIComponent(o.id)}"><i class="fa-solid fa-file-invoice"></i> Lihat Invoice</a><button class="btn soft quick-copy" data-copy="${esc(o.order_number || '')}"><i class="fa-regular fa-copy"></i> Salin Order</button>${mapLink ? `<a class="btn soft" target="_blank" rel="noopener" href="${mapLink}"><i class="fa-solid fa-location-dot"></i> Lokasi</a>` : ''}</div>
 
-      <section class="simple-section-card"><div class="simple-section-title"><span class="card-icon"><i class="fa-solid fa-user"></i></span><div><h3>Data Pesanan</h3><small>Informasi pelanggan dan metode transaksi</small></div></div><div class="simple-info-grid"><div><span>Nama</span><strong>${esc(o.customer_name || '-')}</strong></div><div><span>WhatsApp</span><strong>${esc(o.customer_whatsapp || '-')}</strong></div><div><span>Email</span><strong>${esc(o.customer_email || '-')}</strong></div><div><span>Pengiriman</span><strong>${esc(shippingLabel(o, ship))}</strong></div><div><span>Pembayaran</span><strong>${esc(label(o.payment_method))}</strong></div><div><span>Tanggal Order</span><strong>${fmtDate(o.created_at)}</strong></div><div class="span-2"><span>Alamat</span><strong>${esc(o.customer_address || '-')}</strong></div></div>${o.customer_note ? `<div class="note-box"><b>Catatan pelanggan</b><br>${esc(o.customer_note)}</div>` : ''}</section>
+      <section class="simple-section-card"><div class="simple-section-title"><span class="card-icon"><i class="fa-solid fa-user"></i></span><div><h3>Data Pesanan</h3><small>Informasi pelanggan dan metode transaksi</small></div></div><div class="simple-info-grid"><div><span>Nama</span><strong>${esc(o.customer_name || '-')}</strong></div><div><span>WhatsApp</span>${wa ? `<a class="detail-wa-billing" target="_blank" rel="noopener" href="https://wa.me/${esc(wa)}?text=${billingWaText}"><i class="fa-brands fa-whatsapp"></i><strong>${esc(o.customer_whatsapp || "-")}</strong><small>Klik untuk kirim tagihan + link invoice</small></a>` : `<strong>-</strong>`}</div><div><span>Email</span><strong>${esc(o.customer_email || '-')}</strong></div><div><span>Pengiriman</span><strong>${esc(shippingLabel(o, ship))}</strong></div><div><span>Pembayaran</span><strong>${esc(label(o.payment_method))}</strong></div><div><span>Tanggal Order</span><strong>${fmtDate(o.created_at)}</strong></div><div class="span-2"><span>Alamat</span><strong>${esc(o.customer_address || '-')}</strong></div></div>${o.customer_note ? `<div class="note-box"><b>Catatan pelanggan</b><br>${esc(o.customer_note)}</div>` : ''}</section>
 
       <section class="simple-section-card"><div class="simple-section-title"><span class="card-icon"><i class="fa-solid fa-mobile-screen-button"></i></span><div><h3>Produk yang Dibeli</h3><small>${totalQty} unit · IMEI terisi ${assignedUnits}/${totalQty}</small></div></div><div class="simple-products">${productHtml}</div><details class="simple-collapse imei-collapse"><summary><span><i class="fa-solid fa-barcode"></i> Kelola IMEI / Unit Fisik</span><small>${assignedUnits}/${totalQty} unit terisi</small></summary><div class="collapse-body imei-products">${items.map(i => buildUnitManager(i)).join('') || '<div class="notice">Item tidak ditemukan.</div>'}</div></details></section>
 
