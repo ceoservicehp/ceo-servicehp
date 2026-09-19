@@ -942,81 +942,209 @@ td small{font-size:9px}
   .finance-highlight strong{font-size:16px}
 }
 
-/* HP: tabel berubah menjadi kartu agar tidak perlu zoom / geser jauh */
+
+
+
+/* =========================================================
+   V4 — TABLE TETAP TABLET & HP + TOMBOL TUTUP MODAL
+   ========================================================= */
+.modal-footer-close{
+  position:sticky;
+  bottom:0;
+  z-index:5;
+  display:flex;
+  justify-content:flex-end;
+  padding:10px 14px;
+  background:rgba(255,255,255,.96);
+  border-top:1px solid var(--border);
+  backdrop-filter:blur(8px);
+}
+.modal-close-bottom{
+  min-width:110px;
+  justify-content:center;
+  background:#f4f7f8;
+  border:1px solid var(--border);
+  color:#33464d;
+}
+.modal-close-bottom:hover{background:#e9eff1}
+
 @media (max-width:680px){
-  .header-inner,.order-hero-inner,.container{width:calc(100% - 20px)}
-  .container{padding-top:18px}
-  .order-hero-inner{min-height:auto;padding:26px 0 42px}
-  .order-hero h1{font-size:27px}
-  .stats{gap:8px;margin-top:-27px}
-  .stat-card{padding:11px}
-  .stat-card strong{font-size:18px}
-  .section-heading h2{font-size:21px}
-  .section-heading p{font-size:10.5px}
-
-  .filters{grid-template-columns:1fr;padding:9px}
-  .filters .search-wrap{grid-column:auto}
-  .search-wrap input,.filters select{height:40px}
-
-  .table-card{background:transparent;border:0;box-shadow:none;overflow:visible}
-  .table-scroll{overflow:visible}
-  .table-card table{display:block;min-width:0;width:100%}
-  .table-card thead{display:none}
-  .table-card tbody{display:flex;flex-direction:column;gap:10px}
+  .table-card{
+    background:#fff;
+    border:1px solid var(--border);
+    box-shadow:var(--shadow-soft);
+    overflow:hidden;
+  }
+  .table-scroll{
+    display:block;
+    width:100%;
+    overflow-x:auto;
+    overflow-y:hidden;
+    -webkit-overflow-scrolling:touch;
+  }
+  .table-card table{
+    display:table;
+    width:100%;
+    min-width:1050px;
+    border-collapse:collapse;
+  }
+  .table-card thead{display:table-header-group}
+  .table-card tbody{display:table-row-group}
   .table-card tbody tr.order-row{
-    display:grid;grid-template-columns:1fr 1fr;
-    background:#fff;border:1px solid var(--border);border-radius:14px;
-    overflow:hidden;box-shadow:var(--shadow-soft);
+    display:table-row;
+    background:transparent;
+    border:0;
+    border-radius:0;
+    box-shadow:none;
   }
   .table-card tbody td{
-    display:flex;flex-direction:column;align-items:flex-start;
-    min-width:0!important;max-width:none!important;
-    padding:9px 11px;border:0;border-bottom:1px dashed #e7edef;
-    font-size:10.5px;
+    display:table-cell;
+    min-width:0!important;
+    max-width:none;
+    padding:9px 8px;
+    border-bottom:1px solid #edf1f2;
+    font-size:9.5px;
+    vertical-align:middle;
+    white-space:normal;
   }
-  .table-card tbody td::before{
-    display:block;margin-bottom:3px;color:#839095;font-size:8px;
-    font-weight:800;text-transform:uppercase;letter-spacing:.45px;
-  }
-  .table-card tbody td:nth-child(1)::before{content:"No"}
-  .table-card tbody td:nth-child(2)::before{content:"Nama"}
-  .table-card tbody td:nth-child(3)::before{content:"Produk"}
-  .table-card tbody td:nth-child(4)::before{content:"Alamat"}
-  .table-card tbody td:nth-child(5)::before{content:"WhatsApp"}
-  .table-card tbody td:nth-child(6)::before{content:"Tanggal"}
-  .table-card tbody td:nth-child(7)::before{content:"Status"}
-  .table-card tbody td:nth-child(8)::before{content:"Harga Modal"}
-  .table-card tbody td:nth-child(9)::before{content:"Total"}
-  .table-card tbody td:nth-child(10)::before{content:"Laba Bersih"}
-  .table-card tbody td:nth-child(11)::before{content:"Aksi"}
+  .table-card tbody td::before{display:none!important;content:none!important}
   .table-card tbody td:nth-child(2),
   .table-card tbody td:nth-child(3),
   .table-card tbody td:nth-child(4),
-  .table-card tbody td:nth-child(11){grid-column:1/-1}
-  .table-card tbody td:nth-child(11){border-bottom:0;padding:10px}
-  .table-card .table-detail-btn{width:100%;justify-content:center}
-  .address-cell{min-width:0;max-width:none}
-  .phone-link{font-size:11px}
-  .pagination-modern{margin-top:10px;border:1px solid var(--border);border-radius:12px;gap:8px}
-  .page-size-wrap{width:100%;justify-content:center}
-  .page-nav{order:2}
-  .page-info-text{order:3}
+  .table-card tbody td:nth-child(11){grid-column:auto}
+  .table-card tbody td:nth-child(1){width:42px;text-align:center}
+  .table-card tbody td:nth-child(2){min-width:120px!important}
+  .table-card tbody td:nth-child(3){min-width:145px!important}
+  .table-card tbody td:nth-child(4){min-width:170px!important}
+  .table-card tbody td:nth-child(5){min-width:125px!important}
+  .table-card tbody td:nth-child(6){min-width:85px!important}
+  .table-card tbody td:nth-child(7){min-width:95px!important}
+  .table-card tbody td:nth-child(8),
+  .table-card tbody td:nth-child(9),
+  .table-card tbody td:nth-child(10){min-width:100px!important}
+  .table-card tbody td:nth-child(11){min-width:82px!important;padding:9px 8px}
+  .table-card .table-detail-btn{width:auto;white-space:nowrap;padding:6px 8px;font-size:9px}
+  .address-cell{min-width:0;max-width:190px}
+  thead th{padding:9px 8px;font-size:8px;white-space:nowrap}
+  .phone-link{font-size:9.5px;white-space:nowrap}
+  .modal-footer-close{padding-bottom:max(10px,env(safe-area-inset-bottom))}
+  .modal-close-bottom{width:100%}
+}
 
+@media (min-width:681px) and (max-width:1100px){
+  .table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .table-card table{min-width:1120px}
+}
+
+
+/* =========================================================
+   V4 — TABLE TETAP TABLET & HP
+   ========================================================= */
+@media (max-width:820px){
+  .table-card{
+    overflow:hidden;
+    border:1px solid var(--border);
+    background:#fff;
+    box-shadow:var(--shadow-soft);
+  }
+  .table-scroll{
+    display:block;
+    width:100%;
+    overflow-x:auto;
+    overflow-y:hidden;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:thin;
+  }
+  .table-card table{
+    display:table;
+    width:100%;
+    min-width:1040px;
+    table-layout:auto;
+  }
+  .table-card thead{display:table-header-group}
+  .table-card tbody{display:table-row-group}
+  .table-card tbody tr{display:table-row}
+  .table-card tbody td{
+    display:table-cell;
+    padding:9px 8px;
+    font-size:10px;
+    vertical-align:middle;
+    white-space:normal;
+  }
+  .table-card tbody td::before{display:none!important;content:none!important}
+  .table-card thead th{
+    padding:9px 8px;
+    font-size:8.5px;
+    white-space:nowrap;
+  }
+  .address-cell{min-width:150px;max-width:190px}
+  .product-cell{min-width:135px;max-width:180px}
+  .phone-link{white-space:nowrap}
+  .table-detail-btn{white-space:nowrap}
+}
+
+@media (max-width:680px){
+  .header-inner,.order-hero-inner,.container{width:calc(100% - 18px)}
+  .container{padding-top:18px}
+  .order-hero-inner{min-height:auto;padding:25px 0 40px}
+  .order-hero h1{font-size:26px}
+  .stats{gap:8px;margin-top:-25px}
+  .stat-card{padding:10px}
+  .stat-card strong{font-size:17px}
+  .section-heading h2{font-size:20px}
+
+  .filters{grid-template-columns:1fr;padding:9px}
+  .filters .search-wrap{grid-column:auto}
+
+  .table-card table{min-width:1000px}
+  .table-card tbody td{font-size:9.5px;padding:8px 7px}
+  .table-card thead th{font-size:8px;padding:8px 7px}
+  .pill{font-size:8px;padding:4px 6px}
+  .table-detail-btn{padding:6px 8px;font-size:9px}
+
+  .pagination-modern{flex-wrap:wrap;gap:8px}
+  .page-size-wrap{width:100%;justify-content:center}
+
+  /* Modal detail tetap nyaman di HP */
   .modal{padding:0}
   .modal-panel{width:100%;max-height:100dvh;height:100dvh;border-radius:0}
-  .modal-head{padding:12px 14px}
-  .detail-body{padding:10px}
+  .modal-head{position:sticky;top:0;z-index:5;padding:12px 14px}
+  .detail-body{padding:10px 10px 88px}
   .simple-quick-actions{display:grid;grid-template-columns:1fr 1fr}
   .simple-quick-actions .btn{width:100%;font-size:10px}
   .finance-highlight-grid{grid-template-columns:1fr}
-  .finance-highlight{padding:12px}
-  .finance-highlight strong{font-size:17px}
+}
+
+.detail-bottom-close{
+  position:sticky;
+  bottom:-1px;
+  z-index:8;
+  display:flex;
+  justify-content:flex-end;
+  margin:18px -14px -20px;
+  padding:12px 14px;
+  border-top:1px solid var(--border);
+  background:rgba(255,255,255,.96);
+  backdrop-filter:blur(8px);
+}
+.detail-bottom-close .btn{
+  min-width:150px;
+  justify-content:center;
+}
+
+@media (max-width:680px){
+  .detail-bottom-close{
+    position:fixed;
+    left:0;right:0;bottom:0;
+    margin:0;
+    padding:10px;
+    box-shadow:0 -8px 24px rgba(18,35,42,.10);
+  }
+  .detail-bottom-close .btn{width:100%;min-height:44px}
 }
 
 @media (max-width:420px){
   .stats{grid-template-columns:1fr 1fr}
-  .stat-card{align-items:flex-start}
   .stat-card small{display:none}
   .simple-quick-actions{grid-template-columns:1fr}
-  .table-card tbody tr.order-row{grid-template-columns:1fr 1fr}
 }
