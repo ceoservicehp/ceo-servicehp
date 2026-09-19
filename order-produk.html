@@ -20,7 +20,6 @@
   <script defer src="js/nav-produk-admin.js"></script>
 </head>
 <body>
-<div class="app-shell">
 
 <header class="site-header">
   <div class="header-inner">
@@ -48,24 +47,35 @@
 </header>
 <div class="nav-overlay" id="navOverlay"></div>
 
-<section class="order-hero dapur-hero">
-  <div class="order-hero-inner dapur-hero-inner">
+<section class="order-hero">
+  <div class="order-hero-inner">
     <div>
       <div class="hero-badge"><i class="fa-solid fa-mobile-screen-button"></i> PENJUALAN HANDPHONE</div>
       <h1>Kelola <span>Order Produk HP</span></h1>
       <p>Pantau pesanan, pembayaran, ongkir, pengiriman, dan status order dalam satu halaman admin.</p>
     </div>
-    <div class="hero-order-actions"><div class="hero-order-card"><span><i class="fa-solid fa-cart-shopping"></i> Manajemen Penjualan</span><strong>Order Produk HP</strong><button id="refreshBtn" class="btn btn-light"><i class="fa-solid fa-rotate"></i> Refresh Data</button></div></div>
+    <button id="refreshBtn" class="btn btn-light"><i class="fa-solid fa-rotate"></i> Refresh Data</button>
   </div>
 </section>
 
 <main class="container">
   <section class="stats" id="stats">
-    <article class="stat-card stat-filter-card active" data-stat-filter="all" role="button" tabindex="0"><div class="stat-icon"><i class="fa-solid fa-bag-shopping"></i></div><div><span>Total Order</span><strong id="statTotal">0</strong><small>Seluruh pesanan</small></div></article>
-    <article class="stat-card stat-filter-card" data-stat-filter="waiting" role="button" tabindex="0"><div class="stat-icon waiting"><i class="fa-solid fa-clock"></i></div><div><span>Menunggu</span><strong id="statWaiting">0</strong><small>Belum diproses</small></div></article>
-    <article class="stat-card stat-filter-card" data-stat-filter="unpaid" role="button" tabindex="0"><div class="stat-icon unpaid"><i class="fa-solid fa-wallet"></i></div><div><span>Belum Lunas</span><strong id="statUnpaid">0</strong><small>Masih ada tagihan</small></div></article>
-    <article class="stat-card stat-filter-card" data-stat-filter="done" role="button" tabindex="0"><div class="stat-icon done"><i class="fa-solid fa-circle-check"></i></div><div><span>Selesai</span><strong id="statDone">0</strong><small>Order selesai</small></div></article>
-    <span id="statProof" hidden>0</span>
+    <article class="stat-card stat-filter-card active" data-stat-filter="all" role="button" tabindex="0">
+      <div class="stat-icon"><i class="fa-solid fa-bag-shopping"></i></div>
+      <div><span>Total Order</span><strong id="statTotal">0</strong><small>Seluruh pesanan produk</small></div>
+    </article>
+    <article class="stat-card stat-filter-card" data-stat-filter="waiting" role="button" tabindex="0">
+      <div class="stat-icon waiting"><i class="fa-solid fa-clock"></i></div>
+      <div><span>Menunggu Diproses</span><strong id="statWaiting">0</strong><small>Butuh tindak lanjut admin</small></div>
+    </article>
+    <article class="stat-card stat-filter-card" data-stat-filter="proof" role="button" tabindex="0">
+      <div class="stat-icon proof-icon"><i class="fa-solid fa-receipt"></i></div>
+      <div><span>Bukti Masuk</span><strong id="statProof">0</strong><small>Menunggu verifikasi</small></div>
+    </article>
+    <article class="stat-card stat-filter-card" data-stat-filter="unpaid" role="button" tabindex="0">
+      <div class="stat-icon unpaid"><i class="fa-solid fa-wallet"></i></div>
+      <div><span>Belum Lunas</span><strong id="statUnpaid">0</strong><small>Pembayaran belum selesai</small></div>
+    </article>
   </section>
 
   <section class="section-heading">
@@ -76,7 +86,7 @@
     </div>
   </section>
 
-  <section class="card filters order-filters">
+  <section class="card filters">
     <div class="search-wrap">
       <i class="fa-solid fa-magnifying-glass"></i>
       <input id="searchInput" type="search" placeholder="Cari no. order, nama, WhatsApp, produk..." autocomplete="off">
@@ -110,28 +120,15 @@
   </section>
 
   <section class="card table-card">
-    <div class="table-toolbar">
-      <div class="table-hint"><i class="fa-solid fa-circle-info"></i><span>Kelola order produk HP melalui Detail. Nota tersedia setelah pembayaran lunas.</span></div>
-      <button id="deleteSelectedOrders" class="btn danger bulk-delete-btn" type="button" hidden><i class="fa-solid fa-trash"></i> Hapus Terpilih</button>
-    </div>
     <div class="table-scroll">
       <table>
         <thead>
           <tr>
-            <th><input type="checkbox" id="checkAllOrders" aria-label="Pilih semua"></th>
-            <th>No</th>
-            <th>Nama</th>
-            <th>Produk</th>
-            <th>Alamat</th>
-            <th>No HP</th>
-            <th>Tanggal</th>
-            <th>Status</th>
-            <th>Total</th>
-            <th>Aksi</th>
+            <th>No</th><th>Nama</th><th>Produk</th><th>Alamat</th><th>No HP</th><th>Tanggal</th><th>Status</th><th>Harga Modal</th><th>Total</th><th>Laba Bersih</th><th>Aksi</th>
           </tr>
         </thead>
         <tbody id="orderTableBody">
-          <tr><td colspan="10" class="empty">Memuat order...</td></tr>
+          <tr><td colspan="11" class="empty">Memuat order...</td></tr>
         </tbody>
       </table>
     </div>
@@ -169,7 +166,6 @@
   </div>
 </div>
 
-<footer class="main-footer">© <span id="year"></span> CEO Part & Service — Kelola Order HP</footer>
-</div>
+<footer>© <span id="year"></span> CEO Part & Service</footer>
 </body>
 </html>
