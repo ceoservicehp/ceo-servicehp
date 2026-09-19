@@ -134,6 +134,43 @@ function getProductOriginalPrice(product) {
 }
 
 
+function getProductCardPriceInfo(product) {
+    const variants = getActiveVariants(product);
+
+    if (variants.length > 0) {
+        const candidates = variants
+            .map(variant => {
+                const normal = Number(variant?.price || 0);
+                const promo = Number(variant?.promo_price || 0);
+                const isPromo = promo > 0 && promo < normal;
+                return {
+                    sellingPrice: isPromo ? promo : normal,
+                    originalPrice: normal,
+                    isPromo
+                };
+            })
+            .filter(item => item.sellingPrice > 0)
+            .sort((a, b) => a.sellingPrice - b.sellingPrice);
+
+        return candidates[0] || {
+            sellingPrice: 0,
+            originalPrice: 0,
+            isPromo: false
+        };
+    }
+
+    const normal = Number(product?.price || 0);
+    const promo = Number(product?.promo_price || 0);
+    const isPromo = promo > 0 && promo < normal;
+
+    return {
+        sellingPrice: isPromo ? promo : normal,
+        originalPrice: normal,
+        isPromo
+    };
+}
+
+
 function hasPromo(product) {
 
     const variants = getActiveVariants(product);
@@ -932,16 +969,17 @@ function createProductCard(product) {
         images[0];
 
 
-    const price =
-        getProductPrice(product);
+    const cardPriceInfo =
+        getProductCardPriceInfo(product);
 
+    const price =
+        cardPriceInfo.sellingPrice;
 
     const originalPrice =
-        getProductOriginalPrice(product);
-
+        cardPriceInfo.originalPrice;
 
     const promo =
-        hasPromo(product);
+        cardPriceInfo.isPromo;
 
 
     const stock =
