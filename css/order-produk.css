@@ -1148,3 +1148,180 @@ td small{font-size:9px}
   .stat-card small{display:none}
   .simple-quick-actions{grid-template-columns:1fr}
 }
+
+
+/* =========================================================
+   V5 — LEBAR DESKTOP PRESISI + TOMBOL TUTUP MODAL TERLIHAT
+   ========================================================= */
+
+/* Gunakan ruang layar desktop/laptop dengan lebih optimal. */
+:root{
+  --content-max: 1800px;
+}
+
+.header-inner,
+.order-hero-inner,
+.container{
+  width:min(var(--content-max), calc(100% - 48px));
+  max-width:none;
+}
+
+@media (min-width:1400px){
+  .header-inner,
+  .order-hero-inner,
+  .container{
+    width:calc(100% - 64px);
+  }
+
+  .table-card table{
+    width:100%;
+    min-width:0;
+    table-layout:auto;
+  }
+
+  .address-cell{
+    max-width:360px;
+  }
+}
+
+@media (min-width:1101px) and (max-width:1399px){
+  .header-inner,
+  .order-hero-inner,
+  .container{
+    width:calc(100% - 40px);
+  }
+
+  .table-card table{
+    width:100%;
+    min-width:1180px;
+  }
+}
+
+/* Footer modal selalu tampak dan tidak tenggelam di bawah isi modal. */
+.modal-panel{
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+}
+
+.modal-head{
+  flex:0 0 auto;
+}
+
+.detail-body{
+  flex:1 1 auto;
+  min-height:0;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+}
+
+.modal-footer-close{
+  position:relative !important;
+  inset:auto !important;
+  z-index:30 !important;
+  flex:0 0 auto;
+  display:flex !important;
+  justify-content:flex-end;
+  align-items:center;
+  min-height:62px;
+  padding:10px 16px;
+  background:#fff !important;
+  border-top:1px solid #dfe7e9;
+  box-shadow:0 -8px 22px rgba(15,52,58,.08);
+  visibility:visible !important;
+  opacity:1 !important;
+}
+
+.modal-close-bottom{
+  display:inline-flex !important;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  min-width:116px;
+  min-height:40px;
+  padding:9px 18px;
+  border-radius:10px;
+  border:1px solid #cfdadd;
+  background:#f3f6f7 !important;
+  color:#243b41 !important;
+  font-size:11px;
+  font-weight:800;
+  visibility:visible !important;
+  opacity:1 !important;
+  cursor:pointer;
+}
+
+.modal-close-bottom:hover{
+  background:#e6edef !important;
+  border-color:#bdcdd1;
+}
+
+/* X kanan atas dibuat lebih kontras. */
+.modal-x{
+  display:grid !important;
+  place-items:center;
+  width:38px;
+  height:38px;
+  flex:0 0 38px;
+  border:1px solid #d8e3e5;
+  border-radius:50%;
+  background:#eef6f7 !important;
+  color:#176f75 !important;
+  visibility:visible !important;
+  opacity:1 !important;
+  cursor:pointer;
+}
+
+/* Tablet tetap tabel. */
+@media (min-width:681px) and (max-width:1100px){
+  .header-inner,
+  .order-hero-inner,
+  .container{
+    width:calc(100% - 24px);
+  }
+
+  .table-scroll{
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+  }
+
+  .table-card table{
+    min-width:1120px;
+  }
+
+  .modal-footer-close{
+    min-height:60px;
+    padding:9px 13px;
+  }
+}
+
+/* HP tetap tabel horizontal dan tombol Tutup full width. */
+@media (max-width:680px){
+  .header-inner,
+  .order-hero-inner,
+  .container{
+    width:calc(100% - 16px);
+  }
+
+  .modal-panel{
+    height:100dvh;
+    max-height:100dvh;
+  }
+
+  .detail-body{
+    overflow-y:auto !important;
+    padding-bottom:14px;
+  }
+
+  .modal-footer-close{
+    display:flex !important;
+    min-height:64px;
+    padding:9px 10px max(9px, env(safe-area-inset-bottom));
+  }
+
+  .modal-close-bottom{
+    width:100%;
+    min-height:44px;
+    font-size:11px;
+  }
+}
