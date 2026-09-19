@@ -19,6 +19,30 @@ const fmtDate = v => v ? new Date(v).toLocaleString("id-ID", { dateStyle:"medium
 
 const fmtDateOnly = v => v ? new Date(v).toLocaleDateString("id-ID", { day:"2-digit", month:"2-digit", year:"numeric" }) : "-";
 
+function orderCostTotal(order){
+  return (order?.order_items || []).reduce((sum, item) => {
+    const costSubtotal = Number(item?.cost_subtotal);
+    if(Number.isFinite(costSubtotal) && costSubtotal >= 0){
+      return sum + costSubtotal;
+    }
+
+    const unitCost = Number(item?.unit_cost || 0);
+    const qty = Number(item?.quantity || 0);
+    return sum + (unitCost * qty);
+  }, 0);
+}
+
+function orderNetProfit(order){
+  // Laba produk: nilai produk setelah diskon dikurangi snapshot harga modal.
+  // Ongkir tidak dihitung sebagai laba.
+  const productRevenue = Math.max(
+    0,
+    Number(order?.subtotal || 0) - Number(order?.discount || 0)
+  );
+  return productRevenue - orderCostTotal(order);
+}
+
+
 function formatWaNumber(value){
   let phone = String(value || "").replace(/\D/g, "");
   if(phone.startsWith("0")) phone = "62" + phone.slice(1);
