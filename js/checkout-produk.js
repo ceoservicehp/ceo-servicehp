@@ -7,7 +7,7 @@ const CHECKOUT_FORM_KEY = "ceoProductCheckoutForm";
 
 const STORE_LAT = -6.16639026634003;
 const STORE_LNG = 106.80295190492956;
-const COD_MAX_DISTANCE_KM = 10;
+const COD_MAX_DISTANCE_KM = 5;
 const COD_FIRST_KM_FEE = 20000;
 const COD_NEXT_KM_FEE = 3000;
 
@@ -324,79 +324,66 @@ function renderPaymentOptions() {
     const shipping = getSelectedShipping();
     const wrap = document.getElementById("paymentOptions");
     if (!wrap) return;
-
+    const previous = getSelectedPayment();
     let methods = [];
+
     if (shipping === "pickup") {
         methods = [
-            { value: "transfer", icon: "fa-building-columns", title: "Transfer Bank", note: "Bayar melalui rekening toko." },
-            { value: "cash", icon: "fa-money-bill-wave", title: "Cash / Tunai", note: "Bayar saat mengambil produk di toko." }
+            { value:"transfer", icon:"fa-building-columns", title:"Transfer Bank", note:"Pembayaran melalui rekening CEO Part & Service." },
+            { value:"cash", icon:"fa-money-bill-wave", title:"Cash / Tunai", note:"Khusus Ambil di Toko. Bayar saat mengambil produk." }
         ];
     } else if (shipping === "cod") {
         methods = [
-            { value: "cod", icon: "fa-hand-holding-dollar", title: "COD", note: "Bayar saat produk diterima." }
+            { value:"transfer", icon:"fa-building-columns", title:"Transfer Ongkir COD", note:"Ongkir wajib dibayar. Pembayaran produk mengikuti kesepakatan dengan pihak CEO." }
         ];
     } else {
         methods = [
-            { value: "transfer", icon: "fa-building-columns", title: "Transfer Bank", note: "Pembayaran produk melalui rekening toko." }
+            { value:"transfer", icon:"fa-building-columns", title:"Transfer Bank", note:"Pembayaran produk dapat mengikuti kesepakatan dengan pihak CEO." }
         ];
     }
 
-    wrap.innerHTML = methods.map((method, index) => `
+    wrap.innerHTML = methods.map((method,index)=>`
         <label class="choice-card payment-choice">
-            <input type="radio" name="paymentMethod" value="${method.value}" ${index === 0 ? "checked" : ""}>
+            <input type="radio" name="paymentMethod" value="${method.value}" ${(previous===method.value || (!previous&&index===0) || (index===0&&!methods.some(m=>m.value===previous)))?"checked":""}>
             <span class="choice-icon"><i class="fa-solid ${method.icon}"></i></span>
             <span class="choice-body"><strong>${method.title}</strong><small>${method.note}</small></span>
-        </label>
-    `).join("");
+        </label>`).join("");
 
-    wrap.querySelectorAll('input[name="paymentMethod"]').forEach(input => {
-        input.addEventListener("change", () => {
-            updatePaymentInfo();
-            saveFormDraft();
-        });
+    wrap.querySelectorAll('input[name="paymentMethod"]').forEach(input=>{
+        input.addEventListener("change",()=>{ updatePaymentInfo(); saveFormDraft(); });
     });
-
     updatePaymentInfo();
 }
 
 function updatePaymentInfo() {
-    const payment = getSelectedPayment();
-    const info = document.getElementById("paymentInfo");
-    if (!info) return;
+    const payment=getSelectedPayment(), shipping=getSelectedShipping();
+    const info=document.getElementById("paymentInfo");
+    if(!info) return;
 
-    if (payment === "transfer") {
-        const pendingWarning = shippingFeePending
-            ? `<div class="bank-warning"><i class="fa-solid fa-triangle-exclamation"></i> Jangan transfer dulu. Ongkir dan total final masih menunggu konfirmasi admin.</div>`
-            : `<div class="bank-warning info"><i class="fa-solid fa-circle-info"></i> Buat pesanan terlebih dahulu agar transfer dapat dicocokkan dengan nomor pesanan.</div>`;
-
-        info.innerHTML = `
-            <div class="bank-card">
-                <div class="bank-card-head"><i class="fa-solid fa-building-columns"></i><div><small>Transfer Bank</small><strong>${BANK_NAME}</strong></div></div>
-                <div class="bank-account-row">
-                    <div><small>Nomor Rekening</small><strong>${BANK_ACCOUNT}</strong><span>a.n. ${BANK_ACCOUNT_NAME}</span></div>
-                    <button type="button" class="copy-bank-btn" id="copyBankBtn"><i class="fa-regular fa-copy"></i> Salin</button>
-                </div>
-                ${pendingWarning}
-            </div>`;
-
-        document.getElementById("copyBankBtn")?.addEventListener("click", async () => {
-            try {
-                await navigator.clipboard.writeText(BANK_ACCOUNT);
-                const btn = document.getElementById("copyBankBtn");
-                btn.innerHTML = '<i class="fa-solid fa-check"></i> Tersalin';
-                setTimeout(() => { if (btn) btn.innerHTML = '<i class="fa-regular fa-copy"></i> Salin'; }, 1500);
-            } catch (_) {
-                alert(`Nomor rekening: ${BANK_ACCOUNT}`);
-            }
+    if(payment==="transfer"){
+        let warning="";
+        if(shipping==="cod"){
+            warning=Number.isFinite(currentDistanceKm)&&currentDistanceKm<=COD_MAX_DISTANCE_KM
+                ? `<div class="bank-warning info"><i class="fa-solid fa-circle-info"></i> Ongkir COD ${rupiah(currentShippingFee)} wajib dibayar. Harga produk dapat dibayar sesuai kesepakatan dengan pihak CEO.</div>`
+                : `<div class="bank-warning"><i class="fa-solid fa-location-dot"></i> Tentukan titik lokasi agar ongkir COD dapat dihitung.</div>`;
+        }else if(shipping==="instant"||shipping==="package"){
+            warning='<div class="bank-warning info"><i class="fa-solid fa-handshake"></i> Anda tidak diwajibkan melunasi produk saat checkout. Ongkir dan pembayaran produk akan dikonfirmasi oleh pihak CEO sesuai kesepakatan.</div>';
+        }else{
+            warning='<div class="bank-warning info"><i class="fa-solid fa-circle-info"></i> Transfer dapat dilakukan setelah pesanan dibuat agar pembayaran mudah dicocokkan dengan nomor pesanan.</div>';
+        }
+        info.innerHTML=`<div class="bank-card">
+          <div class="bank-card-head"><i class="fa-solid fa-building-columns"></i><div><small>Transfer Bank</small><strong>${BANK_NAME}</strong></div></div>
+          <div class="bank-account-row"><div><small>Nomor Rekening</small><strong>${BANK_ACCOUNT}</strong><span>a.n. ${BANK_ACCOUNT_NAME}</span></div>
+          <button type="button" class="copy-bank-btn" id="copyBankBtn"><i class="fa-regular fa-copy"></i> Salin</button></div>${warning}</div>`;
+        document.getElementById("copyBankBtn")?.addEventListener("click",async()=>{
+            try{await navigator.clipboard.writeText(BANK_ACCOUNT); const b=document.getElementById("copyBankBtn"); b.innerHTML='<i class="fa-solid fa-check"></i> Tersalin'; setTimeout(()=>{if(b)b.innerHTML='<i class="fa-regular fa-copy"></i> Salin'},1500)}
+            catch(_){alert(`Nomor rekening: ${BANK_ACCOUNT}`)}
         });
         return;
     }
-
-    const messages = {
-        cash: "Pembayaran tunai dilakukan saat mengambil unit di toko. Status tetap Belum Bayar sampai admin menerima pembayaran.",
-        cod: "Pembayaran COD dilakukan saat unit diterima. Status tetap Belum Bayar sampai pembayaran diterima."
-    };
-    info.innerHTML = `<i class="fa-solid fa-circle-info"></i> ${messages[payment] || "Pilih metode pembayaran."}`;
+    info.innerHTML=payment==="cash"&&shipping==="pickup"
+      ? '<i class="fa-solid fa-store"></i> Pembayaran Cash / Tunai dilakukan saat mengambil produk di toko.'
+      : '<i class="fa-solid fa-circle-info"></i> Pilih metode pembayaran.';
 }
 
 function updateLocationVisibility() {
@@ -436,7 +423,7 @@ function updateShippingState() {
     if (shipping === "instant") {
         panel.hidden = false;
         label.textContent = "Kurir Instan";
-        select.innerHTML = '<option value="">Pilih kurir</option><option value="gojek">Gojek</option><option value="grab">Grab</option><option value="other_instant">Lainnya</option>';
+        select.innerHTML = '<option value="">Pilih kurir</option><option value="gojek">Gojek</option><option value="grab">Grab</option><option value="maxim">Maxim</option><option value="shopee">Shopee</option><option value="lalamove">Lalamove</option><option value="other_instant">Lainnya</option>';
 
         const savedProvider = selectedShippingProviders.instant || "";
         if ([...select.options].some(option => option.value === savedProvider)) {
@@ -526,7 +513,7 @@ function validateCheckout() {
         pickup: ["transfer", "cash"],
         instant: ["transfer"],
         package: ["transfer"],
-        cod: ["cod"]
+        cod: ["transfer"]
     };
     if (!allowedPayment[shipping]?.includes(payment)) return "Metode pembayaran tidak sesuai dengan pengiriman.";
     if (!document.getElementById("termsAgree").checked) return "Centang persetujuan sebelum membuat pesanan.";
