@@ -29,10 +29,10 @@
                 <span>CELLULAR ENGINEERING OFFICER</span>
             </div>
         </a>
-        <a href="produk-public.html" class="back-link">
-            <i class="fa-solid fa-arrow-left"></i>
-            Kembali ke Produk
-        </a>
+        <div class="header-actions">
+            <a href="cek-pesanan-produk.html" class="track-link"><i class="fa-solid fa-magnifying-glass"></i> Cek Pesanan</a>
+            <a href="produk-public.html" class="back-link"><i class="fa-solid fa-arrow-left"></i> Kembali ke Produk</a>
+        </div>
     </div>
 </header>
 
@@ -79,7 +79,7 @@
 
             <section class="checkout-card">
                 <div class="card-heading">
-                    <span class="step-number">3</span>
+                    <span class="step-number">2</span>
                     <div>
                         <h2><i class="fa-solid fa-truck-fast"></i> Pengiriman</h2>
                         <p>Pilih cara menerima produk. Tarif kurir/ekspedisi akan menyesuaikan layanan yang dipilih.</p>
@@ -95,7 +95,7 @@
                     <label class="choice-card">
                         <input type="radio" name="shippingMethod" value="instant">
                         <span class="choice-icon"><i class="fa-solid fa-motorcycle"></i></span>
-                        <span class="choice-body"><strong>Kurir Instan</strong><small>Gojek / Grab. Tarif dikonfirmasi admin sesuai aplikasi.</small></span>
+                        <span class="choice-body"><strong>Kurir Instan</strong><small>Gojek / Grab / Maxim / Shopee / lainnya. Biaya dikonfirmasi admin sesuai layanan yang dipilih.</small></span>
                     </label>
                     <label class="choice-card">
                         <input type="radio" name="shippingMethod" value="package">
@@ -105,7 +105,7 @@
                     <label class="choice-card">
                         <input type="radio" name="shippingMethod" value="cod">
                         <span class="choice-icon"><i class="fa-solid fa-hand-holding-dollar"></i></span>
-                        <span class="choice-body"><strong>COD Lokal</strong><small>Maksimal 10 km. Ongkir dihitung otomatis berdasarkan jarak.</small></span>
+                        <span class="choice-body"><strong>COD Lokal</strong><small>Maksimal 5 km dari CEO Part & Service. Ongkir dihitung otomatis berdasarkan jarak.</small></span>
                     </label>
                 </div>
 
@@ -121,7 +121,7 @@
 
             <section class="checkout-card" id="locationSection" hidden>
                 <div class="card-heading">
-                    <span class="step-number">4</span>
+                    <span class="step-number">3</span>
                     <div>
                         <h2><i class="fa-solid fa-location-dot"></i> Titik Lokasi</h2>
                         <p>Klik peta atau gunakan lokasi perangkat. Titik lokasi wajib untuk Kurir Instan, Kirim Paket, dan COD.</p>
@@ -146,10 +146,10 @@
 
             <section class="checkout-card">
                 <div class="card-heading">
-                    <span class="step-number">5</span>
+                    <span class="step-number">4</span>
                     <div>
                         <h2><i class="fa-solid fa-wallet"></i> Pembayaran</h2>
-                        <p>Metode pembayaran otomatis menyesuaikan metode pengiriman.</p>
+                        <p>Pilih metode pembayaran sesuai ketentuan pengiriman. Pembayaran produk untuk pengiriman dapat mengikuti kesepakatan dengan pihak CEO.</p>
                     </div>
                 </div>
                 <div class="option-grid payment-grid" id="paymentOptions"></div>
@@ -158,7 +158,7 @@
 
             <section class="checkout-card">
                 <div class="card-heading">
-                    <span class="step-number">6</span>
+                    <span class="step-number">5</span>
                     <div>
                         <h2><i class="fa-solid fa-note-sticky"></i> Catatan</h2>
                         <p>Opsional. Tambahkan informasi yang perlu diketahui admin.</p>

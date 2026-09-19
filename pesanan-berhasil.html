@@ -17,7 +17,7 @@
 <div class="success-icon"><i class="fa-solid fa-check"></i></div>
 <p class="eyebrow">PESANAN TERCATAT</p>
 <h1>Pesanan Berhasil Dibuat</h1>
-<p class="lead">Simpan nomor pesanan berikut untuk memudahkan konfirmasi dengan admin.</p>
+<p class="lead">Pesanan Anda sudah tercatat. Simpan nomor pesanan berikut untuk konfirmasi, pembayaran, dan pengecekan status pesanan.</p>
 <div class="order-number-box"><span>Nomor Pesanan</span><strong id="orderNumber">-</strong><button id="copyOrderBtn"><i class="fa-regular fa-copy"></i> Salin</button></div>
 <div class="grid">
 <div class="panel"><h2><i class="fa-solid fa-mobile-screen"></i> Pesanan</h2><div id="itemInfo"></div></div>
@@ -25,7 +25,11 @@
 </div>
 <div class="totals"><div><span>Subtotal</span><strong id="subtotal">-</strong></div><div><span>Ongkir</span><strong id="shippingFee">-</strong></div><div class="grand"><span id="totalLabel">Total</span><strong id="total">-</strong></div></div>
 <div id="paymentPanel" class="payment-panel"></div>
-<div class="actions"><button id="whatsappBtn" class="wa-btn"><i class="fa-brands fa-whatsapp"></i> Konfirmasi ke WhatsApp</button><a href="produk-public.html" class="secondary"><i class="fa-solid fa-store"></i> Kembali ke Produk</a></div>
+<div class="actions three-actions">
+<button id="whatsappBtn" class="wa-btn"><i class="fa-brands fa-whatsapp"></i> Konfirmasi WhatsApp</button>
+<a id="trackOrderBtn" href="cek-pesanan-produk.html" class="track-btn"><i class="fa-solid fa-magnifying-glass-location"></i> Cek Pesanan</a>
+<a href="produk-public.html" class="secondary"><i class="fa-solid fa-store"></i> Kembali ke Produk</a>
+</div>
 <p class="foot-note"><i class="fa-solid fa-shield-halved"></i> Status pembayaran baru berubah setelah diverifikasi admin.</p>
 </section>
 </main>
