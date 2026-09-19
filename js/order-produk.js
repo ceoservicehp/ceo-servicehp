@@ -35,59 +35,82 @@ function productTrackingUrl(order){
   return productInvoiceUrl(order);
 }
 
+function warrantyClaimText(order){
+  const invoiceUrl = productInvoiceUrl(order);
+  return `🛡️ *INFORMASI GARANSI & KLAIM*
+Garansi mengikuti produk/unit serta ketentuan garansi yang tercantum pada invoice.
+
+Apabila ingin mengajukan klaim garansi, mohon siapkan:
+• Nomor pesanan / invoice
+• Nama pembeli dan nomor WhatsApp
+• IMEI/serial number unit apabila tersedia
+• Foto/video yang memperlihatkan kendala
+• Penjelasan singkat mengenai kendala yang dialami
+
+Silakan balas pesan WhatsApp ini untuk pengajuan awal klaim. Admin akan melakukan verifikasi data, masa garansi, kondisi unit, serta ketentuan garansi sebelum klaim diproses.
+
+📄 Detail pesanan/invoice:
+${invoiceUrl}`;
+}
+
 function shippingWhatsAppText(order){
   const ship = latest(order?.order_shipments);
   const trackingUrl = productTrackingUrl(order);
-  return `Halo ${order?.customer_name || ""},
+  return `Halo ${order?.customer_name || ""} 👋
 
-Pesanan Anda di *CEO Part & Service* sedang dalam perjalanan. 🚚
+Terima kasih telah berbelanja di *CEO Part & Service*.
 
+Kami ingin menginformasikan bahwa pesanan Anda saat ini *sedang dalam perjalanan*. 🚚📦
+
+*INFORMASI PESANAN*
 📦 No. Pesanan: ${order?.order_number || "-"}
-📍 Status: ${label(order?.order_status)}
-${ship?.courier ? `🚚 Kurir/Ekspedisi: ${ship.courier}\n` : ""}${ship?.tracking_number ? `🧾 No. Resi/Kode: ${ship.tracking_number}\n` : ""}
-Untuk melihat informasi pesanan Anda, silakan buka:
+📍 Status Pesanan: ${label(order?.order_status)}
+${ship?.courier ? `🚚 Kurir/Ekspedisi: ${ship.courier}\n` : ""}${ship?.tracking_number ? `🧾 No. Resi/Kode Pengiriman: ${ship.tracking_number}\n` : ""}
+Anda dapat melihat detail pesanan melalui tautan berikut:
 ${trackingUrl}
 
-Jika ada pertanyaan, silakan balas pesan ini.
+Mohon pastikan nomor WhatsApp tetap aktif agar kurir maupun admin dapat menghubungi Anda apabila diperlukan. Setelah pesanan diterima, kami sarankan untuk memeriksa kondisi paket dan unit terlebih dahulu.
 
-Terima kasih 🙏
-*CEO Part & Service*`;
+${warrantyClaimText(order)}
+
+Apabila ada pertanyaan mengenai pesanan, pengiriman, pembayaran, maupun garansi, silakan balas pesan ini. Kami akan membantu Anda.
+
+Terima kasih atas kepercayaan Anda. 🙏
+*CEO Part & Service*
+_Cellular Engineering Officer_`;
 }
 
 function billingWhatsAppText(order){
   const invoiceUrl = productInvoiceUrl(order);
   const remaining = Number(order?.remaining_amount || 0);
-  return `Halo ${order?.customer_name || ""},
+  return `Halo ${order?.customer_name || ""} 👋
 
-Berikut informasi tagihan pembelian produk Anda di *CEO Part & Service*.
+Terima kasih telah melakukan pembelian produk di *CEO Part & Service*.
+
+Berikut kami sampaikan informasi tagihan pesanan Anda:
 
 📄 *TAGIHAN / INVOICE PRODUK*
-No. Pesanan: ${order?.order_number || "-"}
-Total Tagihan: ${rupiah(order?.total)}
-Sudah Dibayar: ${rupiah(order?.amount_paid)}
-Sisa Tagihan: ${rupiah(remaining)}
-Status Pembayaran: ${label(order?.payment_status)}
+🧾 No. Pesanan: ${order?.order_number || "-"}
+💰 Total Tagihan: ${rupiah(order?.total)}
+✅ Sudah Dibayar: ${rupiah(order?.amount_paid)}
+${remaining > 0 ? `⏳ Sisa Tagihan: ${rupiah(remaining)}` : "✅ Sisa Tagihan: Rp 0"}
+📌 Status Pembayaran: ${label(order?.payment_status)}
 
-Silakan lihat detail invoice melalui link berikut:
+Detail lengkap pesanan dan invoice dapat dilihat melalui tautan berikut:
 ${invoiceUrl}
 
-${remaining > 0 ? "Mohon melakukan pembayaran sesuai kesepakatan yang telah dibuat dengan pihak CEO Part & Service." : "Pembayaran Anda telah lunas. Terima kasih."}
+${remaining > 0
+  ? `Mohon melakukan pembayaran sisa tagihan sebesar *${rupiah(remaining)}* sesuai metode dan kesepakatan pembayaran dengan pihak CEO Part & Service. Setelah pembayaran dilakukan, silakan konfirmasikan melalui WhatsApp ini agar dapat kami verifikasi.`
+  : `Pembayaran pesanan Anda telah *LUNAS*. Terima kasih atas pembayaran dan kepercayaan Anda kepada CEO Part & Service.`}
 
-Jika ada pertanyaan, silakan balas pesan ini.
+${warrantyClaimText(order)}
 
-Terima kasih 🙏
-*CEO Part & Service*`;
+Jika terdapat ketidaksesuaian data tagihan atau Anda membutuhkan bantuan terkait pembayaran maupun klaim garansi, silakan balas pesan ini.
+
+Terima kasih. 🙏
+*CEO Part & Service*
+_Cellular Engineering Officer_`;
 }
-
-
-function orderCostTotal(order){
-  return (order?.order_items || []).reduce((sum,item) => {
-    const snap = Number(item?.cost_subtotal);
-    if(Number.isFinite(snap) && snap >= 0) return sum + snap;
-    return sum + (Number(item?.unit_cost || 0) * Number(item?.quantity || 0));
-  }, 0);
-}
-
 function orderNetProfit(order){
   // Ongkir bukan laba produk. Total produk = subtotal - discount.
   return Math.max(0, Number(order?.subtotal || 0) - Number(order?.discount || 0) - orderCostTotal(order));
@@ -662,6 +685,7 @@ async function openDetail(id){
   $("detailModal").classList.add("show");
   $("detailModal").setAttribute("aria-hidden", "false");
   document.body.classList.add("modal-open");
+  setTimeout(ensureDetailBottomClose, 0);
 
   const [terms,warranties] = await Promise.all([loadOrderFinanceSettings(o.id),loadOrderWarranties(o.id)]);
   currentDetailTerms=terms;
@@ -1074,3 +1098,19 @@ function closeModal(){
   $("detailModal").setAttribute("aria-hidden", "true");
   document.body.classList.remove("modal-open");
 }
+
+function ensureDetailBottomClose(){
+  const content = $("detailContent");
+  if(!content || content.querySelector(".detail-bottom-close")) return;
+  const wrap = document.createElement("div");
+  wrap.className = "detail-bottom-close";
+  wrap.innerHTML = '<button type="button" class="btn danger detail-close-bottom"><i class="fa-solid fa-xmark"></i> Tutup Detail</button>';
+  content.appendChild(wrap);
+}
+
+
+document.addEventListener("click", e => {
+  if(e.target.closest(".detail-close-bottom")){
+    closeDetail();
+  }
+});
