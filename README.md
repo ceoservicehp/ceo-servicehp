@@ -1,69 +1,98 @@
-# 👋 Selamat Datang di CEO Part & Service HP
+# Sistem Hasil Penjualan UD Fikri — Web + Supabase
 
-🔧 **CEO Part & Service HP** adalah pusat layanan perbaikan dan penyedia sparepart handphone yang berlokasi di **ITC Roxy Mas, Jakarta Pusat**.
+Versi web berbasis HTML, CSS, JavaScript, dan Supabase. Versi 23 memakai halaman terpisah agar lebih mudah dipelihara dan tetap dapat dipasang di Vercel, Netlify, Cloudflare Pages, atau hosting statis lain.
 
-Kami berkomitmen memberikan layanan **perbaikan smartphone yang profesional, transparan, dan terpercaya** dengan dukungan teknisi berpengalaman dan sparepart berkualitas.
+## Fitur
 
----
+- Login email dan password melalui Supabase Auth
+- Import Excel Produk Terlaris Griyo Pos
+- Perhitungan penjualan, modal, laba kotor, dan jumlah item
+- Status kehadiran, gaji pokok, tunjangan, lembur, bonus, potongan, dan hak bersih
+- Metode pembayaran serta nomor referensi pengambilan gaji
+- Lima tab penggajian: input harian, pengambilan, saldo karyawan, riwayat, dan saldo awal
+- Perhitungan otomatis setengah hari (50%), alpa, dan libur tidak dibayar
+- Ringkasan langsung sebelum gaji disimpan dan pratinjau sisa saldo pengambilan
+- Slip serta export gaji mencantumkan pokok, tambahan, potongan, status, dan metode pembayaran
+- Pengambilan gaji dan saldo hak gaji setiap karyawan
+- Pencarian serta pengurutan riwayat gaji berdasarkan nama
+- Pengeluaran operasional dan pengeluaran yang ditandai nama karyawan
+- Pengeluaran karyawan tetap mengurangi laba dan tidak mengurangi saldo gaji
+- Aturan pembagian laba berupa nominal tetap atau persentase
+- Riwayat tutup buku harian
+- Tampilan responsif untuk HP, tablet, laptop, dan PC
 
-## 🌐 Website Resmi
+## Struktur folder
 
-Kunjungi website kami untuk mengetahui layanan, mengajukan service, dan melihat status perbaikan:
+```text
+dist/
+├── index.html
+├── dashboard.html
+├── penjualan.html
+├── gaji.html
+├── gaji-saya.html
+├── pengeluaran.html
+├── laporan.html
+├── kelola-data.html
+├── assets/logo-ud-fikri.png
+├── css/style.css
+└── js/
+    ├── config.js
+    ├── supabase.js
+    ├── app.js
+    └── pages/                 # titik masuk setiap halaman
+supabase/
+├── schema.sql
+└── upgrade-gaji-v23.sql
+```
 
-👉 https://ceo-servicehp.vercel.app
+## Pemasangan Supabase
 
----
+1. Buat project baru di Supabase.
+2. Buka **SQL Editor**, salin seluruh isi `supabase/schema.sql`, kemudian jalankan.
+   Untuk database lama maupun database yang sudah pernah menjalankan schema versi sebelumnya, jalankan juga `supabase/upgrade-gaji-v23.sql` satu kali sebelum menggunakan halaman gaji versi baru.
+3. Buka **Authentication → Users → Add user** dan buat akun admin menggunakan email serta password.
+4. Buka **Project Settings → API**.
+5. Salin **Project URL** dan **anon/public key** ke `dist/js/config.js`:
 
-## 🔧 Layanan Kami
+```js
+window.APP_CONFIG = {
+  SUPABASE_URL: "https://project-id.supabase.co",
+  SUPABASE_ANON_KEY: "anon-key-anda"
+};
+```
 
-Kami melayani berbagai jenis perbaikan handphone, di antaranya:
+Jangan menggunakan `service_role key` di file JavaScript. Key tersebut bersifat rahasia dan tidak boleh dipasang pada browser.
 
-* 📱 Ganti LCD / Layar
-* 🔋 Ganti Baterai
-* 🔌 Perbaikan Port Charging
-* 🔊 Perbaikan Speaker & Mikrofon
-* 💻 Flash Software / Bootloop
-* 🔐 Reset Sistem & Unlock
-* 🏠 Home Service (layanan datang ke lokasi)
+## Menjalankan di komputer
 
-Kami selalu mengutamakan **kualitas pengerjaan, kecepatan layanan, dan transparansi biaya**.
+Jalankan folder `dist` menggunakan ekstensi Live Server di Visual Studio Code atau server lokal lain. Hindari membuka `index.html` langsung dengan alamat `file://`.
 
----
+## Deploy ke Vercel
 
-## 📍 Lokasi Toko
+1. Upload project ke GitHub.
+2. Impor repository di Vercel.
+3. Pilih **Framework Preset: Other**.
+4. Kosongkan Build Command.
+5. Isi Output Directory dengan `dist`.
+6. Klik Deploy.
 
-**CEO Part & Service HP**
-ITC Roxy Mas LT. 1 No. 123 B
-Jl. KH. Hasyim Ashari No.125
-Jakarta Pusat, DKI Jakarta 10150
+## Rumus sistem
 
----
+```text
+Modal = Penjualan Produk - Laba Kotor
 
-## ⭐ Ulasan Pelanggan
+Laba untuk Dibagi =
+Laba Kotor
+- Gaji dan Bonus
+- Semua Pengeluaran
+- Alokasi Nominal Tetap
+```
 
-Kami bangga mendapatkan kepercayaan pelanggan dengan rating **⭐ 5.0 di Google Reviews**.
+Pengambilan gaji tidak mengurangi laba untuk kedua kalinya. Laba sudah dikurangi ketika hak gaji harian dicatat. Pengambilan hanya mengurangi saldo hak gaji karyawan.
 
-Lihat ulasan pelanggan di sini:
-👉 https://maps.app.goo.gl/pPrRDj1m59uQRsja8
+## Data awal
 
----
-
-## 📫 Kontak
-
-📞 WhatsApp : **0813-8892-098**
-🌐 Website : https://ceo-servicehp.vercel.app
-
----
-
-## ⚡ Tentang Nama CEO
-
-**CEO** merupakan singkatan dari:
-
-**Cellular Engineering Officer**
-
-Yang melambangkan teknisi profesional yang berfokus pada solusi terbaik untuk setiap perbaikan perangkat pelanggan.
-
----
-
-💡 **CEO Part & Service HP**
-Solusi Profesional untuk Perbaikan Smartphone Anda.
+- Nama toko: UD Fikri
+- Karyawan: Heri dan Alfi
+- Gaji harian awal: Rp60.000
+- Aturan pembagian contoh otomatis dibuat oleh `schema.sql`
