@@ -752,32 +752,47 @@ function warrantyEditorHtml(unitId, w=null){
 function buildPaymentTerms(order){
   const t=currentDetailTerms || {};
   const useTempo=!!t.use_tempo;
-  return `<div class="billing-box">
-    <div class="billing-head"><div><b>Aturan Tagihan</b><small>Admin dan superadmin dapat mengatur tempo sesuai kesepakatan pembeli.</small></div><span class="pill ${useTempo?'warn':'ok'}">${useTempo?'Tempo Aktif':'Tanpa Tempo'}</span></div>
-    <div class="simple-form-grid">
-      <label class="billing-check"><input id="useTempo" type="checkbox" ${useTempo?'checked':''}> Gunakan Tempo Pembayaran</label>
-      <label>Lama Tempo (hari)<input id="tempoDays" type="number" min="0" value="${Number(t.tempo_days || 0)}" ${useTempo?'':'disabled'}></label>
-      <label>Jatuh Tempo<input id="dueDate" type="date" value="${esc(isoDate(t.due_date))}" ${useTempo?'':'disabled'}></label>
-      <label class="span-2">Catatan Kesepakatan<textarea id="billingNote" rows="2" placeholder="Contoh: sisa dibayar akhir bulan sesuai kesepakatan">${esc(t.note || '')}</textarea></label>
+  const currentMethod=order.payment_method || 'transfer';
+  return `<div class="billing-control-card">
+    <div class="billing-control-head">
+      <div><b>Pengaturan Pembayaran</b><small>Atur metode pembayaran dan tempo bila diperlukan.</small></div>
+      <span class="pill ${order.payment_status==='lunas'?'ok':useTempo?'warn':'info'}">${order.payment_status==='lunas'?'Lunas':useTempo?'Tempo Aktif':'Pembayaran Berjalan'}</span>
     </div>
-    <div class="billing-actions"><button id="saveBillingBtn" class="btn soft" type="button"><i class="fa-solid fa-calendar-check"></i> Simpan Aturan Tagihan</button></div>
+    <div class="payment-admin-grid">
+      <label>Metode Pembayaran
+        <select id="adminPaymentMethod">
+          <option value="transfer" ${currentMethod==='transfer'?'selected':''}>Transfer Bank</option>
+          <option value="cash" ${currentMethod==='cash'?'selected':''}>Cash / Tunai</option>
+        </select>
+      </label>
+      <label class="billing-check tempo-toggle"><input id="useTempo" type="checkbox" ${useTempo?'checked':''}> Gunakan pembayaran tempo</label>
+      <label class="tempo-field">Tempo (hari)<input id="tempoDays" type="number" min="0" value="${Number(t.tempo_days || 0)}" ${useTempo?'':'disabled'}></label>
+      <label class="tempo-field">Jatuh Tempo<input id="dueDate" type="date" value="${esc(isoDate(t.due_date))}" ${useTempo?'':'disabled'}></label>
+      <label class="span-2">Catatan Pembayaran<textarea id="billingNote" rows="2" placeholder="Opsional — contoh: pelunasan tanggal 30 sesuai kesepakatan">${esc(t.note || '')}</textarea></label>
+    </div>
+    <div class="billing-actions"><button id="saveBillingBtn" class="btn soft" type="button"><i class="fa-solid fa-floppy-disk"></i> Simpan Pengaturan Pembayaran</button></div>
   </div>`;
 }
 
 function buildManualPaymentForm(order){
-  return `<details class="simple-collapse manual-payment-collapse">
-    <summary><span><i class="fa-solid fa-plus-circle"></i> Catat Pembayaran Tambahan</span><small>Admin / Superadmin</small></summary>
-    <div class="collapse-body">
-      <div class="simple-form-grid">
-        <label>Metode Pembayaran<select id="manualPaymentMethod"><option value="transfer">Transfer Bank</option><option value="cash">Cash</option><option value="cod">COD</option></select></label>
-        <label>Nominal<input id="manualPaymentAmount" inputmode="numeric" value="${Number(order.remaining_amount || 0)}"></label>
-        <label>Nomor Referensi<input id="manualPaymentReference" placeholder="Opsional"></label>
-        <label>Catatan<input id="manualPaymentNote" placeholder="Contoh: pelunasan tahap 2"></label>
-      </div>
-      <div class="billing-actions"><button id="addManualPaymentBtn" class="btn success" type="button"><i class="fa-solid fa-circle-plus"></i> Catat Pembayaran</button></div>
-      <small class="helper">Pembayaran tambahan disimpan sebagai transaksi baru sehingga riwayat lama tidak berubah.</small>
+  const remaining=Number(order.remaining_amount || 0);
+  if(order.payment_status==='lunas' || remaining<=0){
+    return `<div class="payment-complete-banner"><i class="fa-solid fa-circle-check"></i><div><strong>Pembayaran Lunas</strong><small>Seluruh tagihan pesanan ini sudah dibayar.</small></div></div>`;
+  }
+  return `<div class="manual-payment-card">
+    <div class="manual-payment-head"><div><b>Catat Pembayaran</b><small>Gunakan saat pembeli membayar DP, cicilan, atau pelunasan.</small></div><strong>${rupiah(remaining)} <small>sisa</small></strong></div>
+    <div class="manual-payment-grid">
+      <label>Metode<select id="manualPaymentMethod"><option value="transfer" ${order.payment_method==='transfer'?'selected':''}>Transfer Bank</option><option value="cash" ${order.payment_method==='cash'?'selected':''}>Cash / Tunai</option></select></label>
+      <label>Nominal Dibayar<input id="manualPaymentAmount" inputmode="numeric" value="${remaining}"></label>
+      <label>Referensi<input id="manualPaymentReference" placeholder="Opsional"></label>
+      <label>Catatan<input id="manualPaymentNote" placeholder="Contoh: DP / pelunasan"></label>
     </div>
-  </details>`;
+    <div class="payment-quick-amounts">
+      <button type="button" class="quick-pay-amount" data-pay-percent="50">50% Sisa</button>
+      <button type="button" class="quick-pay-amount" data-pay-full="1">Bayar Lunas</button>
+    </div>
+    <div class="billing-actions"><button id="addManualPaymentBtn" class="btn success" type="button"><i class="fa-solid fa-circle-plus"></i> Simpan Pembayaran</button></div>
+  </div>`;
 }
 
 async function openDetail(id){
@@ -835,7 +850,7 @@ async function openDetail(id){
 
       <section class="simple-section-card"><div class="simple-section-title"><span class="card-icon"><i class="fa-solid fa-mobile-screen-button"></i></span><div><h3>Produk yang Dibeli</h3><small>${totalQty} unit · IMEI terisi ${assignedUnits}/${totalQty}</small></div></div>${productManageBar}<div class="simple-products">${productHtml}</div><details class="simple-collapse imei-collapse"><summary><span><i class="fa-solid fa-barcode"></i> Kelola IMEI / Unit Fisik</span><small>${assignedUnits}/${totalQty} unit terisi</small></summary><div class="collapse-body imei-products">${items.map(i => buildUnitManager(i)).join('') || '<div class="notice">Item tidak ditemukan.</div>'}</div></details></section>
 
-      <section class="simple-section-card"><div class="simple-section-title"><span class="card-icon"><i class="fa-solid fa-wallet"></i></span><div><h3>Pembayaran & Tagihan</h3><small>Pembayaran bertahap dan tempo dapat diatur oleh admin / superadmin</small></div></div><div class="finance-highlight-grid"><div class="finance-highlight"><span>Harga Modal Produk</span><strong>${rupiah(orderCostTotal(o))}</strong><small>Snapshot dari Kelola Produk</small></div><div class="finance-highlight"><span>Total Harga</span><strong>${rupiah(o.total)}</strong><small>Termasuk ongkir bila ada</small></div><div class="finance-highlight profit"><span>Laba Bersih Produk</span><strong>${rupiah(orderNetProfit(o))}</strong><small>Penjualan produk − modal; ongkir tidak dihitung laba</small></div></div><div class="simple-money-grid"><div><span>Subtotal Produk</span><strong>${rupiah(o.subtotal)}</strong></div><div><span>Diskon</span><strong>${Number(o.discount || 0) ? `- ${rupiah(o.discount)}` : rupiah(0)}</strong></div><div><span>Ongkir</span><strong>${rupiah(o.shipping_fee)}</strong></div><div class="money-total"><span>Total Pesanan</span><strong>${rupiah(o.total)}</strong></div><div><span>Sudah Dibayar</span><strong class="text-success">${rupiah(o.amount_paid)}</strong></div><div class="${Number(o.remaining_amount || 0) > 0 ? 'has-balance' : 'is-paid'}"><span>Sisa Tagihan</span><strong>${rupiah(o.remaining_amount)}</strong></div></div>${buildSimplePaymentAction(o, pay)}${buildPaymentTerms(o)}${buildManualPaymentForm(o)}<details class="simple-collapse payment-history-collapse"><summary><span><i class="fa-solid fa-clock-rotate-left"></i> Riwayat Pembayaran</span><small>${(o.order_payments || []).length} transaksi</small></summary><div class="collapse-body">${paymentHistory}</div></details></section>
+      <section class="simple-section-card payment-section-v11"><div class="simple-section-title"><span class="card-icon"><i class="fa-solid fa-wallet"></i></span><div><h3>Pembayaran & Tagihan</h3><small>Kelola tagihan, pembayaran sebagian, pelunasan, dan tempo</small></div></div><div class="finance-highlight-grid"><div class="finance-highlight"><span>Harga Modal Produk</span><strong>${rupiah(orderCostTotal(o))}</strong><small>Total modal unit terjual</small></div><div class="finance-highlight total-card"><span>Total Tagihan</span><strong>${rupiah(o.total)}</strong><small>Produk + ongkir − diskon</small></div><div class="finance-highlight profit"><span>Laba Bersih Produk</span><strong>${rupiah(orderNetProfit(o))}</strong><small>Penjualan produk − modal</small></div></div><div class="payment-balance-strip ${Number(o.remaining_amount||0)>0?'unpaid':'paid'}"><div><span>Sudah Dibayar</span><strong>${rupiah(o.amount_paid)}</strong></div><div><span>Sisa Tagihan</span><strong>${rupiah(o.remaining_amount)}</strong></div><span class="pill ${paymentBadge(o.payment_status)}">${esc(label(o.payment_status))}</span></div><div class="simple-money-grid compact-money-grid"><div><span>Subtotal Produk</span><strong>${rupiah(o.subtotal)}</strong></div><div><span>Diskon</span><strong>${Number(o.discount || 0) ? `- ${rupiah(o.discount)}` : rupiah(0)}</strong></div><div><span>Ongkir</span><strong>${rupiah(o.shipping_fee)}</strong></div><div class="money-total"><span>Total Pesanan</span><strong>${rupiah(o.total)}</strong></div><div><span>Sudah Dibayar</span><strong class="text-success">${rupiah(o.amount_paid)}</strong></div><div class="${Number(o.remaining_amount || 0) > 0 ? 'has-balance' : 'is-paid'}"><span>Sisa Tagihan</span><strong>${rupiah(o.remaining_amount)}</strong></div></div>${buildSimplePaymentAction(o, pay)}${buildPaymentTerms(o)}${buildManualPaymentForm(o)}<details class="simple-collapse payment-history-collapse"><summary><span><i class="fa-solid fa-clock-rotate-left"></i> Riwayat Pembayaran</span><small>${(o.order_payments || []).length} transaksi</small></summary><div class="collapse-body">${paymentHistory}</div></details></section>
 
       <section class="simple-section-card"><div class="simple-section-title"><span class="card-icon"><i class="fa-solid fa-shield-halved"></i></span><div><h3>Garansi Produk</h3><small>Satu unit dapat memiliki beberapa jenis garansi</small></div></div>${buildWarrantyManager(o)}</section>
 
@@ -900,12 +915,17 @@ function bindSimpleAdminActions(o, pay, ship, shippingType){
   const approveBtn = $("approvePaymentBtn"), rejectBtn = $("rejectPaymentBtn"), saveBtn = $("saveOrderChangesBtn"), closeDetailBtn = $("closeOrderDetailBtn"), statusSelect = $("adminOrderStatus"), saveBillingBtn=$("saveBillingBtn"), addManualBtn=$("addManualPaymentBtn");
   if(closeDetailBtn) closeDetailBtn.onclick = closeModal;
   bindBillingFields();
+  document.querySelectorAll('.quick-pay-amount').forEach(btn=>btn.onclick=()=>{
+    const input=$('manualPaymentAmount'); if(!input) return;
+    const remaining=Number(o.remaining_amount||0);
+    input.value = btn.dataset.payFull ? remaining : Math.max(1, Math.round(remaining * (Number(btn.dataset.payPercent||100)/100)));
+  });
   if(statusSelect) statusSelect.addEventListener('change',()=>{const preview=$("autoShippingStatusPreview");if(preview)preview.value=label(autoShippingStatus(statusSelect.value));});
 
   if(approveBtn) approveBtn.onclick = async () => { const amount=numericValue('paymentAmount'); if(amount<=0)return alert('Nominal pembayaran harus lebih dari 0.'); if(amount>Number(o.remaining_amount||o.total||0))return alert('Nominal tidak boleh melebihi sisa tagihan.'); if(!confirm(`Terima pembayaran ${rupiah(amount)} untuk ${o.order_number}?`))return; setBusy(approveBtn,true,'Memproses...'); const {error}=await client.rpc('admin_review_product_payment',{p_order_id:o.id,p_payment_id:pay.id,p_action:'approve',p_amount:amount,p_note:$("paymentNote")?.value.trim()||null}); if(error){console.error(error);alert('Gagal verifikasi pembayaran: '+error.message);setBusy(approveBtn,false);return;} await reloadAndReopen(o.id); };
   if(rejectBtn) rejectBtn.onclick = async () => { const note=$("paymentNote")?.value.trim()||'Bukti/pembayaran ditolak admin.'; if(!confirm(`Tolak pembayaran untuk ${o.order_number}?`))return; setBusy(rejectBtn,true,'Memproses...'); const {error}=await client.rpc('admin_review_product_payment',{p_order_id:o.id,p_payment_id:pay.id,p_action:'reject',p_amount:null,p_note:note}); if(error){console.error(error);alert('Gagal menolak pembayaran: '+error.message);setBusy(rejectBtn,false);return;} await reloadAndReopen(o.id); };
 
-  if(saveBillingBtn) saveBillingBtn.onclick=async()=>{ const useTempo=$('useTempo').checked; const tempoDays=Number($('tempoDays').value||0); const due=$('dueDate').value||null; if(useTempo && !due)return alert('Tanggal jatuh tempo wajib diisi saat tempo aktif.'); setBusy(saveBillingBtn,true,'Menyimpan...'); const {error}=await client.rpc('admin_save_product_order_terms',{p_order_id:o.id,p_use_tempo:useTempo,p_tempo_days:useTempo?tempoDays:0,p_due_date:useTempo?due:null,p_note:$('billingNote').value.trim()||null}); if(error){console.error(error);alert('Gagal menyimpan aturan tagihan: '+error.message);setBusy(saveBillingBtn,false);return;} alert('Aturan tagihan berhasil disimpan ✅'); await reloadAndReopen(o.id); };
+  if(saveBillingBtn) saveBillingBtn.onclick=async()=>{ const useTempo=$('useTempo').checked; const tempoDays=Number($('tempoDays').value||0); let due=$('dueDate').value||null; const method=$('adminPaymentMethod').value; if(useTempo && !due && tempoDays>0){due=addDurationDate(new Date().toISOString().slice(0,10),tempoDays,'hari');} if(useTempo && !due)return alert('Isi jumlah hari tempo atau tanggal jatuh tempo.'); setBusy(saveBillingBtn,true,'Menyimpan...'); const {error:methodError}=await client.rpc('admin_set_product_payment_method',{p_order_id:o.id,p_payment_method:method}); if(methodError){console.error(methodError);alert('Gagal menyimpan metode pembayaran: '+methodError.message+'\n\nPastikan SQL V11 sudah dijalankan.');setBusy(saveBillingBtn,false);return;} const {error}=await client.rpc('admin_save_product_order_terms',{p_order_id:o.id,p_use_tempo:useTempo,p_tempo_days:useTempo?tempoDays:0,p_due_date:useTempo?due:null,p_note:$('billingNote').value.trim()||null}); if(error){console.error(error);alert('Gagal menyimpan aturan tagihan: '+error.message);setBusy(saveBillingBtn,false);return;} alert('Pengaturan pembayaran berhasil disimpan ✅'); await reloadAndReopen(o.id); };
 
   if(addManualBtn) addManualBtn.onclick=async()=>{ const amount=numericValue('manualPaymentAmount'); if(amount<=0)return alert('Nominal pembayaran harus lebih dari 0.'); if(amount>Number(o.remaining_amount||0))return alert(`Nominal melebihi sisa tagihan ${rupiah(o.remaining_amount)}.`); if(!confirm(`Catat pembayaran tambahan ${rupiah(amount)}?`))return; setBusy(addManualBtn,true,'Mencatat...'); const {error}=await client.rpc('admin_add_product_payment',{p_order_id:o.id,p_payment_method:$('manualPaymentMethod').value,p_amount:amount,p_reference_number:$('manualPaymentReference').value.trim()||null,p_note:$('manualPaymentNote').value.trim()||null}); if(error){console.error(error);alert('Gagal mencatat pembayaran: '+error.message);setBusy(addManualBtn,false);return;} alert('Pembayaran tambahan berhasil dicatat ✅'); await reloadAndReopen(o.id); };
 
