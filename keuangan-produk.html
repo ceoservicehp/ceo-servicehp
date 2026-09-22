@@ -37,7 +37,7 @@
         <div>
           <span class="eyebrow">LAPORAN TERPISAH</span>
           <h2>Ringkasan Keuangan Penjualan Produk HP</h2>
-          <p>Omzet produk, modal, laba kotor, pembayaran masuk, piutang, dan ongkir dihitung terpisah dari transaksi service.</p>
+          <p>Omzet produk, modal, laba kotor, uang masuk, dan piutang dihitung terpisah dari transaksi service.</p>
         </div>
         <button id="btnExport" class="btn btn-primary"><i class="fa-solid fa-file-excel"></i> Export Excel</button>
       </section>
@@ -61,9 +61,8 @@
         <article class="summary-card"><div class="icon"><i class="fa-solid fa-chart-line"></i></div><div><span>Omzet Produk</span><strong id="sumRevenue">Rp 0</strong><small>Nilai produk setelah diskon, tanpa ongkir</small></div></article>
         <article class="summary-card"><div class="icon"><i class="fa-solid fa-boxes-stacked"></i></div><div><span>Modal Produk</span><strong id="sumCost">Rp 0</strong><small>cost_price × qty</small></div></article>
         <article class="summary-card"><div class="icon"><i class="fa-solid fa-coins"></i></div><div><span>Laba Kotor</span><strong id="sumProfit">Rp 0</strong><small>Omzet produk − modal</small></div></article>
-        <article class="summary-card"><div class="icon"><i class="fa-solid fa-wallet"></i></div><div><span>Uang Masuk</span><strong id="sumPaid">Rp 0</strong><small>Total pembayaran berstatus paid</small></div></article>
-        <article class="summary-card"><div class="icon"><i class="fa-solid fa-clock"></i></div><div><span>Piutang</span><strong id="sumDebt">Rp 0</strong><small>Sisa tagihan order aktif</small></div></article>
-        <article class="summary-card"><div class="icon"><i class="fa-solid fa-truck-fast"></i></div><div><span>Ongkir Ditagihkan</span><strong id="sumShipping">Rp 0</strong><small>Tidak dimasukkan ke laba produk</small></div></article>
+        <article class="summary-card"><div class="icon"><i class="fa-solid fa-wallet"></i></div><div><span>Uang Masuk</span><strong id="sumPaid">Rp 0</strong><small>Pembayaran paid sesuai tanggal bayar</small></div></article>
+        <article class="summary-card"><div class="icon"><i class="fa-solid fa-clock"></i></div><div><span>Piutang</span><strong id="sumDebt">Rp 0</strong><small>Sisa tagihan order aktif pada periode</small></div></article>
       </section>
 
       <section class="content-card">
