@@ -1684,3 +1684,34 @@ body:not(.can-bulk-delete) .select-col{display:none}
   .tempo-toggle{margin-top:0}
   .billing-actions .btn{width:100%}
 }
+
+
+/* =========================================================
+   V12 — GARANSI: PRESET CEO + RIWAYAT LEBIH JELAS
+   ========================================================= */
+.warranty-summary-v12{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:10px}
+.warranty-summary-v12>div{padding:10px 11px;border:1px solid var(--border);border-radius:11px;background:#fbfefe}
+.warranty-summary-v12 span,.warranty-summary-v12 strong{display:block}
+.warranty-summary-v12 span{font-size:9px;color:var(--muted);font-weight:700;text-transform:uppercase}
+.warranty-summary-v12 strong{margin-top:2px;font-size:16px;color:var(--primary)}
+.warranty-help-v12{display:flex;align-items:flex-start;gap:8px;margin-bottom:12px;padding:9px 11px;border:1px solid #d8eaec;border-radius:10px;background:#f2fafb;color:#587176;font-size:10px}
+.warranty-help-v12 i{margin-top:2px;color:var(--primary)}
+.warranty-unit-actions{display:flex;align-items:center;gap:7px;flex-wrap:wrap;justify-content:flex-end}
+.warranty-history-label{display:flex;align-items:center;gap:6px;margin-top:10px;color:#718388;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.35px}
+.warranty-period{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:2px}
+.warranty-period span{font-size:9px;color:#657a7f}
+.warranty-period i{margin-right:3px;color:var(--primary)}
+.warranty-period b{color:#34494e}
+@media(max-width:760px){
+  .warranty-unit-head{gap:9px}
+  .warranty-unit-actions{display:grid;grid-template-columns:1fr 1fr;width:100%}
+  .warranty-unit-actions .btn{width:100%!important;min-width:0;padding:9px 8px;font-size:10px}
+  .warranty-row{gap:8px}
+  .warranty-period{gap:5px 9px}
+}
+@media(max-width:480px){
+  .warranty-summary-v12{grid-template-columns:repeat(3,1fr)}
+  .warranty-summary-v12>div{padding:8px}
+  .warranty-summary-v12 span{font-size:8px}
+  .warranty-summary-v12 strong{font-size:14px}
+}
