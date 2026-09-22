@@ -1715,3 +1715,14 @@ body:not(.can-bulk-delete) .select-col{display:none}
   .warranty-summary-v12 span{font-size:8px}
   .warranty-summary-v12 strong{font-size:14px}
 }
+
+/* V13 — Pengiriman & Status */
+.shipping-summary-v13{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:11px}
+.shipping-summary-v13>div{padding:9px 10px;border:1px solid var(--border);border-radius:10px;background:#fbfefe}
+.shipping-summary-v13 span,.shipping-summary-v13 strong{display:block}.shipping-summary-v13 span{font-size:8px;color:var(--muted);font-weight:800;text-transform:uppercase}.shipping-summary-v13 strong{margin-top:2px;font-size:11px;color:#30474c}
+.shipping-hint-v13{display:flex;gap:7px;margin-top:9px;padding:9px 10px;border:1px solid #dce9eb;border-radius:9px;background:#f4fafb;color:#60777b;font-size:9px}
+.shipping-hint-v13 i{color:var(--primary)}
+.status-flow-v13{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;margin-top:13px}
+.status-flow-step{text-align:center;color:#87979b}.status-flow-step span{width:25px;height:25px;margin:auto;display:grid;place-items:center;border-radius:50%;background:#edf2f3;font-size:9px;font-weight:800}.status-flow-step small{display:block;margin-top:4px;font-size:8px;font-weight:700}
+@media(max-width:760px){.shipping-form-v13{grid-template-columns:1fr 1fr!important}.status-flow-v13{overflow-x:auto;grid-template-columns:repeat(5,minmax(80px,1fr));padding-bottom:7px}}
+@media(max-width:520px){.shipping-summary-v13{grid-template-columns:repeat(3,1fr);gap:5px}.shipping-summary-v13>div{padding:7px}.shipping-summary-v13 strong{font-size:9px}.shipping-form-v13{grid-template-columns:1fr!important}.shipping-form-v13 .span-2{grid-column:auto!important}}
