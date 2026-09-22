@@ -806,11 +806,25 @@ async function openDetail(id){
   const wa = formatWaNumber(o.customer_whatsapp);
   const billingWaText = encodeURIComponent(billingWhatsAppText(o));
 
+  const canManageOrderItems = ['admin','superadmin'].includes(currentUserRole);
   const productHtml = items.map((i, idx) => {
     const units = (i.order_item_units || []).slice().sort((a,b)=>Number(a.id)-Number(b.id));
     const unitText = units.length ? units.map((u,n)=>`<span class="unit-inline"><b>Unit ${n+1}</b> · IMEI ${esc(u.imei1 || '-')} ${u.imei2 ? `· IMEI 2 ${esc(u.imei2)}` : ''} ${u.serial_number ? `· SN ${esc(u.serial_number)}` : ''}</span>`).join('') : '<span class="unit-inline empty-unit">IMEI belum ditetapkan</span>';
-    return `<article class="simple-product-row"><div class="item-number">${idx+1}</div><div class="simple-product-main"><strong>${esc(i.product_name || '-')}</strong><span>${esc([i.variant_name, i.color, i.ram ? `RAM ${i.ram}` : '', i.storage ? `Storage ${i.storage}` : ''].filter(Boolean).join(' · ') || 'Varian standar')}</span><div class="unit-inline-list">${unitText}</div></div><div class="simple-product-price"><small>${Number(i.quantity || 0)} × ${rupiah(i.unit_price)}</small><strong>${rupiah(i.subtotal)}</strong></div></article>`;
+    return `<article class="simple-product-row product-manage-row">
+      ${canManageOrderItems ? `<label class="product-select-box" title="Pilih produk"><input type="checkbox" class="detail-product-check" value="${Number(i.id)}"><span></span></label>` : ''}
+      <div class="item-number">${idx+1}</div>
+      <div class="simple-product-main"><strong>${esc(i.product_name || '-')}</strong><span>${esc([i.variant_name, i.color, i.ram ? `RAM ${i.ram}` : '', i.storage ? `Storage ${i.storage}` : ''].filter(Boolean).join(' · ') || 'Varian standar')}</span><div class="unit-inline-list">${unitText}</div></div>
+      <div class="simple-product-price"><small>${Number(i.quantity || 0)} × ${rupiah(i.unit_price)}</small><strong>${rupiah(i.subtotal)}</strong></div>
+    </article>`;
   }).join('') || '<div class="notice">Item tidak ditemukan.</div>';
+
+  const productManageBar = canManageOrderItems && items.length ? `<div class="product-manage-bar">
+    <div><strong>Kelola Produk Order</strong><small>Pilih item yang salah lalu hapus dari pesanan.</small></div>
+    <div class="product-manage-actions">
+      <label class="select-all-products"><input type="checkbox" id="selectAllDetailProducts"> Pilih Semua</label>
+      <button class="btn danger" id="deleteSelectedProductsBtn" type="button" disabled><i class="fa-solid fa-trash"></i> Hapus Produk Terpilih</button>
+    </div>
+  </div>` : '';
 
   $("detailContent").innerHTML = `
     <div class="detail-body simple-order-detail">
@@ -819,7 +833,7 @@ async function openDetail(id){
 
       <section class="simple-section-card"><div class="simple-section-title"><span class="card-icon"><i class="fa-solid fa-user"></i></span><div><h3>Data Pesanan</h3><small>Informasi pelanggan dan metode transaksi</small></div></div><div class="simple-info-grid"><div><span>Nama</span><strong>${esc(o.customer_name || '-')}</strong></div><div><span>WhatsApp</span>${wa ? `<a class="detail-wa-billing" target="_blank" rel="noopener" href="https://wa.me/${esc(wa)}?text=${billingWaText}"><i class="fa-brands fa-whatsapp"></i><strong>${esc(o.customer_whatsapp || "-")}</strong><small>Klik untuk kirim tagihan + link invoice</small></a>` : `<strong>-</strong>`}</div><div><span>Email</span><strong>${esc(o.customer_email || '-')}</strong></div><div><span>Pengiriman</span><strong>${esc(shippingLabel(o, ship))}</strong></div><div><span>Pembayaran</span><strong>${esc(label(o.payment_method))}</strong></div><div><span>Tanggal Order</span><strong>${fmtDate(o.created_at)}</strong></div><div class="span-2"><span>Alamat</span><strong>${esc(o.customer_address || '-')}</strong></div></div>${o.customer_note ? `<div class="note-box"><b>Catatan pelanggan</b><br>${esc(o.customer_note)}</div>` : ''}</section>
 
-      <section class="simple-section-card"><div class="simple-section-title"><span class="card-icon"><i class="fa-solid fa-mobile-screen-button"></i></span><div><h3>Produk yang Dibeli</h3><small>${totalQty} unit · IMEI terisi ${assignedUnits}/${totalQty}</small></div></div><div class="simple-products">${productHtml}</div><details class="simple-collapse imei-collapse"><summary><span><i class="fa-solid fa-barcode"></i> Kelola IMEI / Unit Fisik</span><small>${assignedUnits}/${totalQty} unit terisi</small></summary><div class="collapse-body imei-products">${items.map(i => buildUnitManager(i)).join('') || '<div class="notice">Item tidak ditemukan.</div>'}</div></details></section>
+      <section class="simple-section-card"><div class="simple-section-title"><span class="card-icon"><i class="fa-solid fa-mobile-screen-button"></i></span><div><h3>Produk yang Dibeli</h3><small>${totalQty} unit · IMEI terisi ${assignedUnits}/${totalQty}</small></div></div>${productManageBar}<div class="simple-products">${productHtml}</div><details class="simple-collapse imei-collapse"><summary><span><i class="fa-solid fa-barcode"></i> Kelola IMEI / Unit Fisik</span><small>${assignedUnits}/${totalQty} unit terisi</small></summary><div class="collapse-body imei-products">${items.map(i => buildUnitManager(i)).join('') || '<div class="notice">Item tidak ditemukan.</div>'}</div></details></section>
 
       <section class="simple-section-card"><div class="simple-section-title"><span class="card-icon"><i class="fa-solid fa-wallet"></i></span><div><h3>Pembayaran & Tagihan</h3><small>Pembayaran bertahap dan tempo dapat diatur oleh admin / superadmin</small></div></div><div class="finance-highlight-grid"><div class="finance-highlight"><span>Harga Modal Produk</span><strong>${rupiah(orderCostTotal(o))}</strong><small>Snapshot dari Kelola Produk</small></div><div class="finance-highlight"><span>Total Harga</span><strong>${rupiah(o.total)}</strong><small>Termasuk ongkir bila ada</small></div><div class="finance-highlight profit"><span>Laba Bersih Produk</span><strong>${rupiah(orderNetProfit(o))}</strong><small>Penjualan produk − modal; ongkir tidak dihitung laba</small></div></div><div class="simple-money-grid"><div><span>Subtotal Produk</span><strong>${rupiah(o.subtotal)}</strong></div><div><span>Diskon</span><strong>${Number(o.discount || 0) ? `- ${rupiah(o.discount)}` : rupiah(0)}</strong></div><div><span>Ongkir</span><strong>${rupiah(o.shipping_fee)}</strong></div><div class="money-total"><span>Total Pesanan</span><strong>${rupiah(o.total)}</strong></div><div><span>Sudah Dibayar</span><strong class="text-success">${rupiah(o.amount_paid)}</strong></div><div class="${Number(o.remaining_amount || 0) > 0 ? 'has-balance' : 'is-paid'}"><span>Sisa Tagihan</span><strong>${rupiah(o.remaining_amount)}</strong></div></div>${buildSimplePaymentAction(o, pay)}${buildPaymentTerms(o)}${buildManualPaymentForm(o)}<details class="simple-collapse payment-history-collapse"><summary><span><i class="fa-solid fa-clock-rotate-left"></i> Riwayat Pembayaran</span><small>${(o.order_payments || []).length} transaksi</small></summary><div class="collapse-body">${paymentHistory}</div></details></section>
 
@@ -836,6 +850,7 @@ async function openDetail(id){
   if(pay?.proof_url) document.querySelectorAll('.view-current-proof').forEach(btn => btn.onclick = () => viewProof(pay.proof_url));
   document.querySelectorAll('.payment-history-proof').forEach(btn => btn.addEventListener('click', () => viewProof(btn.dataset.proofPath)));
   document.querySelectorAll('.quick-copy').forEach(btn => btn.addEventListener('click', async () => { const value=btn.dataset.copy||''; if(!value)return; try{await navigator.clipboard.writeText(value);const old=btn.innerHTML;btn.innerHTML='<i class="fa-solid fa-check"></i> Tersalin';setTimeout(()=>btn.innerHTML=old,1200);}catch{prompt('Salin data berikut:',value);} }));
+  bindProductItemActions(o);
   bindUnitActions(o);
   bindWarrantyActions(o);
   bindSimpleAdminActions(o, pay, ship, shippingType);
@@ -895,6 +910,74 @@ function bindSimpleAdminActions(o, pay, ship, shippingType){
   if(addManualBtn) addManualBtn.onclick=async()=>{ const amount=numericValue('manualPaymentAmount'); if(amount<=0)return alert('Nominal pembayaran harus lebih dari 0.'); if(amount>Number(o.remaining_amount||0))return alert(`Nominal melebihi sisa tagihan ${rupiah(o.remaining_amount)}.`); if(!confirm(`Catat pembayaran tambahan ${rupiah(amount)}?`))return; setBusy(addManualBtn,true,'Mencatat...'); const {error}=await client.rpc('admin_add_product_payment',{p_order_id:o.id,p_payment_method:$('manualPaymentMethod').value,p_amount:amount,p_reference_number:$('manualPaymentReference').value.trim()||null,p_note:$('manualPaymentNote').value.trim()||null}); if(error){console.error(error);alert('Gagal mencatat pembayaran: '+error.message);setBusy(addManualBtn,false);return;} alert('Pembayaran tambahan berhasil dicatat ✅'); await reloadAndReopen(o.id); };
 
   if(saveBtn) saveBtn.onclick = async () => { const orderStatus=$("adminOrderStatus").value; const readiness=getOperationalReadiness(o); if(['dikirim','dalam_perjalanan','selesai'].includes(orderStatus)&&!readiness.imeiReady){alert(`Lengkapi IMEI / unit fisik terlebih dahulu. Saat ini ${readiness.assignedUnits} dari ${readiness.requiredUnits} unit sudah ditetapkan.`);return;} if(orderStatus==='selesai'&&!confirm(`Tandai ${o.order_number} sebagai SELESAI?`))return; if(orderStatus==='dibatalkan'&&!confirm(`Batalkan ${o.order_number}?`))return; setBusy(saveBtn,true,'Menyimpan...'); let courier=ship?.courier||null; let tracking=$("trackingNumber")?.value.trim()||null; if(shippingType!=='pickup'){const fee=numericValue('shippingFee');courier=$("shippingCourier")?.value.trim()||null;const {error:shipError}=await client.rpc('admin_set_product_shipping_fee',{p_order_id:o.id,p_shipping_fee:fee,p_courier:courier});if(shipError){console.error(shipError);alert('Gagal menyimpan ongkir/kurir: '+shipError.message);setBusy(saveBtn,false);return;}} const {error}=await client.rpc('admin_update_product_order_status',{p_order_id:o.id,p_order_status:orderStatus,p_shipping_status:autoShippingStatus(orderStatus),p_tracking_number:tracking,p_courier:courier,p_admin_note:$("adminNote")?.value.trim()||null}); if(error){console.error(error);alert('Gagal menyimpan perubahan: '+error.message);setBusy(saveBtn,false);return;} alert('Perubahan order berhasil disimpan ✅'); await reloadAndReopen(o.id); };
+}
+
+
+function bindProductItemActions(order){
+  const checks = [...document.querySelectorAll('.detail-product-check')];
+  const selectAll = $('selectAllDetailProducts');
+  const deleteBtn = $('deleteSelectedProductsBtn');
+  if(!checks.length || !deleteBtn) return;
+
+  const sync = () => {
+    const selected = checks.filter(c => c.checked);
+    deleteBtn.disabled = selected.length === 0;
+    deleteBtn.innerHTML = selected.length
+      ? `<i class="fa-solid fa-trash"></i> Hapus ${selected.length} Produk`
+      : '<i class="fa-solid fa-trash"></i> Hapus Produk Terpilih';
+    if(selectAll){
+      selectAll.checked = selected.length === checks.length;
+      selectAll.indeterminate = selected.length > 0 && selected.length < checks.length;
+    }
+  };
+
+  checks.forEach(c => c.addEventListener('change', sync));
+  if(selectAll) selectAll.addEventListener('change', () => {
+    checks.forEach(c => c.checked = selectAll.checked);
+    sync();
+  });
+
+  deleteBtn.onclick = async () => {
+    if(!['admin','superadmin'].includes(currentUserRole)){
+      alert('Hanya Admin atau Superadmin yang dapat menghapus produk dari order.');
+      return;
+    }
+    const ids = checks.filter(c => c.checked).map(c => Number(c.value)).filter(Boolean);
+    if(!ids.length) return;
+    if(ids.length >= (order.order_items || []).length){
+      alert('Order harus memiliki minimal 1 produk. Sisakan satu produk atau batalkan order jika transaksi tidak dilanjutkan.');
+      return;
+    }
+
+    const selectedNames = (order.order_items || [])
+      .filter(i => ids.includes(Number(i.id)))
+      .map(i => `• ${i.product_name || 'Produk'}${i.variant_name ? ` — ${i.variant_name}` : ''}`);
+
+    const ok = confirm(
+      `Hapus ${ids.length} produk dari ${order.order_number || 'order ini'}?\n\n` +
+      selectedNames.join('\n') +
+      `\n\nIMEI/unit yang terkait dengan item tersebut juga dapat ikut terhapus. ` +
+      `Subtotal, total tagihan, sisa pembayaran, harga modal, dan laba akan dihitung ulang.`
+    );
+    if(!ok) return;
+
+    setBusy(deleteBtn, true, 'Menghapus...');
+    const { data, error } = await client.rpc('admin_delete_product_order_items', {
+      p_order_id: Number(order.id),
+      p_item_ids: ids
+    });
+    if(error){
+      console.error(error);
+      alert('Gagal menghapus produk: ' + error.message + '\n\nPastikan SQL V10 sudah dijalankan di Supabase.');
+      setBusy(deleteBtn, false);
+      return;
+    }
+
+    alert('Produk berhasil dihapus dan total order sudah dihitung ulang ✅');
+    await reloadAndReopen(order.id);
+  };
+
+  sync();
 }
 
 function buildUnitManager(item){
