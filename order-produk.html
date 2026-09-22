@@ -76,6 +76,14 @@
     </div>
   </section>
 
+  <section class="shipping-tabs" aria-label="Filter metode pengiriman">
+    <button type="button" class="shipping-tab active" data-shipping-tab="all"><i class="fa-solid fa-layer-group"></i> Semua Order</button>
+    <button type="button" class="shipping-tab" data-shipping-tab="pickup"><i class="fa-solid fa-store"></i> Ambil di Toko</button>
+    <button type="button" class="shipping-tab" data-shipping-tab="instant"><i class="fa-solid fa-motorcycle"></i> Kurir Instan</button>
+    <button type="button" class="shipping-tab" data-shipping-tab="package"><i class="fa-solid fa-box"></i> Kirim Paket</button>
+    <button type="button" class="shipping-tab" data-shipping-tab="cod"><i class="fa-solid fa-location-dot"></i> COD Lokal</button>
+  </section>
+
   <section class="card filters">
     <div class="search-wrap">
       <i class="fa-solid fa-magnifying-glass"></i>
@@ -89,14 +97,6 @@
       <option value="lunas">Lunas</option>
       <option value="refund">Refund</option>
     </select>
-    <select id="shippingFilter">
-      <option value="all">Semua Pengiriman</option>
-      <option value="pickup">Ambil di Toko</option>
-      <option value="instant">Kurir Instan</option>
-      <option value="package">Kirim Paket</option>
-      <option value="cod">COD</option>
-      <option value="delivery">Pengiriman Lain</option>
-    </select>
     <select id="statusFilter">
       <option value="all">Semua Status</option>
       <option value="menunggu_diproses">Menunggu Diproses</option>
@@ -107,6 +107,13 @@
       <option value="dibatalkan">Dibatalkan</option>
       <option value="gagal_dikirim">Gagal Dikirim</option>
     </select>
+    <div class="date-filter-field"><label for="dateFrom">Dari Tanggal</label><input id="dateFrom" type="date"></div>
+    <div class="date-filter-field"><label for="dateTo">Sampai Tanggal</label><input id="dateTo" type="date"></div>
+    <select id="dateSort" aria-label="Urutkan tanggal">
+      <option value="newest">Tanggal Terbaru</option>
+      <option value="oldest">Tanggal Terlama</option>
+    </select>
+    <button id="resetOrderFilters" class="btn soft filter-reset-btn" type="button"><i class="fa-solid fa-rotate-left"></i> Reset Filter</button>
   </section>
 
   <section class="card table-card">
