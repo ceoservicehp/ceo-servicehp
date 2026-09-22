@@ -701,13 +701,31 @@ function buildWarrantyManager(order){
   if(!units.length){
     return `<div class="notice">Isi IMEI / unit fisik terlebih dahulu sebelum mengatur garansi.</div>`;
   }
-  return `<div class="warranty-unit-list">${units.map(u=>{
-    const rows=currentDetailWarranties.filter(w=>Number(w.order_item_unit_id)===Number(u.id));
+
+  const activeCount=currentDetailWarranties.filter(w=>warrantyStatus(w).label==='Aktif').length;
+  const expiredCount=currentDetailWarranties.filter(w=>warrantyStatus(w).label==='Habis').length;
+
+  return `<div class="warranty-summary-v12">
+    <div><span>Total Unit</span><strong>${units.length}</strong></div>
+    <div><span>Garansi Aktif</span><strong>${activeCount}</strong></div>
+    <div><span>Garansi Habis</span><strong>${expiredCount}</strong></div>
+  </div>
+  <div class="warranty-help-v12"><i class="fa-solid fa-circle-info"></i><span>Preset CEO: <b>Tukar Unit 1 Bulan</b> + <b>Service 1 Tahun</b>. Tanggal mulai dapat disesuaikan sebelum disimpan.</span></div>
+  <div class="warranty-unit-list">${units.map(u=>{
+    const rows=currentDetailWarranties
+      .filter(w=>Number(w.order_item_unit_id)===Number(u.id))
+      .sort((a,b)=>String(b.warranty_start||'').localeCompare(String(a.warranty_start||'')));
+    const hasSwap=rows.some(w=>String(w.warranty_type||'').toLowerCase()==='tukar unit' && w.is_active!==false);
+    const hasService=rows.some(w=>String(w.warranty_type||'').toLowerCase()==='service' && w.is_active!==false);
     return `<article class="warranty-unit-card" data-unit-id="${u.id}">
       <div class="warranty-unit-head">
         <div><strong>${esc(u.unit_label)}</strong><span>IMEI ${esc(u.imei1 || '-')} ${u.serial_number ? `· SN ${esc(u.serial_number)}` : ''}</span></div>
-        <button class="btn soft add-warranty-btn" type="button"><i class="fa-solid fa-plus"></i> Tambah Garansi</button>
+        <div class="warranty-unit-actions">
+          ${(!hasSwap || !hasService) ? `<button class="btn success warranty-standard-btn" type="button" data-missing-swap="${hasSwap?'0':'1'}" data-missing-service="${hasService?'0':'1'}"><i class="fa-solid fa-wand-magic-sparkles"></i> Garansi Standar</button>` : ''}
+          <button class="btn soft add-warranty-btn" type="button"><i class="fa-solid fa-plus"></i> Tambah Manual</button>
+        </div>
       </div>
+      <div class="warranty-history-label"><i class="fa-solid fa-clock-rotate-left"></i> Riwayat Garansi</div>
       <div class="warranty-list">${rows.length ? rows.map(w=>buildWarrantyRow(w)).join('') : '<div class="warranty-empty">Belum ada garansi untuk unit ini.</div>'}</div>
       <div class="warranty-editor" hidden></div>
     </article>`;
@@ -720,7 +738,7 @@ function buildWarrantyRow(w){
   return `<div class="warranty-row" data-warranty-id="${w.id}">
     <div class="warranty-row-main">
       <div class="warranty-row-title"><strong>${esc(w.warranty_type || 'Garansi')}</strong><span class="pill ${st.cls}">${st.label}</span></div>
-      <span>${esc(dur)} · ${esc(isoDate(w.warranty_start) || '-')} → ${esc(isoDate(w.warranty_end) || '-')}</span>
+      <div class="warranty-period"><span><i class="fa-regular fa-calendar"></i> Mulai <b>${esc(isoDate(w.warranty_start) || '-')}</b></span><span><i class="fa-regular fa-calendar-check"></i> Berakhir <b>${esc(isoDate(w.warranty_end) || '-')}</b></span><span><i class="fa-regular fa-hourglass-half"></i> ${esc(dur)}</span></div>
       ${w.warranty_note ? `<small>${esc(w.warranty_note)}</small>` : ''}
     </div>
     <button class="btn soft edit-warranty-btn" type="button"><i class="fa-solid fa-pen"></i> Edit</button>
@@ -888,6 +906,34 @@ function bindBillingFields(){
 }
 
 function bindWarrantyActions(order){
+  document.querySelectorAll('.warranty-standard-btn').forEach(btn=>btn.onclick=async()=>{
+    const card=btn.closest('.warranty-unit-card');
+    const unitId=Number(card.dataset.unitId);
+    const addSwap=btn.dataset.missingSwap==='1';
+    const addService=btn.dataset.missingService==='1';
+    const startDate=new Date().toISOString().slice(0,10);
+    const items=[];
+    if(addSwap) items.push({type:'Tukar Unit',value:1,unit:'bulan',note:'Garansi tukar unit CEO Part & Service'});
+    if(addService) items.push({type:'Service',value:1,unit:'tahun',note:'Garansi service CEO Part & Service'});
+    if(!items.length) return;
+    if(!confirm(`Terapkan garansi standar untuk unit ini?\n\n${items.map(x=>`• ${x.type} ${x.value} ${labelDurationUnit(x.unit)}`).join('\n')}\n\nTanggal mulai: ${startDate}`)) return;
+    setBusy(btn,true,'Menyimpan...');
+    for(const item of items){
+      const {error}=await client.rpc('admin_save_product_warranty_v2',{
+        p_unit_id:unitId,p_warranty_id:null,p_type:item.type,p_duration_value:item.value,
+        p_duration_unit:item.unit,p_start:startDate,p_note:item.note,p_is_active:true
+      });
+      if(error){
+        console.error(error);
+        alert('Gagal menyimpan garansi standar: '+error.message);
+        setBusy(btn,false);
+        return;
+      }
+    }
+    alert('Garansi standar berhasil dibuat ✅');
+    await reloadAndReopen(order.id);
+  });
+
   document.querySelectorAll('.add-warranty-btn').forEach(btn=>btn.onclick=()=>{
     const card=btn.closest('.warranty-unit-card'); const ed=card.querySelector('.warranty-editor'); ed.hidden=false; ed.innerHTML=warrantyEditorHtml(Number(card.dataset.unitId)); bindWarrantyEditor(ed,order);
   });
