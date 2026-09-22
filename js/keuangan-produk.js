@@ -6,7 +6,7 @@ let filteredOrders = [];
 let currentTab = "sales";
 let currentPage = 1;
 let pageSize = 10;
-let activeRange = "today";
+let activeRange = "all";
 let customStart = null;
 let customEnd = null;
 let financeTerms = new Map();
@@ -312,7 +312,7 @@ function exportExcel(){
 function bindEvents(){
   document.querySelectorAll(".filter-btn").forEach(btn=>btn.addEventListener("click",()=>{document.querySelectorAll(".filter-btn").forEach(b=>b.classList.remove("active"));btn.classList.add("active");activeRange=btn.dataset.range;el("startDate").value="";el("endDate").value="";applyActiveRange()}));
   document.querySelectorAll(".tab-btn").forEach(btn=>btn.addEventListener("click",()=>{document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));btn.classList.add("active");currentTab=btn.dataset.tab;currentPage=1;renderTable()}));
-  el("btnApplyDate").addEventListener("click",applyCustomDate); el("btnReset").addEventListener("click",()=>{activeRange="today";customStart=null;customEnd=null;document.querySelectorAll(".filter-btn").forEach(b=>b.classList.toggle("active",b.dataset.range==="today"));el("startDate").value="";el("endDate").value="";applyActiveRange()});
+  el("btnApplyDate").addEventListener("click",applyCustomDate); el("btnReset").addEventListener("click",()=>{activeRange="all";customStart=null;customEnd=null;document.querySelectorAll(".filter-btn").forEach(b=>b.classList.toggle("active",b.dataset.range==="today"));el("startDate").value="";el("endDate").value="";applyActiveRange()});
   el("searchInput").addEventListener("input",()=>{currentPage=1;renderTable()}); el("pageSize").addEventListener("change",()=>{pageSize=Number(el("pageSize").value);currentPage=1;renderTable()});
   el("prevPage").addEventListener("click",()=>{if(currentPage>1){currentPage--;renderTable()}}); el("nextPage").addEventListener("click",()=>{currentPage++;renderTable()});
   el("btnExport").addEventListener("click",exportExcel);
@@ -326,6 +326,7 @@ function bindEvents(){
 
 (async function init(){
   bindEvents();
-  try{ const ok=await guardAdmin(); if(!ok)return; await loadData(); }
+  try{ const ok=await guardAdmin(); if(!ok)return; document.querySelectorAll(".filter-btn").forEach(b=>b.classList.toggle("active",b.dataset.range==="all"));
+  await loadData(); }
   catch(err){ console.error(err); showError("Gagal memuat data keuangan produk: "+(err.message||err)); }
 })();
