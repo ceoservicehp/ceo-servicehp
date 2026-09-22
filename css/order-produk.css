@@ -1548,3 +1548,85 @@ body:not(.can-bulk-delete) .select-col{display:none}
   .shipping-tabs{gap:6px;padding-bottom:9px}
   .shipping-tab{padding:8px 10px;font-size:9px}
 }
+
+
+/* =========================================================
+   V10 — DETAIL PRODUK: SELECT ITEM + HAPUS TERPILIH
+   ========================================================= */
+.product-manage-bar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  margin:2px 0 12px;
+  padding:11px 12px;
+  border:1px solid #dfeaec;
+  border-radius:12px;
+  background:#f7fbfb;
+}
+.product-manage-bar>div:first-child strong,
+.product-manage-bar>div:first-child small{display:block}
+.product-manage-bar>div:first-child strong{font-size:11px;color:#2d4247}
+.product-manage-bar>div:first-child small{margin-top:2px;font-size:9px;color:var(--muted)}
+.product-manage-actions{display:flex;align-items:center;gap:9px;flex-wrap:wrap;justify-content:flex-end}
+.select-all-products{display:flex;align-items:center;gap:6px;font-size:10px;font-weight:700;color:#607277;white-space:nowrap}
+.select-all-products input,.detail-product-check{accent-color:var(--primary)}
+
+.product-manage-row{
+  grid-template-columns:22px 30px minmax(0,1fr) auto !important;
+}
+.product-select-box{
+  display:flex;
+  align-items:flex-start;
+  justify-content:center;
+  padding-top:5px;
+}
+.product-select-box input{
+  width:16px;
+  height:16px;
+  cursor:pointer;
+}
+
+@media(max-width:760px){
+  .product-manage-bar{
+    align-items:stretch;
+    gap:9px;
+    padding:10px;
+  }
+  .product-manage-actions{
+    flex-wrap:nowrap;
+    margin-left:auto;
+  }
+  .product-manage-actions .btn{
+    padding:8px 10px;
+    font-size:10px;
+    white-space:nowrap;
+  }
+  .product-manage-row{
+    grid-template-columns:20px 27px minmax(0,1fr) !important;
+    gap:8px !important;
+  }
+  .product-manage-row .simple-product-price{
+    grid-column:3 !important;
+    text-align:left !important;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+  }
+}
+
+@media(max-width:520px){
+  .product-manage-bar{
+    display:grid;
+    grid-template-columns:minmax(0,1fr);
+  }
+  .product-manage-actions{
+    width:100%;
+    justify-content:space-between;
+  }
+  .product-manage-actions .btn{
+    width:auto !important;
+    flex:0 1 auto;
+  }
+}
