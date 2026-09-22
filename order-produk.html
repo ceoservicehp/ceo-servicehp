@@ -84,31 +84,15 @@
     <button type="button" class="shipping-tab" data-shipping-tab="cod"><i class="fa-solid fa-location-dot"></i> COD Lokal</button>
   </section>
 
-  <section class="card filters">
+  <section class="card filters compact-order-filters">
     <div class="search-wrap">
       <i class="fa-solid fa-magnifying-glass"></i>
-      <input id="searchInput" type="search" placeholder="Cari no. order, nama, WhatsApp, produk..." autocomplete="off">
+      <input id="searchInput" type="search" placeholder="Cari no. order, nama, WhatsApp..." autocomplete="off">
     </div>
-    <select id="paymentFilter">
-      <option value="all">Semua Pembayaran</option>
-      <option value="belum_bayar">Belum Bayar</option>
-      <option value="dp">DP</option>
-      <option value="sebagian">Sebagian</option>
-      <option value="lunas">Lunas</option>
-      <option value="refund">Refund</option>
-    </select>
-    <select id="statusFilter">
-      <option value="all">Semua Status</option>
-      <option value="menunggu_diproses">Menunggu Diproses</option>
-      <option value="dikemas">Dikemas</option>
-      <option value="dikirim">Dikirim</option>
-      <option value="dalam_perjalanan">Dalam Perjalanan</option>
-      <option value="selesai">Selesai</option>
-      <option value="dibatalkan">Dibatalkan</option>
-      <option value="gagal_dikirim">Gagal Dikirim</option>
-    </select>
-    <div class="date-filter-field"><label for="dateFrom">Dari Tanggal</label><input id="dateFrom" type="date"></div>
-    <div class="date-filter-field"><label for="dateTo">Sampai Tanggal</label><input id="dateTo" type="date"></div>
+    <div class="date-filter-field compact-date-field">
+      <label for="orderDate">Tanggal</label>
+      <input id="orderDate" type="date">
+    </div>
     <select id="dateSort" aria-label="Urutkan tanggal">
       <option value="newest">Tanggal Terbaru</option>
       <option value="oldest">Tanggal Terlama</option>
