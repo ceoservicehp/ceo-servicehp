@@ -1462,3 +1462,23 @@ td small{font-size:9px}
     min-width:0 !important;
   }
 }
+
+
+/* =========================================================
+   V7 — SATU HERO + REFRESH DI HERO UTAMA + PILIH/HAPUS ORDER
+   ========================================================= */
+.order-primary-hero-actions{display:flex;align-items:center;gap:10px;margin-top:18px;flex-wrap:wrap}
+.order-refresh-top{white-space:nowrap}
+.bulk-order-bar{display:none;align-items:center;justify-content:space-between;gap:12px;padding:11px 14px;border-bottom:1px solid var(--border);background:#fbfefe}
+body.can-bulk-delete .bulk-order-bar{display:flex}
+.bulk-order-info{display:flex;align-items:center;gap:8px;color:var(--primary);font-size:11px;font-weight:800}
+.bulk-order-info i{font-size:14px}
+.select-col{width:42px!important;min-width:42px!important;text-align:center!important;padding-left:10px!important;padding-right:10px!important}
+.order-checkbox{width:16px;height:16px;accent-color:var(--primary);cursor:pointer}
+body:not(.can-bulk-delete) .select-col{display:none}
+@media(max-width:620px){
+  .bulk-order-bar{align-items:stretch;flex-direction:column}
+  .bulk-order-bar .btn{width:100%}
+  .order-primary-hero-actions{width:100%}
+  .order-primary-hero-actions .order-refresh-top{width:100%}
+}
