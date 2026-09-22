@@ -331,8 +331,51 @@ async function loadCurrentAdminRole(){
   }
 }
 
+
+function ensureRefreshButtonInPrimaryHero(){
+  let btn = $("refreshBtn");
+  if(btn) return btn;
+
+  const heading = [...document.querySelectorAll("h1")].find(el =>
+    /kelola\s+order\s+hp/i.test((el.textContent || "").replace(/\s+/g," ").trim())
+  );
+
+  if(heading){
+    const hero = heading.closest("section") || heading.parentElement;
+    if(hero){
+      let actions = hero.querySelector(".hero-actions, .page-hero-actions, .admin-hero-actions, .hero-buttons");
+      if(!actions){
+        actions = document.createElement("div");
+        actions.className = "order-primary-hero-actions";
+        const anchor = heading.parentElement || hero;
+        anchor.appendChild(actions);
+      }
+      btn = document.createElement("button");
+      btn.id = "refreshBtn";
+      btn.type = "button";
+      btn.className = "btn btn-light order-refresh-top";
+      btn.innerHTML = '<i class="fa-solid fa-rotate"></i> Refresh Data';
+      actions.appendChild(btn);
+      return btn;
+    }
+  }
+
+  // Fallback bila hero komponen belum tersedia: tetap sediakan tombol tanpa membuat hero kedua.
+  const sectionHeading = document.querySelector(".section-heading");
+  if(sectionHeading){
+    btn = document.createElement("button");
+    btn.id = "refreshBtn";
+    btn.type = "button";
+    btn.className = "btn soft order-refresh-top";
+    btn.innerHTML = '<i class="fa-solid fa-rotate"></i> Refresh Data';
+    sectionHeading.appendChild(btn);
+  }
+  return btn;
+}
+
 function setup(){
-  $("refreshBtn").onclick = loadOrders;
+  const refreshBtn = ensureRefreshButtonInPrimaryHero();
+  if(refreshBtn) refreshBtn.onclick = loadOrders;
   ["searchInput","paymentFilter","shippingFilter","statusFilter"].forEach(id => {
     $(id).addEventListener(id === "searchInput" ? "input" : "change", () => { page = 1; clearOrderSelection(); applyFilters(); });
   });
@@ -344,6 +387,16 @@ function setup(){
     clearOrderSelection();
     render();
   });
+
+  $("checkAllOrders")?.addEventListener("change", e => {
+    document.querySelectorAll(".order-select").forEach(cb => {
+      cb.checked = e.target.checked;
+      const id = Number(cb.dataset.id);
+      if(e.target.checked) selectedOrderIds.add(id); else selectedOrderIds.delete(id);
+    });
+    updateBulkSelectionUI();
+  });
+  $("deleteSelectedOrders")?.addEventListener("click", deleteSelectedOrders);
 
   document.querySelectorAll(".stat-filter-card").forEach(card => {
     const activate = () => {
@@ -364,7 +417,7 @@ function setup(){
 }
 
 async function loadOrders(){
-  $("orderTableBody").innerHTML = '<tr><td colspan="11" class="empty"><i class="fa-solid fa-spinner fa-spin"></i> Memuat order...</td></tr>';
+  $("orderTableBody").innerHTML = '<tr><td colspan="12" class="empty"><i class="fa-solid fa-spinner fa-spin"></i> Memuat order...</td></tr>';
   const { data, error } = await client
     .from("orders")
     .select(`*,order_items(*,order_item_units(*)),order_payments(*),order_shipments(*)`)
@@ -428,7 +481,7 @@ function render(){
   renderPageNumbers(pages);
 
   if(!rows.length){
-    $("orderTableBody").innerHTML = '<tr><td colspan="11" class="empty">Tidak ada order yang sesuai.</td></tr>';
+    $("orderTableBody").innerHTML = '<tr><td colspan="12" class="empty">Tidak ada order yang sesuai.</td></tr>';
     return;
   }
 
@@ -441,6 +494,7 @@ function render(){
     const laba = orderNetProfit(o);
 
     return `<tr class="order-row">
+      <td class="select-col"><input class="order-checkbox order-select" type="checkbox" data-id="${o.id}" aria-label="Pilih order ${esc(o.order_number || o.id)}" ${selectedOrderIds.has(Number(o.id)) ? "checked" : ""}></td>
       <td class="table-number">${(page - 1) * pageSize + rowIndex + 1}</td>
       <td><div class="buyer-cell"><strong>${esc(o.customer_name || "-")}</strong></div></td>
       <td><div class="product-cell"><strong>${esc(item.product_name || "-")}</strong><small>${esc(variantParts || item.variant_name || "-")}${item.quantity ? ` · ${item.quantity} unit` : ""}</small>${extraItems ? `<span class="more-items">+${extraItems} produk lain</span>` : ""}</div></td>
@@ -455,6 +509,12 @@ function render(){
     </tr>`;
   }).join("");
 
+  document.querySelectorAll(".order-select").forEach(cb => cb.onchange = () => {
+    const id = Number(cb.dataset.id);
+    if(cb.checked) selectedOrderIds.add(id); else selectedOrderIds.delete(id);
+    updateBulkSelectionUI();
+  });
+  updateBulkSelectionUI();
   document.querySelectorAll(".detail-btn").forEach(b => b.onclick = () => openDetail(Number(b.dataset.id)));
 }
 
