@@ -26,3 +26,45 @@ main{width:min(1180px,calc(100% - 28px));margin:30px auto 65px}
 .result-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:13px}.result-actions a,.result-actions button{border-radius:9px;padding:10px 13px;font-size:9px;font-weight:800;text-decoration:none;cursor:pointer}.invoice-btn{background:var(--primary);color:#fff;border:1px solid var(--primary)}.check-again{background:#fff;color:var(--primary);border:1px solid var(--line)}
 @media(max-width:760px){main{width:min(100% - 20px,1180px);margin-top:24px}.lookup{grid-template-columns:1fr 1fr}.lookup button{grid-column:1/-1}.cards{grid-template-columns:1fr}.cards article.wide{grid-column:auto}.warranty-list{grid-template-columns:1fr}.summary-strip{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:560px){header{padding:0 12px}.brand img{width:38px}.brand strong{font-size:10px}.brand span{display:none}.back{font-size:9px;padding:7px 9px}.hero h1{font-size:19px}.hero p{font-size:10px}.lookup,.result{padding:13px;border-radius:13px}.lookup{grid-template-columns:1fr}.lookup button{grid-column:auto}.head h2{font-size:15px}.timeline{overflow-x:auto;grid-template-columns:repeat(6,82px);padding-bottom:5px;margin-right:-5px}.timeline:before{display:none}.summary-strip{grid-template-columns:1fr}.summary-strip>div{flex-direction:row;justify-content:space-between;align-items:center}.product-row{grid-template-columns:1fr}.product-price{text-align:left;flex-direction:row;justify-content:space-between}.warranty-top{align-items:flex-start;flex-direction:column}.result-actions{display:grid;grid-template-columns:1fr 1fr}.result-actions a,.result-actions button{text-align:center;padding:10px 7px}}
+
+/* V2.1 — Tipografi lebih nyaman + proporsi icon */
+body{font-size:14px}
+.brand strong{font-size:14px}.brand span{font-size:10px}
+.back{font-size:12px;display:inline-flex;align-items:center;gap:6px}
+.hero>i{font-size:30px}.hero h1{font-size:27px}.hero p{font-size:13px;line-height:1.55}
+.lookup{gap:12px;padding:20px}.lookup label{font-size:11px}.lookup input{font-size:13px;padding:12px}.lookup button{font-size:12px;padding:12px 17px;display:inline-flex;align-items:center;justify-content:center;gap:7px}.lookup p{font-size:12px}
+.head small{font-size:10px}.head h2{font-size:21px}.order-date{font-size:11px}.head>b{font-size:11px;padding:7px 11px}
+.cancel-box b{font-size:12px}.cancel-box span{font-size:11px}
+.timeline span{width:31px;height:31px;font-size:11px}.timeline:before{top:15px}.timeline small{font-size:10px;line-height:1.25}
+.summary-strip>div{padding:13px 15px}.summary-strip small{font-size:10px}.summary-strip b{font-size:13px}
+.cards article{padding:16px}.section-title{gap:9px;margin-bottom:11px}.section-title>i{width:32px;height:32px;font-size:13px}.section-title h3{font-size:13px}.section-title small{font-size:10px}
+.cards p{padding:9px 0;font-size:12px;line-height:1.45}
+.product-main b,.product-price b{font-size:12px}.product-main small,.product-price small{font-size:11px;line-height:1.45}
+.note b{font-size:11px}.note span{font-size:11px}
+.warranty-item{padding:12px;gap:11px}.warranty-icon{width:34px;flex-basis:34px;height:34px;font-size:13px}
+.warranty-top>b{font-size:12px}.warranty-info>small{font-size:10.5px;line-height:1.4}
+.warranty-status{font-size:9.5px;padding:5px 7px}
+.warranty-dates small{font-size:9px}.warranty-dates b{font-size:10.5px}.warranty-dates>i{font-size:9px}
+.warranty-empty b{font-size:12px}.warranty-empty small{font-size:10.5px;line-height:1.4}
+.claim{padding:12px;gap:10px}.claim>i{font-size:13px}.claim b{font-size:11.5px}.claim span{font-size:10.5px;line-height:1.55}
+.muted{font-size:10.5px}
+.result-actions a,.result-actions button{font-size:11.5px;padding:11px 14px;display:inline-flex;align-items:center;justify-content:center;gap:7px}
+
+@media(max-width:760px){
+  body{font-size:13px}
+  .hero h1{font-size:23px}.hero p{font-size:12px}
+  .lookup label{font-size:10.5px}.lookup input{font-size:12.5px}.lookup button{font-size:11.5px}
+  .summary-strip small{font-size:9.5px}.summary-strip b{font-size:12px}
+  .cards p{font-size:11.5px}
+}
+@media(max-width:560px){
+  .brand strong{font-size:11.5px}.back{font-size:10.5px}
+  .hero h1{font-size:21px}.hero p{font-size:11.5px}
+  .head h2{font-size:18px}
+  .timeline small{font-size:9.5px}
+  .section-title h3{font-size:12.5px}
+  .product-main b,.product-price b{font-size:11.5px}
+  .product-main small,.product-price small{font-size:10.5px}
+  .warranty-top>b{font-size:11.5px}
+  .result-actions a,.result-actions button{font-size:10.5px}
+}
