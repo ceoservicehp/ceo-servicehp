@@ -155,3 +155,22 @@ tbody tr:hover{background:rgba(31,138,147,.035)}
   .summary-card small{font-size:6.8px!important}
   .filter-btn,.tab-btn{font-size:9px!important;padding:6px 8px!important}
 }
+
+
+/* =========================================================
+   V4 — REKAP, PEMBAYARAN & PIUTANG OPERASIONAL
+   ========================================================= */
+.summary-action{cursor:pointer;transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease}
+.summary-action:hover{transform:translateY(-2px);border-color:#c8dfe2!important;box-shadow:0 8px 22px rgba(30,62,68,.09)!important}
+.summary-action:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+.product-cell{display:inline-block;max-width:250px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;vertical-align:bottom}
+.muted-money{color:#6d7d81}.settled{color:#16804f!important;font-weight:800}.badge-gap{height:4px}
+.has-debt td{background:linear-gradient(90deg,rgba(255,248,235,.32),transparent)}
+.debt-overdue td{background:rgba(255,240,240,.42)}
+.row-actions{display:flex;align-items:center;gap:6px;white-space:nowrap}
+.wa-mini{width:27px;height:27px;display:grid;place-items:center;border-radius:8px;background:#eaf9f0;color:#159455;border:1px solid #caead6;text-decoration:none;font-size:13px}
+.wa-mini:hover{background:#dff5e8}
+@media(max-width:760px){
+  .product-cell{max-width:180px}
+  .row-actions{gap:4px}
+}
