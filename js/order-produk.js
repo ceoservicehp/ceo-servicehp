@@ -377,7 +377,7 @@ function ensureRefreshButtonInPrimaryHero(){
 function setup(){
   const refreshBtn = ensureRefreshButtonInPrimaryHero();
   if(refreshBtn) refreshBtn.onclick = loadOrders;
-  ["searchInput","paymentFilter","statusFilter","dateFrom","dateTo","dateSort"].forEach(id => {
+  ["searchInput","orderDate","dateSort"].forEach(id => {
     $(id).addEventListener(id === "searchInput" ? "input" : "change", () => { page = 1; clearOrderSelection(); applyFilters(); });
   });
   document.querySelectorAll(".shipping-tab").forEach(tab => {
@@ -388,8 +388,8 @@ function setup(){
     });
   });
   $("resetOrderFilters")?.addEventListener("click", () => {
-    $("searchInput").value = ""; $("paymentFilter").value = "all"; $("statusFilter").value = "all";
-    $("dateFrom").value = ""; $("dateTo").value = ""; $("dateSort").value = "newest";
+    $("searchInput").value = "";
+    $("orderDate").value = ""; $("dateSort").value = "newest";
     activeShippingTab = "all"; activeStatFilter = "all";
     document.querySelectorAll(".shipping-tab").forEach(t => t.classList.toggle("active", t.dataset.shippingTab === "all"));
     document.querySelectorAll(".stat-filter-card").forEach(t => t.classList.toggle("active", t.dataset.statFilter === "all"));
@@ -452,17 +452,13 @@ async function loadOrders(){
 
 function applyFilters(){
   const q = $("searchInput").value.trim().toLowerCase();
-  const pf = $("paymentFilter").value;
   const sf = activeShippingTab;
-  const st = $("statusFilter").value;
-  const dateFrom = $("dateFrom")?.value || "";
-  const dateTo = $("dateTo")?.value || "";
+  const orderDate = $("orderDate")?.value || "";
   const dateSort = $("dateSort")?.value || "newest";
 
   filtered = orders.filter(o => {
-    const itemText = (o.order_items || []).map(i => `${i.product_name} ${i.variant_name || ""} ${i.color || ""} ${(i.order_item_units || []).map(u=>`${u.imei1 || ""} ${u.imei2 || ""} ${u.serial_number || ""}`).join(" ")}`).join(" ");
-    const shipText = (o.order_shipments || []).map(sh => `${sh.courier || ""} ${sh.tracking_number || ""}`).join(" ");
-    const hay = `${o.order_number || ""} ${o.customer_name || ""} ${o.customer_whatsapp || ""} ${itemText} ${shipText}`.toLowerCase();
+    // Pencarian sengaja hanya No. Order, Nama, dan WhatsApp agar filter tetap sederhana.
+    const hay = `${o.order_number || ""} ${o.customer_name || ""} ${o.customer_whatsapp || ""}`.toLowerCase();
     const ship = latest(o.order_shipments);
     const shippingType = inferShippingType(o, ship);
     const proofPending = (o.order_payments || []).some(p => p.proof_url && p.payment_status === "pending");
@@ -472,13 +468,11 @@ function applyFilters(){
       (activeStatFilter === "unpaid" && o.payment_status !== "lunas");
 
     return (!q || hay.includes(q)) &&
-      (pf === "all" || o.payment_status === pf) &&
       (sf === "all" || shippingType === sf) &&
-      (st === "all" || o.order_status === st) &&
-      (!dateFrom || String(o.created_at || "").slice(0,10) >= dateFrom) &&
-      (!dateTo || String(o.created_at || "").slice(0,10) <= dateTo) &&
+      (!orderDate || String(o.created_at || "").slice(0,10) === orderDate) &&
       statMatch;
   });
+
   filtered.sort((a,b) => {
     const ad = new Date(a?.created_at || 0).getTime();
     const bd = new Date(b?.created_at || 0).getTime();
