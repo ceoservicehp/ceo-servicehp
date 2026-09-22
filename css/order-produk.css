@@ -1498,3 +1498,53 @@ body:not(.can-bulk-delete) .select-col{display:none}
 @media(max-width:1200px){.filters{grid-template-columns:repeat(3,minmax(0,1fr))!important}.search-wrap{grid-column:1/-1}.filter-reset-btn{width:100%}}
 @media(max-width:700px){.shipping-tabs{margin-left:-2px;margin-right:-2px}.shipping-tab{padding:9px 11px;font-size:10px}.filters{grid-template-columns:1fr 1fr!important}.search-wrap{grid-column:1/-1}.filter-reset-btn{grid-column:1/-1}.date-filter-field input{height:44px;font-size:11px}}
 @media(max-width:460px){.filters{grid-template-columns:1fr!important}.search-wrap,.filter-reset-btn{grid-column:auto}}
+
+
+/* =========================================================
+   V9 — FILTER RINGKAS + RESPONSIVE TABLET / HP
+   ========================================================= */
+.compact-order-filters{
+  display:grid !important;
+  grid-template-columns:minmax(280px,1fr) minmax(155px,190px) minmax(165px,200px) auto !important;
+  align-items:end;
+  gap:10px;
+}
+.compact-order-filters .search-wrap{grid-column:auto !important}
+.compact-order-filters .filter-reset-btn{height:48px;white-space:nowrap;width:auto}
+.compact-order-filters #dateSort{height:48px}
+
+/* Tab pengiriman tetap satu baris dan digeser horizontal pada layar sempit. */
+.shipping-tabs{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+.shipping-tab{white-space:nowrap}
+
+@media(max-width:900px){
+  .compact-order-filters{
+    grid-template-columns:minmax(0,1.45fr) minmax(145px,.75fr) minmax(155px,.8fr) auto !important;
+    gap:8px;
+    padding:10px !important;
+  }
+  .compact-order-filters .search-wrap{grid-column:auto !important}
+  .compact-order-filters .search-wrap input,
+  .compact-order-filters #dateSort,
+  .compact-order-filters .date-filter-field input,
+  .compact-order-filters .filter-reset-btn{height:42px;font-size:10px}
+  .compact-order-filters .filter-reset-btn{padding:8px 10px}
+}
+
+@media(max-width:620px){
+  /* HP: tidak ditumpuk vertikal. Dua kolom ringkas agar tinggi filter tetap pendek. */
+  .compact-order-filters{
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr) !important;
+    gap:8px;
+  }
+  .compact-order-filters .search-wrap{grid-column:1 / -1 !important}
+  .compact-order-filters .compact-date-field{grid-column:1}
+  .compact-order-filters #dateSort{grid-column:2}
+  .compact-order-filters .filter-reset-btn{grid-column:1 / -1 !important;width:100%}
+  .compact-order-filters .search-wrap input,
+  .compact-order-filters #dateSort,
+  .compact-order-filters .date-filter-field input,
+  .compact-order-filters .filter-reset-btn{height:40px}
+  .shipping-tabs{gap:6px;padding-bottom:9px}
+  .shipping-tab{padding:8px 10px;font-size:9px}
+}
