@@ -3,6 +3,7 @@
 const client = window.supabaseClient;
 let pageSize = 10;
 let activeStatFilter = "all";
+let activeShippingTab = "all";
 let orders = [];
 let filtered = [];
 let page = 1;
@@ -376,9 +377,25 @@ function ensureRefreshButtonInPrimaryHero(){
 function setup(){
   const refreshBtn = ensureRefreshButtonInPrimaryHero();
   if(refreshBtn) refreshBtn.onclick = loadOrders;
-  ["searchInput","paymentFilter","shippingFilter","statusFilter"].forEach(id => {
+  ["searchInput","paymentFilter","statusFilter","dateFrom","dateTo","dateSort"].forEach(id => {
     $(id).addEventListener(id === "searchInput" ? "input" : "change", () => { page = 1; clearOrderSelection(); applyFilters(); });
   });
+  document.querySelectorAll(".shipping-tab").forEach(tab => {
+    tab.addEventListener("click", () => {
+      activeShippingTab = tab.dataset.shippingTab || "all";
+      document.querySelectorAll(".shipping-tab").forEach(t => t.classList.toggle("active", t === tab));
+      page = 1; clearOrderSelection(); applyFilters();
+    });
+  });
+  $("resetOrderFilters")?.addEventListener("click", () => {
+    $("searchInput").value = ""; $("paymentFilter").value = "all"; $("statusFilter").value = "all";
+    $("dateFrom").value = ""; $("dateTo").value = ""; $("dateSort").value = "newest";
+    activeShippingTab = "all"; activeStatFilter = "all";
+    document.querySelectorAll(".shipping-tab").forEach(t => t.classList.toggle("active", t.dataset.shippingTab === "all"));
+    document.querySelectorAll(".stat-filter-card").forEach(t => t.classList.toggle("active", t.dataset.statFilter === "all"));
+    page = 1; clearOrderSelection(); applyFilters();
+  });
+
   $("prevPage").onclick = () => { if(page > 1){ page--; clearOrderSelection(); render(); } };
   $("nextPage").onclick = () => { if(page < Math.max(1, Math.ceil(filtered.length / pageSize))){ page++; clearOrderSelection(); render(); } };
   $("pageSizeSelect")?.addEventListener("change", e => {
@@ -436,8 +453,11 @@ async function loadOrders(){
 function applyFilters(){
   const q = $("searchInput").value.trim().toLowerCase();
   const pf = $("paymentFilter").value;
-  const sf = $("shippingFilter").value;
+  const sf = activeShippingTab;
   const st = $("statusFilter").value;
+  const dateFrom = $("dateFrom")?.value || "";
+  const dateTo = $("dateTo")?.value || "";
+  const dateSort = $("dateSort")?.value || "newest";
 
   filtered = orders.filter(o => {
     const itemText = (o.order_items || []).map(i => `${i.product_name} ${i.variant_name || ""} ${i.color || ""} ${(i.order_item_units || []).map(u=>`${u.imei1 || ""} ${u.imei2 || ""} ${u.serial_number || ""}`).join(" ")}`).join(" ");
@@ -455,7 +475,14 @@ function applyFilters(){
       (pf === "all" || o.payment_status === pf) &&
       (sf === "all" || shippingType === sf) &&
       (st === "all" || o.order_status === st) &&
+      (!dateFrom || String(o.created_at || "").slice(0,10) >= dateFrom) &&
+      (!dateTo || String(o.created_at || "").slice(0,10) <= dateTo) &&
       statMatch;
+  });
+  filtered.sort((a,b) => {
+    const ad = new Date(a?.created_at || 0).getTime();
+    const bd = new Date(b?.created_at || 0).getTime();
+    return dateSort === "oldest" ? ad - bd : bd - ad;
   });
   render();
 }
