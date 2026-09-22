@@ -9,6 +9,7 @@ let pageSize = 10;
 let activeRange = "today";
 let customStart = null;
 let customEnd = null;
+let financeTerms = new Map();
 
 const el = (id) => document.getElementById(id);
 const rupiah = (n) => "Rp " + Number(n || 0).toLocaleString("id-ID");
@@ -58,6 +59,14 @@ async function loadData(){
   `).order("created_at", {ascending:false});
   if (error) throw error;
   allOrders = data || [];
+  financeTerms = new Map();
+  const debtOrders = allOrders.filter(o=>!isCanceled(o) && orderDebt(o)>0);
+  const termResults = await Promise.all(debtOrders.map(async o=>{
+    const {data:term,error:termError}=await client.rpc("admin_get_product_order_finance_settings",{p_order_id:o.id});
+    if(termError){ console.warn("Pengaturan tempo tidak dapat dimuat untuk order",o.id,termError); return [String(o.id),null]; }
+    return [String(o.id),term||null];
+  }));
+  termResults.forEach(([id,term])=>financeTerms.set(id,term));
   applyActiveRange();
 }
 
@@ -141,6 +150,53 @@ function updateSummary(){
   el("sumDebt").textContent=rupiah(debt);
 }
 
+
+function orderTerm(o){ return financeTerms.get(String(o.id)) || null; }
+function dueInfo(o){
+  const t=orderTerm(o), due=t?.due_date;
+  if(!t?.use_tempo || !due) return {label:"Tanpa Tempo",kind:"",date:"-"};
+  const today=new Date(); today.setHours(0,0,0,0);
+  const d=new Date(`${String(due).slice(0,10)}T00:00:00`);
+  const diff=Math.round((d-today)/86400000);
+  if(diff<0) return {label:`Terlambat ${Math.abs(diff)} hari`,kind:"danger",date:formatDate(due)};
+  if(diff===0) return {label:"Jatuh Tempo Hari Ini",kind:"warn",date:formatDate(due)};
+  return {label:`${diff} hari lagi`,kind:"success",date:formatDate(due)};
+}
+function waNumber(v){ let n=String(v||"").replace(/\D/g,""); if(n.startsWith("0")) n="62"+n.slice(1); if(n.startsWith("8")) n="62"+n; return n; }
+function debtWaUrl(o){
+  const n=waNumber(o.customer_whatsapp); if(!n) return "";
+  const due=dueInfo(o);
+  const invoice=`${window.location.origin}/nota-produk.html?id=${encodeURIComponent(o.id)}`;
+  const text=`Halo ${o.customer_name||"Kak"}, kami dari CEO Part & Service ingin menginformasikan tagihan pesanan ${o.order_number||"#"+o.id}.
+
+Total tagihan: ${rupiah(o.total)}
+Sudah dibayar: ${rupiah(paidAmount(o))}
+Sisa tagihan: ${rupiah(orderDebt(o))}
+${due.date!=="-"?`Jatuh tempo: ${due.date}`:""}
+
+Mohon konfirmasi apabila pembayaran sudah dilakukan.
+
+Detail pesanan / invoice:
+${invoice}
+
+Terima kasih.`;
+  return `https://wa.me/${n}?text=${encodeURIComponent(text)}`;
+}
+function paymentTypeLabel(o,p){
+  const paidPayments=(o.order_payments||[]).filter(isPaidPayment).sort((a,b)=>new Date(paymentDate(a))-new Date(paymentDate(b)));
+  const idx=paidPayments.findIndex(x=>String(x.id)===String(p.id));
+  const after=paidPayments.slice(0,idx+1).reduce((a,x)=>a+Number(x.amount||0),0);
+  if(after>=Number(o.total||0)) return "Pelunasan";
+  if(idx===0) return "DP / Pembayaran Awal";
+  return "Cicilan";
+}
+function switchTab(tab){
+  const btn=document.querySelector(`.tab-btn[data-tab="${tab}"]`); if(!btn)return;
+  document.querySelectorAll(".tab-btn").forEach(b=>b.classList.toggle("active",b===btn));
+  currentTab=tab; currentPage=1; renderTable();
+  document.querySelector(".content-card")?.scrollIntoView({behavior:"smooth",block:"start"});
+}
+
 function statusBadge(text, kind="") { return `<span class="badge ${kind}">${escapeHtml(text||"-")}</span>`; }
 function orderStatusKind(s){ s=norm(s); if(s==="selesai")return"success"; if(["dibatalkan","gagal_dikirim"].includes(s))return"danger"; return"warn"; }
 function payKind(s){ s=norm(s); if(s==="lunas")return"success"; if(s==="belum_bayar")return"danger"; return"warn"; }
@@ -167,35 +223,42 @@ function renderTable(){
   renderPagination(rows.length,totalPages);
 }
 function renderSales(rows){
-  el("tableHead").innerHTML=`<tr><th>Order</th><th>Pembeli / Produk</th><th>Tanggal</th><th>Omzet Produk</th><th>Modal</th><th>Laba</th><th>Ongkir</th><th>Dibayar</th><th>Sisa</th><th>Status</th><th>Aksi</th></tr>`;
+  el("tableHead").innerHTML=`<tr><th>Order</th><th>Pembeli / Produk</th><th>Tanggal</th><th>Omzet</th><th>Modal</th><th>Laba</th><th>Dibayar</th><th>Sisa</th><th>Status</th><th>Aksi</th></tr>`;
   el("tableBody").innerHTML=rows.length?rows.map(o=>{
-    const rev=isCanceled(o)?0:productRevenue(o), cost=isCanceled(o)?0:orderCost(o), profit=rev-cost;
-    return `<tr>
+    const rev=isCanceled(o)?0:productRevenue(o), cost=isCanceled(o)?0:orderCost(o), profit=rev-cost, debt=orderDebt(o);
+    return `<tr class="${debt>0?'has-debt':''}">
       <td><b>${escapeHtml(o.order_number||`#${o.id}`)}</b><br><span class="muted">#${o.id}</span></td>
-      <td><b>${escapeHtml(o.customer_name)}</b><br><span class="muted">${escapeHtml(productNames(o)||"-")}</span></td>
+      <td><b>${escapeHtml(o.customer_name)}</b><br><span class="muted product-cell">${escapeHtml(productNames(o)||"-")}</span></td>
       <td>${formatDate(o.created_at,true)}</td>
-      <td class="money">${rupiah(rev)}</td><td class="money">${rupiah(cost)}</td><td class="money ${profit>=0?'positive':'danger'}">${rupiah(profit)}</td>
-      <td class="money">${rupiah(shippingFee(o))}</td><td class="money">${rupiah(paidAmount(o))}</td><td class="money ${orderDebt(o)>0?'danger':''}">${rupiah(orderDebt(o))}</td>
-      <td>${statusBadge(o.payment_status,payKind(o.payment_status))}<br><div style="height:4px"></div>${statusBadge(o.order_status,orderStatusKind(o.order_status))}</td>
+      <td class="money">${rupiah(rev)}</td><td class="money muted-money">${rupiah(cost)}</td><td class="money ${profit>=0?'positive':'danger'}"><b>${rupiah(profit)}</b></td>
+      <td class="money">${rupiah(paidAmount(o))}</td><td class="money ${debt>0?'danger':'settled'}">${debt>0?rupiah(debt):'Lunas'}</td>
+      <td>${statusBadge(o.payment_status,payKind(o.payment_status))}<br><div class="badge-gap"></div>${statusBadge(o.order_status,orderStatusKind(o.order_status))}</td>
       <td><button class="link-btn" data-detail="${o.id}">Detail</button></td>
     </tr>`;
-  }).join(""):`<tr><td colspan="11" class="state-box">Tidak ada data penjualan.</td></tr>`;
+  }).join(""):`<tr><td colspan="10" class="state-box">Tidak ada data penjualan.</td></tr>`;
 }
 function renderPaymentRows(paymentRows){
-  el("tableHead").innerHTML=`<tr><th>Order</th><th>Pembeli</th><th>Tanggal Pembayaran</th><th>Metode</th><th>Nominal</th><th>Status</th><th>Referensi</th><th>Aksi</th></tr>`;
+  el("tableHead").innerHTML=`<tr><th>Order / Pembeli</th><th>Tanggal Pembayaran</th><th>Jenis</th><th>Metode</th><th>Nominal</th><th>Referensi</th><th>Aksi</th></tr>`;
   el("tableBody").innerHTML=paymentRows.length?paymentRows.map(({o,p})=>`<tr>
-    <td><b>${escapeHtml(o.order_number||`#${o.id}`)}</b></td><td>${escapeHtml(o.customer_name)}</td><td>${formatDate(paidAmountDate(p),true)}</td>
-    <td>${escapeHtml(p.payment_method||o.payment_method||"-")}</td><td class="money positive">${rupiah(p.amount)}</td>
-    <td>${statusBadge(p.payment_status,'success')}</td><td>${escapeHtml(p.reference_number||"-")}</td>
-    <td><button class="link-btn" data-detail="${o.id}">Detail</button></td></tr>`).join(""):`<tr><td colspan="8" class="state-box">Tidak ada pembayaran masuk pada periode ini.</td></tr>`;
+    <td><b>${escapeHtml(o.order_number||`#${o.id}`)}</b><br><span class="muted">${escapeHtml(o.customer_name)}</span></td>
+    <td>${formatDate(paidAmountDate(p),true)}</td><td>${statusBadge(paymentTypeLabel(o,p),paymentTypeLabel(o,p)==='Pelunasan'?'success':'')}</td>
+    <td>${escapeHtml(p.payment_method||o.payment_method||"-")}</td><td class="money positive"><b>${rupiah(p.amount)}</b></td>
+    <td>${escapeHtml(p.reference_number||"-")}</td>
+    <td><button class="link-btn" data-detail="${o.id}">Detail</button></td></tr>`).join(""):`<tr><td colspan="7" class="state-box">Tidak ada pembayaran masuk pada periode ini.</td></tr>`;
 }
 function paidAmountDate(p){ return p?.paid_at || p?.created_at; }
 
 function renderDebts(rows){
-  el("tableHead").innerHTML=`<tr><th>Order</th><th>Pembeli</th><th>Produk</th><th>Total Tagihan</th><th>Sudah Dibayar</th><th>Piutang</th><th>Status Bayar</th><th>Tanggal</th><th>Aksi</th></tr>`;
-  el("tableBody").innerHTML=rows.length?rows.map(o=>`<tr><td><b>${escapeHtml(o.order_number||`#${o.id}`)}</b></td><td>${escapeHtml(o.customer_name)}</td><td>${escapeHtml(productNames(o)||"-")}</td>
-    <td class="money">${rupiah(o.total)}</td><td class="money positive">${rupiah(paidAmount(o))}</td><td class="money danger">${rupiah(orderDebt(o))}</td>
-    <td>${statusBadge(o.payment_status,payKind(o.payment_status))}</td><td>${formatDate(o.created_at)}</td><td><button class="link-btn" data-detail="${o.id}">Detail</button></td></tr>`).join(""):`<tr><td colspan="9" class="state-box">Tidak ada piutang pada periode ini.</td></tr>`;
+  el("tableHead").innerHTML=`<tr><th>Order / Pembeli</th><th>Produk</th><th>Total</th><th>Dibayar</th><th>Sisa Piutang</th><th>Jatuh Tempo</th><th>Status Tempo</th><th>Aksi</th></tr>`;
+  el("tableBody").innerHTML=rows.length?rows.map(o=>{
+    const due=dueInfo(o), wa=debtWaUrl(o);
+    return `<tr class="${due.kind==='danger'?'debt-overdue':''}">
+      <td><b>${escapeHtml(o.order_number||`#${o.id}`)}</b><br><span class="muted">${escapeHtml(o.customer_name)}</span><br><span class="muted">${escapeHtml(o.customer_whatsapp||"-")}</span></td>
+      <td><span class="product-cell">${escapeHtml(productNames(o)||"-")}</span></td>
+      <td class="money">${rupiah(o.total)}</td><td class="money positive">${rupiah(paidAmount(o))}</td><td class="money danger"><b>${rupiah(orderDebt(o))}</b></td>
+      <td>${due.date}</td><td>${statusBadge(due.label,due.kind)}</td>
+      <td><div class="row-actions">${wa?`<a class="wa-mini" target="_blank" rel="noopener" href="${wa}" title="Kirim pengingat WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>`:''}<button class="link-btn" data-detail="${o.id}">Detail</button></div></td></tr>`;
+  }).join(""):`<tr><td colspan="8" class="state-box">Tidak ada piutang pada periode ini.</td></tr>`;
 }
 
 function renderPagination(total,totalPages){
@@ -230,15 +293,20 @@ function closeModal(){ el("detailModal").classList.add("hidden"); el("detailModa
 
 function exportExcel(){
   if(typeof XLSX==="undefined") return alert("Library Excel belum termuat.");
-  const rows=getVisibleRows();
-  const sales=rows.map(o=>({
-    "No Order":o.order_number||o.id,"Tanggal":formatDate(o.created_at,true),"Pembeli":o.customer_name,"WhatsApp":o.customer_whatsapp,
-    "Produk":productNames(o),"Omzet Produk":isCanceled(o)?0:productRevenue(o),"Modal Produk":isCanceled(o)?0:orderCost(o),"Laba Kotor":isCanceled(o)?0:productRevenue(o)-orderCost(o),
-    "Ongkir":shippingFee(o),"Total Tagihan":Number(o.total||0),"Dibayar":paidAmount(o),"Piutang":orderDebt(o),"Status Bayar":o.payment_status,"Status Order":o.order_status
-  }));
-  const payments=getPaymentRows().map(({o,p})=>({"No Order":o.order_number||o.id,"Pembeli":o.customer_name,"Tanggal Pembayaran":formatDate(paymentDate(p),true),"Metode":p.payment_method,"Nominal":Number(p.amount||0),"Status":p.payment_status,"Referensi":p.reference_number||""}));
-  const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(sales),"Penjualan"); XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(payments),"Pembayaran");
-  XLSX.writeFile(wb,`Keuangan_Penjualan_HP_${localDate()}.xlsx`);
+  let data=[], sheetName="Data";
+  if(currentTab==="sales"){
+    data=getVisibleRows().map(o=>({"No Order":o.order_number||o.id,"Tanggal":formatDate(o.created_at,true),"Pembeli":o.customer_name,"WhatsApp":o.customer_whatsapp,"Produk":productNames(o),"Omzet Produk":isCanceled(o)?0:productRevenue(o),"Modal Produk":isCanceled(o)?0:orderCost(o),"Laba Kotor":isCanceled(o)?0:productRevenue(o)-orderCost(o),"Total Tagihan":Number(o.total||0),"Dibayar":paidAmount(o),"Piutang":orderDebt(o),"Status Bayar":o.payment_status,"Status Order":o.order_status}));
+    sheetName="Rekap Penjualan";
+  }else if(currentTab==="payments"){
+    data=getPaymentRows().map(({o,p})=>({"No Order":o.order_number||o.id,"Pembeli":o.customer_name,"Tanggal Pembayaran":formatDate(paymentDate(p),true),"Jenis Pembayaran":paymentTypeLabel(o,p),"Metode":p.payment_method||o.payment_method,"Nominal":Number(p.amount||0),"Referensi":p.reference_number||""}));
+    sheetName="Pembayaran";
+  }else{
+    data=getVisibleRows().map(o=>{const due=dueInfo(o);return {"No Order":o.order_number||o.id,"Pembeli":o.customer_name,"WhatsApp":o.customer_whatsapp,"Produk":productNames(o),"Total Tagihan":Number(o.total||0),"Sudah Dibayar":paidAmount(o),"Sisa Piutang":orderDebt(o),"Jatuh Tempo":due.date,"Status Tempo":due.label};});
+    sheetName="Piutang";
+  }
+  if(!data.length) return alert("Tidak ada data pada tab/periode ini untuk diekspor.");
+  const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(data),sheetName);
+  XLSX.writeFile(wb,`Keuangan_Produk_${sheetName.replace(/\s+/g,"_")}_${localDate()}.xlsx`);
 }
 
 function bindEvents(){
@@ -247,7 +315,13 @@ function bindEvents(){
   el("btnApplyDate").addEventListener("click",applyCustomDate); el("btnReset").addEventListener("click",()=>{activeRange="today";customStart=null;customEnd=null;document.querySelectorAll(".filter-btn").forEach(b=>b.classList.toggle("active",b.dataset.range==="today"));el("startDate").value="";el("endDate").value="";applyActiveRange()});
   el("searchInput").addEventListener("input",()=>{currentPage=1;renderTable()}); el("pageSize").addEventListener("change",()=>{pageSize=Number(el("pageSize").value);currentPage=1;renderTable()});
   el("prevPage").addEventListener("click",()=>{if(currentPage>1){currentPage--;renderTable()}}); el("nextPage").addEventListener("click",()=>{currentPage++;renderTable()});
-  el("btnExport").addEventListener("click",exportExcel); document.addEventListener("click",e=>{const d=e.target.closest("[data-detail]");if(d)openDetail(d.dataset.detail);if(e.target.closest("[data-close-modal]"))closeModal()});
+  el("btnExport").addEventListener("click",exportExcel);
+  document.querySelectorAll("[data-summary-tab]").forEach(card=>{
+    const go=()=>switchTab(card.dataset.summaryTab);
+    card.addEventListener("click",go);
+    card.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();go();}});
+  });
+  document.addEventListener("click",e=>{const d=e.target.closest("[data-detail]");if(d)openDetail(d.dataset.detail);if(e.target.closest("[data-close-modal]"))closeModal()});
 }
 
 (async function init(){
