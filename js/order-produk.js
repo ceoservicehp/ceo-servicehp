@@ -709,7 +709,6 @@ async function openDetail(id){
   $("detailModal").classList.add("show");
   $("detailModal").setAttribute("aria-hidden", "false");
   document.body.classList.add("modal-open");
-  setTimeout(ensureDetailBottomClose, 0);
 
   const [terms,warranties] = await Promise.all([loadOrderFinanceSettings(o.id),loadOrderWarranties(o.id)]);
   currentDetailTerms=terms;
@@ -747,7 +746,10 @@ async function openDetail(id){
 
       ${shippingType !== 'pickup' ? `<section class="simple-section-card"><div class="simple-section-title"><span class="card-icon"><i class="fa-solid fa-truck-fast"></i></span><div><h3>Pengiriman</h3><small>${esc(shippingLabel(o, ship))}</small></div></div><div class="simple-form-grid"><label>Kurir / Ekspedisi<input id="shippingCourier" value="${esc(ship?.courier || '')}" placeholder="Gojek, Grab, JNE, J&T, dll."></label><label>Ongkir Final<input id="shippingFee" inputmode="numeric" value="${Number(o.shipping_fee || 0)}"></label>${shippingType === 'package' || ship?.tracking_number ? `<label class="span-2">Nomor Resi / Kode Pengiriman<input id="trackingNumber" value="${esc(ship?.tracking_number || '')}" placeholder="Isi jika tersedia"></label>` : `<input type="hidden" id="trackingNumber" value="${esc(ship?.tracking_number || '')}">`}</div></section>` : `<input type="hidden" id="trackingNumber" value="${esc(ship?.tracking_number || '')}">`}
 
-      <section class="simple-section-card status-save-card"><div class="simple-section-title"><span class="card-icon"><i class="fa-solid fa-route"></i></span><div><h3>Status Pesanan</h3><small>Cukup ubah yang diperlukan lalu simpan</small></div></div><div class="simple-form-grid"><label>Status Pesanan<select id="adminOrderStatus">${["menunggu_diproses","dikemas","dikirim","dalam_perjalanan","selesai","dibatalkan","gagal_dikirim"].map(v=>`<option value="${v}" ${o.order_status===v?'selected':''}>${esc(label(v))}</option>`).join('')}</select></label><label>Status Pengiriman Otomatis<input id="autoShippingStatusPreview" value="${esc(label(autoShippingStatus(o.order_status)))}" readonly></label><label class="span-2">Catatan Admin<textarea id="adminNote" rows="3" placeholder="Opsional">${esc(o.admin_note || '')}</textarea></label></div><div class="single-save-row"><button class="btn primary save-order-changes" id="saveOrderChangesBtn"><i class="fa-solid fa-floppy-disk"></i> Simpan Perubahan</button></div></section>
+      <section class="simple-section-card status-save-card"><div class="simple-section-title"><span class="card-icon"><i class="fa-solid fa-route"></i></span><div><h3>Status Pesanan</h3><small>Cukup ubah yang diperlukan lalu simpan</small></div></div><div class="simple-form-grid"><label>Status Pesanan<select id="adminOrderStatus">${["menunggu_diproses","dikemas","dikirim","dalam_perjalanan","selesai","dibatalkan","gagal_dikirim"].map(v=>`<option value="${v}" ${o.order_status===v?'selected':''}>${esc(label(v))}</option>`).join('')}</select></label><label>Status Pengiriman Otomatis<input id="autoShippingStatusPreview" value="${esc(label(autoShippingStatus(o.order_status)))}" readonly></label><label class="span-2">Catatan Admin<textarea id="adminNote" rows="3" placeholder="Opsional">${esc(o.admin_note || '')}</textarea></label></div><div class="single-save-row">
+        <button class="btn soft close-order-detail" id="closeOrderDetailBtn" type="button"><i class="fa-solid fa-xmark"></i> Tutup</button>
+        <button class="btn primary save-order-changes" id="saveOrderChangesBtn" type="button"><i class="fa-solid fa-floppy-disk"></i> Simpan Perubahan</button>
+      </div></section>
     </div>`;
 
   if(pay?.proof_url) document.querySelectorAll('.view-current-proof').forEach(btn => btn.onclick = () => viewProof(pay.proof_url));
@@ -799,7 +801,8 @@ function bindWarrantyEditor(ed,order){
 }
 
 function bindSimpleAdminActions(o, pay, ship, shippingType){
-  const approveBtn = $("approvePaymentBtn"), rejectBtn = $("rejectPaymentBtn"), saveBtn = $("saveOrderChangesBtn"), statusSelect = $("adminOrderStatus"), saveBillingBtn=$("saveBillingBtn"), addManualBtn=$("addManualPaymentBtn");
+  const approveBtn = $("approvePaymentBtn"), rejectBtn = $("rejectPaymentBtn"), saveBtn = $("saveOrderChangesBtn"), closeDetailBtn = $("closeOrderDetailBtn"), statusSelect = $("adminOrderStatus"), saveBillingBtn=$("saveBillingBtn"), addManualBtn=$("addManualPaymentBtn");
+  if(closeDetailBtn) closeDetailBtn.onclick = closeModal;
   bindBillingFields();
   if(statusSelect) statusSelect.addEventListener('change',()=>{const preview=$("autoShippingStatusPreview");if(preview)preview.value=label(autoShippingStatus(statusSelect.value));});
 
@@ -1123,18 +1126,3 @@ function closeModal(){
   document.body.classList.remove("modal-open");
 }
 
-function ensureDetailBottomClose(){
-  const content = $("detailContent");
-  if(!content || content.querySelector(".detail-bottom-close")) return;
-  const wrap = document.createElement("div");
-  wrap.className = "detail-bottom-close";
-  wrap.innerHTML = '<button type="button" class="btn danger detail-close-bottom"><i class="fa-solid fa-xmark"></i> Tutup Detail</button>';
-  content.appendChild(wrap);
-}
-
-
-document.addEventListener("click", e => {
-  if(e.target.closest(".detail-close-bottom")){
-    closeDetail();
-  }
-});
