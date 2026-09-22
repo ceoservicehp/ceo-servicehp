@@ -47,16 +47,6 @@
 </header>
 <div class="nav-overlay" id="navOverlay"></div>
 
-<section class="order-hero">
-  <div class="order-hero-inner">
-    <div>
-      <div class="hero-badge"><i class="fa-solid fa-mobile-screen-button"></i> PENJUALAN HANDPHONE</div>
-      <h1>Kelola <span>Order Produk HP</span></h1>
-      <p>Pantau pesanan, pembayaran, ongkir, pengiriman, dan status order dalam satu halaman admin.</p>
-    </div>
-    <button id="refreshBtn" class="btn btn-light"><i class="fa-solid fa-rotate"></i> Refresh Data</button>
-  </div>
-</section>
 
 <main class="container">
   <section class="stats" id="stats">
@@ -120,15 +110,19 @@
   </section>
 
   <section class="card table-card">
+    <div class="bulk-order-bar">
+      <div class="bulk-order-info"><i class="fa-solid fa-square-check"></i><span id="selectedOrderCount">0 order dipilih</span></div>
+      <button id="deleteSelectedOrders" class="btn danger" type="button" disabled><i class="fa-solid fa-trash"></i> Hapus Terpilih</button>
+    </div>
     <div class="table-scroll">
       <table>
         <thead>
           <tr>
-            <th>No</th><th>Nama</th><th>Produk</th><th>Alamat</th><th>No HP</th><th>Tanggal</th><th>Status</th><th>Harga Modal</th><th>Total</th><th>Laba Bersih</th><th>Aksi</th>
+            <th class="select-col"><input id="checkAllOrders" class="order-checkbox" type="checkbox" aria-label="Pilih semua order pada halaman"></th><th>No</th><th>Nama</th><th>Produk</th><th>Alamat</th><th>No HP</th><th>Tanggal</th><th>Status</th><th>Harga Modal</th><th>Total</th><th>Laba Bersih</th><th>Aksi</th>
           </tr>
         </thead>
         <tbody id="orderTableBody">
-          <tr><td colspan="11" class="empty">Memuat order...</td></tr>
+          <tr><td colspan="12" class="empty">Memuat order...</td></tr>
         </tbody>
       </table>
     </div>
