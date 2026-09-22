@@ -253,6 +253,8 @@ function buildQuickActions(order, ship){
 }
 
 function inferShippingType(order, shipment){
+  const explicit=String(order?.shipping_type || "").toLowerCase();
+  if(["pickup","instant","package","cod"].includes(explicit)) return explicit;
   if(order.shipping_method === "pickup") return "pickup";
   if(order.payment_method === "cod") return "cod";
   const courier = String(shipment?.courier || "").toLowerCase();
@@ -872,12 +874,21 @@ async function openDetail(id){
 
       <section class="simple-section-card"><div class="simple-section-title"><span class="card-icon"><i class="fa-solid fa-shield-halved"></i></span><div><h3>Garansi Produk</h3><small>Satu unit dapat memiliki beberapa jenis garansi</small></div></div>${buildWarrantyManager(o)}</section>
 
-      ${shippingType !== 'pickup' ? `<section class="simple-section-card"><div class="simple-section-title"><span class="card-icon"><i class="fa-solid fa-truck-fast"></i></span><div><h3>Pengiriman</h3><small>${esc(shippingLabel(o, ship))}</small></div></div><div class="simple-form-grid"><label>Kurir / Ekspedisi<input id="shippingCourier" value="${esc(ship?.courier || '')}" placeholder="Gojek, Grab, JNE, J&T, dll."></label><label>Ongkir Final<input id="shippingFee" inputmode="numeric" value="${Number(o.shipping_fee || 0)}"></label>${shippingType === 'package' || ship?.tracking_number ? `<label class="span-2">Nomor Resi / Kode Pengiriman<input id="trackingNumber" value="${esc(ship?.tracking_number || '')}" placeholder="Isi jika tersedia"></label>` : `<input type="hidden" id="trackingNumber" value="${esc(ship?.tracking_number || '')}">`}</div></section>` : `<input type="hidden" id="trackingNumber" value="${esc(ship?.tracking_number || '')}">`}
-
-      <section class="simple-section-card status-save-card"><div class="simple-section-title"><span class="card-icon"><i class="fa-solid fa-route"></i></span><div><h3>Status Pesanan</h3><small>Cukup ubah yang diperlukan lalu simpan</small></div></div><div class="simple-form-grid"><label>Status Pesanan<select id="adminOrderStatus">${["menunggu_diproses","dikemas","dikirim","dalam_perjalanan","selesai","dibatalkan","gagal_dikirim"].map(v=>`<option value="${v}" ${o.order_status===v?'selected':''}>${esc(label(v))}</option>`).join('')}</select></label><label>Status Pengiriman Otomatis<input id="autoShippingStatusPreview" value="${esc(label(autoShippingStatus(o.order_status)))}" readonly></label><label class="span-2">Catatan Admin<textarea id="adminNote" rows="3" placeholder="Opsional">${esc(o.admin_note || '')}</textarea></label></div><div class="single-save-row">
-        <button class="btn soft close-order-detail" id="closeOrderDetailBtn" type="button"><i class="fa-solid fa-xmark"></i> Tutup</button>
-        <button class="btn primary save-order-changes" id="saveOrderChangesBtn" type="button"><i class="fa-solid fa-floppy-disk"></i> Simpan Perubahan</button>
-      </div></section>
+      <section class="simple-section-card shipping-status-card-v13">
+        <div class="simple-section-title"><span class="card-icon"><i class="fa-solid fa-truck-fast"></i></span><div><h3>Pengiriman & Status Pesanan</h3><small>Metode, ongkir, kurir/resi, dan progres order dalam satu bagian</small></div></div>
+        <div class="shipping-summary-v13"><div><span>Metode</span><strong id="shippingTypePreview">${esc(shippingLabel(o, ship))}</strong></div><div><span>Ongkir</span><strong id="shippingFeePreview">${rupiah(o.shipping_fee)}</strong></div><div><span>Status</span><strong id="orderStatusPreview">${esc(label(o.order_status))}</strong></div></div>
+        <div class="simple-form-grid shipping-form-v13">
+          <label>Metode Pengiriman<select id="adminShippingType"><option value="pickup" ${shippingType==='pickup'?'selected':''}>Ambil di Toko</option><option value="instant" ${shippingType==='instant'?'selected':''}>Kurir Instan</option><option value="package" ${shippingType==='package'?'selected':''}>Kirim Paket</option><option value="cod" ${shippingType==='cod'?'selected':''}>COD Lokal</option></select></label>
+          <label class="shipping-fee-wrap">Biaya Pengiriman<input id="shippingFee" inputmode="numeric" value="${Number(o.shipping_fee || 0)}"></label>
+          <label class="shipping-courier-wrap">Kurir / Ekspedisi<input id="shippingCourier" value="${esc(ship?.courier || '')}" placeholder="Gojek, Grab, Maxim, JNE, J&T, dll."></label>
+          <label class="shipping-tracking-wrap">Nomor Resi / Referensi<input id="trackingNumber" value="${esc(ship?.tracking_number || '')}" placeholder="Isi bila tersedia"></label>
+          <label>Status Pesanan<select id="adminOrderStatus">${["menunggu_diproses","dikemas","dikirim","dalam_perjalanan","selesai","dibatalkan"].map(v=>`<option value="${v}" ${o.order_status===v?'selected':''}>${v==='menunggu_diproses'?'Menunggu':esc(label(v))}</option>`).join('')}</select></label>
+          <label class="span-2">Catatan Admin / Pengiriman<textarea id="adminNote" rows="2" placeholder="Opsional">${esc(o.admin_note || '')}</textarea></label>
+        </div>
+        <div class="shipping-hint-v13" id="shippingHintV13"></div>
+        <div class="status-flow-v13">${["menunggu_diproses","dikemas","dikirim","dalam_perjalanan","selesai"].map((v,i)=>`<div class="status-flow-step"><span>${i+1}</span><small>${v==='menunggu_diproses'?'Menunggu':label(v)}</small></div>`).join('')}</div>
+        <div class="single-save-row"><button class="btn soft close-order-detail" id="closeOrderDetailBtn" type="button"><i class="fa-solid fa-xmark"></i> Tutup</button><button class="btn primary save-order-changes" id="saveOrderChangesBtn" type="button"><i class="fa-solid fa-floppy-disk"></i> Simpan Perubahan</button></div>
+      </section>
     </div>`;
 
   if(pay?.proof_url) document.querySelectorAll('.view-current-proof').forEach(btn => btn.onclick = () => viewProof(pay.proof_url));
@@ -961,6 +972,24 @@ function bindSimpleAdminActions(o, pay, ship, shippingType){
   const approveBtn = $("approvePaymentBtn"), rejectBtn = $("rejectPaymentBtn"), saveBtn = $("saveOrderChangesBtn"), closeDetailBtn = $("closeOrderDetailBtn"), statusSelect = $("adminOrderStatus"), saveBillingBtn=$("saveBillingBtn"), addManualBtn=$("addManualPaymentBtn");
   if(closeDetailBtn) closeDetailBtn.onclick = closeModal;
   bindBillingFields();
+  const shippingTypeSelect=$("adminShippingType");
+  const refreshShippingV13=()=>{
+    const type=shippingTypeSelect?.value || shippingType;
+    const feeWrap=document.querySelector('.shipping-fee-wrap'), courierWrap=document.querySelector('.shipping-courier-wrap'), trackingWrap=document.querySelector('.shipping-tracking-wrap'), hint=$("shippingHintV13");
+    if(feeWrap) feeWrap.style.display=type==='pickup'?'none':'';
+    if(courierWrap) courierWrap.style.display=type==='pickup'?'none':'';
+    if(trackingWrap) trackingWrap.style.display=type==='package'?'':'none';
+    if(type==='pickup' && $("shippingFee")) $("shippingFee").value=0;
+    const labels={pickup:'Ambil di Toko',instant:'Kurir Instan',package:'Kirim Paket',cod:'COD Lokal'};
+    if($("shippingTypePreview")) $("shippingTypePreview").textContent=labels[type]||'Pengiriman';
+    if(hint){
+      const h={pickup:'Ambil di Toko: ongkir, kurir, dan resi tidak diperlukan.',instant:'Kurir Instan: isi Gojek, Grab, Maxim, Shopee, atau jasa instan lainnya dan ongkir aktual.',package:'Kirim Paket: isi ekspedisi dan nomor resi saat paket sudah dikirim.',cod:'COD Lokal: area maksimal 5 km. Isi ongkir dan kurir/petugas bila diperlukan.'};
+      hint.innerHTML='<i class="fa-solid fa-circle-info"></i> '+h[type];
+    }
+  };
+  if(shippingTypeSelect) shippingTypeSelect.onchange=refreshShippingV13;
+  if($("shippingFee")) $("shippingFee").oninput=()=>{if($("shippingFeePreview"))$("shippingFeePreview").textContent=rupiah(numericValue("shippingFee"));};
+  refreshShippingV13();
   document.querySelectorAll('.quick-pay-amount').forEach(btn=>btn.onclick=()=>{
     const input=$('manualPaymentAmount'); if(!input) return;
     const remaining=Number(o.remaining_amount||0);
@@ -975,7 +1004,31 @@ function bindSimpleAdminActions(o, pay, ship, shippingType){
 
   if(addManualBtn) addManualBtn.onclick=async()=>{ const amount=numericValue('manualPaymentAmount'); if(amount<=0)return alert('Nominal pembayaran harus lebih dari 0.'); if(amount>Number(o.remaining_amount||0))return alert(`Nominal melebihi sisa tagihan ${rupiah(o.remaining_amount)}.`); if(!confirm(`Catat pembayaran tambahan ${rupiah(amount)}?`))return; setBusy(addManualBtn,true,'Mencatat...'); const {error}=await client.rpc('admin_add_product_payment',{p_order_id:o.id,p_payment_method:$('manualPaymentMethod').value,p_amount:amount,p_reference_number:$('manualPaymentReference').value.trim()||null,p_note:$('manualPaymentNote').value.trim()||null}); if(error){console.error(error);alert('Gagal mencatat pembayaran: '+error.message);setBusy(addManualBtn,false);return;} alert('Pembayaran tambahan berhasil dicatat ✅'); await reloadAndReopen(o.id); };
 
-  if(saveBtn) saveBtn.onclick = async () => { const orderStatus=$("adminOrderStatus").value; const readiness=getOperationalReadiness(o); if(['dikirim','dalam_perjalanan','selesai'].includes(orderStatus)&&!readiness.imeiReady){alert(`Lengkapi IMEI / unit fisik terlebih dahulu. Saat ini ${readiness.assignedUnits} dari ${readiness.requiredUnits} unit sudah ditetapkan.`);return;} if(orderStatus==='selesai'&&!confirm(`Tandai ${o.order_number} sebagai SELESAI?`))return; if(orderStatus==='dibatalkan'&&!confirm(`Batalkan ${o.order_number}?`))return; setBusy(saveBtn,true,'Menyimpan...'); let courier=ship?.courier||null; let tracking=$("trackingNumber")?.value.trim()||null; if(shippingType!=='pickup'){const fee=numericValue('shippingFee');courier=$("shippingCourier")?.value.trim()||null;const {error:shipError}=await client.rpc('admin_set_product_shipping_fee',{p_order_id:o.id,p_shipping_fee:fee,p_courier:courier});if(shipError){console.error(shipError);alert('Gagal menyimpan ongkir/kurir: '+shipError.message);setBusy(saveBtn,false);return;}} const {error}=await client.rpc('admin_update_product_order_status',{p_order_id:o.id,p_order_status:orderStatus,p_shipping_status:autoShippingStatus(orderStatus),p_tracking_number:tracking,p_courier:courier,p_admin_note:$("adminNote")?.value.trim()||null}); if(error){console.error(error);alert('Gagal menyimpan perubahan: '+error.message);setBusy(saveBtn,false);return;} alert('Perubahan order berhasil disimpan ✅'); await reloadAndReopen(o.id); };
+  if(saveBtn) saveBtn.onclick = async () => {
+    const orderStatus=$("adminOrderStatus").value;
+    const type=$("adminShippingType")?.value || shippingType;
+    const readiness=getOperationalReadiness(o);
+    if(['dikirim','dalam_perjalanan','selesai'].includes(orderStatus)&&!readiness.imeiReady){alert(`Lengkapi IMEI / unit fisik terlebih dahulu. Saat ini ${readiness.assignedUnits} dari ${readiness.requiredUnits} unit sudah ditetapkan.`);return;}
+    const fee=type==='pickup'?0:numericValue('shippingFee');
+    const courier=type==='pickup'?null:($("shippingCourier")?.value.trim()||null);
+    const tracking=type==='package'?($("trackingNumber")?.value.trim()||null):null;
+    if(type!=='pickup' && ['dikirim','dalam_perjalanan'].includes(orderStatus) && !courier)return alert('Isi kurir / ekspedisi terlebih dahulu.');
+    if(type==='package' && ['dikirim','dalam_perjalanan','selesai'].includes(orderStatus) && !tracking)return alert('Nomor resi wajib diisi untuk Kirim Paket yang sudah dikirim.');
+    if(orderStatus==='selesai' && o.payment_status!=='lunas' && !confirm('Pembayaran belum Lunas. Tetap tandai pesanan sebagai Selesai?'))return;
+    if(orderStatus==='selesai'&&!confirm(`Tandai ${o.order_number} sebagai SELESAI?`))return;
+    if(orderStatus==='dibatalkan'&&!confirm(`Batalkan ${o.order_number}?`))return;
+    setBusy(saveBtn,true,'Menyimpan...');
+    const {error:typeError}=await client.rpc('admin_set_product_shipping_type_v13',{p_order_id:o.id,p_shipping_type:type});
+    if(typeError){console.error(typeError);alert('Gagal menyimpan metode pengiriman: '+typeError.message+'\n\nPastikan SQL V13 sudah dijalankan.');setBusy(saveBtn,false);return;}
+    if(type!=='pickup'){
+      const {error:shipError}=await client.rpc('admin_set_product_shipping_fee',{p_order_id:o.id,p_shipping_fee:fee,p_courier:courier});
+      if(shipError){console.error(shipError);alert('Gagal menyimpan ongkir/kurir: '+shipError.message);setBusy(saveBtn,false);return;}
+    }
+    const {error}=await client.rpc('admin_update_product_order_status',{p_order_id:o.id,p_order_status:orderStatus,p_shipping_status:autoShippingStatus(orderStatus),p_tracking_number:tracking,p_courier:courier,p_admin_note:$("adminNote")?.value.trim()||null});
+    if(error){console.error(error);alert('Gagal menyimpan perubahan: '+error.message);setBusy(saveBtn,false);return;}
+    alert('Pengiriman dan status pesanan berhasil disimpan ✅');
+    await reloadAndReopen(o.id);
+  };
 }
 
 
