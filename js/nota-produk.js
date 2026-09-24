@@ -15,10 +15,99 @@ function latest(arr){ return [...(arr||[])].sort((a,b)=>new Date(b.created_at||0
 function setText(id,value){ const el=$(id); if(el) el.textContent=value ?? "-"; }
 function shippingName(order,shipment){ if(order.shipping_method==="pickup") return "Ambil di Toko"; if(order.payment_method==="cod") return "COD"; const c=String(shipment?.courier||"").trim(); if(/gojek|grab|gosend|grabexpress|instant/i.test(c)) return c?`Kurir Instan (${c})`:"Kurir Instan"; return c?`Kirim Paket (${c})`:"Kirim Paket"; }
 
+
+function warrantyDate(value){
+  if(!value) return "-";
+  const d=new Date(String(value).length===10 ? value+"T00:00:00" : value);
+  if(Number.isNaN(d.getTime())) return "-";
+  return d.toLocaleDateString("id-ID",{day:"2-digit",month:"long",year:"numeric"});
+}
+function warrantyState(w){
+  if(w?.is_active===false) return {key:"nonaktif",label:"Nonaktif"};
+  if(!w?.warranty_start || !w?.warranty_end) return {key:"belum",label:"Belum Aktif"};
+  const now=new Date(); now.setHours(0,0,0,0);
+  const start=new Date(w.warranty_start+"T00:00:00");
+  const end=new Date(w.warranty_end+"T23:59:59");
+  if(now<start) return {key:"belum",label:"Belum Mulai"};
+  if(now>end) return {key:"habis",label:"Habis"};
+  return {key:"aktif",label:"Aktif"};
+}
+function warrantyDuration(w){
+  if(w?.duration_value && w?.duration_unit){
+    const u={hari:"Hari",bulan:"Bulan",tahun:"Tahun"}[String(w.duration_unit).toLowerCase()] || w.duration_unit;
+    return `${w.duration_value} ${u}`;
+  }
+  return "";
+}
+function allInvoiceWarranties(data){
+  const rows=[];
+  (data?.order_items||[]).forEach((item,itemIndex)=>{
+    (item.order_item_units||[]).forEach((unit,unitIndex)=>{
+      (unit.product_warranties||[]).forEach(w=>rows.push({
+        ...w,
+        product_name:item.product_name||"Produk",
+        variant_name:item.variant_name||"",
+        ram:item.ram||"",
+        storage:item.storage||"",
+        color:item.color||"",
+        imei1:unit.imei1||"",
+        imei2:unit.imei2||"",
+        serial_number:unit.serial_number||"",
+        unit_label:`Unit ${unitIndex+1}`,
+        item_index:itemIndex
+      }));
+    });
+  });
+  return rows;
+}
+function renderWarranties(data){
+  const wrap=$("invoice-warranty-list");
+  const section=$("invoice-warranty-section");
+  if(!wrap||!section) return;
+  const rows=allInvoiceWarranties(data);
+  if(!rows.length){
+    section.style.display="none";
+    return;
+  }
+  section.style.display="block";
+  const groups=new Map();
+  rows.forEach(w=>{
+    const key=`${w.item_index}|${w.imei1}|${w.imei2}|${w.serial_number}|${w.unit_label}`;
+    if(!groups.has(key)) groups.set(key,{meta:w,rows:[]});
+    groups.get(key).rows.push(w);
+  });
+  wrap.innerHTML=[...groups.values()].map(g=>{
+    const w=g.meta;
+    const variant=[w.variant_name,w.ram?`RAM ${w.ram}`:"",w.storage?`Storage ${w.storage}`:"",w.color].filter(Boolean).join(" · ");
+    const identity=[
+      `IMEI 1: ${esc(w.imei1||"-")}`,
+      w.imei2?`IMEI 2: ${esc(w.imei2)}`:"",
+      w.serial_number?`Serial: ${esc(w.serial_number)}`:""
+    ].filter(Boolean).join(" · ");
+    return `<article class="invoice-warranty-unit">
+      <div class="invoice-warranty-unit-head">
+        <div><strong>${esc(w.product_name)} — ${esc(w.unit_label)}</strong><span>${esc(variant||"-")}</span></div>
+        <small>${identity}</small>
+      </div>
+      <div class="invoice-warranty-cards">
+        ${g.rows.map(x=>{
+          const st=warrantyState(x);
+          return `<div class="invoice-warranty-card">
+            <div class="invoice-warranty-title"><strong><i class="fa-solid ${String(x.warranty_type||"").toLowerCase().includes("service")?"fa-screwdriver-wrench":"fa-shield-halved"}"></i> ${esc(x.warranty_type||"Garansi")}</strong><span class="warranty-status ${st.key}">${st.label}</span></div>
+            ${warrantyDuration(x)?`<div class="warranty-duration">${esc(warrantyDuration(x))}</div>`:""}
+            <div class="warranty-period"><span>Mulai <b>${warrantyDate(x.warranty_start)}</b></span><i class="fa-solid fa-arrow-right"></i><span>Berakhir <b>${warrantyDate(x.warranty_end)}</b></span></div>
+            ${x.warranty_note?`<div class="warranty-note"><i class="fa-regular fa-note-sticky"></i> ${esc(x.warranty_note)}</div>`:""}
+          </div>`;
+        }).join("")}
+      </div>
+    </article>`;
+  }).join("");
+}
+
 async function init(){
   const id=Number(getId());
   if(!id){ showError("ID order tidak valid."); return; }
-  const {data,error}=await client.from("orders").select(`*,order_items(*,order_item_units(*)),order_payments(*),order_shipments(*)`).eq("id",id).single();
+  const {data,error}=await client.from("orders").select(`*,order_items(*,order_item_units(*,product_warranties(*))),order_payments(*),order_shipments(*)`).eq("id",id).single();
   if(error||!data){ console.error(error); showError("Invoice produk tidak dapat dimuat."); return; }
   currentData=data; currentShipment=latest(data.order_shipments); currentPayment=latest(data.order_payments);
   renderInvoice(data); await loadSignature(); renderQR();
@@ -39,7 +128,7 @@ function renderInvoice(data){
   el.textContent=label(ps); el.classList.remove("paid","unpaid","partial");
   if(ps==="lunas") el.classList.add("paid"); else if(ps==="dp"||ps==="sebagian") el.classList.add("partial"); else el.classList.add("unpaid");
 
-  renderItems(items); renderSummary(data); renderPaymentState(data);
+  renderItems(items); renderSummary(data); renderWarranties(data); renderPaymentState(data);
   $("invoice-loading").style.display="none"; $("invoice-content").style.display="block";
 }
 
