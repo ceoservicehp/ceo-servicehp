@@ -85,6 +85,11 @@ function renderTable(){
 
 function renderStats(){
   $("statUnits").textContent = totalRows.toLocaleString("id-ID");
+  const partial = totalRows > currentRows.length;
+  ["statImei","statDone","statSales"].forEach(id=>{
+    const el=$(id);
+    if(el) el.title = partial ? "Ringkasan ini mengikuti data pada halaman yang sedang tampil." : "Ringkasan seluruh hasil filter.";
+  });
   const imei = currentRows.reduce((n,r)=>n+(r.imei1?1:0)+(r.imei2?1:0),0);
   const done = currentRows.filter(r=>r.order_status==="selesai").length;
   const sales = currentRows.reduce((n,r)=>n+unitPrice(r),0);
