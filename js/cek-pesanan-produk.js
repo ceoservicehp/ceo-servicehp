@@ -23,6 +23,13 @@ const dateID = v => {
   return Number.isNaN(d.getTime())?esc(v):d.toLocaleDateString("id-ID",{day:"2-digit",month:"long",year:"numeric"});
 };
 const normStatus=v=>v==="menunggu"?"menunggu_diproses":v==="batal"?"dibatalkan":v;
+const paymentClass=v=>{
+  const x=String(v||"").toLowerCase();
+  if(x==="lunas") return "paid";
+  if(x==="sebagian") return "partial";
+  return "unpaid";
+};
+
 
 document.addEventListener("DOMContentLoaded",()=>{
   const q=new URLSearchParams(location.search).get("order");
@@ -106,6 +113,23 @@ function render(d){
 
     <div class="tracking-grid">
       <article>
+        <div class="section-title"><i class="fa-solid fa-user"></i><h3>Data Pemesan</h3></div>
+        <p><span>Nama</span><b>${esc(o.customer_name||"-")}</b></p>
+        <p><span>WhatsApp</span><b>${esc(o.customer_whatsapp||"-")}</b></p>
+        ${o.customer_email?`<p><span>Email</span><b>${esc(o.customer_email)}</b></p>`:""}
+        <p class="address-row"><span>Alamat</span><b>${esc(o.customer_address||"-")}</b></p>
+      </article>
+
+      <article>
+        <div class="section-title"><i class="fa-solid fa-wallet"></i><h3>Pembayaran</h3></div>
+        <p><span>Total Tagihan</span><b>${rp(o.total)}</b></p>
+        <p><span>Sudah Dibayar</span><b class="paid-amount">${rp(o.amount_paid)}</b></p>
+        <p><span>Sisa Tagihan</span><b class="${Number(o.remaining_amount||0)>0?"remaining-amount":"paid-amount"}">${rp(o.remaining_amount)}</b></p>
+        <p><span>Metode Pembayaran</span><b>${esc(lab(o.payment_method||"-"))}</b></p>
+        <p><span>Status Pembayaran</span><b><span class="payment-badge ${paymentClass(o.payment_status)}">${esc(lab(o.payment_status))}</span></b></p>
+      </article>
+
+      <article>
         <div class="section-title"><i class="fa-solid fa-bag-shopping"></i><h3>Produk Pesanan</h3></div>
         ${products}
       </article>
@@ -113,7 +137,7 @@ function render(d){
         <div class="section-title"><i class="fa-solid fa-truck-fast"></i><h3>Informasi Pengiriman</h3></div>
         <p><span>Metode Pengiriman</span><b>${esc(lab(shippingType))}</b></p>
         ${shippingType!=="pickup"?`<p><span>Jasa Pengiriman</span><b>${esc(courier)}</b></p>`:""}
-        ${shippingType!=="pickup"?`<p><span>No. Resi / Kode</span><b class="resi">${esc(resi)}</b></p>`:""}
+        ${shippingType!=="pickup"?`<div class="resi-row"><span>No. Resi / Kode</span><div class="resi-value"><b class="resi">${esc(resi)}</b>${resi!=="-"?`<button type="button" class="copy-resi" data-copy-resi="${esc(resi)}" title="Salin nomor resi"><i class="fa-regular fa-copy"></i><span>Salin</span></button>`:""}</div></div>`:""}
         <div class="delivery-note"><i class="fa-solid fa-circle-info"></i><span>${esc(deliveryNote)}</span></div>
         ${canTrack?`<a class="track-btn" href="${esc(trackUrl)}" target="_blank" rel="noopener"><i class="fa-solid fa-location-arrow"></i> Lacak Pengiriman <i class="fa-solid fa-arrow-up-right-from-square"></i></a>`:""}
       </article>
@@ -126,5 +150,19 @@ function render(d){
 
   $("result").hidden=false;
   $("checkAgain")?.addEventListener("click",()=>{$("result").hidden=true;$("orderNumber").focus();window.scrollTo({top:0,behavior:"smooth"})});
+  document.querySelectorAll("[data-copy-resi]").forEach(btn=>btn.addEventListener("click",async()=>{
+    const value=btn.dataset.copyResi||"";
+    try{
+      await navigator.clipboard.writeText(value);
+      const old=btn.innerHTML;
+      btn.innerHTML='<i class="fa-solid fa-check"></i><span>Tersalin</span>';
+      btn.classList.add("copied");
+      setTimeout(()=>{btn.innerHTML=old;btn.classList.remove("copied")},1600);
+    }catch{
+      const ta=document.createElement("textarea"); ta.value=value; document.body.appendChild(ta); ta.select();
+      document.execCommand("copy"); ta.remove();
+      btn.innerHTML='<i class="fa-solid fa-check"></i><span>Tersalin</span>';
+    }
+  }));
   $("result").scrollIntoView({behavior:"smooth",block:"start"});
 }
