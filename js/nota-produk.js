@@ -107,8 +107,28 @@ function renderWarranties(data){
 async function init(){
   const id=Number(getId());
   if(!id){ showError("ID order tidak valid."); return; }
-  const {data,error}=await client.from("orders").select(`*,order_items(*,order_item_units(*,product_warranties(*))),order_payments(*),order_shipments(*)`).eq("id",id).single();
+  const {data,error}=await client.from("orders").select(`*,order_items(*,order_item_units(*)),order_payments(*),order_shipments(*)`).eq("id",id).single();
   if(error||!data){ console.error(error); showError("Invoice produk tidak dapat dimuat."); return; }
+
+  // Garansi dibaca melalui RPC publik yang hanya mengembalikan data garansi
+  // milik unit pada order ini. Ini menghindari product_warranties kosong karena RLS.
+  const {data:warrantyRows,error:warrantyError}=await client.rpc("public_get_product_invoice_warranties",{p_order_id:id});
+  if(warrantyError){
+    console.error("Gagal memuat garansi invoice:", warrantyError);
+  }else{
+    const byUnit=new Map();
+    (warrantyRows||[]).forEach(w=>{
+      const key=Number(w.order_item_unit_id);
+      if(!byUnit.has(key)) byUnit.set(key,[]);
+      byUnit.get(key).push(w);
+    });
+    (data.order_items||[]).forEach(item=>{
+      (item.order_item_units||[]).forEach(unit=>{
+        unit.product_warranties=byUnit.get(Number(unit.id))||[];
+      });
+    });
+  }
+
   currentData=data; currentShipment=latest(data.order_shipments); currentPayment=latest(data.order_payments);
   renderInvoice(data); await loadSignature(); renderQR();
 }
