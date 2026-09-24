@@ -66,7 +66,7 @@ function renderSummary(data){
 
 function renderPaymentState(data){
   const ps=String(data.payment_status||"belum_bayar").toLowerCase(), paid=ps==="lunas", transfer=String(data.payment_method||"").toLowerCase()==="transfer";
-  $("downloadPdfBtn").style.display=paid?"inline-flex":"none"; $("rekeningBtn").style.display=(!paid&&transfer)?"inline-flex":"none";
+  $("downloadPdfBtn").style.display=paid?"inline-flex":"none"; $("rekeningBtn").style.display=!paid?"inline-flex":"none";
   const wm=$("watermark"), stamp=$("digital-stamp"); wm.className="watermark"; stamp.className="digital-stamp";
   if(paid){ wm.textContent="LUNAS"; wm.classList.add("wm-paid"); stamp.textContent="✔ LUNAS"; stamp.classList.add("stamp-paid"); }
   else if(ps==="sebagian"||ps==="dp"){ wm.textContent="SEBAGIAN"; wm.classList.add("wm-partial"); stamp.textContent="PEMBAYARAN SEBAGIAN"; stamp.classList.add("stamp-partial"); }
