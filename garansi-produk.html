@@ -1,93 +1,120 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Garansi Produk HP — CEO Part & Service</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <link rel="stylesheet" href="css/garansi-produk.css">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/supabase.js"></script>
-  <script src="js/auth.js"></script>
-  <script src="js/role_guard.js"></script>
-  <script defer src="js/garansi-produk.js"></script>
-  <link rel="stylesheet" href="css/nav-produk-admin.css">
-  <script defer src="js/nav-produk-admin.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Garansi Produk HP — CEO Part & Service</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="css/garansi-produk.css">
+<link rel="stylesheet" href="css/nav-produk-admin.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/role_guard.js"></script>
+<script defer src="js/garansi-produk.js"></script>
+<script defer src="js/nav-produk-admin.js"></script>
 </head>
 <body>
-  <header class="topbar">
-    <div class="brand">
-      <img src="images/logo.png" alt="CEO" onerror="this.style.display='none'">
-      <div><h1>GARANSI PRODUK HP</h1><span>CEO PART & SERVICE</span></div>
+<header class="topbar">
+  <div class="brand"><img src="images/logo.png" alt="CEO" onerror="this.style.display='none'"><div><h1>GARANSI PRODUK HP</h1><span>CEO PART & SERVICE</span></div></div>
+  <a class="back" href="order-produk.html"><i class="fa-solid fa-arrow-left"></i> Kelola Order Produk</a>
+</header>
+
+<main class="container">
+  <section class="hero">
+    <div>
+      <span class="eyebrow"><i class="fa-solid fa-shield-halved"></i> AFTER SALES PRODUK</span>
+      <h2>Monitoring & Klaim Garansi</h2>
+      <p>Garansi ditetapkan dari Kelola Order Produk. Halaman ini digunakan admin untuk monitoring, pengecekan unit, dan proses klaim garansi.</p>
     </div>
-    <a class="back" href="histori-imei.html"><i class="fa-solid fa-arrow-left"></i> Histori IMEI</a>
-  </header>
+    <button id="refreshAll" class="btn secondary"><i class="fa-solid fa-rotate"></i> Refresh Data</button>
+  </section>
 
-  <main class="container">
-    <section class="hero">
-      <div>
-        <span class="eyebrow">Unit fisik & garansi</span>
-        <h2>Kelola garansi berdasarkan IMEI</h2>
-        <p>Cari unit yang sudah terjual, tentukan masa garansi, lalu pantau status aktif atau habis.</p>
-      </div>
-      <a href="cek-garansi-produk.html" target="_blank" class="public-link"><i class="fa-solid fa-shield-halved"></i> Halaman Cek Garansi</a>
-    </section>
+  <nav class="tabs">
+    <button class="tab active" data-tab="monitoring"><i class="fa-solid fa-shield"></i> Monitoring Garansi</button>
+    <button class="tab" data-tab="claims"><i class="fa-solid fa-screwdriver-wrench"></i> Klaim Garansi <span id="claimTabCount">0</span></button>
+  </nav>
 
+  <section id="monitoringTab" class="tab-page">
     <section class="stats">
-      <article><span>Unit Ditemukan</span><strong id="statTotal">0</strong></article>
-      <article><span>Garansi Aktif</span><strong id="statAktif">0</strong></article>
-      <article><span>Belum Diatur</span><strong id="statBelum">0</strong></article>
-      <article><span>Garansi Habis</span><strong id="statHabis">0</strong></article>
+      <article><i class="fa-solid fa-mobile-screen"></i><div><span>Total Unit</span><strong id="statTotal">0</strong></div></article>
+      <article><i class="fa-solid fa-circle-check"></i><div><span>Garansi Aktif</span><strong id="statAktif">0</strong></div></article>
+      <article><i class="fa-solid fa-clock"></i><div><span>Belum / Akan Mulai</span><strong id="statBelum">0</strong></div></article>
+      <article><i class="fa-solid fa-calendar-xmark"></i><div><span>Garansi Habis</span><strong id="statHabis">0</strong></div></article>
     </section>
 
     <section class="panel">
+      <div class="panel-head"><div><h3><i class="fa-solid fa-magnifying-glass"></i> Pengecekan Garansi</h3><p>Cari berdasarkan IMEI, serial, nomor order, nama, WhatsApp, atau produk.</p></div></div>
       <div class="filters">
-        <label class="search"><i class="fa-solid fa-magnifying-glass"></i><input id="searchInput" placeholder="Cari IMEI, serial, order, pembeli, WhatsApp, produk..." /></label>
-        <select id="statusFilter">
-          <option value="all">Semua Status</option>
-          <option value="aktif">Aktif</option>
-          <option value="belum_mulai">Belum Mulai</option>
-          <option value="habis">Habis</option>
-          <option value="belum_diatur">Belum Diatur</option>
-          <option value="nonaktif">Nonaktif</option>
-        </select>
+        <label class="search"><i class="fa-solid fa-magnifying-glass"></i><input id="searchInput" placeholder="Cari IMEI, serial, order, pembeli, WhatsApp, produk..."></label>
+        <select id="statusFilter"><option value="all">Semua Status</option><option value="aktif">Aktif</option><option value="belum_mulai">Belum Mulai</option><option value="habis">Habis</option><option value="belum_diatur">Belum Diatur</option><option value="nonaktif">Nonaktif</option></select>
         <select id="pageSize"><option>10</option><option>20</option><option>50</option><option>100</option></select>
-        <button id="refreshBtn" class="btn secondary"><i class="fa-solid fa-rotate"></i></button>
       </div>
-
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Unit</th><th>Pembeli</th><th>Produk</th><th>IMEI / Serial</th><th>Garansi</th><th>Status</th><th>Aksi</th></tr></thead>
+          <thead><tr><th>Order</th><th>Pembeli</th><th>Produk</th><th>IMEI / Serial</th><th>Garansi</th><th>Status</th><th>Aksi</th></tr></thead>
           <tbody id="tableBody"><tr><td colspan="7" class="empty">Memuat data...</td></tr></tbody>
         </table>
       </div>
-      <div class="pagination"><button id="prevBtn">Prev</button><span id="pageInfo">Halaman 1</span><button id="nextBtn">Next</button></div>
+      <div class="pagination"><button id="prevBtn"><i class="fa-solid fa-chevron-left"></i> Prev</button><span id="pageInfo">Halaman 1</span><button id="nextBtn">Next <i class="fa-solid fa-chevron-right"></i></button></div>
     </section>
-  </main>
+  </section>
 
-  <div id="modal" class="modal hidden">
-    <div class="modal-card">
-      <button class="close" id="closeModal">&times;</button>
-      <h3>Atur Garansi Unit</h3>
-      <div id="unitSummary" class="unit-summary"></div>
-      <form id="warrantyForm">
-        <input type="hidden" id="unitId">
-        <div class="grid2">
-          <label>Tanggal Mulai<input type="date" id="warrantyStart" required></label>
-          <label>Tanggal Berakhir<input type="date" id="warrantyEnd" required></label>
-        </div>
-        <div class="grid2">
-          <label>Jenis Garansi<select id="warrantyType"><option>Garansi Toko</option><option>Garansi Distributor</option><option>Garansi Resmi</option><option>Garansi Personal</option></select></label>
-          <label class="toggle-label"><input type="checkbox" id="warrantyActive" checked> Garansi diaktifkan</label>
-        </div>
-        <label>Catatan<textarea id="warrantyNote" rows="3" placeholder="Contoh: Garansi mesin 30 hari, tidak termasuk LCD dan human error."></textarea></label>
-        <div class="quick-days"><span>Durasi cepat:</span><button type="button" data-days="7">7 hari</button><button type="button" data-days="14">14 hari</button><button type="button" data-days="30">30 hari</button><button type="button" data-days="90">90 hari</button><button type="button" data-days="365">1 tahun</button></div>
-        <button class="btn primary full" type="submit"><i class="fa-solid fa-floppy-disk"></i> Simpan Garansi</button>
-      </form>
-    </div>
-  </div>
-</body>
-</html>
+  <section id="claimsTab" class="tab-page hidden">
+    <section class="stats claim-stats">
+      <article><i class="fa-solid fa-file-circle-check"></i><div><span>Total Klaim</span><strong id="sTotal">0</strong></div></article>
+      <article><i class="fa-solid fa-gears"></i><div><span>Diperiksa / Diproses</span><strong id="sProcess">0</strong></div></article>
+      <article><i class="fa-solid fa-circle-check"></i><div><span>Selesai</span><strong id="sDone">0</strong></div></article>
+      <article><i class="fa-solid fa-circle-xmark"></i><div><span>Ditolak</span><strong id="sReject">0</strong></div></article>
+    </section>
+    <section class="panel">
+      <div class="panel-head"><div><h3><i class="fa-solid fa-screwdriver-wrench"></i> Riwayat & Proses Klaim</h3><p>Semua klaim garansi dikelola dari halaman ini.</p></div><button id="newClaimBtn" class="btn primary"><i class="fa-solid fa-plus"></i> Buat Klaim</button></div>
+      <div class="filters">
+        <label class="search"><i class="fa-solid fa-magnifying-glass"></i><input id="claimSearch" placeholder="Cari klaim, IMEI, serial, order, pelanggan..."></label>
+        <select id="claimStatus"><option value="all">Semua Status</option><option value="diajukan">Diajukan</option><option value="diperiksa">Diperiksa</option><option value="diproses">Diproses</option><option value="selesai">Selesai</option><option value="ditolak">Ditolak</option></select>
+      </div>
+      <div class="table-wrap"><table><thead><tr><th>Klaim</th><th>Pelanggan</th><th>Produk / Unit</th><th>Keluhan</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="claimBody"><tr><td colspan="6" class="empty">Memuat klaim...</td></tr></tbody></table></div>
+    </section>
+  </section>
+</main>
+
+<div id="unitModal" class="modal hidden"><div class="modal-card wide-modal">
+  <button class="close" data-close="unitModal">&times;</button>
+  <div class="modal-title"><i class="fa-solid fa-shield-halved"></i><div><h3>Detail Garansi Unit</h3><p>Informasi ini berasal dari garansi yang ditetapkan pada Kelola Order Produk.</p></div></div>
+  <div id="unitDetail"></div>
+  <div class="modal-actions"><button id="claimFromUnit" class="btn primary"><i class="fa-solid fa-screwdriver-wrench"></i> Ajukan Klaim</button><button class="btn secondary" data-close="unitModal"><i class="fa-solid fa-xmark"></i> Tutup</button></div>
+</div></div>
+
+<div id="createClaimModal" class="modal hidden"><div class="modal-card">
+  <button class="close" data-close="createClaimModal">&times;</button>
+  <div class="modal-title"><i class="fa-solid fa-file-circle-plus"></i><div><h3>Buat Klaim Garansi</h3><p>Pilih unit yang memiliki garansi aktif.</p></div></div>
+  <label class="field">Cari Unit Bergaransi<div class="search-claim"><input id="unitQ" placeholder="IMEI / Serial / Order / Nama"><button id="findUnit" class="btn secondary"><i class="fa-solid fa-magnifying-glass"></i> Cari</button></div></label>
+  <div id="unitResults"></div>
+  <form id="createForm" class="hidden">
+    <input type="hidden" id="unitId">
+    <div id="selectedUnit" class="selected"></div>
+    <label class="field">Keluhan Pelanggan<textarea id="complaint" required></textarea></label>
+    <label class="field">Kondisi Unit Saat Diterima<textarea id="condition"></textarea></label>
+    <label class="field">Catatan Admin<textarea id="createNote"></textarea></label>
+    <div class="modal-actions"><button type="submit" class="btn primary"><i class="fa-solid fa-floppy-disk"></i> Simpan Klaim</button><button type="button" class="btn secondary" data-close="createClaimModal">Tutup</button></div>
+  </form>
+</div></div>
+
+<div id="editClaimModal" class="modal hidden"><div class="modal-card">
+  <button class="close" data-close="editClaimModal">&times;</button>
+  <div class="modal-title"><i class="fa-solid fa-clipboard-check"></i><div><h3>Detail & Proses Klaim</h3><p>Perbarui pemeriksaan, tindakan, dan status klaim.</p></div></div>
+  <div id="claimSummary" class="selected"></div>
+  <form id="editForm">
+    <input type="hidden" id="claimId">
+    <label class="field">Status<select id="editClaimStatus"><option value="diajukan">Diajukan</option><option value="diperiksa">Diperiksa</option><option value="diproses">Diproses</option><option value="selesai">Selesai</option><option value="ditolak">Ditolak</option></select></label>
+    <label class="field">Kondisi Unit<textarea id="editCondition"></textarea></label>
+    <label class="field">Hasil Pemeriksaan<textarea id="inspection"></textarea></label>
+    <label class="field">Tindakan / Solusi<textarea id="action"></textarea></label>
+    <label class="field">Catatan Admin<textarea id="editNote"></textarea></label>
+    <div class="modal-actions"><button type="submit" class="btn primary"><i class="fa-solid fa-floppy-disk"></i> Simpan Perubahan</button><button type="button" class="btn secondary" data-close="editClaimModal">Tutup</button></div>
+  </form>
+</div></div>
+</body></html>
