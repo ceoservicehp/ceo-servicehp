@@ -35,6 +35,13 @@ const orderCost = (o) => (o.order_items||[]).reduce((a,i)=>a+itemCost(i),0);
 const paidAmount = (o) => (o.order_payments||[]).filter(isPaidPayment).reduce((a,p)=>a+Number(p.amount||0),0);
 const shippingFee = (o) => Number(o.shipping_fee || (o.order_shipments||[])[0]?.shipping_fee || 0);
 const orderDebt = (o) => isCanceled(o) ? 0 : Math.max(0, Number(o.remaining_amount||0));
+const chargedShipping = (o) => isCanceled(o) ? 0 : shippingFee(o);
+const billedSales = (o) => isCanceled(o) ? 0 : productRevenue(o) + chargedShipping(o);
+const grossMargin = (o) => {
+  const rev = isCanceled(o) ? 0 : productRevenue(o);
+  const profit = rev - (isCanceled(o) ? 0 : orderCost(o));
+  return rev > 0 ? (profit / rev) * 100 : 0;
+};
 
 async function guardAdmin(){
   if (!client) throw new Error("Supabase client belum tersedia.");
@@ -142,12 +149,13 @@ function updateSummary(){
   const valid = filteredOrders.filter(o=>!isCanceled(o));
   const revenue = valid.reduce((a,o)=>a+productRevenue(o),0);
   const cost = valid.reduce((a,o)=>a+orderCost(o),0);
-  const paid = allOrders.filter(o=>!isCanceled(o)).reduce((a,o)=>a+paidAmountInActiveRange(o),0);
+  const profit = revenue - cost;
+  const margin = revenue > 0 ? (profit / revenue) * 100 : 0;
   const debt = valid.reduce((a,o)=>a+orderDebt(o),0);
   el("sumRevenue").textContent=rupiah(revenue);
   el("sumCost").textContent=rupiah(cost);
-  el("sumProfit").textContent=rupiah(revenue-cost);
-  el("sumPaid").textContent=rupiah(paid);
+  el("sumProfit").textContent=rupiah(profit);
+  if(el("sumMargin")) el("sumMargin").textContent=margin.toLocaleString("id-ID",{minimumFractionDigits:2,maximumFractionDigits:2})+"%";
   el("sumDebt").textContent=rupiah(debt);
 }
 
@@ -280,14 +288,65 @@ function showError(msg){ el("loadingState").classList.add("hidden"); el("tableWr
 function openDetail(id){
   const o=allOrders.find(x=>String(x.id)===String(id)); if(!o)return;
   el("modalTitle").textContent=o.order_number||`Order #${o.id}`;
-  const rev=isCanceled(o)?0:productRevenue(o), cost=isCanceled(o)?0:orderCost(o), profit=rev-cost;
-  const itemRows=(o.order_items||[]).map(i=>`<tr><td>${escapeHtml(i.product_name)}</td><td>${escapeHtml(variantText(i))}</td><td>${i.quantity}</td><td>${rupiah(i.unit_price)}</td><td>${rupiah(itemCost(i))}</td><td>${rupiah(Number(i.unit_price||0)*Number(i.quantity||0)-itemCost(i))}</td></tr>`).join("");
+
+  const canceled=isCanceled(o);
+  const rev=canceled?0:productRevenue(o);
+  const shipping=canceled?0:chargedShipping(o);
+  const billed=canceled?0:billedSales(o);
+  const cost=canceled?0:orderCost(o);
+  const profit=rev-cost;
+  const margin=rev>0?(profit/rev)*100:0;
+  const paid=paidAmount(o);
+  const debt=orderDebt(o);
+
+  const itemRows=(o.order_items||[]).map(i=>{
+    const qty=Number(i.quantity||0);
+    const selling=Number(i.unit_price||0)*qty;
+    const modal=itemCost(i);
+    return `<tr><td>${escapeHtml(i.product_name)}</td><td>${escapeHtml(variantText(i))}</td><td>${qty}</td><td>${rupiah(i.unit_price)}</td><td>${rupiah(modal)}</td><td>${rupiah(selling-modal)}</td></tr>`;
+  }).join("");
+
+  const payments=(o.order_payments||[])
+    .filter(isPaidPayment)
+    .sort((a,b)=>new Date(paymentDate(a))-new Date(paymentDate(b)));
+
+  const paymentRows=payments.map(p=>`<tr>
+    <td>${formatDate(paymentDate(p),true)}</td>
+    <td>${escapeHtml(paymentTypeLabel(o,p))}</td>
+    <td>${escapeHtml(p.payment_method||"-")}</td>
+    <td>${escapeHtml(p.reference_number||"-")}</td>
+    <td class="money positive">${rupiah(p.amount)}</td>
+  </tr>`).join("");
+
   el("modalBody").innerHTML=`
     <div class="detail-grid">
-      <div class="detail-box"><h4>Data Pembeli</h4><div class="kv"><span>Nama</span><b>${escapeHtml(o.customer_name)}</b></div><div class="kv"><span>WhatsApp</span><b>${escapeHtml(o.customer_whatsapp)}</b></div><div class="kv"><span>Email</span><b>${escapeHtml(o.customer_email||"-")}</b></div><div class="kv"><span>Alamat</span><b>${escapeHtml(o.customer_address||"-")}</b></div></div>
-      <div class="detail-box"><h4>Ringkasan Finansial</h4><div class="kv"><span>Omzet produk</span><b>${rupiah(rev)}</b></div><div class="kv"><span>Modal</span><b>${rupiah(cost)}</b></div><div class="kv"><span>Laba kotor</span><b>${rupiah(profit)}</b></div><div class="kv"><span>Ongkir</span><b>${rupiah(shippingFee(o))}</b></div><div class="kv"><span>Dibayar</span><b>${rupiah(paidAmount(o))}</b></div><div class="kv"><span>Sisa</span><b>${rupiah(orderDebt(o))}</b></div></div>
+      <div class="detail-box">
+        <h4>Data Pembeli</h4>
+        <div class="kv"><span>Nama</span><b>${escapeHtml(o.customer_name)}</b></div>
+        <div class="kv"><span>WhatsApp</span><b>${escapeHtml(o.customer_whatsapp)}</b></div>
+        <div class="kv"><span>Email</span><b>${escapeHtml(o.customer_email||"-")}</b></div>
+        <div class="kv"><span>Alamat</span><b>${escapeHtml(o.customer_address||"-")}</b></div>
+      </div>
+      <div class="detail-box finance-breakdown">
+        <h4>Breakdown Keuangan</h4>
+        <div class="kv"><span>Subtotal produk</span><b>${rupiah(o.subtotal)}</b></div>
+        <div class="kv"><span>Diskon</span><b>${rupiah(o.discount)}</b></div>
+        <div class="kv emphasis"><span>Omzet produk</span><b>${rupiah(rev)}</b></div>
+        <div class="kv"><span>Ongkir ditagihkan</span><b>${rupiah(shipping)}</b></div>
+        <div class="kv total-line"><span>Total penjualan</span><b>${rupiah(billed)}</b></div>
+        <div class="kv"><span>Modal produk</span><b>${rupiah(cost)}</b></div>
+        <div class="kv emphasis"><span>Laba kotor produk</span><b>${rupiah(profit)}</b></div>
+        <div class="kv"><span>Margin produk</span><b>${margin.toLocaleString("id-ID",{minimumFractionDigits:2,maximumFractionDigits:2})}%</b></div>
+        <div class="kv"><span>Total dibayar</span><b>${rupiah(paid)}</b></div>
+        <div class="kv total-line"><span>Sisa tagihan</span><b>${rupiah(debt)}</b></div>
+      </div>
     </div>
-    <table class="detail-table"><thead><tr><th>Produk</th><th>Varian</th><th>Qty</th><th>Harga Jual</th><th>Modal</th><th>Laba Item</th></tr></thead><tbody>${itemRows||'<tr><td colspan="6">Tidak ada item.</td></tr>'}</tbody></table>`;
+
+    <h4 class="detail-section-title"><i class="fa-solid fa-box-open"></i> Rincian Produk</h4>
+    <table class="detail-table"><thead><tr><th>Produk</th><th>Varian</th><th>Qty</th><th>Harga Jual</th><th>Modal</th><th>Laba Item</th></tr></thead><tbody>${itemRows||'<tr><td colspan="6">Tidak ada item.</td></tr>'}</tbody></table>
+
+    <h4 class="detail-section-title"><i class="fa-solid fa-money-bill-transfer"></i> Riwayat Pembayaran</h4>
+    <table class="detail-table payment-detail-table"><thead><tr><th>Tanggal</th><th>Jenis</th><th>Metode</th><th>Referensi</th><th>Nominal</th></tr></thead><tbody>${paymentRows||'<tr><td colspan="5">Belum ada pembayaran berstatus paid.</td></tr>'}</tbody></table>`;
   el("detailModal").classList.remove("hidden"); el("detailModal").setAttribute("aria-hidden","false");
 }
 function closeModal(){ el("detailModal").classList.add("hidden"); el("detailModal").setAttribute("aria-hidden","true"); }
