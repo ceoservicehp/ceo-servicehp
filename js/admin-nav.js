@@ -88,5 +88,6 @@
   });
 
   document.addEventListener("click",()=>closeGroups());
+  document.addEventListener("keydown",e=>{ if(e.key==="Escape"){ closeGroups(); nav.classList.remove("ceo-mobile-open"); } });
   nav.querySelectorAll(".ceo-nav-dropdown").forEach(d=>d.addEventListener("click",e=>e.stopPropagation()));
 })();
