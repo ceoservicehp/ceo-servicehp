@@ -8,11 +8,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <link rel="stylesheet" href="css/keuangan-produk.css?v=20260925-1405" />
+  <link rel="stylesheet" href="css/keuangan-produk.css?v=20260925-fin2" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/supabase.js?v=20260925-1405"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <script defer src="js/keuangan-produk.js?v=20260925-1405"></script>
+  <script defer src="js/keuangan-produk.js?v=20260925-fin2"></script>
   <link rel="stylesheet" href="css/nav-produk-admin.css?v=20260925-1405">
   <script defer src="js/nav-produk-admin.js?v=20260925-1405"></script>
 </head>
@@ -59,6 +59,8 @@
 
       <section class="summary-grid">
         <article class="summary-card summary-action" data-summary-tab="sales" tabindex="0" role="button" aria-label="Buka Rekap Penjualan"><div class="icon"><i class="fa-solid fa-chart-line"></i></div><div><span>Omzet Produk</span><strong id="sumRevenue">Rp 0</strong><small>Nilai produk setelah diskon, tanpa ongkir</small></div></article>
+        <article class="summary-card summary-action" data-summary-tab="sales" tabindex="0" role="button" aria-label="Buka Rekap Penjualan"><div class="icon"><i class="fa-solid fa-truck-fast"></i></div><div><span>Pendapatan Ongkir</span><strong id="sumShipping">Rp 0</strong><small>Ongkir yang ditagihkan pada order aktif</small></div></article>
+        <article class="summary-card summary-action" data-summary-tab="sales" tabindex="0" role="button" aria-label="Buka Rekap Penjualan"><div class="icon"><i class="fa-solid fa-receipt"></i></div><div><span>Total Penjualan</span><strong id="sumSalesTotal">Rp 0</strong><small>Omzet produk + ongkir ditagihkan</small></div></article>
         <article class="summary-card summary-action" data-summary-tab="sales" tabindex="0" role="button" aria-label="Buka Rekap Penjualan"><div class="icon"><i class="fa-solid fa-boxes-stacked"></i></div><div><span>Modal Produk</span><strong id="sumCost">Rp 0</strong><small>cost_price × qty</small></div></article>
         <article class="summary-card summary-action" data-summary-tab="sales" tabindex="0" role="button" aria-label="Buka Rekap Penjualan"><div class="icon"><i class="fa-solid fa-coins"></i></div><div><span>Laba Kotor</span><strong id="sumProfit">Rp 0</strong><small>Omzet produk − modal</small></div></article>
         <article class="summary-card summary-action" data-summary-tab="payments" tabindex="0" role="button" aria-label="Buka Pembayaran"><div class="icon"><i class="fa-solid fa-wallet"></i></div><div><span>Uang Masuk</span><strong id="sumPaid">Rp 0</strong><small>Pembayaran paid sesuai tanggal bayar</small></div></article>
