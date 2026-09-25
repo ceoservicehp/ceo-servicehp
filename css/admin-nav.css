@@ -1,0 +1,30 @@
+/* CEO shared admin dropdown navigation.
+   Scoped to .ceo-admin-nav so page heroes/forms/business components stay untouched. */
+.ceo-admin-nav{display:flex!important;align-items:center!important;justify-content:flex-end!important;gap:5px!important;overflow:visible!important;background:transparent!important;border:0!important;box-shadow:none!important;padding:0!important;margin-left:auto!important;position:relative!important;z-index:90!important}
+.ceo-admin-nav .ceo-nav-home,.ceo-admin-nav .ceo-nav-trigger{height:40px;display:flex;align-items:center;gap:7px;border:0;border-radius:10px;padding:0 11px;background:transparent;color:#5e6d72;text-decoration:none;font:700 11px/1 Inter,Arial,sans-serif;white-space:nowrap;cursor:pointer}
+.ceo-admin-nav .ceo-nav-home:hover,.ceo-admin-nav .ceo-nav-trigger:hover,.ceo-admin-nav .ceo-nav-group.open>.ceo-nav-trigger{background:#edf7f8;color:#1f747d}
+.ceo-admin-nav .ceo-nav-home.active,.ceo-admin-nav .ceo-nav-group.section-active>.ceo-nav-trigger{background:linear-gradient(135deg,#1f747d,#169ba4);color:#fff;box-shadow:0 7px 16px rgba(31,116,125,.15)}
+.ceo-nav-group{position:relative}
+.ceo-nav-chevron{font-size:8px;transition:transform .18s ease}.ceo-nav-group.open .ceo-nav-chevron{transform:rotate(180deg)}
+.ceo-nav-dropdown{display:none;position:absolute;right:0;top:46px;min-width:220px;padding:7px;background:#fff;border:1px solid #dbe7e9;border-radius:13px;box-shadow:0 18px 42px rgba(21,55,62,.16);z-index:999}
+.ceo-nav-group.open>.ceo-nav-dropdown{display:grid}
+.ceo-nav-dropdown a{display:flex!important;align-items:center;gap:9px;padding:10px!important;border-radius:9px!important;text-decoration:none!important;color:#5e7177!important;background:transparent!important;font-size:11px!important;font-weight:700!important;box-shadow:none!important}
+.ceo-nav-dropdown a:hover,.ceo-nav-dropdown a.active{background:#edf7f8!important;color:#1f747d!important}
+.ceo-nav-dropdown a i{width:17px;text-align:center}
+.ceo-nav-mobile-toggle{display:none;width:39px;height:39px;border:1px solid #dbe7e9;border-radius:10px;background:#fff;color:#1f747d;place-items:center;cursor:pointer;margin-left:auto}
+@media(max-width:900px){
+ .ceo-admin-nav .ceo-nav-home span,.ceo-admin-nav>.ceo-nav-group>.ceo-nav-trigger span{display:none}
+ .ceo-admin-nav .ceo-nav-home,.ceo-admin-nav .ceo-nav-trigger{width:40px;justify-content:center;padding:0}
+ .ceo-admin-nav .ceo-nav-dropdown span{display:inline!important}
+}
+@media(max-width:680px){
+ .ceo-nav-mobile-toggle{display:grid}
+ .ceo-admin-nav{display:none!important;position:absolute!important;left:12px!important;right:12px!important;top:calc(100% + 7px)!important;margin:0!important;padding:8px!important;background:#fff!important;border:1px solid #dbe7e9!important;border-radius:13px!important;box-shadow:0 18px 42px rgba(21,55,62,.16)!important;flex-wrap:wrap!important;justify-content:flex-start!important}
+ .ceo-admin-nav.open,.ceo-admin-nav.ceo-mobile-open{display:flex!important}
+ .ceo-admin-nav .ceo-nav-home span,.ceo-admin-nav>.ceo-nav-group>.ceo-nav-trigger span{display:inline}
+ .ceo-admin-nav .ceo-nav-home,.ceo-admin-nav .ceo-nav-trigger{width:auto;justify-content:flex-start;padding:0 10px}
+ .ceo-nav-dropdown{position:fixed;left:12px;right:12px;top:auto;margin-top:3px;min-width:0}
+}
+/* produk.html originally places nav outside header; after JS moves it inside,
+   keep header capable of containing the dropdown without changing the hero. */
+.site-header,.topbar{position:relative}
