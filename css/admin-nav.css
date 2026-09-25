@@ -29,9 +29,24 @@
    keep header capable of containing the dropdown without changing the hero. */
 .site-header,.topbar{position:relative}
 
-/* ===== Shared admin page hero: isolated, no business logic ===== */
-.ceo-page-hero{width:min(1460px,calc(100% - 28px));margin:18px auto 14px;padding:18px 20px;border:1px solid #dce8ea;border-radius:18px;background:linear-gradient(135deg,#f7fcfc,#edf8f9);display:flex;align-items:center;justify-content:space-between;gap:18px;box-shadow:0 10px 28px rgba(20,60,68,.055)}
-.ceo-page-hero-copy{min-width:0}.ceo-page-hero .eyebrow{display:inline-flex;align-items:center;gap:7px;margin-bottom:7px;color:#1f747d;font-size:10px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}
-.ceo-page-hero h2{margin:0;color:#172b31;font-size:clamp(20px,2.1vw,29px);line-height:1.18}.ceo-page-hero p{margin:7px 0 0;color:#718087;font-size:11.5px;line-height:1.55;max-width:760px}
-.ceo-page-hero-icon{width:52px;height:52px;border-radius:15px;display:grid;place-items:center;flex:0 0 auto;background:#fff;color:#1f747d;border:1px solid #dce8ea;font-size:20px}
-@media(max-width:680px){.ceo-page-hero{width:calc(100% - 20px);margin:12px auto;padding:15px;border-radius:15px}.ceo-page-hero-icon{width:44px;height:44px}.ceo-page-hero h2{font-size:20px}.ceo-page-hero p{font-size:11px}}
+/* ===== Visual refinement v2 ===== */
+body.ceo-nav-on-teal .ceo-admin-nav .ceo-nav-home,
+body.ceo-nav-on-teal .ceo-admin-nav .ceo-nav-trigger{color:rgba(255,255,255,.88)}
+body.ceo-nav-on-teal .ceo-admin-nav .ceo-nav-home:hover,
+body.ceo-nav-on-teal .ceo-admin-nav .ceo-nav-trigger:hover,
+body.ceo-nav-on-teal .ceo-admin-nav .ceo-nav-group.open>.ceo-nav-trigger{background:rgba(255,255,255,.13);color:#fff}
+body.ceo-nav-on-teal .ceo-admin-nav .ceo-nav-home.active,
+body.ceo-nav-on-teal .ceo-admin-nav .ceo-nav-group.section-active>.ceo-nav-trigger{background:rgba(10,91,99,.42);color:#fff;box-shadow:0 6px 16px rgba(0,0,0,.12)}
+body.ceo-nav-on-teal .ceo-nav-mobile-toggle{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.25);color:#fff}
+
+/* One consistent page introduction across the five product-admin pages. */
+.ceo-product-page-hero{margin:18px auto 16px;padding:20px 22px;border:1px solid #dbe8ea;border-radius:18px;background:linear-gradient(135deg,#ffffff 0%,#f3fbfb 58%,#eaf8f9 100%);box-shadow:0 10px 28px rgba(22,61,69,.055);display:flex;align-items:center;justify-content:space-between;gap:18px}
+.ceo-product-page-hero .ceo-hero-copy{min-width:0}
+.ceo-product-page-hero .ceo-hero-kicker{display:inline-flex;align-items:center;gap:7px;margin-bottom:7px;color:#14727b;font-size:10px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}
+.ceo-product-page-hero h2{margin:0;color:#182d33;font-size:clamp(21px,2.1vw,29px);line-height:1.16}
+.ceo-product-page-hero p{margin:7px 0 0;color:#708087;font-size:11.5px;line-height:1.55;max-width:780px}
+.ceo-product-page-hero .ceo-hero-icon{width:54px;height:54px;border-radius:16px;display:grid;place-items:center;flex:0 0 auto;background:linear-gradient(135deg,#e8f7f8,#fff);border:1px solid #d7e8ea;color:#16818a;font-size:21px}
+@media(max-width:680px){.ceo-product-page-hero{margin:12px auto;padding:15px 16px;border-radius:15px}.ceo-product-page-hero .ceo-hero-icon{width:44px;height:44px;border-radius:13px;font-size:18px}.ceo-product-page-hero h2{font-size:20px}.ceo-product-page-hero p{font-size:11px}}
+
+.ceo-hero-action-row{display:flex;justify-content:flex-end;margin:-6px 0 14px}
+@media(max-width:680px){.ceo-hero-action-row{margin:-4px 0 12px}}
