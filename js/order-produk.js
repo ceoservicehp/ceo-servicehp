@@ -314,7 +314,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   setup();
   await loadCurrentAdminRole();
   await loadOrders();
-  $("year").textContent = new Date().getFullYear();
+  if($("year")) $("year").textContent = new Date().getFullYear();
 });
 
 async function loadCurrentAdminRole(){
@@ -378,28 +378,57 @@ function ensureRefreshButtonInPrimaryHero(){
 
 function setup(){
   const refreshBtn = ensureRefreshButtonInPrimaryHero();
-  if(refreshBtn) refreshBtn.onclick = loadOrders;
+  if(refreshBtn) refreshBtn.addEventListener("click", loadOrders);
+
   ["searchInput","orderDate","dateSort"].forEach(id => {
-    $(id).addEventListener(id === "searchInput" ? "input" : "change", () => { page = 1; clearOrderSelection(); applyFilters(); });
+    const el = $(id);
+    if(!el) return;
+    el.addEventListener(id === "searchInput" ? "input" : "change", () => {
+      page = 1;
+      clearOrderSelection();
+      applyFilters();
+    });
   });
+
   document.querySelectorAll(".shipping-tab").forEach(tab => {
     tab.addEventListener("click", () => {
       activeShippingTab = tab.dataset.shippingTab || "all";
       document.querySelectorAll(".shipping-tab").forEach(t => t.classList.toggle("active", t === tab));
-      page = 1; clearOrderSelection(); applyFilters();
+      page = 1;
+      clearOrderSelection();
+      applyFilters();
     });
   });
+
   $("resetOrderFilters")?.addEventListener("click", () => {
-    $("searchInput").value = "";
-    $("orderDate").value = ""; $("dateSort").value = "newest";
-    activeShippingTab = "all"; activeStatFilter = "all";
+    if($("searchInput")) $("searchInput").value = "";
+    if($("orderDate")) $("orderDate").value = "";
+    if($("dateSort")) $("dateSort").value = "newest";
+    activeShippingTab = "all";
+    activeStatFilter = "all";
     document.querySelectorAll(".shipping-tab").forEach(t => t.classList.toggle("active", t.dataset.shippingTab === "all"));
     document.querySelectorAll(".stat-filter-card").forEach(t => t.classList.toggle("active", t.dataset.statFilter === "all"));
-    page = 1; clearOrderSelection(); applyFilters();
+    page = 1;
+    clearOrderSelection();
+    applyFilters();
   });
 
-  $("prevPage").onclick = () => { if(page > 1){ page--; clearOrderSelection(); render(); } };
-  $("nextPage").onclick = () => { if(page < Math.max(1, Math.ceil(filtered.length / pageSize))){ page++; clearOrderSelection(); render(); } };
+  $("prevPage")?.addEventListener("click", () => {
+    if(page > 1){
+      page--;
+      clearOrderSelection();
+      render();
+    }
+  });
+
+  $("nextPage")?.addEventListener("click", () => {
+    if(page < Math.max(1, Math.ceil(filtered.length / pageSize))){
+      page++;
+      clearOrderSelection();
+      render();
+    }
+  });
+
   $("pageSizeSelect")?.addEventListener("change", e => {
     pageSize = Number(e.target.value) || 10;
     page = 1;
@@ -411,10 +440,12 @@ function setup(){
     document.querySelectorAll(".order-select").forEach(cb => {
       cb.checked = e.target.checked;
       const id = Number(cb.dataset.id);
-      if(e.target.checked) selectedOrderIds.add(id); else selectedOrderIds.delete(id);
+      if(e.target.checked) selectedOrderIds.add(id);
+      else selectedOrderIds.delete(id);
     });
     updateBulkSelectionUI();
   });
+
   $("deleteSelectedOrders")?.addEventListener("click", deleteSelectedOrders);
 
   document.querySelectorAll(".stat-filter-card").forEach(card => {
@@ -426,14 +457,30 @@ function setup(){
       applyFilters();
     };
     card.addEventListener("click", activate);
-    card.addEventListener("keydown", e => { if(e.key === "Enter" || e.key === " "){ e.preventDefault(); activate(); } });
+    card.addEventListener("keydown", e => {
+      if(e.key === "Enter" || e.key === " "){
+        e.preventDefault();
+        activate();
+      }
+    });
   });
 
-  $("closeModal").onclick = closeModal;
-  $("detailModal").onclick = e => { if(e.target === $("detailModal")) closeModal(); };
-  $("menuToggle").onclick = () => { $("topNav").classList.toggle("open"); $("navOverlay").classList.toggle("show"); };
-  $("navOverlay").onclick = () => { $("topNav").classList.remove("open"); $("navOverlay").classList.remove("show"); };
+  $("closeModal")?.addEventListener("click", closeModal);
+  $("detailModal")?.addEventListener("click", e => {
+    if(e.target === $("detailModal")) closeModal();
+  });
+
+  $("menuToggle")?.addEventListener("click", () => {
+    $("topNav")?.classList.toggle("open");
+    $("navOverlay")?.classList.toggle("show");
+  });
+
+  $("navOverlay")?.addEventListener("click", () => {
+    $("topNav")?.classList.remove("open");
+    $("navOverlay")?.classList.remove("show");
+  });
 }
+
 
 async function loadOrders(){
   $("orderTableBody").innerHTML = '<tr><td colspan="12" class="empty"><i class="fa-solid fa-spinner fa-spin"></i> Memuat order...</td></tr>';
@@ -1408,4 +1455,3 @@ function closeModal(){
   $("detailModal").setAttribute("aria-hidden", "true");
   document.body.classList.remove("modal-open");
 }
-
