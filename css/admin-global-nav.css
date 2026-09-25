@@ -1,0 +1,43 @@
+
+/* =========================================================
+   CEO GLOBAL ADMIN NAVIGATION
+   Isolated classes: .ceo-admin-global-*
+   Does not replace page business CSS or JS.
+   ========================================================= */
+.ceo-admin-global-nav{position:relative;z-index:80;background:#fff;border-bottom:1px solid #dce8ea;box-shadow:0 6px 20px rgba(19,54,61,.055);font-family:Inter,Arial,sans-serif}
+.ceo-admin-global-inner{width:min(1460px,calc(100% - 28px));margin:auto;min-height:54px;display:flex;align-items:center;gap:12px}
+.ceo-admin-global-home{display:flex;align-items:center;gap:8px;text-decoration:none;color:#1f6f78;font-size:10px;font-weight:900;letter-spacing:.04em;white-space:nowrap;padding-right:4px}
+.ceo-admin-global-home i{width:29px;height:29px;border-radius:9px;display:grid;place-items:center;background:#e9f7f8}
+.ceo-admin-global-scroll{display:flex;align-items:center;gap:5px;overflow-x:auto;scrollbar-width:none;flex:1;padding:7px 0}
+.ceo-admin-global-scroll::-webkit-scrollbar{display:none}
+.ceo-admin-global-item{position:relative;flex:0 0 auto}
+.ceo-admin-global-link,.ceo-admin-global-trigger{height:38px;border:0;background:transparent;border-radius:10px;padding:0 11px;display:flex;align-items:center;gap:7px;text-decoration:none;color:#60757b;font:800 10.5px/1 Inter,Arial,sans-serif;white-space:nowrap;cursor:pointer}
+.ceo-admin-global-link:hover,.ceo-admin-global-trigger:hover,.ceo-admin-global-item.open>.ceo-admin-global-trigger{background:#eef8f9;color:#1f6f78}
+.ceo-admin-global-link.active,.ceo-admin-global-trigger.active{background:linear-gradient(135deg,#1f6f78,#00aeb4);color:#fff;box-shadow:0 7px 16px rgba(31,111,120,.16)}
+.ceo-admin-global-trigger .chev{font-size:8px;margin-left:1px;transition:.18s}
+.ceo-admin-global-item.open .chev{transform:rotate(180deg)}
+.ceo-admin-global-menu{display:none;position:absolute;top:45px;left:0;min-width:218px;padding:7px;background:#fff;border:1px solid #dce8ea;border-radius:13px;box-shadow:0 18px 45px rgba(19,54,61,.15)}
+.ceo-admin-global-item.open>.ceo-admin-global-menu{display:grid}
+.ceo-admin-global-menu a{display:flex;align-items:center;gap:9px;padding:10px;border-radius:9px;text-decoration:none;color:#5c7076;font-size:10.5px;font-weight:750}
+.ceo-admin-global-menu a:hover,.ceo-admin-global-menu a.active{background:#eef8f9;color:#1f6f78}
+.ceo-admin-global-menu a i{width:17px;text-align:center}
+.ceo-admin-global-actions{display:flex;align-items:center;gap:5px;flex:0 0 auto}
+.ceo-admin-global-actions a,.ceo-admin-global-actions button{width:36px;height:36px;border:1px solid #dce8ea;background:#fff;border-radius:10px;display:grid;place-items:center;color:#60757b;text-decoration:none;cursor:pointer}
+.ceo-admin-global-actions a:hover{background:#eef8f9;color:#1f6f78}
+.ceo-admin-global-actions button:hover{background:#fff0f0;color:#c94b4b;border-color:#f0cccc}
+.ceo-admin-global-mobile-toggle{display:none;border:0;background:#eaf7f8;color:#1f6f78;width:38px;height:38px;border-radius:10px;cursor:pointer}
+@media(max-width:920px){
+ .ceo-admin-global-inner{width:calc(100% - 20px);min-height:52px}
+ .ceo-admin-global-home span{display:none}
+ .ceo-admin-global-menu{position:fixed;left:10px;right:10px;top:auto;min-width:0;margin-top:0}
+}
+@media(max-width:680px){
+ .ceo-admin-global-inner{flex-wrap:wrap;gap:5px;padding:7px 0}
+ .ceo-admin-global-home span{display:inline}
+ .ceo-admin-global-mobile-toggle{display:grid;place-items:center;margin-left:auto}
+ .ceo-admin-global-scroll{display:none;order:3;flex-basis:100%;padding:5px 0 2px}
+ .ceo-admin-global-nav.mobile-open .ceo-admin-global-scroll{display:flex}
+ .ceo-admin-global-actions{margin-left:2px}
+ .ceo-admin-global-link,.ceo-admin-global-trigger{height:36px;padding:0 10px;font-size:10px}
+ .ceo-admin-global-menu{top:106px;max-height:60vh;overflow:auto}
+}
