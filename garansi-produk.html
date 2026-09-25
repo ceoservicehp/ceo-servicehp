@@ -9,14 +9,13 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <link rel="stylesheet" href="css/garansi-produk.css">
+<link rel="stylesheet" href="css/nav-produk-admin.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/supabase.js"></script>
 <script src="js/auth.js"></script>
 <script src="js/role_guard.js"></script>
 <script defer src="js/garansi-produk.js"></script>
-<link rel="stylesheet" href="css/admin-nav.css">
-<script defer src="js/admin-nav-config.js"></script>
-<script defer src="js/admin-nav.js"></script>
+<script defer src="js/nav-produk-admin.js"></script>
 </head>
 <body>
 <header class="topbar">
@@ -25,20 +24,14 @@
 </header>
 
 <main class="container">
-  <section class="ceo-product-service-hero ceo-fullbleed">
-  <div class="ceo-product-service-hero-inner">
-    <div class="ceo-product-service-copy">
-      <span class="ceo-product-service-kicker"><i class="fa-solid fa-shield-halved"></i> After Sales Produk</span>
-      <h1>Monitoring <strong>Garansi Produk</strong></h1>
-      <p>Pantau masa garansi, lakukan pengecekan unit, dan kelola proses klaim garansi dari satu halaman admin.</p>
+  <section class="hero">
+    <div>
+      <span class="eyebrow"><i class="fa-solid fa-shield-halved"></i> AFTER SALES PRODUK</span>
+      <h2>Monitoring & Klaim Garansi</h2>
+      <p>Garansi ditetapkan dari Kelola Order Produk. Halaman ini digunakan admin untuk monitoring, pengecekan unit, dan proses klaim garansi.</p>
     </div>
-    <div class="ceo-product-service-side">
-      <div class="label">CEO PART & SERVICE</div>
-      <div class="value"><i class="fa-solid fa-shield-halved"></i><span>Garansi Produk</span></div>
-      <div class="hint">Monitoring & klaim</div>
-    </div>
-  </div>
-</section>
+    <button id="refreshAll" class="btn secondary"><i class="fa-solid fa-rotate"></i> Refresh Data</button>
+  </section>
 
   <nav class="tabs">
     <button class="tab active" data-tab="monitoring"><i class="fa-solid fa-shield"></i> Monitoring Garansi</button>

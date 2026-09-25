@@ -13,9 +13,8 @@
   <script src="js/supabase.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script defer src="js/keuangan-produk.js"></script>
-<link rel="stylesheet" href="css/admin-nav.css">
-<script defer src="js/admin-nav-config.js"></script>
-<script defer src="js/admin-nav.js"></script>
+  <link rel="stylesheet" href="css/nav-produk-admin.css">
+  <script defer src="js/nav-produk-admin.js"></script>
 </head>
 <body>
   <div class="app-shell">
@@ -34,20 +33,14 @@
     </header>
 
     <main class="container">
-      <section class="ceo-product-service-hero ceo-fullbleed">
-  <div class="ceo-product-service-hero-inner">
-    <div class="ceo-product-service-copy">
-      <span class="ceo-product-service-kicker"><i class="fa-solid fa-chart-line"></i> Keuangan Produk</span>
-      <h1>Ringkasan <strong>Keuangan Produk HP</strong></h1>
-      <p>Pantau omzet produk, modal, laba, uang masuk, dan piutang secara terpisah dari transaksi service.</p>
-    </div>
-    <div class="ceo-product-service-side">
-      <div class="label">CEO PART & SERVICE</div>
-      <div class="value"><i class="fa-solid fa-chart-line"></i><span>Laporan Produk</span></div>
-      <div class="hint">Keuangan penjualan HP</div>
-    </div>
-  </div>
-</section>
+      <section class="hero-card">
+        <div>
+          <span class="eyebrow">LAPORAN TERPISAH</span>
+          <h2>Ringkasan Keuangan Penjualan Produk HP</h2>
+          <p>Omzet produk, modal, laba kotor, uang masuk, dan piutang dihitung terpisah dari transaksi service.</p>
+        </div>
+        <button id="btnExport" class="btn btn-primary"><i class="fa-solid fa-file-excel"></i> Export Excel</button>
+      </section>
 
       <section class="filter-card">
         <div class="quick-filters">
