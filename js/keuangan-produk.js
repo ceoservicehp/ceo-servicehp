@@ -29,7 +29,8 @@ const norm = (s) => String(s || "").toLowerCase();
 const isCanceled = (o) => ["dibatalkan","gagal_dikirim"].includes(norm(o.order_status));
 const isPaidPayment = (p) => norm(p.payment_status) === "paid";
 const productRevenue = (o) => Math.max(0, Number(o.subtotal||0) - Number(o.discount||0));
-const itemCost = (item) => Number(item?.products?.cost_price ?? item?.cost_price ?? 0) * Number(item.quantity||0);
+const itemUnitCost = (item) => Number(item?.cost_price ?? item?.products?.cost_price ?? 0);
+const itemCost = (item) => itemUnitCost(item) * Number(item.quantity||0);
 const orderCost = (o) => (o.order_items||[]).reduce((a,i)=>a+itemCost(i),0);
 const paidAmount = (o) => (o.order_payments||[]).filter(isPaidPayment).reduce((a,p)=>a+Number(p.amount||0),0);
 const shippingFee = (o) => Number(o.shipping_fee || (o.order_shipments||[])[0]?.shipping_fee || 0);
@@ -312,10 +313,13 @@ function exportExcel(){
 function bindEvents(){
   document.querySelectorAll(".filter-btn").forEach(btn=>btn.addEventListener("click",()=>{document.querySelectorAll(".filter-btn").forEach(b=>b.classList.remove("active"));btn.classList.add("active");activeRange=btn.dataset.range;el("startDate").value="";el("endDate").value="";applyActiveRange()}));
   document.querySelectorAll(".tab-btn").forEach(btn=>btn.addEventListener("click",()=>{document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));btn.classList.add("active");currentTab=btn.dataset.tab;currentPage=1;renderTable()}));
-  el("btnApplyDate").addEventListener("click",applyCustomDate); el("btnReset").addEventListener("click",()=>{activeRange="all";customStart=null;customEnd=null;document.querySelectorAll(".filter-btn").forEach(b=>b.classList.toggle("active",b.dataset.range==="today"));el("startDate").value="";el("endDate").value="";applyActiveRange()});
-  el("searchInput").addEventListener("input",()=>{currentPage=1;renderTable()}); el("pageSize").addEventListener("change",()=>{pageSize=Number(el("pageSize").value);currentPage=1;renderTable()});
-  el("prevPage").addEventListener("click",()=>{if(currentPage>1){currentPage--;renderTable()}}); el("nextPage").addEventListener("click",()=>{currentPage++;renderTable()});
-  el("btnExport").addEventListener("click",exportExcel);
+  el("btnApplyDate")?.addEventListener("click",applyCustomDate);
+  el("btnReset")?.addEventListener("click",()=>{activeRange="all";customStart=null;customEnd=null;document.querySelectorAll(".filter-btn").forEach(b=>b.classList.toggle("active",b.dataset.range==="all"));if(el("startDate"))el("startDate").value="";if(el("endDate"))el("endDate").value="";applyActiveRange()});
+  el("searchInput")?.addEventListener("input",()=>{currentPage=1;renderTable()});
+  el("pageSize")?.addEventListener("change",()=>{pageSize=Number(el("pageSize")?.value||10);currentPage=1;renderTable()});
+  el("prevPage")?.addEventListener("click",()=>{if(currentPage>1){currentPage--;renderTable()}});
+  el("nextPage")?.addEventListener("click",()=>{const rows=currentTab==="payments"?getPaymentRows():getVisibleRows();const totalPages=Math.max(1,Math.ceil(rows.length/pageSize));if(currentPage<totalPages){currentPage++;renderTable()}});
+  el("btnExport")?.addEventListener("click",exportExcel);
   document.querySelectorAll("[data-summary-tab]").forEach(card=>{
     const go=()=>switchTab(card.dataset.summaryTab);
     card.addEventListener("click",go);
