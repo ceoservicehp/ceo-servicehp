@@ -1,6 +1,8 @@
 "use strict";
 (() => {
   const current=(location.pathname.split("/").pop()||"").toLowerCase();
+  const tealPages=["produk.html","keuangan-produk.html","garansi-produk.html"];
+  document.body.classList.toggle("ceo-nav-on-teal",tealPages.includes(current));
   const groups=window.CEO_ADMIN_NAV||[];
 
   function menuHTML(){
@@ -88,6 +90,5 @@
   });
 
   document.addEventListener("click",()=>closeGroups());
-  document.addEventListener("keydown",e=>{ if(e.key==="Escape"){ closeGroups(); nav.classList.remove("ceo-mobile-open"); } });
   nav.querySelectorAll(".ceo-nav-dropdown").forEach(d=>d.addEventListener("click",e=>e.stopPropagation()));
 })();
