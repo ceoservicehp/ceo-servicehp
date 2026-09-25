@@ -1,52 +1,56 @@
-/* CEO shared admin dropdown navigation.
-   Scoped to .ceo-admin-nav so page heroes/forms/business components stay untouched. */
-.ceo-admin-nav{display:flex!important;align-items:center!important;justify-content:flex-end!important;gap:5px!important;overflow:visible!important;background:transparent!important;border:0!important;box-shadow:none!important;padding:0!important;margin-left:auto!important;position:relative!important;z-index:90!important}
-.ceo-admin-nav .ceo-nav-home,.ceo-admin-nav .ceo-nav-trigger{height:40px;display:flex;align-items:center;gap:7px;border:0;border-radius:10px;padding:0 11px;background:transparent;color:#5e6d72;text-decoration:none;font:700 11px/1 Inter,Arial,sans-serif;white-space:nowrap;cursor:pointer}
-.ceo-admin-nav .ceo-nav-home:hover,.ceo-admin-nav .ceo-nav-trigger:hover,.ceo-admin-nav .ceo-nav-group.open>.ceo-nav-trigger{background:#edf7f8;color:#1f747d}
-.ceo-admin-nav .ceo-nav-home.active,.ceo-admin-nav .ceo-nav-group.section-active>.ceo-nav-trigger{background:linear-gradient(135deg,#1f747d,#169ba4);color:#fff;box-shadow:0 7px 16px rgba(31,116,125,.15)}
-.ceo-nav-group{position:relative}
-.ceo-nav-chevron{font-size:8px;transition:transform .18s ease}.ceo-nav-group.open .ceo-nav-chevron{transform:rotate(180deg)}
-.ceo-nav-dropdown{display:none;position:absolute;right:0;top:46px;min-width:220px;padding:7px;background:#fff;border:1px solid #dbe7e9;border-radius:13px;box-shadow:0 18px 42px rgba(21,55,62,.16);z-index:999}
+
+/* CEO ADMIN SHARED NAV + PRODUCT HERO
+   Scoped classes only. No business component selectors are modified. */
+.ceo-admin-nav{display:flex!important;align-items:center!important;justify-content:flex-end!important;gap:5px!important;margin-left:auto!important;padding:0!important;background:transparent!important;border:0!important;box-shadow:none!important;overflow:visible!important;position:relative!important;z-index:90!important}
+.ceo-admin-nav .ceo-nav-home,.ceo-admin-nav .ceo-nav-trigger{height:42px;display:flex;align-items:center;gap:7px;padding:0 12px;border:0;border-radius:11px;background:transparent;color:#5c6b70;text-decoration:none;font:800 11px/1 Inter,Arial,sans-serif;white-space:nowrap;cursor:pointer}
+.ceo-admin-nav .ceo-nav-home:hover,.ceo-admin-nav .ceo-nav-trigger:hover,.ceo-admin-nav .ceo-nav-group.open>.ceo-nav-trigger{background:#edf7f8;color:#16717a}
+.ceo-admin-nav .ceo-nav-group.section-active>.ceo-nav-trigger{background:#18858e;color:#fff;box-shadow:0 7px 16px rgba(24,133,142,.18)}
+.ceo-nav-group{position:relative}.ceo-nav-chevron{font-size:8px;transition:.18s}.ceo-nav-group.open .ceo-nav-chevron{transform:rotate(180deg)}
+.ceo-nav-dropdown{display:none;position:absolute;right:0;top:48px;min-width:225px;padding:7px;background:#fff;border:1px solid #dbe7e9;border-radius:13px;box-shadow:0 18px 42px rgba(20,53,60,.16);z-index:999}
 .ceo-nav-group.open>.ceo-nav-dropdown{display:grid}
-.ceo-nav-dropdown a{display:flex!important;align-items:center;gap:9px;padding:10px!important;border-radius:9px!important;text-decoration:none!important;color:#5e7177!important;background:transparent!important;font-size:11px!important;font-weight:700!important;box-shadow:none!important}
-.ceo-nav-dropdown a:hover,.ceo-nav-dropdown a.active{background:#edf7f8!important;color:#1f747d!important}
+.ceo-nav-dropdown a{display:flex!important;align-items:center;gap:9px;padding:10px!important;border-radius:9px!important;text-decoration:none!important;color:#5d7076!important;background:transparent!important;font-size:11px!important;font-weight:750!important;box-shadow:none!important}
+.ceo-nav-dropdown a:hover,.ceo-nav-dropdown a.active{background:#edf7f8!important;color:#16717a!important}
 .ceo-nav-dropdown a i{width:17px;text-align:center}
-.ceo-nav-mobile-toggle{display:none;width:39px;height:39px;border:1px solid #dbe7e9;border-radius:10px;background:#fff;color:#1f747d;place-items:center;cursor:pointer;margin-left:auto}
+.ceo-nav-mobile-toggle{display:none;width:40px;height:40px;border:1px solid #dbe7e9;border-radius:10px;background:#fff;color:#16717a;place-items:center;cursor:pointer;margin-left:auto}
+
+/* Dapur/Keuangan Service inspired hero */
+.ceo-product-service-hero{position:relative;overflow:hidden;background:linear-gradient(112deg,#174f57 0%,#176d75 48%,#08b7bd 100%);color:#fff;margin:0;padding:44px max(24px,calc((100vw - 1320px)/2));min-height:236px;display:flex;align-items:center}
+.ceo-product-service-hero:before,.ceo-product-service-hero:after{content:"";position:absolute;border:52px solid rgba(255,255,255,.055);border-radius:50%;pointer-events:none}
+.ceo-product-service-hero:before{width:260px;height:260px;left:-165px;top:-155px}
+.ceo-product-service-hero:after{width:360px;height:360px;right:-165px;bottom:-275px}
+.ceo-product-service-hero-inner{position:relative;z-index:1;width:100%;display:flex;align-items:center;justify-content:space-between;gap:28px}
+.ceo-product-service-copy{min-width:0;max-width:850px}
+.ceo-product-service-kicker{display:inline-flex;align-items:center;gap:7px;padding:6px 12px;border:1px solid rgba(255,255,255,.27);border-radius:999px;background:rgba(255,255,255,.09);font-size:10px;font-weight:900;letter-spacing:.045em;text-transform:uppercase}
+.ceo-product-service-hero h1{margin:15px 0 9px;font-size:clamp(31px,3.25vw,47px);line-height:1.08;letter-spacing:-.035em;color:#fff}
+.ceo-product-service-hero h1 strong{color:#7cf3f4;font-weight:800}
+.ceo-product-service-hero p{margin:0;max-width:760px;color:rgba(255,255,255,.88);font-size:13px;line-height:1.7}
+.ceo-product-service-side{width:250px;flex:0 0 250px;border:1px solid rgba(255,255,255,.23);border-radius:16px;padding:17px;background:rgba(255,255,255,.10);backdrop-filter:blur(4px)}
+.ceo-product-service-side .label{font-size:9px;font-weight:900;letter-spacing:.055em;text-transform:uppercase;color:rgba(255,255,255,.78)}
+.ceo-product-service-side .value{display:flex;align-items:center;gap:9px;margin-top:8px;font-size:16px;font-weight:850}
+.ceo-product-service-side .value i{width:31px;height:31px;border-radius:9px;display:grid;place-items:center;background:rgba(255,255,255,.14)}
+.ceo-product-service-side .hint{margin-top:7px;font-size:10px;color:rgba(255,255,255,.72);line-height:1.45}
+
+/* Product pages can have different native container widths. This hero intentionally spans full viewport. */
+.ceo-product-service-hero.ceo-fullbleed{width:100vw;margin-left:calc(50% - 50vw);margin-right:calc(50% - 50vw)}
+
 @media(max-width:900px){
  .ceo-admin-nav .ceo-nav-home span,.ceo-admin-nav>.ceo-nav-group>.ceo-nav-trigger span{display:none}
  .ceo-admin-nav .ceo-nav-home,.ceo-admin-nav .ceo-nav-trigger{width:40px;justify-content:center;padding:0}
  .ceo-admin-nav .ceo-nav-dropdown span{display:inline!important}
+ .ceo-product-service-hero{padding-top:34px;padding-bottom:34px;min-height:210px}
+ .ceo-product-service-side{width:205px;flex-basis:205px}
 }
 @media(max-width:680px){
  .ceo-nav-mobile-toggle{display:grid}
- .ceo-admin-nav{display:none!important;position:absolute!important;left:12px!important;right:12px!important;top:calc(100% + 7px)!important;margin:0!important;padding:8px!important;background:#fff!important;border:1px solid #dbe7e9!important;border-radius:13px!important;box-shadow:0 18px 42px rgba(21,55,62,.16)!important;flex-wrap:wrap!important;justify-content:flex-start!important}
+ .ceo-admin-nav{display:none!important;position:absolute!important;left:10px!important;right:10px!important;top:calc(100% + 6px)!important;margin:0!important;padding:8px!important;background:#fff!important;border:1px solid #dbe7e9!important;border-radius:13px!important;box-shadow:0 18px 42px rgba(20,53,60,.16)!important;flex-wrap:wrap!important;justify-content:flex-start!important}
  .ceo-admin-nav.open,.ceo-admin-nav.ceo-mobile-open{display:flex!important}
  .ceo-admin-nav .ceo-nav-home span,.ceo-admin-nav>.ceo-nav-group>.ceo-nav-trigger span{display:inline}
  .ceo-admin-nav .ceo-nav-home,.ceo-admin-nav .ceo-nav-trigger{width:auto;justify-content:flex-start;padding:0 10px}
- .ceo-nav-dropdown{position:fixed;left:12px;right:12px;top:auto;margin-top:3px;min-width:0}
+ .ceo-nav-dropdown{position:fixed;left:10px;right:10px;top:auto;min-width:0}
+ .ceo-product-service-hero{padding:27px 18px;min-height:0}
+ .ceo-product-service-hero-inner{display:block}
+ .ceo-product-service-hero h1{font-size:29px}
+ .ceo-product-service-hero p{font-size:12px}
+ .ceo-product-service-side{width:100%;margin-top:20px}
 }
-/* produk.html originally places nav outside header; after JS moves it inside,
-   keep header capable of containing the dropdown without changing the hero. */
-.site-header,.topbar{position:relative}
-
-/* ===== Visual refinement v2 ===== */
-body.ceo-nav-on-teal .ceo-admin-nav .ceo-nav-home,
-body.ceo-nav-on-teal .ceo-admin-nav .ceo-nav-trigger{color:rgba(255,255,255,.88)}
-body.ceo-nav-on-teal .ceo-admin-nav .ceo-nav-home:hover,
-body.ceo-nav-on-teal .ceo-admin-nav .ceo-nav-trigger:hover,
-body.ceo-nav-on-teal .ceo-admin-nav .ceo-nav-group.open>.ceo-nav-trigger{background:rgba(255,255,255,.13);color:#fff}
-body.ceo-nav-on-teal .ceo-admin-nav .ceo-nav-home.active,
-body.ceo-nav-on-teal .ceo-admin-nav .ceo-nav-group.section-active>.ceo-nav-trigger{background:rgba(10,91,99,.42);color:#fff;box-shadow:0 6px 16px rgba(0,0,0,.12)}
-body.ceo-nav-on-teal .ceo-nav-mobile-toggle{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.25);color:#fff}
-
-/* One consistent page introduction across the five product-admin pages. */
-.ceo-product-page-hero{margin:18px auto 16px;padding:20px 22px;border:1px solid #dbe8ea;border-radius:18px;background:linear-gradient(135deg,#ffffff 0%,#f3fbfb 58%,#eaf8f9 100%);box-shadow:0 10px 28px rgba(22,61,69,.055);display:flex;align-items:center;justify-content:space-between;gap:18px}
-.ceo-product-page-hero .ceo-hero-copy{min-width:0}
-.ceo-product-page-hero .ceo-hero-kicker{display:inline-flex;align-items:center;gap:7px;margin-bottom:7px;color:#14727b;font-size:10px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}
-.ceo-product-page-hero h2{margin:0;color:#182d33;font-size:clamp(21px,2.1vw,29px);line-height:1.16}
-.ceo-product-page-hero p{margin:7px 0 0;color:#708087;font-size:11.5px;line-height:1.55;max-width:780px}
-.ceo-product-page-hero .ceo-hero-icon{width:54px;height:54px;border-radius:16px;display:grid;place-items:center;flex:0 0 auto;background:linear-gradient(135deg,#e8f7f8,#fff);border:1px solid #d7e8ea;color:#16818a;font-size:21px}
-@media(max-width:680px){.ceo-product-page-hero{margin:12px auto;padding:15px 16px;border-radius:15px}.ceo-product-page-hero .ceo-hero-icon{width:44px;height:44px;border-radius:13px;font-size:18px}.ceo-product-page-hero h2{font-size:20px}.ceo-product-page-hero p{font-size:11px}}
-
-.ceo-hero-action-row{display:flex;justify-content:flex-end;margin:-6px 0 14px}
-@media(max-width:680px){.ceo-hero-action-row{margin:-4px 0 12px}}
+header,.site-header,.topbar{position:relative}
