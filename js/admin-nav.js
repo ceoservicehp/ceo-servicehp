@@ -1,59 +1,48 @@
 "use strict";
 (() => {
   const current=(location.pathname.split("/").pop()||"").toLowerCase();
-  const tealPages=["produk.html","keuangan-produk.html","garansi-produk.html"];
-  document.body.classList.toggle("ceo-nav-on-teal",tealPages.includes(current));
   const groups=window.CEO_ADMIN_NAV||[];
 
-  function menuHTML(){
+  function html(){
     return `
-      <a class="ceo-nav-home ${current==="dapur.html"?"active":""}" href="dapur.html" title="Panel Admin">
+      <a class="ceo-nav-home" href="index.html">
         <i class="fa-solid fa-house"></i><span>Beranda</span>
       </a>
       ${groups.map((g,idx)=>`
         <div class="ceo-nav-group ${g.pages.includes(current)?"section-active":""}" data-ceo-group="${idx}">
           <button class="ceo-nav-trigger" type="button" aria-expanded="false">
-            <i class="fa-solid ${g.icon}"></i><span>${g.label}</span><i class="fa-solid fa-chevron-down ceo-nav-chevron"></i>
+            <i class="fa-solid ${g.icon}"></i><span>${g.label}</span>
+            <i class="fa-solid fa-chevron-down ceo-nav-chevron"></i>
           </button>
           <div class="ceo-nav-dropdown">
             ${g.items.map(i=>`<a href="${i.href}" class="${current===i.href?"active":""}" ${i.external?'target="_blank" rel="noopener"':""}>
               <i class="fa-solid ${i.icon}"></i><span>${i.label}</span>
             </a>`).join("")}
           </div>
-        </div>`).join("")}
-    `;
+        </div>`).join("")}`;
   }
 
-  function getOrCreateNav(){
-    // Reuse the page's own navbar whenever it exists.
-    let nav=document.querySelector("header .top-nav, header nav#topNav, header nav.top-nav");
-    if(!nav){
-      // produk.html keeps its original navbar immediately after the header.
-      const outside=document.querySelector("body > nav.top-nav");
-      if(outside){
-        nav=outside;
-        const header=document.querySelector("header");
-        if(header) header.appendChild(nav);
-      }
-    }
-    if(!nav){
-      // Pages such as keuangan-produk/histori/garansi use a compact topbar.
+  let nav=document.querySelector("header .top-nav, header nav#topNav, header nav.top-nav");
+  if(!nav){
+    const outside=document.querySelector("body > nav.top-nav");
+    if(outside){
+      nav=outside;
       const header=document.querySelector("header");
-      if(!header) return null;
-      nav=document.createElement("nav");
-      header.appendChild(nav);
+      if(header) header.appendChild(nav);
     }
-    nav.id="topNav";
-    nav.classList.add("ceo-admin-nav");
-    nav.setAttribute("aria-label","Navigasi admin CEO");
-    nav.innerHTML=menuHTML();
-    return nav;
+  }
+  if(!nav){
+    const header=document.querySelector("header");
+    if(!header) return;
+    nav=document.createElement("nav");
+    header.appendChild(nav);
   }
 
-  const nav=getOrCreateNav();
-  if(!nav) return;
+  nav.id="topNav";
+  nav.classList.add("ceo-admin-nav");
+  nav.setAttribute("aria-label","Navigasi admin CEO");
+  nav.innerHTML=html();
 
-  // Ensure compact-header pages also have a hamburger, without creating a second header.
   let toggle=document.getElementById("menuToggle");
   if(!toggle){
     toggle=document.createElement("button");
@@ -65,30 +54,28 @@
     nav.parentElement?.insertBefore(toggle,nav);
   }
 
-  // Existing pages may already control #menuToggle/#topNav. This listener only
-  // guarantees behavior on pages that did not previously have navigation JS.
   toggle.addEventListener("click",()=>nav.classList.toggle("ceo-mobile-open"));
 
-  const closeGroups=(except=null)=>{
-    nav.querySelectorAll(".ceo-nav-group.open").forEach(g=>{
-      if(g!==except){
-        g.classList.remove("open");
-        g.querySelector(".ceo-nav-trigger")?.setAttribute("aria-expanded","false");
-      }
-    });
-  };
+  const close=(except=null)=>nav.querySelectorAll(".ceo-nav-group.open").forEach(g=>{
+    if(g!==except){
+      g.classList.remove("open");
+      g.querySelector(".ceo-nav-trigger")?.setAttribute("aria-expanded","false");
+    }
+  });
 
   nav.querySelectorAll(".ceo-nav-trigger").forEach(btn=>{
     btn.addEventListener("click",e=>{
       e.preventDefault(); e.stopPropagation();
       const group=btn.closest(".ceo-nav-group");
-      const opening=!group.classList.contains("open");
-      closeGroups(group);
-      group.classList.toggle("open",opening);
-      btn.setAttribute("aria-expanded",opening?"true":"false");
+      const open=!group.classList.contains("open");
+      close(group);
+      group.classList.toggle("open",open);
+      btn.setAttribute("aria-expanded",open?"true":"false");
     });
   });
-
-  document.addEventListener("click",()=>closeGroups());
-  nav.querySelectorAll(".ceo-nav-dropdown").forEach(d=>d.addEventListener("click",e=>e.stopPropagation()));
+  nav.querySelectorAll(".ceo-nav-dropdown").forEach(x=>x.addEventListener("click",e=>e.stopPropagation()));
+  document.addEventListener("click",()=>close());
+  document.addEventListener("keydown",e=>{
+    if(e.key==="Escape"){ close(); nav.classList.remove("ceo-mobile-open"); }
+  });
 })();

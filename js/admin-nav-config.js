@@ -3,7 +3,7 @@ window.CEO_ADMIN_NAV = [
     label:"Service", icon:"fa-screwdriver-wrench",
     pages:["dapur.html","keuangan.html"],
     items:[
-      {href:"dapur.html", label:"Order Service", icon:"fa-kitchen-set"},
+      {href:"dapur.html", label:"Dapur / Order Service", icon:"fa-kitchen-set"},
       {href:"keuangan.html", label:"Keuangan Service", icon:"fa-wallet"}
     ]
   },
