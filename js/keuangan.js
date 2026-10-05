@@ -73,6 +73,25 @@ const isOperationalExpense = row => {
 };
 
 
+function updateSpecialExpenseSummary(){
+    const sparepartRows = filteredExpenseData.filter(isSparepartExpense);
+    const operationalRows = filteredExpenseData.filter(isOperationalExpense);
+
+    const sparepartTotal = sparepartRows.reduce((sum,row)=>sum + Number(row.amount || 0), 0);
+    const operationalTotal = operationalRows.reduce((sum,row)=>sum + Number(row.amount || 0), 0);
+
+    const sparepartTotalEl = document.getElementById("sparepartTotalAmount");
+    const sparepartCountEl = document.getElementById("sparepartTransactionCount");
+    const operationalTotalEl = document.getElementById("operationalTotalAmount");
+    const operationalCountEl = document.getElementById("operationalTransactionCount");
+
+    if(sparepartTotalEl) sparepartTotalEl.textContent = rupiah(sparepartTotal);
+    if(sparepartCountEl) sparepartCountEl.textContent = `${sparepartRows.length} Transaksi`;
+    if(operationalTotalEl) operationalTotalEl.textContent = rupiah(operationalTotal);
+    if(operationalCountEl) operationalCountEl.textContent = `${operationalRows.length} Transaksi`;
+}
+
+
 let currentPage = 1;
 let pageSize = 10;
 let totalRows = 0;
@@ -449,6 +468,7 @@ async function loadFinance(){
     if(expenseError) console.error("Gagal mengambil pengeluaran:", expenseError);
     filteredExpenseData = fullExpense || [];
     expenseData = filteredExpenseData.slice(start, start + pageSize);
+    updateSpecialExpenseSummary();
 
     // Kasbon tetap berasal dari expenses. Tabel menampilkan setiap transaksi.
     fullKasbonData = filteredExpenseData.filter(row => {
