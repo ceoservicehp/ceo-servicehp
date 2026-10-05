@@ -14,7 +14,7 @@
 <script src="js/supabase.js"></script>
 <script src="js/auth.js"></script>
 <script src="js/role_guard.js"></script>
-<script defer src="js/keuangan.js"></script>
+<script defer src="js/keuangan.js?v=20261005-expense-tabs1"></script>
 </head>
 <body>
 <div class="app-shell">
@@ -126,6 +126,8 @@
         <div class="tabs" role="tablist">
           <button class="tab active" data-tab="income"><i class="fa-solid fa-arrow-trend-up"></i> Pemasukan</button>
           <button class="tab" data-tab="expense"><i class="fa-solid fa-receipt"></i> Pengeluaran</button>
+          <button class="tab" data-tab="sparepart"><i class="fa-solid fa-microchip"></i> Beli Sparepart</button>
+          <button class="tab" data-tab="operational"><i class="fa-solid fa-gears"></i> Operasional</button>
           <button class="tab" data-tab="kasbon"><i class="fa-solid fa-hand-holding-dollar"></i> Kasbon</button>
           <button class="tab" data-tab="debt"><i class="fa-solid fa-hand-holding-dollar"></i> Piutang</button>
           <button class="tab" data-tab="laptop"><i class="fa-solid fa-laptop"></i> Laptop & Drone</button>
@@ -155,6 +157,18 @@
             <table class="admin-table"><thead><tr>
               <th>No</th><th>Judul</th><th>Kategori</th><th>Penerima</th><th>Harga</th><th>Qty</th><th>Total</th><th>Catatan</th><th>Tanggal</th>
             </tr></thead><tbody id="expenseTable"><tr><td colspan="9">Memuat data...</td></tr></tbody></table>
+          </div>
+
+          <div id="sparepartTableWrapper" class="table-wrapper" style="display:none;">
+            <table class="admin-table"><thead><tr>
+              <th>No</th><th>Tanggal</th><th>Sparepart / Barang</th><th>Harga Satuan</th><th>Qty</th><th>Total</th><th>Catatan</th>
+            </tr></thead><tbody id="sparepartExpenseTable"><tr><td colspan="7">Memuat pembelian sparepart...</td></tr></tbody></table>
+          </div>
+
+          <div id="operationalTableWrapper" class="table-wrapper" style="display:none;">
+            <table class="admin-table"><thead><tr>
+              <th>No</th><th>Tanggal</th><th>Keperluan</th><th>Kategori</th><th>Harga</th><th>Qty</th><th>Total</th><th>Catatan</th>
+            </tr></thead><tbody id="operationalExpenseTable"><tr><td colspan="8">Memuat biaya operasional...</td></tr></tbody></table>
           </div>
 
           <div id="kasbonTableWrapper" class="kasbon-section" style="display:none;">
