@@ -14,7 +14,16 @@
 <script src="js/supabase.js"></script>
 <script src="js/auth.js"></script>
 <script src="js/role_guard.js"></script>
-<script defer src="js/keuangan.js?v=20261005-expense-tabs1"></script>
+<script defer src="keuangan.js?v=20261005-expense-summary1"></script>
+
+  <style>
+    .expense-special-summary{margin:0 0 18px;}
+    .expense-special-summary .ujang-summary-card{min-height:96px;}
+    @media (max-width:700px){
+      .expense-special-summary{grid-template-columns:1fr !important;}
+    }
+  </style>
+
 </head>
 <body>
 <div class="app-shell">
@@ -160,12 +169,32 @@
           </div>
 
           <div id="sparepartTableWrapper" class="table-wrapper" style="display:none;">
+            <div class="kasbon-summary-grid kasbon-summary-grid-two expense-special-summary">
+              <div class="ujang-summary-card kasbon-summary-card">
+                <div class="ujang-card-icon"><i class="fa-solid fa-microchip"></i></div>
+                <div><span>Total Beli Sparepart</span><strong id="sparepartTotalAmount">Rp 0</strong><small>Sesuai periode/filter yang aktif</small></div>
+              </div>
+              <div class="ujang-summary-card kasbon-summary-card">
+                <div class="ujang-card-icon"><i class="fa-solid fa-receipt"></i></div>
+                <div><span>Jumlah Transaksi</span><strong id="sparepartTransactionCount">0 Transaksi</strong><small>Jumlah pembelian sparepart pada periode ini</small></div>
+              </div>
+            </div>
             <table class="admin-table"><thead><tr>
               <th>No</th><th>Tanggal</th><th>Sparepart / Barang</th><th>Harga Satuan</th><th>Qty</th><th>Total</th><th>Catatan</th>
             </tr></thead><tbody id="sparepartExpenseTable"><tr><td colspan="7">Memuat pembelian sparepart...</td></tr></tbody></table>
           </div>
 
           <div id="operationalTableWrapper" class="table-wrapper" style="display:none;">
+            <div class="kasbon-summary-grid kasbon-summary-grid-two expense-special-summary">
+              <div class="ujang-summary-card kasbon-summary-card">
+                <div class="ujang-card-icon"><i class="fa-solid fa-gears"></i></div>
+                <div><span>Total Operasional</span><strong id="operationalTotalAmount">Rp 0</strong><small>Sesuai periode/filter yang aktif</small></div>
+              </div>
+              <div class="ujang-summary-card kasbon-summary-card">
+                <div class="ujang-card-icon"><i class="fa-solid fa-receipt"></i></div>
+                <div><span>Jumlah Transaksi</span><strong id="operationalTransactionCount">0 Transaksi</strong><small>Jumlah biaya operasional pada periode ini</small></div>
+              </div>
+            </div>
             <table class="admin-table"><thead><tr>
               <th>No</th><th>Tanggal</th><th>Keperluan</th><th>Kategori</th><th>Harga</th><th>Qty</th><th>Total</th><th>Catatan</th>
             </tr></thead><tbody id="operationalExpenseTable"><tr><td colspan="8">Memuat biaya operasional...</td></tr></tbody></table>
