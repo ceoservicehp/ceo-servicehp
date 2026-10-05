@@ -61,6 +61,18 @@ let summaryExpenseData = [];
 let filteredIncomeData = [];
 let filteredExpenseData = [];
 
+/* Tab rekap khusus dari tabel expenses. Tidak menambah pengeluaran baru / tidak double count. */
+const normalizeExpenseCategory = value => String(value || "").trim().toLowerCase();
+const isSparepartExpense = row => {
+    const c = normalizeExpenseCategory(row?.category);
+    return c === "beli sparepart" || c === "sparepart" || c === "pembelian sparepart";
+};
+const isOperationalExpense = row => {
+    const c = normalizeExpenseCategory(row?.category);
+    return c === "operasional" || c === "operational";
+};
+
+
 let currentPage = 1;
 let pageSize = 10;
 let totalRows = 0;
@@ -452,6 +464,8 @@ async function loadFinance(){
 
     if(currentTab === "income") totalRows = hpRows.length;
     else if(currentTab === "expense") totalRows = filteredExpenseData.length;
+    else if(currentTab === "sparepart") totalRows = filteredExpenseData.filter(isSparepartExpense).length;
+    else if(currentTab === "operational") totalRows = filteredExpenseData.filter(isOperationalExpense).length;
     else if(currentTab === "kasbon") totalRows = filteredKasbonView.length;
     else if(currentTab === "debt"){
         totalRows = hpDebt.length;
@@ -641,6 +655,8 @@ function renderByTab(income = incomeData, expense = expenseData, laptop = laptop
 
     const incomeWrapper = document.getElementById("incomeTableWrapper");
     const expenseWrapper = document.getElementById("expenseTableWrapper");
+    const sparepartWrapper = document.getElementById("sparepartTableWrapper");
+    const operationalWrapper = document.getElementById("operationalTableWrapper");
     const debtWrapper = document.getElementById("debtTableWrapper");
     const kasbonWrapper = document.getElementById("kasbonTableWrapper");
     const laptopWrapper = document.getElementById("laptopTableWrapper");
@@ -648,6 +664,8 @@ function renderByTab(income = incomeData, expense = expenseData, laptop = laptop
 
     if(incomeWrapper) incomeWrapper.style.display = "none";
     if(expenseWrapper) expenseWrapper.style.display = "none";
+    if(sparepartWrapper) sparepartWrapper.style.display = "none";
+    if(operationalWrapper) operationalWrapper.style.display = "none";
     if(debtWrapper) debtWrapper.style.display = "none";
     if(kasbonWrapper) kasbonWrapper.style.display = "none";
     if(laptopWrapper) laptopWrapper.style.display = "none";
@@ -756,6 +774,59 @@ function renderByTab(income = incomeData, expense = expenseData, laptop = laptop
     });
     }
 
+
+    /* ================= BELI SPAREPART ================= */
+    else if(currentTab === "sparepart"){
+        if(sparepartWrapper) sparepartWrapper.style.display = "block";
+        const tbody = document.getElementById("sparepartExpenseTable");
+        if(!tbody) return;
+        tbody.innerHTML = "";
+        const allRows = filteredExpenseData.filter(isSparepartExpense);
+        const start = (currentPage - 1) * pageSize;
+        const rows = allRows.slice(start, start + pageSize);
+        if(!rows.length){
+            tbody.innerHTML = `<tr><td colspan="7">Belum ada pembelian sparepart pada periode ini. Catat melalui Tambah Pengeluaran dengan kategori Beli Sparepart.</td></tr>`;
+        } else {
+            rows.forEach((row,i)=>{
+                tbody.innerHTML += `<tr>
+                    <td>${start+i+1}</td>
+                    <td>${row.created_at ? new Date(row.created_at).toLocaleDateString("id-ID") : "-"}</td>
+                    <td><strong>${row.title || "-"}</strong></td>
+                    <td>${rupiah(row.price || 0)}</td>
+                    <td>${row.qty || 1}</td>
+                    <td style="color:#e74c3c;font-weight:700;">${rupiah(row.amount || 0)}</td>
+                    <td>${row.notes || "-"}</td>
+                </tr>`;
+            });
+        }
+    }
+
+    /* ================= OPERASIONAL ================= */
+    else if(currentTab === "operational"){
+        if(operationalWrapper) operationalWrapper.style.display = "block";
+        const tbody = document.getElementById("operationalExpenseTable");
+        if(!tbody) return;
+        tbody.innerHTML = "";
+        const allRows = filteredExpenseData.filter(isOperationalExpense);
+        const start = (currentPage - 1) * pageSize;
+        const rows = allRows.slice(start, start + pageSize);
+        if(!rows.length){
+            tbody.innerHTML = `<tr><td colspan="8">Belum ada biaya operasional pada periode ini. Catat melalui Tambah Pengeluaran dengan kategori Operasional.</td></tr>`;
+        } else {
+            rows.forEach((row,i)=>{
+                tbody.innerHTML += `<tr>
+                    <td>${start+i+1}</td>
+                    <td>${row.created_at ? new Date(row.created_at).toLocaleDateString("id-ID") : "-"}</td>
+                    <td><strong>${row.title || "-"}</strong></td>
+                    <td>${row.category || "Operasional"}</td>
+                    <td>${rupiah(row.price || 0)}</td>
+                    <td>${row.qty || 1}</td>
+                    <td style="color:#e74c3c;font-weight:700;">${rupiah(row.amount || 0)}</td>
+                    <td>${row.notes || "-"}</td>
+                </tr>`;
+            });
+        }
+    }
 
     /* ================= KASBON ================= */
     else if(currentTab === "kasbon"){
@@ -1278,6 +1349,17 @@ const exportExpense = isFilterActive
         });
 
         fileName = "laporan_pengeluaran.csv";
+    }
+
+    else if(currentTab==="sparepart" || currentTab==="operational"){
+        const source = exportExpense.filter(currentTab === "sparepart" ? isSparepartExpense : isOperationalExpense);
+        rows.push(["No","Tanggal","Judul / Keperluan","Kategori","Harga Satuan","Qty","Total","Catatan"]);
+        source.forEach((o,i)=>rows.push([
+            i+1,
+            o.created_at ? new Date(o.created_at).toLocaleDateString("id-ID") : "-",
+            o.title || "-", o.category || "-", Number(o.price||0), Number(o.qty||1), Number(o.amount||0), o.notes || "-"
+        ]));
+        fileName = currentTab === "sparepart" ? "laporan_beli_sparepart.csv" : "laporan_operasional.csv";
     }
 
     else if(currentTab==="debt"){
